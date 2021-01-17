@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">SurBay</string>
+    <string name="progress">50/100</string>
+    <string name="date_format">yyyy-MM-dd\'T\'hh:mm:ss.SSS</string>
+</resources>

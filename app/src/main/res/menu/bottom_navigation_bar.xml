@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/action_home"
+        android:enabled="true"
+        android:icon="@drawable/ic_home"
+        android:title="홈"/>
+
+    <item
+        android:id="@+id/action_boards"
+        android:enabled="true"
+        android:icon="@drawable/ic_baseline_apps_24"
+        android:iconTint="@color/black"
+        android:title="게시판"/>
+
+    <item
+        android:id="@+id/action_mypage"
+        android:enabled="true"
+        android:icon="@drawable/ic_user__2_"
+        android:title="마이"/>
+</menu>
