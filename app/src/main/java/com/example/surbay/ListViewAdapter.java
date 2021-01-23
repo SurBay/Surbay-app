@@ -46,17 +46,31 @@ public class ListViewAdapter extends BaseAdapter {
         TextView titleTextView = (TextView) convertView.findViewById(R.id.title);
         TextView contentTextView = (TextView) convertView.findViewById(R.id.content);
         TextView dateTextView = (TextView) convertView.findViewById(R.id.date);
-        TextView authorLvlTextView = (TextView) convertView.findViewById(R.id.level);
+        TextView authornameTextView = (TextView) convertView.findViewById(R.id.level);
         TextView participantsTextView = (TextView) convertView.findViewById(R.id.participants);
         TextView goalParticipantsTextView = (TextView) convertView.findViewById(R.id.goal_participants);
         ImageView withPrizeView = (ImageView) convertView.findViewById(R.id.with_prize);
         TextView DoneView = (TextView) convertView.findViewById(R.id.done);
+        TextView ddayView = (TextView) convertView.findViewById(R.id.dday);
 
         // Data Set(listViewItemList)에서 position에 위치한 데이터 참조 획득
         SimpleDateFormat fm = new SimpleDateFormat("MM.dd");
         Post post = listViewItemList.get(position);
         String date = fm.format(post.getDate());
         String deadline = fm.format(post.getDeadline());
+        int dday = calc_dday(post.getDeadline());
+
+        if (dday>2){
+            ddayView.setVisibility(View.INVISIBLE);
+        } else {
+            ddayView.setVisibility(View.VISIBLE);
+            if (dday == 0){
+                ddayView.setText("D-Day");
+            } else {
+                dday += 1;
+                ddayView.setText("D-"+dday);
+            }
+        }
 
         if(!post.isWith_prize()){
             withPrizeView.setVisibility(View.INVISIBLE);
@@ -64,9 +78,12 @@ public class ListViewAdapter extends BaseAdapter {
         titleTextView.setText(post.getTitle());
         contentTextView.setText(post.getContent());
         dateTextView.setText(date+"~"+deadline);
-        authorLvlTextView.setText("LV " + post.getAuthor_lvl());
-        participantsTextView.setText("" + post.getParticipants());
-        goalParticipantsTextView.setText( "/" + post.getGoal_participants());
+
+
+
+        authornameTextView.setText(post.getAuthor());
+        participantsTextView.setText(post.getParticipants().toString());
+        goalParticipantsTextView.setText(post.getGoal_participants().toString());
 
         return convertView;
     }
@@ -92,5 +109,15 @@ public class ListViewAdapter extends BaseAdapter {
     public void updateParticipants(int position, int participants){
         Post item = (Post) getItem(position);
         item.setParticipants(participants);
+    }
+
+    public int calc_dday(Date goal){
+        Date dt = new Date();
+        SimpleDateFormat full_sdf = new SimpleDateFormat("yyyy-MM.dd");
+
+        long diff = (goal.getTime() - dt.getTime()) / (24*60*60*1000);
+        int dday = (int)Math.abs(diff);
+
+        return dday;
     }
 }

@@ -3,7 +3,9 @@ package com.example.surbay;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -40,10 +42,18 @@ import java.util.Comparator;
 import java.util.Date;
 
 import static androidx.core.app.ActivityCompat.startActivityForResult;
+import static com.example.surbay.BoardFragment1.frag1datesortbutton;
+import static com.example.surbay.BoardFragment1.frag1goalsortbutton;
+import static com.example.surbay.BoardFragment1.frag1newsortbutton;
+import static com.example.surbay.BoardFragment1.listView;
+import static com.example.surbay.BoardFragment1.listViewAdapter;
 
 public class HomeFragment extends Fragment // Fragment 클래스를 상속받아야한다
 {
     private Integer DO_SURVEY = 2;
+    private static final int NEW = 1;
+    private static final int GOAL = 2;
+    private static final int DEADLINE= 3;
 
     private static View view;
     private static RecyclerView recyclerView;
@@ -64,6 +74,9 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
     private static Comparator<Post> cmpDeadline;
     private static Comparator<Post> cmpNew;
     private static Comparator<Post> cmpGoal;
+
+    private BoardFragment1 boardFragment1;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
@@ -185,9 +198,9 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
         date_sort_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                OnRefrech(DEADLINE);
                 BottomNavigationView bottomNavigationView = (BottomNavigationView) getActivity().findViewById(R.id.bottomNavi);
                 bottomNavigationView.setSelectedItemId(R.id.action_boards);
-                MainActivity.SORT = BoardsFragment.DEADLINE;
 //                if(BoardsFragment.adapter!=null) {
 //                    BoardsFragment.adapter.notifyDataSetChanged();
 //                    BoardsFragment.viewPager.setAdapter(null);
@@ -199,9 +212,9 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
         goal_sort_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                OnRefrech(GOAL);
                 BottomNavigationView bottomNavigationView = (BottomNavigationView) getActivity().findViewById(R.id.bottomNavi);
                 bottomNavigationView.setSelectedItemId(R.id.action_boards);
-                MainActivity.SORT = BoardsFragment.GOAL;
 //                if(BoardsFragment.adapter!=null) {
 //                    BoardsFragment.adapter.notifyDataSetChanged();
 //                    BoardsFragment.viewPager.setAdapter(null);
@@ -213,9 +226,9 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
         new_sort_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                OnRefrech(NEW);
                 BottomNavigationView bottomNavigationView = (BottomNavigationView) getActivity().findViewById(R.id.bottomNavi);
                 bottomNavigationView.setSelectedItemId(R.id.action_boards);
-                MainActivity.SORT = BoardsFragment.NEW;
 //                if(BoardsFragment.adapter!=null) {
 //                    BoardsFragment.adapter.notifyDataSetChanged();
 //                    BoardsFragment.viewPager.setAdapter(null);
@@ -298,4 +311,57 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
         mContext = null;
     }
 
+    public void OnRefrech(int sort){
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                switch (sort){
+                    case NEW:
+                        Collections.sort(BoardFragment1.list, cmpNew);
+                        frag1newselect();
+                        break;
+                    case GOAL:
+                        Collections.sort(BoardFragment1.list, cmpGoal);
+                        frag1goalselect();
+                        break;
+                    case DEADLINE:
+                        Collections.sort(BoardFragment1.list, cmpDeadline);
+                        frag1dateselect();
+                        break;
+                    default:
+                        break;
+                }
+                listViewAdapter.notifyDataSetChanged();
+                listView.setAdapter(listViewAdapter);
+            }
+        },100);
+    }
+
+
+    public void frag1dateselect(){
+        frag1goalsortbutton.setBackgroundResource(R.drawable.ic_tabnoselect);
+        frag1datesortbutton.setBackgroundResource(R.drawable.ic_tabselect);
+        frag1newsortbutton.setBackgroundResource(R.drawable.ic_tabnoselect);
+        frag1goalsortbutton.setTextColor(Color.parseColor("#BDBDBD"));
+        frag1datesortbutton.setTextColor(Color.parseColor("#FFFFFF"));
+        frag1newsortbutton.setTextColor(Color.parseColor("#BDBDBD"));
+    }
+
+    public void frag1newselect(){
+        frag1goalsortbutton.setBackgroundResource(R.drawable.ic_tabnoselect);
+        frag1datesortbutton.setBackgroundResource(R.drawable.ic_tabnoselect);
+        frag1newsortbutton.setBackgroundResource(R.drawable.ic_tabselect);
+        frag1goalsortbutton.setTextColor(Color.parseColor("#BDBDBD"));
+        frag1datesortbutton.setTextColor(Color.parseColor("#BDBDBD"));
+        frag1newsortbutton.setTextColor(Color.parseColor("#FFFFFF"));
+    }
+
+    public void frag1goalselect(){
+        frag1goalsortbutton.setBackgroundResource(R.drawable.ic_tabselect);
+        frag1datesortbutton.setBackgroundResource(R.drawable.ic_tabnoselect);
+        frag1newsortbutton.setBackgroundResource(R.drawable.ic_tabnoselect);
+        frag1goalsortbutton.setTextColor(Color.parseColor("#FFFFFF"));
+        frag1datesortbutton.setTextColor(Color.parseColor("#BDBDBD"));
+        frag1newsortbutton.setTextColor(Color.parseColor("#BDBDBD"));
+    }
 }

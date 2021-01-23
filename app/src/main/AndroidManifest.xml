@@ -1,20 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.surbay">
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="READ_PHONE_STATE"
-        android:maxSdkVersion="30"/>
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission
+        android:name="READ_PHONE_STATE"
+        android:maxSdkVersion="30" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
+        android:sharedUserId="android.uid.system"
         android:supportsRtl="true"
         android:theme="@style/Theme.SurBay"
-        android:usesCleartextTraffic="true"
-        android:sharedUserId="android.uid.system">
-        <activity android:name=".SplashActivity"
+        android:usesCleartextTraffic="true">
+        <activity android:name=".BoardsSearchActivity"></activity>
+        <activity
+            android:name=".SplashActivity"
             android:theme="@style/SplashTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -22,12 +27,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MainActivity"></activity>
-        <activity android:name=".LoginActivity"></activity>
-        <activity android:name=".WriteActivity" ></activity>
-        <activity android:name=".SurveyWebActivity" ></activity>
-        <activity android:name=".PostDetailActivity" ></activity>
-        <activity android:name=".SignupActivity"></activity>
+        <activity android:name=".MainActivity" />
+        <activity android:name=".LoginActivity" />
+        <activity android:name=".WriteActivity" />
+        <activity android:name=".SurveyWebActivity" />
+        <activity android:name=".PostDetailActivity" />
+        <activity android:name=".SignupActivity" />
     </application>
 
 </manifest>

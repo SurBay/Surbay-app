@@ -102,7 +102,7 @@ public class LoginActivity extends AppCompatActivity {
                                                     e.printStackTrace();
                                                 }
                                                 finish();
-                                            }
+                                            }///로그인 화면이 스택으로 남아있는지?
                                         })
                                         .create();
                                 dialog.setOnShowListener(new DialogInterface.OnShowListener() {

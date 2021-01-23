@@ -3,6 +3,7 @@ package com.example.surbay;
 import android.content.Context;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -52,11 +53,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
         holder.title.setText(imageModelArrayList.get(position).getTitle());
         holder.content.setText(imageModelArrayList.get(position).getContent());
-        holder.author.setText(imageModelArrayList.get(position).getAuthor());
-
-        SimpleDateFormat fm = new SimpleDateFormat("MM.dd");
-        holder.date.setText(fm.format(imageModelArrayList.get(position).getDate()));
-        holder.deadline.setText(fm.format(imageModelArrayList.get(position).getDeadline()));
+        holder.participate.setText(imageModelArrayList.get(position).getParticipants().toString());
 
 
     }
@@ -74,18 +71,14 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
         TextView title;
         TextView content;
-        TextView author;
-        TextView date;
-        TextView deadline;
+        TextView participate;
 
         public MyViewHolder(View itemView) {
             super(itemView);
 
             title = (TextView) itemView.findViewById(R.id.title);
             content = (TextView) itemView.findViewById(R.id.content);
-            author = (TextView) itemView.findViewById(R.id.author);
-            date = (TextView) itemView.findViewById(R.id.date);
-            deadline = (TextView) itemView.findViewById(R.id.deadline);
+            participate = (TextView) itemView.findViewById(R.id.recyc_participants);
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override

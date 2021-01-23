@@ -15,42 +15,50 @@
             android:orientation="vertical">
             <TextView
                 android:layout_width="match_parent"
-                android:layout_height="150dp"
-                android:background="@color/gray"
-                android:text="배너 들어갈 공간"
-                android:textColor="@color/black"
-                android:textSize="30dp"
+                android:layout_height="200dp"
+                android:background="@color/teal_200"
                 android:gravity="center">
             </TextView>
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="한 줄 공지"
-                android:textSize="20dp"
-                android:textColor="@color/black"
-                android:gravity="center"
-                ></TextView>
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:background="@color/teal">
+                android:padding="5dp"
+                >
                 <TextView
-                    android:padding="10dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="공지"
+                    android:textSize="15dp"
+                    android:textColor="@color/black"
+                    android:layout_marginHorizontal="10dp"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:text="작성글 공유하기 기능이 추가되었어요"/>
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:background="#FBFBFB">
+                <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="종료 임박 서베이"
-                    android:textSize="20dp"
+                    android:text="종료 임박 설문"
+                    android:textSize="15dp"
                     android:textColor="@color/black"
+                    android:paddingHorizontal="15dp"
+                    android:layout_marginTop="10dp"
                     ></TextView>
                 <ImageButton
                     android:id="@+id/date_sort_button"
                     android:padding="15dp"
-                    android:layout_width="50dp"
-                    android:layout_height="match_parent"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
                     android:src="@drawable/ic_next"
-                    android:background="@color/teal"
                     android:scaleType="fitXY">
                 </ImageButton>
             </LinearLayout>
@@ -58,42 +66,44 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="10dp"
-                android:gravity="center">
+                android:gravity="center"
+                android:background="#FBFBFB">
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/recycler1"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="5dp">
+                    android:background="#FBFBFB">
 
                 </androidx.recyclerview.widget.RecyclerView>
             </LinearLayout>
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/teal">
+                android:background="#FBFBFB">
                 <TextView
-                    android:padding="10dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="목표 달성 임박 서베이"
+                    android:text="목표 달성 임박 설문"
                     android:textColor="@color/black"
-                    android:textSize="20dp"
+                    android:textSize="15dp"
+                    android:paddingHorizontal="15dp"
+                    android:layout_marginTop="10dp"
                     ></TextView>
                 <ImageButton
                     android:id="@+id/goal_sort_button"
                     android:padding="15dp"
-                    android:layout_width="50dp"
-                    android:layout_height="match_parent"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
                     android:src="@drawable/ic_next"
-                    android:background="@color/teal"
                     android:scaleType="fitXY">
                 </ImageButton>
             </LinearLayout>
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="#FBFBFB"
                 android:padding="10dp"
                 android:gravity="center">
 
@@ -101,30 +111,30 @@
                     android:id="@+id/recycler2"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="5dp">
+                    android:background="#FBFBFB">
 
                 </androidx.recyclerview.widget.RecyclerView>
             </LinearLayout>
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/teal">
+                android:background="#FBFBFB">
                 <TextView
-                    android:padding="10dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="새로 등록한 서베이"
+                    android:text="신규 등록 설문"
                     android:textColor="@color/black"
-                    android:textSize="20dp"
+                    android:textSize="15dp"
+                    android:paddingHorizontal="15dp"
+                    android:layout_marginTop="10dp"
                     ></TextView>
                 <ImageButton
                     android:id="@+id/new_sort_button"
                     android:padding="15dp"
-                    android:layout_width="50dp"
-                    android:layout_height="match_parent"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
                     android:src="@drawable/ic_next"
-                    android:background="@color/teal"
                     android:scaleType="fitXY">
                 </ImageButton>
             </LinearLayout>
@@ -137,8 +147,7 @@
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/recycler3"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="5dp">
+                    android:layout_height="wrap_content">
 
                 </androidx.recyclerview.widget.RecyclerView>
             </LinearLayout>

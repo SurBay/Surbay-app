@@ -35,6 +35,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import static com.example.surbay.BoardFragment1.listView;
+import static com.example.surbay.BoardFragment1.listViewAdapter;
+
 public class WriteActivity extends AppCompatActivity {
     static final int NEWPOST = 1;
     private InputMethodManager imm;
@@ -144,14 +147,17 @@ public class WriteActivity extends AppCompatActivity {
             case R.id.ok_bar:
                 String title = writeTitle.getText().toString();
                 String author = UserPersonalInfo.name;
-                Integer author_lvl = UserPersonalInfo.level;
+                Integer author_lvl = UserPersonalInfo.level; ///게시글 작성 당시 글쓴이의 레벨이 반영?
                 String content = writeContent.getText().toString();
                 Integer participants = 0;
                 Integer goalParticipants;
 
-                if(writeGoalParticipants.getText()!=null) {
+                if(writeGoalParticipants.getText().toString().length() > 0) {
                     goalParticipants = Integer.valueOf(writeGoalParticipants.getText().toString());
-                } else{goalParticipants = null;}
+                    if (goalParticipants == 0){
+                        break;
+                    }
+                } else{goalParticipants = 100;}
                 String url = writeUrl.getText().toString();
 
                 SimpleDateFormat fm = new SimpleDateFormat("yyyy년MM월dd일");
@@ -166,42 +172,71 @@ public class WriteActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
                 Boolean with_prize = withPrize.isChecked();
-                String prize = writePrize.getText().toString();
-                Integer est_time = Integer.valueOf(writeEstTime.getText().toString());
+                String prize = writePrize.getText().toString();///상품 없을 때는 null 처리해야될듯
+                Integer est_time = Integer.valueOf((writeEstTime.getText().toString().getBytes().length > 0) ? writeEstTime.getText().toString() : "1");
                 String target = writeTarget.getText().toString();
 
                 SimpleDateFormat formatter = new SimpleDateFormat(getString(R.string.date_format));
 
-                Intent intent = new Intent(WriteActivity.this, BoardFragment1.class);
-                Log.d("date formatted", formatter.format(deadline));
-                intent.putExtra("title", title);
-                intent.putExtra("author", author);
-                intent.putExtra("author_lvl", author_lvl);
-                intent.putExtra("participants", participants);
-                intent.putExtra("goal_participants", goalParticipants);
-                intent.putExtra("url", url);
-                intent.putExtra("date", formatter.format(date));
-                intent.putExtra("deadline", formatter.format(deadline));
-                intent.putExtra("content", content);
-                intent.putExtra("with_prize", with_prize);
-                if(with_prize) {
-                    intent.putExtra("prize", prize);
-                }
 
-                intent.putExtra("est_time", est_time);
-                intent.putExtra("target", target);
-                setResult(NEWPOST, intent);
-                try {
-                    postPost(title, author, author_lvl, content, participants, goalParticipants, url, date, deadline, with_prize, prize, est_time, target);
-                } catch (Exception e) {
-                    e.printStackTrace();
+                if (title.getBytes().length <= 0 || content.getBytes().length <= 0 || target.getBytes().length <= 0 || est_time <= 0){
+                    AlertDialog.Builder bu = new AlertDialog.Builder(WriteActivity.this);
+                    dialog = bu.setMessage("모든 값들을 입력해주세요")
+                            .setNegativeButton("확인", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                }
+                            })
+                            .create();
+                    dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                        @SuppressLint("ResourceAsColor")
+                        @Override
+                        public void onShow(DialogInterface arg0) {
+                            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(R.color.black);
+                        }
+                    });
+                    dialog.show();
+                } else {
+                    if (deadline.before(date)){
+                        AlertDialog.Builder bu = new AlertDialog.Builder(WriteActivity.this);
+                        dialog = bu.setMessage("날짜를 제대로 입력해주세요")
+                                .setNegativeButton("확인", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                    }
+                                })
+                                .create();
+                        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                            @SuppressLint("ResourceAsColor")
+                            @Override
+                            public void onShow(DialogInterface arg0) {
+                                dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(R.color.black);
+                            }
+                        });
+                        dialog.show();
+                    } else {
+                        Post addedpost = new Post(null ,title, author, author_lvl, content, participants, goalParticipants, url, date, deadline, with_prize, prize, est_time, target);
+                        MainActivity.postArrayList.add(0, addedpost);
+                        listViewAdapter.notifyDataSetChanged();
+                        listView.setAdapter(listViewAdapter);
+                        Intent intent = new Intent(WriteActivity.this, BoardFragment1.class);
+                        Log.d("date formatted", formatter.format(deadline));
+                        try {
+                            postPost(title, author, author_lvl, content, participants, goalParticipants, url, date, deadline, with_prize, prize, est_time, target);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        setResult(NEWPOST, intent);
+                        finish();
+                        return true;
+                    }
                 }
-                finish();
-                return true;
             default:
                 setResult(0);
                 return true;
         }
+        setResult(0);
+        return true;
     }
 
 

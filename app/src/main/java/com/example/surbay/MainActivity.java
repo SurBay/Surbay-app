@@ -26,6 +26,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.sql.Array;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -41,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
     private BoardsFragment boardsFragment;
     private MypageFragment mypageFragment;
     public static ArrayList<Post> postArrayList = new ArrayList<>();
+    public static ArrayList<Post> finishpostArrayList = new ArrayList<>();
     public static ArrayList<PostNonSurvey> surveytipArrayList = new ArrayList<>();
     public static ArrayList<PostNonSurvey> feedbackArrayList = new ArrayList<>();
     private static Context mContext;
@@ -48,11 +50,16 @@ public class MainActivity extends AppCompatActivity {
 
     public static int SORT = 1;
 
+    public static Date today;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mContext = getApplicationContext();
-        if(postArrayList.size()==0) {
+
+        today = new Date();
+        SimpleDateFormat fm = new SimpleDateFormat(mContext.getString(R.string.date_format));
+
+        if(postArrayList.size() == 0 || finishpostArrayList.size() == 0) {
             try {
                 getPosts();
             } catch (Exception e) {
@@ -149,6 +156,17 @@ public class MainActivity extends AppCompatActivity {
                             UserPersonalInfo.points = user.getInt("points");
                             UserPersonalInfo.level = user.getInt("level");
 
+
+
+
+                            Log.d("partiarray", ""+user.get("participations").getClass().getName());
+                            /*ArrayList<String> partiarray = new ArrayList<String>();
+                            for (int j = 0; j<ja.length(); j++){
+                                JSONObject json = ja.getJSONObject(j);
+
+                            }*/
+
+
                             SharedPreferences auto = getSharedPreferences("auto", Activity.MODE_PRIVATE);
                             SharedPreferences.Editor autoLogin = auto.edit();
                             autoLogin.putString("name", user.getString("name"));
@@ -186,6 +204,7 @@ public class MainActivity extends AppCompatActivity {
 
                         try {
                             postArrayList = new ArrayList<Post>();
+                            finishpostArrayList = new ArrayList<Post>();
                             JSONArray resultArr = new JSONArray(response.toString());
                             Log.d("response is", ""+response);
 
@@ -227,9 +246,15 @@ public class MainActivity extends AppCompatActivity {
 
 
                                 Post newPost = new Post(id, title, author, author_lvl, content, participants, goal_participants, url, date, deadline, with_prize, prize, est_time, target);
-                                postArrayList.add(newPost);
+
+                                if (newPost.getDeadline().before(today) || (newPost.getParticipants()==newPost.getGoal_participants())) {
+                                    finishpostArrayList.add(newPost);
+                                } else {
+                                    postArrayList.add(newPost);
+                                }
                             }
                             Log.d("array size is",""+postArrayList.size());
+                            Log.d("finisharray size is",""+finishpostArrayList.size());
                             if(done==0){
                                 HomeFragment.receivedPosts();
                                 done = 1;
@@ -360,5 +385,4 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
-
 }

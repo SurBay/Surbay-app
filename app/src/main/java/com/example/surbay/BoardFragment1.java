@@ -1,35 +1,25 @@
 package com.example.surbay;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
-import android.text.Html;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.webkit.WebView;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
-import com.android.volley.DefaultRetryPolicy;
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.JsonArrayRequest;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,8 +27,8 @@ import java.util.Comparator;
 import java.util.Date;
 
 
-public class BoardFragment1 extends Fragment // Fragment 클래스를 상속받아야한다
-{
+public class BoardFragment1 extends Fragment// Fragment 클래스를 상속받아야한다
+{ // 게시판
 
     private static final int NEW = 1;
     private static final int GOAL = 2;
@@ -50,14 +40,20 @@ public class BoardFragment1 extends Fragment // Fragment 클래스를 상속받�
     static final int NEWPOST = 1;
     static final int DONE = 1;
     static final int NOT_DONE = 0;
-    private ListViewAdapter listViewAdapter;
-    private ListView listView;
+    public static ListViewAdapter listViewAdapter;
+    public static ListView listView;
 
-    private ArrayList<Post> list;
+    public static ArrayList<Post> list;
 
     private Comparator<Post> cmpDeadline;
     private Comparator<Post> cmpNew;
     private Comparator<Post> cmpGoal;
+
+    public static Button frag1newsortbutton;
+    public static Button frag1goalsortbutton;
+    public static Button frag1datesortbutton;
+
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
@@ -65,7 +61,7 @@ public class BoardFragment1 extends Fragment // Fragment 클래스를 상속받�
         view = inflater.inflate(R.layout.fragment_board1,container,false);
 
         getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        Log.d("sort as", ""+SORT);
+        Log.d("state", "OnCreate with sort : "+SORT);
         listView = view.findViewById(R.id.list);
         SORT = MainActivity.SORT;
         cmpGoal = new Comparator<Post>() {
@@ -74,7 +70,7 @@ public class BoardFragment1 extends Fragment // Fragment 클래스를 상속받�
                 int ret;
                 float goal1 = ((float)o1.getParticipants()/o1.getGoal_participants());
                 float goal2 = ((float)o2.getParticipants()/o2.getGoal_participants());
-                if(goal1<goal2)
+                if(goal1>goal2)
                     ret = -1;
                 else if(goal1==goal2)
                     ret = 0;
@@ -153,7 +149,12 @@ public class BoardFragment1 extends Fragment // Fragment 클래스를 상속받�
             }
         });
 
-        Button writeButton = view.findViewById(R.id.writeButton);
+
+        frag1newsortbutton = view.findViewById(R.id.fragment1_new_sort_button);
+        frag1goalsortbutton = view.findViewById(R.id.fragment1_goal_sort_button);
+        frag1datesortbutton = view.findViewById(R.id.fragment1_date_sort_button);
+
+        TextView writeButton = view.findViewById(R.id.writeButton);
         writeButton.setOnClickListener(
                 new View.OnClickListener(){
                     @Override
@@ -163,6 +164,29 @@ public class BoardFragment1 extends Fragment // Fragment 클래스를 상속받�
                     }
                 }
         );
+
+        frag1datesortbutton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SORT = DEADLINE;
+                OnRefrech();
+            }
+        });
+        frag1goalsortbutton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SORT = GOAL;
+                OnRefrech();
+            }
+        });
+        frag1newsortbutton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SORT=NEW;
+                OnRefrech();
+            }
+        });
+
         return view;
     }
     @Override
@@ -175,7 +199,7 @@ public class BoardFragment1 extends Fragment // Fragment 클래스를 상속받�
                 int ret;
                 float goal1 = ((float)o1.getParticipants()/o1.getGoal_participants());
                 float goal2 = ((float)o2.getParticipants()/o2.getGoal_participants());
-                if(goal1<goal2)
+                if(goal1>goal2)
                     ret = -1;
                 else if(goal1==goal2)
                     ret = 0;
@@ -243,27 +267,8 @@ public class BoardFragment1 extends Fragment // Fragment 클래스를 상속받�
             case WRITE_NEWPOST:
                 switch (resultCode) {
                     case NEWPOST:
-                        Post item = data.getParcelableExtra("post");
                         try {
-                            String title = data.getStringExtra("title");
-                            String author = data.getStringExtra("author");
-                            Integer author_lvl = data.getIntExtra("author_lvl", 1);
-                            String content = data.getStringExtra("content");
-                            Integer participants = data.getIntExtra("participants", 0);
-                            Integer goal_participants = data.getIntExtra("goalParticipants", 0);
-                            String url = data.getStringExtra("url");
-                            Date date = new SimpleDateFormat(getActivity().getString(R.string.date_format)).parse(data.getStringExtra("date"));
-                            Date deadline = new SimpleDateFormat(getActivity().getString(R.string.date_format)).parse(data.getStringExtra("deadline"));
-                            Boolean with_prize = data.getBooleanExtra("with_prize", false);
-                            String prize = null;
-                            if(with_prize) {
-                                prize = data.getStringExtra("prize");
-                            }
-                            Integer est_time = data.getIntExtra("est_time", 5);
-                            String target = data.getStringExtra("target");
-
-                            listViewAdapter = new ListViewAdapter(MainActivity.postArrayList);
-                            listView.setAdapter(listViewAdapter);
+                            OnRefrech();
                             MainActivity.getPosts();
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -293,5 +298,56 @@ public class BoardFragment1 extends Fragment // Fragment 클래스를 상속받�
 
     }
 
+    public void OnRefrech(){
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                switch (SORT){
+                    case NEW:
+                        Collections.sort(list, cmpNew);
+                        frag1newselect();
+                        break;
+                    case GOAL:
+                        Collections.sort(list, cmpGoal);
+                        frag1goalselect();
+                        break;
+                    case DEADLINE:
+                        Collections.sort(list, cmpDeadline);
+                        frag1dateselect();
+                        break;
+                    default:
+                        break;
+                }
+                listViewAdapter.notifyDataSetChanged();
+                listView.setAdapter(listViewAdapter);
+            }
+        },500);
+    }
 
+    public void frag1dateselect(){
+        frag1goalsortbutton.setBackgroundResource(R.drawable.ic_tabnoselect);
+        frag1datesortbutton.setBackgroundResource(R.drawable.ic_tabselect);
+        frag1newsortbutton.setBackgroundResource(R.drawable.ic_tabnoselect);
+        frag1goalsortbutton.setTextColor(Color.parseColor("#BDBDBD"));
+        frag1datesortbutton.setTextColor(Color.parseColor("#FFFFFF"));
+        frag1newsortbutton.setTextColor(Color.parseColor("#BDBDBD"));
+    }
+
+    public void frag1newselect(){
+        frag1goalsortbutton.setBackgroundResource(R.drawable.ic_tabnoselect);
+        frag1datesortbutton.setBackgroundResource(R.drawable.ic_tabnoselect);
+        frag1newsortbutton.setBackgroundResource(R.drawable.ic_tabselect);
+        frag1goalsortbutton.setTextColor(Color.parseColor("#BDBDBD"));
+        frag1datesortbutton.setTextColor(Color.parseColor("#BDBDBD"));
+        frag1newsortbutton.setTextColor(Color.parseColor("#FFFFFF"));
+    }
+
+    public void frag1goalselect(){
+        frag1goalsortbutton.setBackgroundResource(R.drawable.ic_tabselect);
+        frag1datesortbutton.setBackgroundResource(R.drawable.ic_tabnoselect);
+        frag1newsortbutton.setBackgroundResource(R.drawable.ic_tabnoselect);
+        frag1goalsortbutton.setTextColor(Color.parseColor("#FFFFFF"));
+        frag1datesortbutton.setTextColor(Color.parseColor("#BDBDBD"));
+        frag1newsortbutton.setTextColor(Color.parseColor("#BDBDBD"));
+    }
 }

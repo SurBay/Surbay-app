@@ -94,7 +94,6 @@ public class Post implements Parcelable{
     public String getTarget() {
         return target;
     }
-
     public void setTarget(String target) {
         this.target = target;
     }

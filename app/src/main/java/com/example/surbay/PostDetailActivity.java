@@ -1,6 +1,8 @@
 package com.example.surbay;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -33,6 +35,9 @@ public class PostDetailActivity extends AppCompatActivity {
     private TextView participants;
     private Post post;
     private int position;
+
+    static Button surveyButton;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.d("start app", "hahaha");
@@ -52,7 +57,7 @@ public class PostDetailActivity extends AppCompatActivity {
         TextView title = findViewById(R.id.title);
         TextView target = findViewById(R.id.target);
         TextView content = findViewById(R.id.content);;
-        Button surveyButton = findViewById(R.id.surveyButton);
+        surveyButton = findViewById(R.id.surveyButton);
         LinearLayout prizeLayout = findViewById(R.id.prize_layout);
         TextView prize = findViewById(R.id.prize);
 
@@ -84,6 +89,8 @@ public class PostDetailActivity extends AppCompatActivity {
                     }
                 }
         );
+
+        setbuttonunable();
 
     }
 
@@ -154,5 +161,12 @@ public class PostDetailActivity extends AppCompatActivity {
                 break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public void setbuttonunable(){
+        if (post.getAuthor().equals(UserPersonalInfo.name)){
+            surveyButton.setClickable(false);
+            surveyButton.setText("본인의 설문입니다");
+        }
     }
 }
