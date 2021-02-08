@@ -1,31 +1,28 @@
-package com.example.surbay;
+package com.example.surbay.adapter;
 
 import android.content.Context;
 
-import android.content.Intent;
-import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.TextView;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.text.SimpleDateFormat;
+import com.example.surbay.R;
+import com.example.surbay.classfile.Post;
+
 import java.util.ArrayList;
 
-import static androidx.core.app.ActivityCompat.startActivityForResult;
-
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.MyViewHolder> {
-    private OnItemClickListener mListener = null ;
+    private static OnItemClickListener mListener = null ;
 
     // OnItemClickListener 리스너 객체 참조를 어댑터에 전달하는 메서드
 
-
     private LayoutInflater inflater;
     private ArrayList<Post> imageModelArrayList;
+
+
     public RecyclerViewAdapter(Context ctx, ArrayList<Post> imageModelArrayList){
         inflater = LayoutInflater.from(ctx);
         this.imageModelArrayList = imageModelArrayList;
@@ -51,9 +48,10 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     @Override
     public void onBindViewHolder(RecyclerViewAdapter.MyViewHolder holder, int position) {
 
+
         holder.title.setText(imageModelArrayList.get(position).getTitle());
         holder.content.setText(imageModelArrayList.get(position).getContent());
-        holder.participate.setText(imageModelArrayList.get(position).getParticipants().toString());
+        holder.participate.setVisibility(View.INVISIBLE);
 
 
     }
@@ -67,7 +65,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         return imageModelArrayList.get(position);
     }
 
-    class MyViewHolder extends RecyclerView.ViewHolder{
+    static class MyViewHolder extends RecyclerView.ViewHolder{
 
         TextView title;
         TextView content;
@@ -95,4 +93,6 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         }
 
     }
+
 }
+

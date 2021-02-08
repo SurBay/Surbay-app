@@ -11,6 +11,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.example.surbay.adapter.NonSurveyListViewAdapter;
+
 public class BoardFragment2 extends Fragment {
 
     private NonSurveyListViewAdapter listViewAdapter;

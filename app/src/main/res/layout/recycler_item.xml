@@ -48,6 +48,7 @@
                     android:layout_height="wrap_content"
                     android:id="@+id/recyc_participants"
                     android:gravity="right|top"
+                    android:visibility="visible"
                     android:layout_alignParentRight="true"
                     android:text="작성자"
                     android:lines="1"

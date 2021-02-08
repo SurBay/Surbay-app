@@ -1,9 +1,13 @@
-package com.example.surbay;
+package com.example.surbay.adapter;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
+
+import com.example.surbay.BoardFragment1;
+import com.example.surbay.BoardFragment2;
+import com.example.surbay.BoardFragment3;
 
 import java.util.ArrayList;
 import java.util.List;

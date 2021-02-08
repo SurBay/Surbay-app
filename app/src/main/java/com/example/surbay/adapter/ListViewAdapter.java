@@ -1,4 +1,4 @@
-package com.example.surbay;
+package com.example.surbay.adapter;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -6,17 +6,23 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import com.example.surbay.R;
+import com.example.surbay.UserPersonalInfo;
+import com.example.surbay.classfile.Post;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
-public class NonSurveyListViewAdapter extends BaseAdapter {
+public class ListViewAdapter extends BaseAdapter {
     // Adapter에 추가된 데이터를 저장하기 위한 ArrayList
-    private ArrayList<PostNonSurvey> listViewItemList = new ArrayList<PostNonSurvey>();
+    private ArrayList<Post> listViewItemList = new ArrayList<Post>();
 
     // ListViewAdapter의 생성자
-    public NonSurveyListViewAdapter(ArrayList<PostNonSurvey> listViewItemList) {
+    public ListViewAdapter(ArrayList<Post> listViewItemList) {
         this.listViewItemList = listViewItemList;
     }
 
@@ -39,23 +45,56 @@ public class NonSurveyListViewAdapter extends BaseAdapter {
         // "listview_item" Layout을 inflate하여 convertView 참조 획득.
         if (convertView == null) {
             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            convertView = inflater.inflate(R.layout.non_survey_list_item, parent, false);
+            convertView = inflater.inflate(R.layout.list_item, parent, false);
         }
         // 화면에 표시될 View(Layout이 inflate된)으로부터 위젯에 대한 참조 획득
         TextView titleTextView = (TextView) convertView.findViewById(R.id.title);
         TextView contentTextView = (TextView) convertView.findViewById(R.id.content);
         TextView dateTextView = (TextView) convertView.findViewById(R.id.date);
-        TextView authorLvlTextView = (TextView) convertView.findViewById(R.id.level);
+        TextView authornameTextView = (TextView) convertView.findViewById(R.id.level);
+        TextView participantsTextView = (TextView) convertView.findViewById(R.id.participants);
+        TextView goalParticipantsTextView = (TextView) convertView.findViewById(R.id.goal_participants);
+        ImageView withPrizeView = (ImageView) convertView.findViewById(R.id.with_prize);
+        TextView DoneView = (TextView) convertView.findViewById(R.id.done);
+        TextView ddayView = (TextView) convertView.findViewById(R.id.dday);
+        RelativeLayout background = (RelativeLayout)convertView.findViewById(R.id.list_item_background);
 
         // Data Set(listViewItemList)에서 position에 위치한 데이터 참조 획득
         SimpleDateFormat fm = new SimpleDateFormat("MM.dd");
-        PostNonSurvey post = listViewItemList.get(position);
+        Post post = listViewItemList.get(position);
         String date = fm.format(post.getDate());
+        String deadline = fm.format(post.getDeadline());
+        int dday = calc_dday(post.getDeadline());
 
+        if (dday <= 2 && dday >= 0 ){
+            if (dday==0){
+                ddayView.setVisibility(View.VISIBLE);
+                ddayView.setText("D-Day");
+            } else {
+                ddayView.setVisibility(View.VISIBLE);
+                ddayView.setText("D-"+(dday+1));
+            }
+        } else {
+            ddayView.setVisibility(View.INVISIBLE);
+        }
+
+        if(!post.isWith_prize()){
+            withPrizeView.setVisibility(View.INVISIBLE);
+        }
         titleTextView.setText(post.getTitle());
         contentTextView.setText(post.getContent());
-        dateTextView.setText(date);
-        authorLvlTextView.setText("LV " + post.getAuthor_lvl());
+        dateTextView.setText(date+"~"+deadline);
+
+        if (UserPersonalInfo.participations.contains(post.getID())){
+            background.setBackgroundResource(R.drawable.round_border_gray_list);
+        }
+
+
+
+        authornameTextView.setText(post.getAuthor());
+        participantsTextView.setText(post.getParticipants().toString());
+        goalParticipantsTextView.setText(post.getGoal_participants().toString());
+
         return convertView;
     }
 
@@ -74,8 +113,20 @@ public class NonSurveyListViewAdapter extends BaseAdapter {
 //        Post item = new Post(id, title, author, author_lvl, content, participants, goal_participants, url, date, deadline, with_prize, prize, est_time, target);
 //        listViewItemList.add(item);
 //    }
-    public void addItem(PostNonSurvey item){
+    public void addItem(Post item){
         listViewItemList.add(item);
     }
+    public void updateParticipants(int position, int participants){
+        Post item = (Post) getItem(position);
+        item.setParticipants(participants);
+    }
 
+    public int calc_dday(Date goal){
+        Date dt = new Date();
+
+        long diff = (goal.getTime() - dt.getTime()) / (24*60*60*1000);
+        int dday = (int)diff;
+
+        return dday;
+    }
 }

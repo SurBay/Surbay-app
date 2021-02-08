@@ -22,9 +22,10 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.lang.reflect.Array;
+import com.example.surbay.adapter.RecyclerViewAdapter;
+import com.example.surbay.classfile.Post;
+
 import java.util.ArrayList;
-import java.util.Collections;
 
 public class MypageFragment extends Fragment // Fragment 클래스를 상속받아야한다
 {
@@ -49,6 +50,12 @@ public class MypageFragment extends Fragment // Fragment 클래스를 상속받�
     TextView nameview;
     ImageView profileview;
     TextView levelview;
+
+    TextView upload_2nd;
+    TextView parti_2nd;
+    TextView can_sur;
+    TextView willdo_sur;
+    TextView willdo_sur_below;
 
     @Nullable
     @Override
@@ -103,16 +110,27 @@ public class MypageFragment extends Fragment // Fragment 클래스를 상속받�
         i_make_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Intent intent = new Intent(((AppCompatActivity) getActivity()).getApplicationContext(), Mypage_uploadNParti.class);
+                intent.putExtra("what", 0);
+                intent.putExtra("list", list_make);
+                startActivity(intent);
             }
         });
         i_parti_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Intent intent = new Intent(((AppCompatActivity) getActivity()).getApplicationContext(), Mypage_uploadNParti.class);
+                intent.putExtra("what", 1);
+                intent.putExtra("list", list_parti);
+                startActivity(intent);
             }
         });
         i_get_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Intent intent = new Intent(((AppCompatActivity) getActivity()).getApplicationContext(), Mypage_uploadNParti.class);
+                intent.putExtra("what", 2);
+                startActivity(intent);
             }
         });
 
@@ -138,9 +156,25 @@ public class MypageFragment extends Fragment // Fragment 클래스를 상속받�
         nameview = view.findViewById(R.id.mypage_myname);
         profileview = view.findViewById(R.id.mypage_profile_image);
         levelview = view.findViewById(R.id.user_level);
+        upload_2nd = view.findViewById(R.id.upload_2nd);
+        parti_2nd = view.findViewById(R.id.parti_2nd);
+        can_sur = view.findViewById(R.id.mypage_can_sur);
+        willdo_sur = view.findViewById(R.id.mypage_willdo_sur);
+        willdo_sur_below = view.findViewById(R.id.mypage_willdo_sur_below);
 
         nameview.setText(UserPersonalInfo.name);
         levelview.setText("레벨 " + UserPersonalInfo.level.toString());
+        upload_2nd.setText(list_make.size() + "개");
+        parti_2nd.setText(list_parti.size() + "개");
+
+        if (list_parti.size()!=0){
+            can_sur.setText(list_make.size()/(list_parti.size()*7)+"회");
+        } else {
+            can_sur.setText("0회");
+        }
+        willdo_sur.setText((list_parti.size()%7)+"회/7회");
+        willdo_sur_below.setText("설문 "+(list_parti.size()%7)+"회 더 참여 시 설문 게시글을 작성할 수 있어요");
+
         return view;
     }
 
@@ -205,11 +239,15 @@ public class MypageFragment extends Fragment // Fragment 클래스를 상속받�
             Log.d("post", "post author is "+post.getAuthor()+" and myname is "+author);
             if (post.getAuthor().equals(author)){
                 list_make.add(post);
+            } else if (UserPersonalInfo.participations.contains(post.getID())) {
+                list_parti.add(post);
             }
         }
         for (Post post : MainActivity.finishpostArrayList){
             if (post.getAuthor().equals(author)){
                 list_make.add(post);
+            } else if (UserPersonalInfo.participations.contains(post.getID())) {
+                list_parti.add(post);
             }
         }
     }

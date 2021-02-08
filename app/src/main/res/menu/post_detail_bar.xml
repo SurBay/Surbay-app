@@ -1,9 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item
-        android:id="@+id/share"
-        android:title="공유" />
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/report"
-        android:title="신고" />
+        android:title="신고하기" />
+    <item
+        android:id="@+id/resultrequest"
+        android:title="설문 결과 공유 요청" />
+    <item
+        android:id="@+id/note"
+        android:title="작성자에게 쪽지보내기" />
+    <item
+        android:id="@+id/fix"
+        android:title="수정하기"
+        app:showAsAction=""/>
+    <item
+        android:id="@+id/remove"
+        android:title="삭제하기"
+        app:showAsAction=""/>
+    <item
+        android:id="@+id/share"
+        android:title="공유"
+        android:icon="@android:drawable/ic_menu_share"
+        app:showAsAction="always"/>
 </menu>

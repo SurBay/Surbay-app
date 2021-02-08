@@ -7,17 +7,24 @@
         android:name="READ_PHONE_STATE"
         android:maxSdkVersion="30" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/surbay_logo"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:sharedUserId="android.uid.system"
         android:supportsRtl="true"
         android:theme="@style/Theme.SurBay"
         android:usesCleartextTraffic="true">
-        <activity android:name=".BoardsSearchActivity"></activity>
+        <activity android:name=".FindIdActivity"></activity>
+        <activity android:name=".NoticeDetailActivity" />
+        <activity android:name=".noticeActivity" />
+        <activity android:name=".Mypage_uploadNParti" />
+        <activity android:name=".BoardsSearchActivity" />
         <activity
             android:name=".SplashActivity"
             android:theme="@style/SplashTheme">
@@ -33,6 +40,10 @@
         <activity android:name=".SurveyWebActivity" />
         <activity android:name=".PostDetailActivity" />
         <activity android:name=".SignupActivity" />
+        <activity
+            android:name="com.gun0912.tedpicker.ImagePickerActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme" />
     </application>
 
 </manifest>

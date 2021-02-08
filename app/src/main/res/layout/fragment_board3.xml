@@ -5,35 +5,31 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="0.1"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:background="#EBEBF0">
         <ListView
+            android:divider="#00000000"
             android:id="@+id/list"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
         </ListView>
-    </LinearLayout>
-    <LinearLayout
-        android:id="@+id/buttonWrapper"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center"
-        app:layout_constraintBottom_toBottomOf="parent">
-        <Button
+        <TextView
             android:id="@+id/writeButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="100dp"
+            android:layout_height="50dp"
+            android:gravity="center"
             android:text="문의 작성"
-            android:textSize="14dp"
-            android:textColor="@color/black"
-            android:background="@drawable/round_border"
-            android:layout_marginTop="20dp"
-            android:layout_marginBottom="20dp">
-        </Button>
-    </LinearLayout>
-
+            android:textSize="16dp"
+            android:textColor="@color/teal_200"
+            android:background="@drawable/round_border_teal_list"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="20dp"
+            >
+        </TextView>
+    </RelativeLayout>
 </LinearLayout>

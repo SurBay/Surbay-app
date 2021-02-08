@@ -28,6 +28,12 @@ android {
     }
 }
 
+repositories {
+    maven { url "https://repo.commonsware.com.s3.amazonaws.com" }
+    maven { url "https://jitpack.io" }
+    maven { url "https://s3.amazonaws.com/repo.commonsware.com" }
+}
+
 dependencies {
 
     implementation 'androidx.appcompat:appcompat:1.2.0'
@@ -40,5 +46,7 @@ dependencies {
     implementation 'com.android.volley:volley:1.1.1'
     implementation "androidx.recyclerview:recyclerview:1.1.0"
     implementation "androidx.cardview:cardview:1.0.0"
+    implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
 
+    compile 'com.github.ParkSangGwon:TedPicker:v1.0.10'
 }

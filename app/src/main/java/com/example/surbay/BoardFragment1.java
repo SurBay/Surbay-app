@@ -11,7 +11,6 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -19,12 +18,23 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import java.text.SimpleDateFormat;
+import com.example.surbay.adapter.ListViewAdapter;
+import com.example.surbay.classfile.Post;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+
+import static com.example.surbay.HomeFragment.adapter1;
+import static com.example.surbay.HomeFragment.adapter2;
+import static com.example.surbay.HomeFragment.adapter3;
+import static com.example.surbay.HomeFragment.recyclerView;
+import static com.example.surbay.HomeFragment.recyclerView2;
+import static com.example.surbay.HomeFragment.recyclerView3;
+import static java.lang.Thread.sleep;
 
 
 public class BoardFragment1 extends Fragment// Fragment 클래스를 상속받아야한다
@@ -52,6 +62,7 @@ public class BoardFragment1 extends Fragment// Fragment 클래스를 상속받�
     public static Button frag1newsortbutton;
     public static Button frag1goalsortbutton;
     public static Button frag1datesortbutton;
+    private SwipeRefreshLayout refreshLayout;
 
 
     @Nullable
@@ -112,6 +123,8 @@ public class BoardFragment1 extends Fragment// Fragment 클래스를 상속받�
             }
         };
         list = new ArrayList<>(MainActivity.postArrayList);
+        list.addAll(MainActivity.finishpostArrayList);
+
         switch (SORT){
             case NEW:
                 Collections.sort(list, cmpNew);
@@ -128,14 +141,6 @@ public class BoardFragment1 extends Fragment// Fragment 클래스를 상속받�
 
         listViewAdapter = new ListViewAdapter(list);
         listView.setAdapter(listViewAdapter);
-
-
-        Log.d("array length", ""+MainActivity.postArrayList.size());
-//        try {
-//            getPosts();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -160,6 +165,7 @@ public class BoardFragment1 extends Fragment// Fragment 클래스를 상속받�
                     @Override
                     public void onClick(View v) {
                         Intent intent = new Intent(((AppCompatActivity) getActivity()).getApplicationContext(), WriteActivity.class);
+                        intent.putExtra("purpose", WRITE_NEWPOST);
                         startActivityForResult(intent, WRITE_NEWPOST);
                     }
                 }
@@ -184,6 +190,50 @@ public class BoardFragment1 extends Fragment// Fragment 클래스를 상속받�
             public void onClick(View v) {
                 SORT=NEW;
                 OnRefrech();
+            }
+        });
+        refreshLayout = view.findViewById(R.id.refresh_boards);
+
+        refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                try {
+                    MainActivity.getPosts();
+
+                    list = new ArrayList<>(MainActivity.postArrayList);
+                    list.addAll(MainActivity.finishpostArrayList);
+                    switch (SORT){
+                        case NEW:
+                            Collections.sort(list, cmpNew);
+                            frag1newselect();
+                            break;
+                        case GOAL:
+                            Collections.sort(list, cmpGoal);
+                            frag1goalselect();
+                            break;
+                        case DEADLINE:
+                            Collections.sort(list, cmpDeadline);
+                            frag1dateselect();
+                            break;
+                        default:
+                            break;
+                    }
+
+                    listViewAdapter = new ListViewAdapter(list);
+                    listView.setAdapter(listViewAdapter);
+                    adapter1.notifyDataSetChanged();
+                    recyclerView.setAdapter(adapter1);
+                    adapter2.notifyDataSetChanged();
+                    recyclerView2.setAdapter(adapter2);
+                    adapter3.notifyDataSetChanged();
+                    recyclerView3.setAdapter(adapter3);
+
+                    Log.d("refreshing is", "finish");
+
+                    refreshLayout.setRefreshing(false);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         });
 
@@ -241,6 +291,7 @@ public class BoardFragment1 extends Fragment// Fragment 클래스를 상속받�
             }
         };
         list = new ArrayList<>(MainActivity.postArrayList);
+        list.addAll(MainActivity.finishpostArrayList);
         switch (SORT){
             case NEW:
                 Collections.sort(list, cmpNew);
@@ -321,7 +372,7 @@ public class BoardFragment1 extends Fragment// Fragment 클래스를 상속받�
                 listViewAdapter.notifyDataSetChanged();
                 listView.setAdapter(listViewAdapter);
             }
-        },500);
+        },300);
     }
 
     public void frag1dateselect(){

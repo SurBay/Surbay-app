@@ -1,22 +1,30 @@
 package com.example.surbay;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
@@ -29,6 +37,12 @@ import org.json.JSONObject;
 
 public class LoginActivity extends AppCompatActivity {
     private AlertDialog dialog;
+
+    CheckBox auto_login_check;
+    CheckBox save_id_check;
+
+    ImageButton visibletoggle;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,8 +50,22 @@ public class LoginActivity extends AppCompatActivity {
         getSupportActionBar().hide();
 
 
+
+        save_id_check = findViewById(R.id.id_save_check);
+        auto_login_check = findViewById(R.id.auto_login_check);
+
         EditText usernameEditText = findViewById(R.id.username);
         EditText passwordEditText = findViewById(R.id.password);
+        TextView findidorpw = findViewById(R.id.findidorpw);
+
+        visibletoggle = findViewById(R.id.visible_toggle_login);
+
+        visibletoggle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                change_visible(passwordEditText);
+            }
+        });
 
         Button login = findViewById(R.id.login);
         Button signup = findViewById(R.id.sign_up);
@@ -65,6 +93,34 @@ public class LoginActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
+        save_id_check.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+        auto_login_check.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+
+
+        SharedPreferences auto = getSharedPreferences("auto", Activity.MODE_PRIVATE);
+        String auto_id = auto.getString("inputId", null);
+        if (auto_id != null){
+            usernameEditText.setText(auto_id);
+        }
+
+        findidorpw.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), FindIdActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
     private void makeLoginRequest(String username, String password) throws Exception{
@@ -89,15 +145,41 @@ public class LoginActivity extends AppCompatActivity {
                                                 Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                                                 LoginActivity.this.startActivity(intent);
                                                 try {
-                                                    SharedPreferences auto = getSharedPreferences("auto", Activity.MODE_PRIVATE);
-                                                    SharedPreferences.Editor autoLogin = auto.edit();
-                                                    autoLogin.putString("inputId", username);
-                                                    autoLogin.putString("inputPwd", password);
+                                                    if (auto_login_check.isChecked()){
+                                                        SharedPreferences auto = getSharedPreferences("auto", Activity.MODE_PRIVATE);
+                                                        SharedPreferences.Editor autoLogin = auto.edit();
+                                                        autoLogin.putString("inputId", username);
+                                                        autoLogin.putString("inputPwd", password);
 
-                                                    String token = resultObj.getString("token");
-                                                    autoLogin.putString("token", token);
-                                                    autoLogin.commit();
-                                                    UserPersonalInfo.token = token;
+                                                        String token = resultObj.getString("token");
+                                                        UserPersonalInfo.token = token;
+                                                        autoLogin.putString("token", token);
+                                                        autoLogin.commit();
+                                                    } else {
+                                                        if (save_id_check.isChecked()){
+                                                            SharedPreferences auto = getSharedPreferences("auto", Activity.MODE_PRIVATE);
+                                                            SharedPreferences.Editor autoLogin = auto.edit();
+
+                                                            String token = resultObj.getString("token");
+                                                            UserPersonalInfo.token = token;
+
+                                                            autoLogin.putString("inputId", username);
+                                                            autoLogin.remove("inputPwd");
+                                                            autoLogin.remove("token");
+                                                            autoLogin.commit();
+                                                        } else {
+                                                            SharedPreferences auto = getSharedPreferences("auto", Activity.MODE_PRIVATE);
+                                                            SharedPreferences.Editor autoLogin = auto.edit();
+
+                                                            String token = resultObj.getString("token");
+                                                            UserPersonalInfo.token = token;
+
+                                                            autoLogin.remove("inputId");
+                                                            autoLogin.remove("inputPwd");
+                                                            autoLogin.remove("token");
+                                                            autoLogin.commit();
+                                                        }
+                                                    }
                                                 } catch (JSONException e) {
                                                     e.printStackTrace();
                                                 }
@@ -142,6 +224,16 @@ public class LoginActivity extends AppCompatActivity {
             requestQueue.add(jsonObjectRequest);
         } catch(Exception e){
             e.printStackTrace();
+        }
+    }
+
+    private void change_visible(EditText v){
+        if (v.getTag() == "0"){
+            v.setTransformationMethod(null);
+            v.setTag("1");
+        } else {
+            v.setTransformationMethod(PasswordTransformationMethod.getInstance());
+            v.setTag("0");
         }
     }
 }

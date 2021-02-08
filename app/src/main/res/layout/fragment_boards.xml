@@ -18,19 +18,24 @@
             android:gravity="center"
             />
         <ImageButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
             android:layout_marginVertical="8dp"
+            android:layout_marginRight="5dp"
             android:layout_alignParentRight="true"
-            android:id="@+id/boards_search_button"/>
+            android:id="@+id/boards_search_button"
+            android:src="@drawable/magnifiyingglass"
+            android:background="#FFFFFF"
+            android:scaleType="centerInside"/>
     </RelativeLayout>
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:tabTextColor="@color/black"/>
-
-
+        app:tabSelectedTextColor="@color/teal_200"
+        app:tabMode="fixed"
+        app:tabGravity="fill"
+        app:tabTextColor="@color/gray2"/>
     <androidx.viewpager2.widget.ViewPager2
         android:layout_width="match_parent"
         android:layout_height="match_parent"

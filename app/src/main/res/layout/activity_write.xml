@@ -79,7 +79,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="설문 마감일"
+                android:text="설문 마감"
                 android:textColor="@color/black"
                 android:textSize="18dp"></TextView>
             <LinearLayout
@@ -110,7 +110,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="목표 표본 수"
+                android:text="목표 인원"
                 android:textSize="18dp"
                 android:textColor="@color/black"
                 ></TextView>
@@ -139,7 +139,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="설문 참여 보상"
+                android:text="참여 보상"
                 android:textSize="18dp"
                 android:textColor="@color/black"
                 ></TextView>
@@ -154,16 +154,61 @@
                 android:id="@+id/write_prize"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_weight="2"
                 android:focusable="true"
                 android:focusableInTouchMode="true"
-                android:hint="ex) 맘터 싸이버거 3개"
+                android:hint="체크하면 내용을 입력할 수 있습니다"
                 android:textSize="15dp"
                 android:lines="1"
                 android:inputType="text"
                 android:background="@color/white"
-                ></EditText>
+                android:enabled="false"
+                android:layout_marginRight="0dp"
+                />
+            <EditText
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:lines="1"
+                android:hint="추첨 인원"
+                android:layout_weight="1"
+                android:id="@+id/prize_count"
+                android:inputType="number"
+                android:visibility="gone"
+                />
         </LinearLayout>
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:id="@+id/prize_image_layout"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginTop="5dp"
+            android:visibility="gone"
+            >
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/round_border_teal_list"
+                android:text="사진 첨부"
+                android:textSize="15dp"
+                android:textColor="@color/teal_200"
+                android:textStyle="bold"
+                android:padding="10dp"
+                android:clickable="true"
+                android:id="@+id/prize_image_plus"
+                />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/gift_list"
+                android:layout_toRightOf="@id/prize_image_plus"
+                android:text="기프티콘 바코드 이미지를 업로드하면 설문조사\n참여자들에게 추첨을 통해 자동으로 지급됩니다"
+                android:textSize="13dp"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="5dp"
+                android:textColor="@android:color/darker_gray"
+                />
+        </RelativeLayout>
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -191,7 +236,18 @@
                 android:lines="1"
                 android:inputType="text"
                 android:background="@color/white"
-                ></EditText>
+                />
+            <Button
+                android:id="@+id/write_url_check"
+                android:layout_width="60dp"
+                android:layout_height="30dp"
+                android:text="확인"
+                android:textSize="15dp"
+                android:textStyle="bold"
+                android:background="@drawable/round_border_teal_list"
+                android:textColor="@color/teal_200"
+                android:visibility="gone"
+                />
         </LinearLayout>
         <LinearLayout
             android:layout_width="match_parent"
@@ -203,7 +259,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="예상 소요 시간"
+                android:text="소요 시간"
                 android:textSize="18dp"
                 android:textColor="@color/black"
                 ></TextView>

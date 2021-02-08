@@ -1,6 +1,7 @@
 package com.example.surbay;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Html;
 import android.util.Log;
@@ -15,6 +16,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
@@ -22,6 +24,15 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
+
+import static com.example.surbay.BoardFragment1.listView;
+import static com.example.surbay.BoardFragment1.listViewAdapter;
+import static com.example.surbay.HomeFragment.adapter1;
+import static com.example.surbay.HomeFragment.adapter2;
+import static com.example.surbay.HomeFragment.adapter3;
+import static com.example.surbay.HomeFragment.recyclerView;
+import static com.example.surbay.HomeFragment.recyclerView2;
+import static com.example.surbay.HomeFragment.recyclerView3;
 
 public class BoardsFragment extends Fragment  {
     private View view;
@@ -33,6 +44,7 @@ public class BoardsFragment extends Fragment  {
 
     public static FragmentStateAdapter adapter;
     ImageButton boards_search_button;
+    SwipeRefreshLayout refreshLayout;
 
     @SuppressLint("RestrictedApi")
     @Override
@@ -42,7 +54,6 @@ public class BoardsFragment extends Fragment  {
         ((AppCompatActivity) getActivity()).getSupportActionBar().hide();
         tabLayout = (TabLayout) view.findViewById(R.id.tabLayout);
 
-        Log.d("array length here", ""+MainActivity.postArrayList.size());
         viewPager = (ViewPager2) view.findViewById(R.id.viewPager);
         viewPager.setAdapter(adapter = new FragmentStateAdapter(getActivity()) {
             @NonNull
@@ -70,7 +81,8 @@ public class BoardsFragment extends Fragment  {
         boards_search_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                Intent intent = new Intent(((AppCompatActivity) getActivity()).getApplicationContext(), BoardsSearchActivity.class);
+                startActivity(intent);
             }
         });
 
@@ -81,9 +93,11 @@ public class BoardsFragment extends Fragment  {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         new TabLayoutMediator(tabLayout, viewPager,
                 (tab, position) -> {
-                    if(position==0){tab.setText("설문 게시판");}
+                    if(position==0){
+                        tab.setText("서베이");
+                    }
                     else if(position==1){tab.setText("설문 TIP");}
-                    else if(position==2){tab.setText("건의사항");}
+                    else if(position==2){tab.setText("건의/의견");}
                 }
         ).attach();
     }

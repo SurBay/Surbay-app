@@ -1,6 +1,7 @@
 package com.example.surbay;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -11,7 +12,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
@@ -20,13 +20,15 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.surbay.classfile.Post;
+import com.example.surbay.classfile.PostNonSurvey;
+import com.example.surbay.classfile.loadingProgress;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.sql.Array;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -54,14 +56,18 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         mContext = getApplicationContext();
 
         today = new Date();
         SimpleDateFormat fm = new SimpleDateFormat(mContext.getString(R.string.date_format));
 
+        loadingProgress loadingProgress = new loadingProgress();
+
         if(postArrayList.size() == 0 || finishpostArrayList.size() == 0) {
             try {
                 getPosts();
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -155,16 +161,15 @@ public class MainActivity extends AppCompatActivity {
                             UserPersonalInfo.email = user.getString("email");
                             UserPersonalInfo.points = user.getInt("points");
                             UserPersonalInfo.level = user.getInt("level");
+                            JSONArray ja = (JSONArray)user.get("participations");
 
-
-
-
-                            Log.d("partiarray", ""+user.get("participations").getClass().getName());
-                            /*ArrayList<String> partiarray = new ArrayList<String>();
+                            ArrayList<String> partiarray = new ArrayList<String>();
                             for (int j = 0; j<ja.length(); j++){
-                                JSONObject json = ja.getJSONObject(j);
+                                partiarray.add(ja.getString(j));
+                            }
 
-                            }*/
+                            UserPersonalInfo.participations = partiarray;
+                            Log.d("partiarray", ""+UserPersonalInfo.participations.toString());
 
 
                             SharedPreferences auto = getSharedPreferences("auto", Activity.MODE_PRIVATE);
@@ -193,6 +198,8 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
+
+
     public static void getPosts() throws Exception{
         try{
             Log.d("starting request", "get posts");
@@ -201,12 +208,11 @@ public class MainActivity extends AppCompatActivity {
             RequestQueue requestQueue = Volley.newRequestQueue(mContext);
             JsonArrayRequest jsonArrayRequest = new JsonArrayRequest
                     (Request.Method.GET, requestURL, null, response -> {
-
                         try {
                             postArrayList = new ArrayList<Post>();
                             finishpostArrayList = new ArrayList<Post>();
                             JSONArray resultArr = new JSONArray(response.toString());
-                            Log.d("response is", ""+response);
+                            Log.d("getpost", ""+response+"\n");
 
                             for (int i = 0; i < resultArr.length(); i++) {
                                 JSONObject post = resultArr.getJSONObject(i);
@@ -235,17 +241,19 @@ public class MainActivity extends AppCompatActivity {
                                 }
                                 Boolean with_prize = post.getBoolean("with_prize");
                                 String prize;
+                                Integer count;
                                 if(with_prize) {
                                     prize = post.getString("prize");
+                                    count = post.getInt("__v");
                                 }else{
-                                    prize = null;
+                                    prize = "";
+                                    count = 0;
                                 }
                                 Integer est_time = post.getInt("est_time");
 
                                 String target = post.getString("target");
 
-
-                                Post newPost = new Post(id, title, author, author_lvl, content, participants, goal_participants, url, date, deadline, with_prize, prize, est_time, target);
+                                Post newPost = new Post(id, title, author, author_lvl, content, participants, goal_participants, url, date, deadline, with_prize, prize, est_time, target, count);
 
                                 if (newPost.getDeadline().before(today) || (newPost.getParticipants()==newPost.getGoal_participants())) {
                                     finishpostArrayList.add(newPost);

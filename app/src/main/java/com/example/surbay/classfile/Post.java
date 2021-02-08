@@ -1,7 +1,7 @@
-package com.example.surbay;
+package com.example.surbay.classfile;
 
 import android.annotation.SuppressLint;
-import android.content.res.Resources;
+import android.content.Intent;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -22,6 +22,7 @@ public class Post implements Parcelable{
     private Date deadline;
     private boolean with_prize;
     private String prize;
+    private Integer num_prize;
     private Integer est_time;
     private String target;
 
@@ -82,6 +83,8 @@ public class Post implements Parcelable{
     public void setWith_prize(boolean with_prize) {
         this.with_prize = with_prize;
     }
+    public void setNum_prize(Integer num_prize) { this.num_prize = num_prize;    }
+    public Integer getNum_prize() {        return num_prize; }
     public Integer getAuthor_lvl() {return author_lvl;}
     public void setAuthor_lvl(Integer author_lvl) {this.author_lvl = author_lvl;}
     public String getPrize() {return prize;}
@@ -98,7 +101,7 @@ public class Post implements Parcelable{
         this.target = target;
     }
 
-    public Post(String id, String title, String author, Integer author_lvl, String content, Integer participants, Integer goal_participants, String url, Date date, Date deadline, Boolean with_prize, String prize, Integer est_time, String target){
+    public Post(String id, String title, String author, Integer author_lvl, String content, Integer participants, Integer goal_participants, String url, Date date, Date deadline, Boolean with_prize, String prize, Integer est_time, String target, Integer num_prize){
         this.id = id;
         this.title = title;
         this.author = author;
@@ -113,7 +116,7 @@ public class Post implements Parcelable{
         this.prize = prize;
         this.est_time = est_time;
         this.target = target;
-
+        this.num_prize = num_prize;
     }
 
     @SuppressLint("NewApi")
@@ -138,6 +141,7 @@ public class Post implements Parcelable{
         }
         this.with_prize = in.readBoolean();
         this.prize = in.readString();
+        this.num_prize = in.readInt();
         this.est_time = in.readInt();
         this.target = in.readString();
     }
@@ -164,6 +168,7 @@ public class Post implements Parcelable{
         dest.writeString(this.prize);
         dest.writeInt(this.est_time);
         dest.writeString(this.target);
+        dest.writeInt(this.num_prize);
     }
     public static final Parcelable.Creator<Post> CREATOR = new Parcelable.Creator<Post>() {
         @Override

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="reportreason">
+        <item>욕설/비하</item>
+        <item>상업적 광고 및 판매</item>
+        <item>낚시/놀람/도배/사기</item>
+        <item>게시판 성격에 부적절함</item>
+        <item>기타</item>
+    </string-array>
+</resources>

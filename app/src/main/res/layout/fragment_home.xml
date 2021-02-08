@@ -42,7 +42,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:background="#FBFBFB">
+                android:background="#EBEBF0">
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -55,11 +55,12 @@
                     ></TextView>
                 <ImageButton
                     android:id="@+id/date_sort_button"
-                    android:padding="15dp"
                     android:layout_width="30dp"
                     android:layout_height="30dp"
-                    android:src="@drawable/ic_next"
-                    android:scaleType="fitXY">
+                    android:background="#EBEBF0"
+                    android:layout_marginTop="10dp"
+                    android:src="@drawable/leftarrow"
+                    android:scaleType="centerInside">
                 </ImageButton>
             </LinearLayout>
             <LinearLayout
@@ -67,20 +68,20 @@
                 android:layout_height="wrap_content"
                 android:padding="10dp"
                 android:gravity="center"
-                android:background="#FBFBFB">
+                android:background="#EBEBF0">
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/recycler1"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="#FBFBFB">
+                    android:background="#EBEBF0">
 
                 </androidx.recyclerview.widget.RecyclerView>
             </LinearLayout>
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="#FBFBFB">
+                android:background="#EBEBF0">
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -93,17 +94,18 @@
                     ></TextView>
                 <ImageButton
                     android:id="@+id/goal_sort_button"
-                    android:padding="15dp"
+                    android:layout_marginTop="10dp"
                     android:layout_width="30dp"
                     android:layout_height="30dp"
-                    android:src="@drawable/ic_next"
-                    android:scaleType="fitXY">
+                    android:background="#EBEBF0"
+                    android:src="@drawable/leftarrow"
+                    android:scaleType="centerInside">
                 </ImageButton>
             </LinearLayout>
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="#FBFBFB"
+                android:background="#EBEBF0"
                 android:padding="10dp"
                 android:gravity="center">
 
@@ -111,14 +113,14 @@
                     android:id="@+id/recycler2"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="#FBFBFB">
+                    android:background="#EBEBF0">
 
                 </androidx.recyclerview.widget.RecyclerView>
             </LinearLayout>
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="#FBFBFB">
+                android:background="#EBEBF0">
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -131,47 +133,66 @@
                     ></TextView>
                 <ImageButton
                     android:id="@+id/new_sort_button"
-                    android:padding="15dp"
+                    android:layout_marginTop="10dp"
                     android:layout_width="30dp"
                     android:layout_height="30dp"
-                    android:src="@drawable/ic_next"
-                    android:scaleType="fitXY">
+                    android:background="#EBEBF0"
+                    android:src="@drawable/leftarrow"
+                    android:scaleType="centerInside">
                 </ImageButton>
             </LinearLayout>
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="10dp"
-                android:gravity="center">
+                android:gravity="center"
+                android:background="#EBEBF0">
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/recycler3"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:background="#EBEBF0">
 
                 </androidx.recyclerview.widget.RecyclerView>
             </LinearLayout>
-
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:background="#EBEBF0">
                 <TextView
-                    android:padding="10dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="주목! 전달할 소식이 있어요"
+                    android:textColor="@color/black"
+                    android:textSize="15dp"
+                    android:paddingHorizontal="15dp"
+                    android:layout_marginTop="10dp"
+                    ></TextView>
+                <ImageButton
+                    android:id="@+id/notice_sort_button"
+                    android:layout_marginTop="10dp"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:background="#EBEBF0"
+                    android:src="@drawable/leftarrow"
+                    android:scaleType="centerInside">
+                </ImageButton>
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:gravity="center"
+                android:background="#EBEBF0">
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recycler4"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="공지사항"
-                    android:textColor="@color/black"
-                    android:textSize="20dp"
-                    android:background="@color/teal"
-                    ></TextView>
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="100dp"
-                    android:textColor="@color/black"
-                    android:textSize="30dp"
-                    android:gravity="center"
-                    android:text="공지사항 글 목록"></TextView>
+                    android:background="#EBEBF0">
+
+                </androidx.recyclerview.widget.RecyclerView>
             </LinearLayout>
         </LinearLayout>
     </ScrollView>

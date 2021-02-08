@@ -23,4 +23,24 @@
         <item name="android:background">@drawable/round_border_white</item>
         <item name="backgroundColor">#FFFFFF</item>
     </style>
+    <style name="search_back">
+        <item name="android:background">@drawable/round_border_white_fill</item>
+        <item name="backgroundColor">#FFFFFF</item>
+    </style>
+    <style name="sex_box_nosel">
+        <item name="android:background">@drawable/box_notfill</item>
+        <item name="android:textColor">#ACACAC</item>
+    </style>
+    <style name="sex_box_sel">
+        <item name="android:background">@drawable/box_fill</item>
+        <item name="android:textColor">#FFFFFF</item>
+    </style>
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">@color/design_default_color_primary</item>
+        <item name="colorPrimaryDark">@color/design_default_color_primary_dark</item>
+        <item name="colorAccent">@color/design_default_color_surface</item>
+
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
 </resources>

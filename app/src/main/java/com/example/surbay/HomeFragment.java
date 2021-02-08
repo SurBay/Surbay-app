@@ -1,6 +1,5 @@
 package com.example.surbay;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -10,38 +9,27 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.ImageButton;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.android.volley.DefaultRetryPolicy;
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.JsonArrayRequest;
-import com.android.volley.toolbox.Volley;
-import com.google.android.material.bottomnavigation.BottomNavigationMenu;
+import com.example.surbay.adapter.RecyclerViewAdapter;
+import com.example.surbay.adapter.RecyclerViewDdayAdapter;
+import com.example.surbay.adapter.RecyclerViewGoalAdapter;
+import com.example.surbay.adapter.RecyclerViewNewAdapter;
+import com.example.surbay.classfile.Post;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 
-import static androidx.core.app.ActivityCompat.startActivityForResult;
 import static com.example.surbay.BoardFragment1.frag1datesortbutton;
 import static com.example.surbay.BoardFragment1.frag1goalsortbutton;
 import static com.example.surbay.BoardFragment1.frag1newsortbutton;
@@ -56,26 +44,28 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
     private static final int DEADLINE= 3;
 
     private static View view;
-    private static RecyclerView recyclerView;
-    private static RecyclerView recyclerView2;
-    private static RecyclerView recyclerView3;
-    private static RecyclerViewAdapter adapter1;
-    private static RecyclerViewAdapter adapter2;
-    private static RecyclerViewAdapter adapter3;
+    public static RecyclerView recyclerView;
+    public static RecyclerView recyclerView2;
+    public static RecyclerView recyclerView3;
+    private static RecyclerView recyclerView4;
+    public static RecyclerViewDdayAdapter adapter1;
+    public static RecyclerViewGoalAdapter adapter2;
+    public static RecyclerViewNewAdapter adapter3;
+    private static RecyclerViewAdapter adapter4;
     private static Context mContext;
 
     private static ImageButton date_sort_button;
     private static ImageButton goal_sort_button;
     private static ImageButton new_sort_button;
+    private static ImageButton notice_sort_button;
 
-    private static ArrayList<Post> list1;
-    private static ArrayList<Post> list2;
-    private static ArrayList<Post> list3;
+    public static ArrayList<Post> list1;
+    public static ArrayList<Post> list2;
+    public static ArrayList<Post> list3;
+    public static ArrayList<Post> list4;
     private static Comparator<Post> cmpDeadline;
     private static Comparator<Post> cmpNew;
     private static Comparator<Post> cmpGoal;
-
-    private BoardFragment1 boardFragment1;
 
     @Nullable
     @Override
@@ -89,10 +79,12 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
         recyclerView = view.findViewById(R.id.recycler1);
         recyclerView2 = view.findViewById(R.id.recycler2);
         recyclerView3 = view.findViewById(R.id.recycler3);
+        recyclerView4 = view.findViewById(R.id.recycler4);
 
         date_sort_button = view.findViewById(R.id.date_sort_button);
         goal_sort_button = view.findViewById(R.id.goal_sort_button);
         new_sort_button = view.findViewById(R.id.new_sort_button);
+        notice_sort_button = view.findViewById(R.id.notice_sort_button);
 
         cmpGoal = new Comparator<Post>() {
             @Override
@@ -145,55 +137,57 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
         list1 = new ArrayList<>(MainActivity.postArrayList);
         list2 = new ArrayList<>(MainActivity.postArrayList);
         list3 = new ArrayList<>(MainActivity.postArrayList);
+        list4 = new ArrayList<>();
         Collections.sort(list1, cmpDeadline);
         Collections.sort(list2, cmpGoal);
         Collections.sort(list3, cmpNew);
-        adapter1 = new RecyclerViewAdapter(mContext, list1);
-        adapter2 = new RecyclerViewAdapter(mContext, list2);
-        adapter3 = new RecyclerViewAdapter(mContext, list3);
-        if(MainActivity.postArrayList.size()==0) {
-            view.setVisibility(View.INVISIBLE);
-        }
-        else{
-
-            recyclerView.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
-            recyclerView.setAdapter(adapter1);
-            recyclerView2.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
-            recyclerView2.setAdapter(adapter2);
-            recyclerView3.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
-            recyclerView3.setAdapter(adapter3);
-            adapter1.setOnItemClickListener(new RecyclerViewAdapter.OnItemClickListener() {
-                @Override
-                public void onItemClick(View v, int position) {
-                    Post item = (Post) adapter1.getItem(position);
-                    Intent intent = new Intent(((AppCompatActivity) getActivity()).getApplicationContext(), PostDetailActivity.class);
-                    intent.putExtra("post", item);
-                    intent.putExtra("position", position);
-                    startActivityForResult(intent, DO_SURVEY);
-                }
-            });
-            adapter2.setOnItemClickListener(new RecyclerViewAdapter.OnItemClickListener() {
-                @Override
-                public void onItemClick(View v, int position) {
-                    Post item = (Post) adapter2.getItem(position);
-                    Intent intent = new Intent(((AppCompatActivity) getActivity()).getApplicationContext(), PostDetailActivity.class);
-                    intent.putExtra("post", item);
-                    intent.putExtra("position", position);
-                    startActivityForResult(intent, DO_SURVEY);
-                }
-            });
-            adapter3.setOnItemClickListener(new RecyclerViewAdapter.OnItemClickListener() {
-                @Override
-                public void onItemClick(View v, int position) {
-                    Post item = (Post) adapter3.getItem(position);
-                    Intent intent = new Intent(((AppCompatActivity) getActivity()).getApplicationContext(), PostDetailActivity.class);
-                    intent.putExtra("post", item);
-                    intent.putExtra("position", position);
-                    startActivityForResult(intent, DO_SURVEY);
-                }
-            });
-
-        }
+        adapter1 = new RecyclerViewDdayAdapter(mContext, list1);
+        adapter2 = new RecyclerViewGoalAdapter(mContext, list2);
+        adapter3 = new RecyclerViewNewAdapter(mContext, list3);
+        adapter4 = new RecyclerViewAdapter(mContext, list4);
+        recyclerView.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
+        recyclerView.setAdapter(adapter1);
+        recyclerView2.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
+        recyclerView2.setAdapter(adapter2);
+        recyclerView3.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
+        recyclerView3.setAdapter(adapter3);
+        recyclerView4.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
+        recyclerView4.setAdapter(adapter4);
+        adapter1.setOnItemClickListener(new RecyclerViewDdayAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View v, int position) {
+                Post item = (Post) adapter1.getItem(position);
+                Intent intent = new Intent(mContext, PostDetailActivity.class);
+                intent.putExtra("post", item);
+                intent.putExtra("position", position);
+                mContext.startActivity(intent);
+            }
+        });
+        adapter2.setOnItemClickListener(new RecyclerViewGoalAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View v, int position) {
+                Post item = (Post) adapter2.getItem(position);
+                Intent intent = new Intent(mContext, PostDetailActivity.class);
+                intent.putExtra("post", item);
+                intent.putExtra("position", position);
+                mContext.startActivity(intent);
+            }
+        });
+        adapter3.setOnItemClickListener(new RecyclerViewNewAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View v, int position) {
+                Post item = (Post) adapter3.getItem(position);
+                Intent intent = new Intent(mContext, PostDetailActivity.class);
+                intent.putExtra("post", item);
+                intent.putExtra("position", position);
+                mContext.startActivity(intent);
+            }
+        });
+        adapter4.setOnItemClickListener(new RecyclerViewAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View v, int position) {
+                            }
+        });
 
         date_sort_button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -201,12 +195,6 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
                 OnRefrech(DEADLINE);
                 BottomNavigationView bottomNavigationView = (BottomNavigationView) getActivity().findViewById(R.id.bottomNavi);
                 bottomNavigationView.setSelectedItemId(R.id.action_boards);
-//                if(BoardsFragment.adapter!=null) {
-//                    BoardsFragment.adapter.notifyDataSetChanged();
-//                    BoardsFragment.viewPager.setAdapter(null);
-//                    BoardsFragment.viewPager.setAdapter(BoardsFragment.adapter);
-////                    BoardsFragment.viewPager.setCurrentItem(0);
-//                }
             }
         });
         goal_sort_button.setOnClickListener(new View.OnClickListener() {
@@ -215,12 +203,6 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
                 OnRefrech(GOAL);
                 BottomNavigationView bottomNavigationView = (BottomNavigationView) getActivity().findViewById(R.id.bottomNavi);
                 bottomNavigationView.setSelectedItemId(R.id.action_boards);
-//                if(BoardsFragment.adapter!=null) {
-//                    BoardsFragment.adapter.notifyDataSetChanged();
-//                    BoardsFragment.viewPager.setAdapter(null);
-//                    BoardsFragment.viewPager.setAdapter(BoardsFragment.adapter);
-////                    BoardsFragment.viewPager.setCurrentItem(0);
-//                }
             }
         });
         new_sort_button.setOnClickListener(new View.OnClickListener() {
@@ -229,13 +211,14 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
                 OnRefrech(NEW);
                 BottomNavigationView bottomNavigationView = (BottomNavigationView) getActivity().findViewById(R.id.bottomNavi);
                 bottomNavigationView.setSelectedItemId(R.id.action_boards);
-//                if(BoardsFragment.adapter!=null) {
-//                    BoardsFragment.adapter.notifyDataSetChanged();
-//                    BoardsFragment.viewPager.setAdapter(null);
-//                    BoardsFragment.viewPager.setAdapter(BoardsFragment.adapter);
-////                    BoardsFragment.viewPager.setCurrentItem(0);
-//                }
             } 
+        });
+        notice_sort_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(mContext, noticeActivity.class);
+                startActivity(intent);
+            }
         });
         return view;
     }
@@ -251,19 +234,23 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
         list1 = new ArrayList<>(MainActivity.postArrayList);
         list2 = new ArrayList<>(MainActivity.postArrayList);
         list3 = new ArrayList<>(MainActivity.postArrayList);
+        list4 = new ArrayList<>();
         Collections.sort(list1, cmpDeadline);
         Collections.sort(list2, cmpGoal);
         Collections.sort(list3, cmpNew);
-        adapter1 = new RecyclerViewAdapter(mContext, list1);
-        adapter2 = new RecyclerViewAdapter(mContext, list2);
-        adapter3 = new RecyclerViewAdapter(mContext, list3);
+        adapter4 = new RecyclerViewAdapter(mContext, list4);
+        adapter1 = new RecyclerViewDdayAdapter(mContext, list1);
+        adapter2 = new RecyclerViewGoalAdapter(mContext, list2);
+        adapter3 = new RecyclerViewNewAdapter(mContext, list3);
         recyclerView.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
         recyclerView.setAdapter(adapter1);
         recyclerView2.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
         recyclerView2.setAdapter(adapter2);
         recyclerView3.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
         recyclerView3.setAdapter(adapter3);
-        adapter1.setOnItemClickListener(new RecyclerViewAdapter.OnItemClickListener() {
+        recyclerView4.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
+        recyclerView4.setAdapter(adapter4);
+        adapter1.setOnItemClickListener(new RecyclerViewDdayAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View v, int position) {
                 Post item = (Post) adapter1.getItem(position);
@@ -273,7 +260,7 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
                 mContext.startActivity(intent);
             }
         });
-        adapter2.setOnItemClickListener(new RecyclerViewAdapter.OnItemClickListener() {
+        adapter2.setOnItemClickListener(new RecyclerViewGoalAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View v, int position) {
                 Post item = (Post) adapter2.getItem(position);
@@ -283,7 +270,7 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
                 mContext.startActivity(intent);
             }
         });
-        adapter3.setOnItemClickListener(new RecyclerViewAdapter.OnItemClickListener() {
+        adapter3.setOnItemClickListener(new RecyclerViewNewAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View v, int position) {
                 Post item = (Post) adapter3.getItem(position);
@@ -293,7 +280,11 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
                 mContext.startActivity(intent);
             }
         });
-
+        adapter4.setOnItemClickListener(new RecyclerViewAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View v, int position) {
+            }
+        });
 
         view.setVisibility(View.VISIBLE);
     }
