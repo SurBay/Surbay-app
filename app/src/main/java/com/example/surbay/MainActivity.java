@@ -90,6 +90,13 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
+        if(postArrayList.size()==0) {
+            try {
+                getNotices();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
         getPersonalInfo();
 
         setContentView(R.layout.activity_main);
@@ -437,7 +444,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public static void getNotice() throws Exception{
+    public static void getNotices() throws Exception{
         try{
             Log.d("starting request", "get notices");
             String requestURL = "https://surbay-server.herokuapp.com/api/notices";
