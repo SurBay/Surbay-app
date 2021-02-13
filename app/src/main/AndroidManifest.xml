@@ -20,10 +20,16 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SurBay"
         android:usesCleartextTraffic="true">
-        <activity android:name=".FindIdActivity"></activity>
+        <activity android:name=".mypage.MypageSettingAlerm"></activity>
+        <activity android:name=".mypage.PwChange" />
+        <activity android:name=".mypage.SchoolAuth" />
+        <activity android:name=".classfile.AccountFix" />
+        <activity android:name=".mypage.MypageSettingAccount" />
+        <activity android:name=".mypage.MypageSettingMain" />
+        <activity android:name=".FindIdActivity" />
         <activity android:name=".NoticeDetailActivity" />
         <activity android:name=".noticeActivity" />
-        <activity android:name=".Mypage_uploadNParti" />
+        <activity android:name=".mypage.Mypage_uploadNParti" />
         <activity android:name=".BoardsSearchActivity" />
         <activity
             android:name=".SplashActivity"

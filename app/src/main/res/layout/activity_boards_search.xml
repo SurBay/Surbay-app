@@ -23,7 +23,7 @@
             android:spinnerMode="dropdown"/>
         <LinearLayout
             android:layout_width="1dp"
-            android:layout_height="35dp"
+            android:layout_height="20dp"
             android:background="@color/gray"
             android:layout_centerVertical="true"
             android:layout_toRightOf="@id/search_spinner"
@@ -37,17 +37,19 @@
             android:layout_toRightOf="@id/search_spinner"
             android:layout_toLeftOf="@id/boards_enter_button"
             android:hint="설문 제목, 내용을 입력하세요"
+            android:textColorHint="@color/gray"
             android:lines="1"
             android:imeOptions="actionDone"/>
         <ImageButton
-            android:layout_width="30dp"
-            android:layout_height="30dp"
+            android:layout_width="10dp"
+            android:layout_height="10dp"
             android:id="@+id/boards_enter_button"
             android:layout_centerVertical="true"
             android:layout_alignParentRight="true"
-            android:src="@drawable/magnifiyingglass"
+            android:src="@drawable/remove"
             android:background="#FFFFFF"
-            android:scaleType="centerInside"/>
+            android:scaleType="centerInside"
+            android:visibility="gone"/>
     </RelativeLayout>
     <LinearLayout
         android:layout_width="match_parent"

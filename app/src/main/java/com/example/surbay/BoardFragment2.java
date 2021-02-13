@@ -12,10 +12,11 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.surbay.adapter.NonSurveyListViewAdapter;
+import com.example.surbay.adapter.SurveyTipListViewAdapter;
 
 public class BoardFragment2 extends Fragment {
 
-    private NonSurveyListViewAdapter listViewAdapter;
+    private SurveyTipListViewAdapter listViewAdapter;
     private ListView listView;
     private View view;
     @Nullable
@@ -27,14 +28,14 @@ public class BoardFragment2 extends Fragment {
         getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         listView = view.findViewById(R.id.list);
-        listViewAdapter = new NonSurveyListViewAdapter(MainActivity.surveytipArrayList);
+        listViewAdapter = new SurveyTipListViewAdapter(MainActivity.surveytipArrayList);
         listView.setAdapter(listViewAdapter);
         return view;
     }
     @Override
     public void onViewCreated (View view, Bundle savedInstanceState){
         listView = view.findViewById(R.id.list);
-        listViewAdapter = new NonSurveyListViewAdapter(MainActivity.surveytipArrayList);
+        listViewAdapter = new SurveyTipListViewAdapter(MainActivity.surveytipArrayList);
         listView.setAdapter(listViewAdapter);
     }
 }

@@ -10,21 +10,29 @@ import java.util.Date;
 
 public class Reply implements Parcelable {
     private String id;
+    private String writer;
     private String content;
     private Date date;
 
     private String dateformat = "yyyy-MM-dd'T'hh:mm:ss.SSS";
 
-    public Reply(String id, String content, Date date){
+    public Reply(String id, String writer, String content, Date date){
         this.id = id;
+        this.writer = writer;
         this.content = content;
         this.date = date;
     }
 
-    public String getid() {
+    public String getID() {
         return id;
     }
-    public void setid(String author) {        this.id = author;    }
+    public void setId(String id) {
+        this.id = id;
+    }
+    public String getWriter() {
+        return writer;
+    }
+    public void setWriter(String author) {        this.writer = author;    }
     public String getContent() {        return content;    }
     public void setContent(String content) {
         this.content = content;
@@ -38,8 +46,9 @@ public class Reply implements Parcelable {
 
     @SuppressLint("NewApi")
     public Reply(Parcel in){
-        id = in.readString();
-        content = in.readString();
+        this.id = in.readString();
+        this.writer = in.readString();
+        this.content = in.readString();
         try {
             this.date = new SimpleDateFormat(dateformat).parse(in.readString());
         } catch (ParseException e) {
@@ -62,8 +71,9 @@ public class Reply implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(id);
-        dest.writeString(content);
+        dest.writeString(this.id);
+        dest.writeString(this.writer);
+        dest.writeString(this.content);
         dest.writeString(new SimpleDateFormat(dateformat).format(this.date));
     }
 }

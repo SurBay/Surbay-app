@@ -8,6 +8,7 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.example.surbay.R;
+import com.example.surbay.classfile.Notice;
 import com.example.surbay.classfile.PostNonSurvey;
 
 import java.text.SimpleDateFormat;
@@ -15,9 +16,9 @@ import java.util.ArrayList;
 
 public class NoticeListAdapter extends BaseAdapter {
 
-    private ArrayList<PostNonSurvey> listViewItemList = new ArrayList<PostNonSurvey>();
+    private ArrayList<Notice> listViewItemList = new ArrayList<>();
 
-    public NoticeListAdapter(ArrayList<PostNonSurvey> listViewItemList) {
+    public NoticeListAdapter(ArrayList<Notice> listViewItemList) {
         this.listViewItemList = listViewItemList;
     }
 
@@ -32,7 +33,7 @@ public class NoticeListAdapter extends BaseAdapter {
     @Override
     public Object getItem(int position) {        return listViewItemList.get(position);    }
 
-    public void addItem(PostNonSurvey item){        listViewItemList.add(item);    }
+    public void addItem(Notice item){        listViewItemList.add(item);    }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
@@ -52,9 +53,9 @@ public class NoticeListAdapter extends BaseAdapter {
 
         // Data Set(listViewItemList)에서 position에 위치한 데이터 참조 획득
         SimpleDateFormat fm = new SimpleDateFormat("MM.dd");
-        PostNonSurvey post = listViewItemList.get(position);
-        String date = fm.format(post.getDate());
+        Notice post = listViewItemList.get(position);
 
+        String date = fm.format(post.getDate());
         titleTextView.setText(post.getTitle());
         contentTextView.setText(post.getContent());
         dateTextView.setText(date);

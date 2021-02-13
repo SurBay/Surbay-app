@@ -1,19 +1,15 @@
-package com.example.surbay;
+package com.example.surbay.mypage;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -22,6 +18,10 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.surbay.MainActivity;
+import com.example.surbay.PostDetailActivity;
+import com.example.surbay.R;
+import com.example.surbay.UserPersonalInfo;
 import com.example.surbay.adapter.RecyclerViewAdapter;
 import com.example.surbay.classfile.Post;
 
@@ -50,6 +50,8 @@ public class MypageFragment extends Fragment // Fragment 클래스를 상속받�
     TextView nameview;
     ImageView profileview;
     TextView levelview;
+    ImageView setting;
+    ImageView bell;
 
     TextView upload_2nd;
     TextView parti_2nd;
@@ -72,6 +74,16 @@ public class MypageFragment extends Fragment // Fragment 클래스를 상속받�
         i_parti_button = view.findViewById(R.id.mypage_i_parti);
         i_get_button = view.findViewById(R.id.mypage_i_get);
 
+        setting = view.findViewById(R.id.mypage_setting);
+        bell = view.findViewById(R.id.mypage_bell);
+
+        setting.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(((AppCompatActivity) getActivity()).getApplicationContext(), MypageSettingMain.class);
+                startActivity(intent);
+            }
+        });
         getlistofI();
 
         Log.d("listmake size is", ""+list_make.size());
@@ -86,26 +98,30 @@ public class MypageFragment extends Fragment // Fragment 클래스를 상속받�
             recyclerView_make.setAdapter(adapter_make);
             recyclerView_parti.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
             recyclerView_parti.setAdapter(adapter_parti);
-            adapter_make.setOnItemClickListener(new RecyclerViewAdapter.OnItemClickListener() {
-                @Override
-                public void onItemClick(View v, int position) {
-                    Post item = (Post) adapter_make.getItem(position);
-                    Intent intent = new Intent(((AppCompatActivity) getActivity()).getApplicationContext(), PostDetailActivity.class);
-                    intent.putExtra("post", item);
-                    intent.putExtra("position", position);
-                    startActivity(intent);
-                }
-            });
-            adapter_parti.setOnItemClickListener(new RecyclerViewAdapter.OnItemClickListener() {
-                @Override
-                public void onItemClick(View v, int position) {
-                    Post item = (Post) adapter_parti.getItem(position);
-                    Intent intent = new Intent(((AppCompatActivity) getActivity()).getApplicationContext(), PostDetailActivity.class);
-                    intent.putExtra("post", item);
-                    intent.putExtra("position", position);
-                    startActivity(intent);
-                }
-            });
+            if (list_make.size() > 0){
+                adapter_make.setOnItemClickListener(new RecyclerViewAdapter.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(View v, int position) {
+                        Post item = (Post) adapter_make.getItem(position);
+                        Intent intent = new Intent(((AppCompatActivity) getActivity()).getApplicationContext(), PostDetailActivity.class);
+                        intent.putExtra("post", item);
+                        intent.putExtra("position", position);
+                        startActivity(intent);
+                    }
+                });
+            }
+            if (list_parti.size() > 0 ){
+                adapter_parti.setOnItemClickListener(new RecyclerViewAdapter.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(View v, int position) {
+                        Post item = (Post) adapter_parti.getItem(position);
+                        Intent intent = new Intent(((AppCompatActivity) getActivity()).getApplicationContext(), PostDetailActivity.class);
+                        intent.putExtra("post", item);
+                        intent.putExtra("position", position);
+                        startActivity(intent);
+                    }
+                });
+            }
         }
         i_make_button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -135,24 +151,6 @@ public class MypageFragment extends Fragment // Fragment 클래스를 상속받�
         });
 
 
-        Button logout = view.findViewById(R.id.logout);
-        logout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //SharedPreferences에 저장된 값들을 로그아웃 버튼을 누르면 삭제하기 위해
-                //SharedPreferences를 불러옵니다. 메인에서 만든 이름으로
-                Intent intent = new Intent(getActivity(), LoginActivity.class);
-                startActivity(intent);
-                SharedPreferences auto = getActivity().getSharedPreferences("auto", Activity.MODE_PRIVATE);
-                SharedPreferences.Editor editor = auto.edit();
-                //editor.clear()는 auto에 들어있는 모든 정보를 기기에서 지웁니다.
-                editor.clear();
-                editor.commit();
-                Toast.makeText(getActivity(), "로그아웃.", Toast.LENGTH_SHORT).show();
-                getActivity().finish();
-            }
-        });
-
         nameview = view.findViewById(R.id.mypage_myname);
         profileview = view.findViewById(R.id.mypage_profile_image);
         levelview = view.findViewById(R.id.user_level);
@@ -173,7 +171,6 @@ public class MypageFragment extends Fragment // Fragment 클래스를 상속받�
             can_sur.setText("0회");
         }
         willdo_sur.setText((list_parti.size()%7)+"회/7회");
-        willdo_sur_below.setText("설문 "+(list_parti.size()%7)+"회 더 참여 시 설문 게시글을 작성할 수 있어요");
 
         return view;
     }

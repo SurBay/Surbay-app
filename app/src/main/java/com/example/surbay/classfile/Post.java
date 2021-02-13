@@ -7,7 +7,9 @@ import android.os.Parcelable;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class Post implements Parcelable{
     private String id;
@@ -25,6 +27,8 @@ public class Post implements Parcelable{
     private Integer num_prize;
     private Integer est_time;
     private String target;
+    private ArrayList<Reply> comments;
+    private boolean done;
 
     private String dateformat = "yyyy-MM-dd'T'hh:mm:ss.SSS";
 
@@ -101,7 +105,12 @@ public class Post implements Parcelable{
         this.target = target;
     }
 
-    public Post(String id, String title, String author, Integer author_lvl, String content, Integer participants, Integer goal_participants, String url, Date date, Date deadline, Boolean with_prize, String prize, Integer est_time, String target, Integer num_prize){
+    public void setDone(boolean done) { this.done = done;    }
+    public boolean isDone() { return done;    }
+    public ArrayList<Reply> getComments() {        return comments;    }
+    public void setComments(ArrayList<Reply> comments) { this.comments = comments;    }
+
+    public Post(String id, String title, String author, Integer author_lvl, String content, Integer participants, Integer goal_participants, String url, Date date, Date deadline, Boolean with_prize, String prize, Integer est_time, String target, Integer num_prize, ArrayList<Reply> comments, boolean done){
         this.id = id;
         this.title = title;
         this.author = author;
@@ -117,6 +126,8 @@ public class Post implements Parcelable{
         this.est_time = est_time;
         this.target = target;
         this.num_prize = num_prize;
+        this.comments = comments;
+        this.done = done;
     }
 
     @SuppressLint("NewApi")
@@ -144,6 +155,10 @@ public class Post implements Parcelable{
         this.num_prize = in.readInt();
         this.est_time = in.readInt();
         this.target = in.readString();
+        this.done = in.readBoolean();
+
+        this.comments = new ArrayList();
+        in.readTypedList(comments, Reply.CREATOR);
     }
 
     @Override
@@ -165,10 +180,15 @@ public class Post implements Parcelable{
         dest.writeString(new SimpleDateFormat(dateformat).format(this.date));
         dest.writeString(new SimpleDateFormat(dateformat).format(this.deadline));
         dest.writeBoolean( this.with_prize);
-        dest.writeString(this.prize);
+        if (!with_prize){
+            dest.writeString(this.prize);
+        }
+        dest.writeInt(this.num_prize);
         dest.writeInt(this.est_time);
         dest.writeString(this.target);
-        dest.writeInt(this.num_prize);
+        dest.writeBoolean(this.done);
+
+        dest.writeTypedList(this.comments);
     }
     public static final Parcelable.Creator<Post> CREATOR = new Parcelable.Creator<Post>() {
         @Override

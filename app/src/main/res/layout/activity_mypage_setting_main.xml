@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".mypage.MypageSettingMain"
+    android:padding="15dp"
+    android:background="@color/gray"
+    android:orientation="vertical">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        >
+        <ImageView
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@drawable/leftarrow2"
+            android:scaleType="centerInside"
+            android:id="@+id/settingmain_back"
+            android:clickable="true"
+            />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:text="설정"
+            android:layout_centerHorizontal="true"
+            android:textSize="20dp"
+            />
+    </RelativeLayout>
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/round_border_white_fill"
+        android:id="@+id/setting_account"
+        android:text="계정 관리"
+        android:textSize="15dp"
+        android:textStyle="bold"
+        android:gravity="left|center_vertical"
+        android:paddingHorizontal="20dp"
+        android:layout_marginTop="15dp"
+        />
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/round_border_white_fill"
+        android:id="@+id/setting_alerm"
+        android:text="알림 설정"
+        android:textSize="15dp"
+        android:textStyle="bold"
+        android:gravity="left|center_vertical"
+        android:paddingHorizontal="20dp"
+        android:layout_marginTop="10dp"
+        />
+</LinearLayout>

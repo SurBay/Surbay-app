@@ -3,11 +3,9 @@ package com.example.surbay;
 import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
-import android.os.Build;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.text.Editable;
-import android.text.InputType;
 import android.text.TextWatcher;
 import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
@@ -22,7 +20,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -31,12 +28,20 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.FirebaseException;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthSettings;
+import com.google.firebase.auth.PhoneAuthCredential;
+import com.google.firebase.auth.PhoneAuthOptions;
+import com.google.firebase.auth.PhoneAuthProvider;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -58,14 +63,29 @@ public class SignupActivity extends AppCompatActivity {
     EditText phonenumberEditText;
     TextView phone_checkTextview;
     EditText phonecheckEditText;
+    TextView signupTimer;
+    TextView signupPCNText;
     Button usersex_M;
     Button usersex_F;
     Spinner userage;
-    int pos;
+    int posadd;
+    int posyear;
 
     ImageButton visibletoggle;
 
     private boolean MPressed, FPressed;
+    String typesmsCode;
+    String getverificationId;
+    FirebaseAuth auth;
+
+    Integer gender;
+    Integer yearBirth = 0;
+    String password;
+    String name;
+    String userid;
+    String phoneNumber;
+
+    CountDownTimer CDT;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -83,6 +103,8 @@ public class SignupActivity extends AppCompatActivity {
         pwchecklength = findViewById(R.id.signup_pw_length);
         phonenumberEditText = findViewById(R.id.userphone);
         phone_checkTextview = findViewById(R.id.userphone_check);
+        signupTimer = findViewById(R.id.signup_timer);
+        signupPCNText = findViewById(R.id.signup_PCNtext);
         phonecheckEditText = findViewById(R.id.phone_checknumber);
         usersex_F = findViewById(R.id.usersex_F);
         usersex_M = findViewById(R.id.usersex_M);
@@ -115,21 +137,16 @@ public class SignupActivity extends AppCompatActivity {
         signupButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String name = nameEditText.getText().toString();
-                String userid = useridEditText.getText().toString() + "@" + spinner_email[pos];
-                String password = passwordEditText.getText().toString();
-                if(name.length()==0){Toast.makeText(getApplicationContext(), "이름을 입력해주세요", Toast.LENGTH_SHORT).show();}
-                else if(userid.length()==0){Toast.makeText(getApplicationContext(), "아이디를 입력해주세요", Toast.LENGTH_SHORT).show();}
-                else if(password.length()==0){Toast.makeText(getApplicationContext(), "비밀번호를 입력해주세요", Toast.LENGTH_SHORT).show();}
-                else{
+                if (CheckableSignup()){
                     try {
-                        makeSignupRequest(name, userid, userid, password);
+                        makeSignupRequest(name, userid, userid, password, gender, yearBirth, phoneNumber);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
             }
         });
+
         useridEditText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
@@ -160,7 +177,7 @@ public class SignupActivity extends AppCompatActivity {
         useremailSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                pos = position;
+                posadd = position;
                 if (useridEditText.getText().toString().length() > 0 ){
                     check_id.setVisibility(View.VISIBLE);
                     check_id.setText("중복 확인 중입니다.");
@@ -175,6 +192,18 @@ public class SignupActivity extends AppCompatActivity {
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+
+        userage.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                posyear = position;
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
             }
         });
 
@@ -280,9 +309,46 @@ public class SignupActivity extends AppCompatActivity {
                 return true;
             }
         });
+
+        phone_checkTextview.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String phone = phonenumberEditText.getText().toString();
+                if (phone.length() == 11){
+                    PhoneAuth(phone);
+                }
+            }
+        });
+
+        phonecheckEditText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (!hasFocus){
+                    typesmsCode = phonecheckEditText.getText().toString();
+                    if (typesmsCode.length() == 6){
+                        PhoneAuthCredential credential = PhoneAuthProvider.getCredential(getverificationId, typesmsCode);
+                        Task<AuthResult> result = auth.signInWithCredential(credential);
+                        if (result.isSuccessful()){
+                            Log.d("signupauth", credential.getSmsCode());
+                            signupPCNText.setText("인증이 완료되었습니다");
+                            CDT.onFinish();
+                        } else if(result.isCanceled()){
+                            signupPCNText.setText("인증에 실패했습니다. 인증하기를 다시 시도해주세요");
+                            CDT.onFinish();
+                        } else if(result.isComplete()){
+                            Log.d("signupauth", credential.getSmsCode());
+                            signupPCNText.setText("인증이 완료되었습니다");
+                            CDT.onFinish();
+                        }
+
+                        Log.d("signupauth", result.toString());
+                    }
+                }
+            }
+        });
     }
 
-    private void makeSignupRequest(String name, String email, String username, String password) throws Exception{
+    private void makeSignupRequest(String name, String email, String username, String password, Integer gender, Integer yearBirth, String phoneNumber) throws Exception{
         try{
             String requestURL = "https://surbay-server.herokuapp.com/signup";
             RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
@@ -291,6 +357,11 @@ public class SignupActivity extends AppCompatActivity {
             params.put("email", email);
             params.put("userID", username);
             params.put("userPassword", password);
+
+            params.put("gender", gender);
+            params.put("yearBirth", yearBirth);
+            params.put("phoneNumber", phoneNumber);
+
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
                     (Request.Method.POST, requestURL, params, response -> {
                         Log.d("response is", ""+response);
@@ -300,24 +371,10 @@ public class SignupActivity extends AppCompatActivity {
                             AlertDialog.Builder builder = new AlertDialog.Builder(SignupActivity.this);
                             AlertDialog dialog;
                             if(success) {
-                                dialog = builder.setMessage("회원가입이 완료되었습니다")
-                                        .setPositiveButton("확인", new DialogInterface.OnClickListener() {
-                                            @Override
-                                            public void onClick(DialogInterface dialog, int which) {
-                                                Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
-                                                startActivity(intent);
-                                                finish();
-                                            }
-                                        })
-                                        .create();
-                                dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-                                    @SuppressLint("ResourceAsColor")
-                                    @Override
-                                    public void onShow(DialogInterface arg0) {
-                                        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(R.color.black);
-                                    }
-                                });
-                                dialog.show();
+                                Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+                                startActivity(intent);
+                                finish();
+                                Toast.makeText(SignupActivity.this, "회원가입이 완료되었습니다", Toast.LENGTH_SHORT);
                             }else {
                                 dialog = builder.setMessage("중복된 아이디입니다.")
                                         .setNegativeButton("다시시도", new DialogInterface.OnClickListener() {
@@ -393,7 +450,7 @@ public class SignupActivity extends AppCompatActivity {
             check_id.setVisibility(View.GONE);
         } else {
             try {
-                String userid = useridEditText.getText().toString() + "@" + spinner_email[pos];
+                String userid = useridEditText.getText().toString() + "@" + spinner_email[posadd];
                 RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
                 String requestURL = "https://surbay-server.herokuapp.com/userids/duplicate?userID="+ userid;
                 JSONObject params = new JSONObject();
@@ -443,5 +500,150 @@ public class SignupActivity extends AppCompatActivity {
         }
 
         return check;
+    }
+
+    public void TimerStart(){
+        signupTimer.setVisibility(View.VISIBLE);
+        signupPCNText.setVisibility(View.VISIBLE);
+        CDT = new CountDownTimer(180*1000, 1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                long totalsec = millisUntilFinished / 1000;
+                long min = totalsec/60;
+                long sec = totalsec - min*60;
+
+
+                String minstr = String.format("%02d", min);
+                String secstr = String.format("%02d", sec);
+                signupTimer.setText(minstr+":"+secstr);
+            }
+
+            @Override
+            public void onFinish() {
+                signupPCNText.setText("인증에 실패했습니다. 인증하기를 다시 시도해주세요");
+            }
+        };
+        CDT.start();
+    }
+
+    public void PhoneAuth(String phoneNumber){
+        phoneNumber = "+1 1111111111";
+        auth = FirebaseAuth.getInstance();
+        PhoneAuthOptions options = PhoneAuthOptions.newBuilder(auth)
+                .setPhoneNumber(phoneNumber)
+                .setTimeout(120L, TimeUnit.SECONDS)
+                .setActivity(this)
+                .setCallbacks(new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
+                    @Override
+                    public void onCodeSent(String verificationId,
+                                           PhoneAuthProvider.ForceResendingToken forceResendingToken) {
+                        // Save the verification id somewhere
+                        // ...
+
+                        // The corresponding whitelisted code above should be used to complete sign-in.
+                        Log.d("signupauth", forceResendingToken.toString() + verificationId);
+                        TimerStart();
+                        phonecheckEditText.setEnabled(true);
+                        getverificationId = verificationId;
+
+                    }
+
+                    @Override
+                    public void onVerificationCompleted(PhoneAuthCredential phoneAuthCredential) {
+                        // Sign in with the credential
+                        // ...
+                    }
+
+                    @Override
+                    public void onVerificationFailed(FirebaseException e) {
+                        // ...
+                    }
+                })
+                .build();
+        PhoneAuthProvider.verifyPhoneNumber(options);
+    }
+
+
+    public void testPhoneAutoRetrieve(String phoneNumber, String smsCode) {
+        // [START auth_test_phone_auto]
+        // The test phone number and code should be whitelisted in the console.
+        phoneNumber = "+1 1111111111";
+
+        FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+        FirebaseAuthSettings firebaseAuthSettings = firebaseAuth.getFirebaseAuthSettings();
+
+        // Configure faking the auto-retrieval with the whitelisted numbers.
+        firebaseAuthSettings.setAutoRetrievedSmsCodeForPhoneNumber(phoneNumber, smsCode);
+
+        PhoneAuthOptions options = PhoneAuthOptions.newBuilder(firebaseAuth)
+                .setPhoneNumber(phoneNumber)
+                .setTimeout(120L, TimeUnit.SECONDS)
+                .setActivity(this)
+                .setCallbacks(new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
+                    @Override
+                    public void onVerificationCompleted(PhoneAuthCredential credential) {
+                        // Instant verification is applied and a credential is directly returned.
+                        // ...
+                        Log.d("signupauth", credential.getSmsCode());
+                        signupPCNText.setText("인증이 완료되었습니다");
+                        CDT.onFinish();
+                    }
+
+                    // [START_EXCLUDE]
+                    @Override
+                    public void onVerificationFailed(FirebaseException e) {
+                        signupPCNText.setText("인증에 실패했습니다. 인증하기를 다시 시도해주세요");
+                        Log.d("signupauth", e.toString());
+                    }
+                    // [END_EXCLUDE]
+                })
+                .build();
+        PhoneAuthProvider.verifyPhoneNumber(options);
+    }
+
+    public boolean CheckableSignup(){
+        name = nameEditText.getText().toString();
+
+        if(name.length()==0){
+            Toast.makeText(getApplicationContext(), "이름을 입력해주세요", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        userid = useridEditText.getText().toString() + "@" + spinner_email[posadd];
+        if(userid.length()==0){
+            Toast.makeText(getApplicationContext(), "아이디를 입력해주세요", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        if(pwcheckword.getVisibility() == View.GONE){
+            password = passwordEditText.getText().toString();
+        } else {
+            return false;
+        }
+
+        if(password.length()==0){
+            Toast.makeText(getApplicationContext(), "비밀번호를 입력해주세요", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        phoneNumber = phonenumberEditText.getText().toString();
+
+        if (posyear != 0){
+            yearBirth = Integer.valueOf(spinner_age.get(posyear));
+        } else {
+            Toast.makeText(getApplicationContext(), "출생연도를 선택해주세요", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        if(MPressed == true && FPressed == false){
+            gender = 0;
+        } else if (MPressed == false && FPressed == true){
+            gender = 1;
+        } else {
+            Toast.makeText(getApplicationContext(), "성별을 선택해주세요", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        return true;
     }
 }

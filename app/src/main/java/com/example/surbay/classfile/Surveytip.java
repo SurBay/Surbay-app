@@ -3,15 +3,12 @@ package com.example.surbay.classfile;
 import android.annotation.SuppressLint;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.widget.LinearLayout;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
-public class PostNonSurvey implements Parcelable{
+public class Surveytip implements Parcelable {
     private String id;
     private String title;
     private String author;
@@ -19,8 +16,7 @@ public class PostNonSurvey implements Parcelable{
     private String content;
     private Date date;
     private String category;
-    private List<Reply> comments;
-
+    private Integer likes;
 
     private String dateformat = "yyyy-MM-dd'T'hh:mm:ss.SSS";
 
@@ -56,12 +52,13 @@ public class PostNonSurvey implements Parcelable{
     }
     public Integer getAuthor_lvl() {return author_lvl;}
     public void setAuthor_lvl(Integer author_lvl) {this.author_lvl = author_lvl;}
+
     public void setCategory(String category) { this.category = category;    }
     public String getCategory() { return category;    }
-    public List<Reply> getComments() {        return comments;    }
-    public void setComments(List<Reply> comments) { this.comments = comments;    }
+    public void setLikes(Integer likes) { this.likes = likes;    }
+    public Integer getLikes() { return likes;    }
 
-    public PostNonSurvey(String id, String title, String author, Integer author_lvl, String content, Date date, String category, List<Reply> comments){
+    public Surveytip(String id, String title, String author, Integer author_lvl, String content, Date date, String category, Integer likes){
         this.id = id;
         this.title = title;
         this.author = author;
@@ -69,11 +66,11 @@ public class PostNonSurvey implements Parcelable{
         this.content = content;
         this.date = date;
         this.category = category;
-        this.comments = comments;
+        this.likes = likes;
     }
 
     @SuppressLint("NewApi")
-    public PostNonSurvey(Parcel in){
+    public Surveytip(Parcel in){
         this.id = in.readString();
         this.title = in.readString();
         this.author = in.readString();
@@ -84,18 +81,8 @@ public class PostNonSurvey implements Parcelable{
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        if (category != null ) {
-            this.category = in.readString();
-        }
-
-        int size = in.readInt();
-        if (size == 0) {
-            comments = null;
-        } else {
-            Class<Reply> type = (Class<Reply>) in.readSerializable();
-            comments = new ArrayList<>(size);
-            in.readList(comments, type.getClassLoader());
-        }
+        this.category = in.readString();
+        this.likes = in.readInt();
     }
 
     @Override
@@ -112,30 +99,20 @@ public class PostNonSurvey implements Parcelable{
         dest.writeInt(this.author_lvl);
         dest.writeString(this.content);
         dest.writeString(new SimpleDateFormat(dateformat).format(this.date));
-        dest.writeString(this.category);
-
-        if (comments == null || comments.size() == 0){
-            dest.writeInt(0);
-        } else {
-            dest.writeInt(comments.size());
-
-            final Class<Reply> objectsType = (Class<Reply>)comments.get(0).getClass();
-            dest.writeSerializable(objectsType);
-
-            dest.writeList(comments);
+        if (category != null ) {
+            dest.writeString(this.category);
         }
+        dest.writeInt(this.likes);
     }
-    public static final Creator<PostNonSurvey> CREATOR = new Creator<PostNonSurvey>() {
+    public static final Creator<Surveytip> CREATOR = new Creator<Surveytip>() {
         @Override
-        public PostNonSurvey createFromParcel(Parcel in) {
-            return new PostNonSurvey(in);
+        public Surveytip createFromParcel(Parcel in) {
+            return new Surveytip(in);
         }
         @Override
-        public PostNonSurvey[] newArray (int size) {
-            return new PostNonSurvey[size];
+        public Surveytip[] newArray (int size) {
+            return new Surveytip[size];
         }
     };
-
-
 
 }

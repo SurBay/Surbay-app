@@ -5,21 +5,21 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.surbay.R;
 import com.example.surbay.classfile.PostNonSurvey;
+import com.example.surbay.classfile.Surveytip;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
-public class NonSurveyListViewAdapter extends BaseAdapter {
+public class SurveyTipListViewAdapter extends BaseAdapter {
     // Adapter에 추가된 데이터를 저장하기 위한 ArrayList
-    private ArrayList<PostNonSurvey> listViewItemList = new ArrayList<PostNonSurvey>();
+    private ArrayList<Surveytip> listViewItemList = new ArrayList<Surveytip>();
 
     // ListViewAdapter의 생성자
-    public NonSurveyListViewAdapter(ArrayList<PostNonSurvey> listViewItemList) {
+    public SurveyTipListViewAdapter(ArrayList<Surveytip> listViewItemList) {
         this.listViewItemList = listViewItemList;
     }
 
@@ -49,20 +49,16 @@ public class NonSurveyListViewAdapter extends BaseAdapter {
         TextView dateTextView = (TextView) convertView.findViewById(R.id.non_date);
         TextView authorLvlTextView = (TextView) convertView.findViewById(R.id.non_level);
         TextView likesTextView = (TextView) convertView.findViewById(R.id.non_recom);
-        ImageView likesimgae = (ImageView) convertView.findViewById(R.id.non_recomimage);
 
         // Data Set(listViewItemList)에서 position에 위치한 데이터 참조 획득
         SimpleDateFormat fm = new SimpleDateFormat("MM.dd");
-        PostNonSurvey post = listViewItemList.get(position);
+        Surveytip post = listViewItemList.get(position);
         String date = fm.format(post.getDate());
 
         titleTextView.setText(post.getTitle());
         dateTextView.setText(date);
         authorLvlTextView.setText("LV " + post.getAuthor_lvl());
-
-        likesimgae.setVisibility(View.GONE);
-        likesTextView.setVisibility(View.GONE);
-
+        likesTextView.setText(post.getLikes().toString());
         return convertView;
     }
 
@@ -81,7 +77,7 @@ public class NonSurveyListViewAdapter extends BaseAdapter {
 //        Post item = new Post(id, title, author, author_lvl, content, participants, goal_participants, url, date, deadline, with_prize, prize, est_time, target);
 //        listViewItemList.add(item);
 //    }
-    public void addItem(PostNonSurvey item){
+    public void addItem(Surveytip item){
         listViewItemList.add(item);
     }
 

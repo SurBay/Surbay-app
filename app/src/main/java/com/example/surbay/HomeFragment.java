@@ -22,6 +22,8 @@ import com.example.surbay.adapter.RecyclerViewAdapter;
 import com.example.surbay.adapter.RecyclerViewDdayAdapter;
 import com.example.surbay.adapter.RecyclerViewGoalAdapter;
 import com.example.surbay.adapter.RecyclerViewNewAdapter;
+import com.example.surbay.adapter.RecyclerViewNoticeAdapter;
+import com.example.surbay.classfile.Notice;
 import com.example.surbay.classfile.Post;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -51,7 +53,7 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
     public static RecyclerViewDdayAdapter adapter1;
     public static RecyclerViewGoalAdapter adapter2;
     public static RecyclerViewNewAdapter adapter3;
-    private static RecyclerViewAdapter adapter4;
+    private static RecyclerViewNoticeAdapter adapter4;
     private static Context mContext;
 
     private static ImageButton date_sort_button;
@@ -62,7 +64,7 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
     public static ArrayList<Post> list1;
     public static ArrayList<Post> list2;
     public static ArrayList<Post> list3;
-    public static ArrayList<Post> list4;
+    public static ArrayList<Notice> list4;
     private static Comparator<Post> cmpDeadline;
     private static Comparator<Post> cmpNew;
     private static Comparator<Post> cmpGoal;
@@ -137,14 +139,14 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
         list1 = new ArrayList<>(MainActivity.postArrayList);
         list2 = new ArrayList<>(MainActivity.postArrayList);
         list3 = new ArrayList<>(MainActivity.postArrayList);
-        list4 = new ArrayList<>();
+        list4 = new ArrayList<>(MainActivity.NoticeArrayList);
         Collections.sort(list1, cmpDeadline);
         Collections.sort(list2, cmpGoal);
         Collections.sort(list3, cmpNew);
         adapter1 = new RecyclerViewDdayAdapter(mContext, list1);
         adapter2 = new RecyclerViewGoalAdapter(mContext, list2);
         adapter3 = new RecyclerViewNewAdapter(mContext, list3);
-        adapter4 = new RecyclerViewAdapter(mContext, list4);
+        adapter4 = new RecyclerViewNoticeAdapter(mContext, list4);
         recyclerView.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
         recyclerView.setAdapter(adapter1);
         recyclerView2.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
@@ -159,6 +161,7 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
                 Post item = (Post) adapter1.getItem(position);
                 Intent intent = new Intent(mContext, PostDetailActivity.class);
                 intent.putExtra("post", item);
+                intent.putParcelableArrayListExtra("reply", item.getComments());
                 intent.putExtra("position", position);
                 mContext.startActivity(intent);
             }
@@ -169,6 +172,7 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
                 Post item = (Post) adapter2.getItem(position);
                 Intent intent = new Intent(mContext, PostDetailActivity.class);
                 intent.putExtra("post", item);
+                intent.putParcelableArrayListExtra("reply", item.getComments());
                 intent.putExtra("position", position);
                 mContext.startActivity(intent);
             }
@@ -179,14 +183,16 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
                 Post item = (Post) adapter3.getItem(position);
                 Intent intent = new Intent(mContext, PostDetailActivity.class);
                 intent.putExtra("post", item);
+                intent.putParcelableArrayListExtra("reply", item.getComments());
                 intent.putExtra("position", position);
                 mContext.startActivity(intent);
             }
         });
-        adapter4.setOnItemClickListener(new RecyclerViewAdapter.OnItemClickListener() {
+        adapter4.setOnItemClickListener(new RecyclerViewNoticeAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View v, int position) {
-                            }
+
+            }
         });
 
         date_sort_button.setOnClickListener(new View.OnClickListener() {
@@ -234,11 +240,11 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
         list1 = new ArrayList<>(MainActivity.postArrayList);
         list2 = new ArrayList<>(MainActivity.postArrayList);
         list3 = new ArrayList<>(MainActivity.postArrayList);
-        list4 = new ArrayList<>();
+        list4 = new ArrayList<>(MainActivity.NoticeArrayList);
         Collections.sort(list1, cmpDeadline);
         Collections.sort(list2, cmpGoal);
         Collections.sort(list3, cmpNew);
-        adapter4 = new RecyclerViewAdapter(mContext, list4);
+        adapter4 = new RecyclerViewNoticeAdapter(mContext, list4);
         adapter1 = new RecyclerViewDdayAdapter(mContext, list1);
         adapter2 = new RecyclerViewGoalAdapter(mContext, list2);
         adapter3 = new RecyclerViewNewAdapter(mContext, list3);
@@ -280,7 +286,7 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
                 mContext.startActivity(intent);
             }
         });
-        adapter4.setOnItemClickListener(new RecyclerViewAdapter.OnItemClickListener() {
+        adapter4.setOnItemClickListener(new RecyclerViewNoticeAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View v, int position) {
             }

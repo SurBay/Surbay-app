@@ -5,6 +5,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -19,8 +21,10 @@ import android.widget.TextView;
 
 import com.example.surbay.adapter.ListViewAdapter;
 import com.example.surbay.adapter.NonSurveyListViewAdapter;
+import com.example.surbay.adapter.SurveyTipListViewAdapter;
 import com.example.surbay.classfile.Post;
 import com.example.surbay.classfile.PostNonSurvey;
+import com.example.surbay.classfile.Surveytip;
 
 import java.util.ArrayList;
 
@@ -41,8 +45,10 @@ public class BoardsSearchActivity extends AppCompatActivity {
 
     static ListViewAdapter search_SurveyAdapter;
     static NonSurveyListViewAdapter search_NonsurveyAdapter;
+    static SurveyTipListViewAdapter search_TipAdapter;
     static ArrayList<Post> search_list_post;
     static ArrayList<PostNonSurvey> search_list_postNon;
+    static ArrayList<Surveytip> search_list_tip;
 
     int selecting_spinner;
     int selected_spinner;
@@ -63,6 +69,10 @@ public class BoardsSearchActivity extends AppCompatActivity {
         ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, spinner_context);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         search_spinner.setAdapter(adapter);
+
+        Intent intent = getIntent();
+        selected_spinner = intent.getIntExtra("pos", 0);
+        search_spinner.setSelection(selected_spinner);
 
 
         search_list_post = new ArrayList<Post>();
@@ -85,14 +95,22 @@ public class BoardsSearchActivity extends AppCompatActivity {
         search_enter.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                selected_spinner = selecting_spinner;
-                String search_keyword = search_editview.getText().toString();
-                if (search_keyword.length() > 0 ){
-                    Log.d("search", " " + search_keyword);
-                    search_list_post = new ArrayList<Post>();
-                    search_list_postNon = new ArrayList<PostNonSurvey>();
-                    do_search(search_keyword);
-                }
+                search_editview.setText("");
+                search_enter.setVisibility(View.GONE);
+            }
+        });
+
+        search_editview.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) { search_enter.setVisibility(View.VISIBLE);
             }
         });
 
@@ -154,13 +172,13 @@ public class BoardsSearchActivity extends AppCompatActivity {
 
                 break;
             case TIP_SELECT:
-                for (PostNonSurvey post : MainActivity.surveytipArrayList){
+                for (Surveytip post : MainActivity.surveytipArrayList){
                     if ((post.getContent().contains(search_keyword)) || (post.getTitle().contains(search_keyword))){
-                        search_list_postNon.add(post);
+                        search_list_tip.add(post);
                     }
                 }
-                search_NonsurveyAdapter = new NonSurveyListViewAdapter(search_list_postNon);
-                search_listview.setAdapter(search_NonsurveyAdapter);
+                search_TipAdapter = new SurveyTipListViewAdapter(search_list_tip);
+                search_listview.setAdapter(search_TipAdapter);
 
 
                 search_listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {

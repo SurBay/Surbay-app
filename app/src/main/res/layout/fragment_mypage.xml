@@ -5,13 +5,7 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    android:background="#FBFBFB">
-    <Button
-        android:id="@+id/logout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="로그아웃"/>
+    android:background="@color/gray">
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -20,21 +14,47 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
-            <TextView
+            android:orientation="vertical"
+            android:background="@color/gray">
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="마이페이지"
-                android:textSize="16dp"
-                android:textColor="@color/black"
-                android:layout_marginVertical="8dp"
-                android:gravity="center"
-                />
+                android:background="@drawable/box_white"
+                android:paddingVertical="10dp"
+                android:paddingHorizontal="20dp"
+                >
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="마이페이지"
+                    android:textSize="20dp"
+                    android:textColor="@color/black"
+                    android:layout_marginVertical="8dp"
+                    android:gravity="center"
+                    />
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:id="@+id/mypage_setting"
+                    android:src="@drawable/settings"
+                    android:layout_centerVertical="true"
+                    android:clickable="true"
+                    />
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:id="@+id/mypage_bell"
+                    android:src="@drawable/bell"
+                    android:layout_centerVertical="true"
+                    android:layout_alignParentRight="true"
+                    />
+            </RelativeLayout>
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:padding="10dp"
+                android:background="@color/gray"
                 >
                 <RelativeLayout
                     android:layout_width="match_parent"
@@ -43,12 +63,13 @@
                     >
                     <LinearLayout
                         android:layout_width="85dp"
-                        android:layout_height="wrap_content"
+                        android:layout_height="115dp"
                         android:orientation="vertical"
                         android:id="@+id/mypage_profile"
                         android:layout_alignParentLeft="true"
                         android:layout_below="@id/mypage_myname"
                         android:layout_marginTop="10dp"
+                        android:background="@drawable/round_border_white_mypage"
                         android:gravity="center">
                         <ImageView
                             android:layout_width="80dp"
@@ -75,20 +96,22 @@
                         android:textColor="@color/black"
                         android:layout_alignParentLeft="true"/>
                     <RelativeLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:padding="5dp"
+                        android:layout_width="260dp"
+                        android:layout_height="115dp"
+                        android:padding="15dp"
                         android:layout_alignTop="@id/mypage_profile"
-                        android:layout_toRightOf="@id/mypage_profile">
+                        android:layout_toRightOf="@id/mypage_profile"
+                        android:layout_marginLeft="10dp"
+                        android:background="@drawable/round_border_white_mypage">
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="설문 게시글 작성 가능 횟수"
-                            android:textSize="15dp"/>
+                            android:text="설문 크레딧"
+                            android:textSize="12dp"/>
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="N회"
+                            android:text="N크레딧"
                             android:textStyle="bold"
                             android:textColor="@color/teal_200"
                             android:id="@+id/mypage_can_sur"
@@ -97,8 +120,8 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_alignBaseline="@id/mypage_willdo_sur"
-                            android:text="설문 게시글 작성 1회 추가까지"
-                            android:textSize="15dp"/>
+                            android:text="* 설문 1회 참여 시 1크레딧을 얻을 수 있어요"
+                            android:textSize="12dp"/>
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -108,15 +131,17 @@
                             android:id="@+id/mypage_willdo_sur"
                             android:layout_marginTop="10dp"
                             android:layout_below="@id/mypage_can_sur"
-                            android:layout_alignParentRight="true"/>
+                            android:layout_alignParentRight="true"
+                            android:visibility="invisible"/>
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_below="@id/mypage_willdo_sur"
                             android:layout_marginTop="5dp"
                             android:id="@+id/mypage_willdo_sur_below"
-                            android:text="설문 (7-n)회 더 참여 시 설문 게시글을 작성할 수 있어요 "
-                            android:textSize="13dp"/>
+                            android:text="* 5크레딧으로 설문 게시글을 1회 업로드 할
+  수 있어요 (게시 기간은 3일입니다) "
+                            android:textSize="12dp"/>
                     </RelativeLayout>
                 </RelativeLayout>
                 <RelativeLayout
@@ -152,24 +177,22 @@
                         android:textColor="@color/black"/>
                     <ImageButton
                         android:id="@+id/mypage_i_make"
-                        android:padding="10dp"
                         android:layout_width="30dp"
                         android:layout_height="30dp"
-                        android:src="@drawable/ic_baseline_arrow_back_24"
+                        android:src="@drawable/leftarrow"
                         android:layout_alignParentRight="true"
-                        android:scaleType="fitXY">
+                        android:scaleType="centerInside"
+                        android:background="@color/gray">
                     </ImageButton>
                 </RelativeLayout>
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="10dp"
                     android:gravity="center">
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/recycler_mypage_make"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:padding="5dp">
+                        android:layout_height="wrap_content">
                     </androidx.recyclerview.widget.RecyclerView>
                 </LinearLayout>
                 <RelativeLayout
@@ -205,24 +228,22 @@
                         android:textColor="@color/black"/>
                     <ImageButton
                         android:id="@+id/mypage_i_parti"
-                        android:padding="10dp"
                         android:layout_width="30dp"
                         android:layout_height="30dp"
-                        android:src="@drawable/ic_baseline_arrow_back_24"
+                        android:src="@drawable/leftarrow"
                         android:layout_alignParentRight="true"
-                        android:scaleType="fitXY">
+                        android:scaleType="centerInside"
+                        android:background="@color/gray">
                     </ImageButton>
                 </RelativeLayout>
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="10dp"
                     android:gravity="center">
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/recycler_mypage_partic"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:padding="5dp">
+                        android:layout_height="wrap_content">
                     </androidx.recyclerview.widget.RecyclerView>
                 </LinearLayout>
                 <RelativeLayout
@@ -249,12 +270,12 @@
                         android:textColor="@color/teal_200"/>
                     <ImageButton
                         android:id="@+id/mypage_i_get"
-                        android:padding="10dp"
                         android:layout_width="30dp"
                         android:layout_height="30dp"
-                        android:src="@drawable/ic_baseline_arrow_back_24"
+                        android:src="@drawable/leftarrow"
                         android:layout_alignParentRight="true"
-                        android:scaleType="fitXY">
+                        android:scaleType="centerInside"
+                        android:background="@color/gray">
                     </ImageButton>
                 </RelativeLayout>
                 <LinearLayout

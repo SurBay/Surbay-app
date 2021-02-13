@@ -29,11 +29,11 @@
             android:layout_toRightOf="@id/reply_name"
             />
         <ImageView
-            android:layout_width="25dp"
-            android:layout_height="25dp"
+            android:layout_width="15dp"
+            android:layout_height="15dp"
             android:id="@+id/reply_menu"
             android:layout_alignParentRight="true"
-            android:src="@android:drawable/ic_menu_more"
+            android:src="@drawable/menu"
             />
         <TextView
             android:layout_width="match_parent"

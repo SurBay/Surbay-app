@@ -10,12 +10,13 @@
         android:layout_height="wrap_content"
         android:layout_weight="0.1"
         android:orientation="horizontal"
-        android:background="#EBEBF0">
+        android:background="@color/gray">
         <ListView
             android:divider="#00000000"
             android:id="@+id/list"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:background="@color/gray">
         </ListView>
         <TextView
             android:id="@+id/writeButton"

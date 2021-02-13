@@ -82,14 +82,16 @@ public class ListViewAdapter extends BaseAdapter {
             withPrizeView.setVisibility(View.INVISIBLE);
         }
         titleTextView.setText(post.getTitle());
-        contentTextView.setText(post.getContent());
+        contentTextView.setText(post.getTarget());
         dateTextView.setText(date+"~"+deadline);
 
-        if (UserPersonalInfo.participations.contains(post.getID())){
+        if (UserPersonalInfo.name.equals(post.getAuthor())){
             background.setBackgroundResource(R.drawable.round_border_gray_list);
         }
-
-
+        if (UserPersonalInfo.participations.contains(post.getID())){
+            background.setBackgroundResource(R.drawable.round_border_gray_list);
+            DoneView.setVisibility(View.VISIBLE);
+        }
 
         authornameTextView.setText(post.getAuthor());
         participantsTextView.setText(post.getParticipants().toString());

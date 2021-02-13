@@ -1,4 +1,4 @@
-package com.example.surbay;
+package com.example.surbay.mypage;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -9,6 +9,8 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.example.surbay.PostDetailActivity;
+import com.example.surbay.R;
 import com.example.surbay.adapter.ListViewAdapter;
 import com.example.surbay.classfile.Post;
 

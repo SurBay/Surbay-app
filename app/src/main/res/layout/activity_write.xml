@@ -1,9 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/white"
+    android:orientation="vertical">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="10dp"
+        >
+        <TextView
+            android:id="@+id/writeBack"
+            android:layout_width="60dp"
+            android:layout_height="56dp"
+            android:text="취소"
+            android:textColor="@color/gray2"
+            android:textStyle="bold"
+            android:background="@color/white"
+            android:gravity="center"
+            android:clickable="true"
+            android:lines ="1"/>
+        <TextView
+            android:text="설문 작성"
+            android:id="@+id/writetitle"
+            android:textSize="18dp"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_weight="1"/>
+        <TextView
+            android:id="@+id/writesave"
+            android:text="보관함"
+            android:textColor="@color/gray2"
+            android:textStyle="bold"
+            android:background="@color/white"
+            android:layout_width="60dp"
+            android:layout_height="56dp"
+            android:gravity="center"
+            android:clickable="true"
+            android:layout_toLeftOf="@id/writeDone"/>
+        <TextView
+            android:id="@+id/writeDone"
+            android:text="등록"
+            android:textColor="@color/teal_200"
+            android:textStyle="bold"
+            android:background="@color/white"
+            android:layout_width="60dp"
+            android:layout_height="56dp"
+            android:gravity="center"
+            android:clickable="true"
+            android:layout_alignParentRight="true"/>
+    </RelativeLayout>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -14,7 +65,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginTop="30dp"
             android:layout_marginHorizontal="20dp"
             >
             <TextView
@@ -23,20 +73,20 @@
                 android:text="설문 제목"
                 android:textSize="18dp"
                 android:textColor="@color/black"
+                android:layout_marginRight="10dp"
                 ></TextView>
             <EditText
                 android:layout_marginLeft="5dp"
                 android:id="@+id/write_title"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:focusable="true"
                 android:focusableInTouchMode="true"
-                android:hint="ex) 남성 정장 구매 및 브랜드 설문조사"
                 android:textSize="15dp"
                 android:lines="1"
                 android:inputType="text"
-                android:background="@color/white"
+                android:backgroundTint="@color/gray2"
                 ></EditText>
         </LinearLayout>
         <LinearLayout
@@ -44,7 +94,6 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_marginHorizontal="20dp"
-            android:layout_marginTop="10dp"
             >
             <TextView
                 android:layout_width="wrap_content"
@@ -52,20 +101,20 @@
                 android:text="설문 대상"
                 android:textSize="18dp"
                 android:textColor="@color/black"
+                android:layout_marginRight="10dp"
                 ></TextView>
             <EditText
                 android:layout_marginLeft="5dp"
                 android:id="@+id/write_target"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:focusable="true"
                 android:focusableInTouchMode="true"
-                android:hint="ex) 정장 구매한 경험 있는 남성분들 부탁드려요!"
                 android:textSize="15dp"
                 android:lines="1"
                 android:inputType="text"
-                android:background="@color/white"
+                android:backgroundTint="@color/gray2"
                 ></EditText>
         </LinearLayout>
         <LinearLayout
@@ -73,7 +122,6 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_marginHorizontal="20dp"
-            android:layout_marginTop="10dp"
             >
 
             <TextView
@@ -81,36 +129,39 @@
                 android:layout_height="wrap_content"
                 android:text="설문 마감"
                 android:textColor="@color/black"
+                android:layout_marginRight="10dp"
                 android:textSize="18dp"></TextView>
-            <LinearLayout
+            <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_marginLeft="5dp">
-                <Button
+                <EditText
                     android:id="@+id/write_deadline"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:backgroundTint="@color/gray2"
                     android:layout_weight="1"
-                    android:background="@color/white"
                     android:textSize="15dp"
                     android:gravity="left"
                     android:textColor="@color/black"
                     android:onClick="OnClickHandler"
-                    ></Button>
-
-            </LinearLayout>
+                    android:hint="수정불가, YYYYMMDD"
+                    android:singleLine="true"
+                    android:nextFocusDown="@id/write_goal_participants"
+                    />
+            </RelativeLayout>
         </LinearLayout>
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_marginHorizontal="20dp"
-            android:layout_marginTop="10dp"
             >
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="목표 인원"
+                android:layout_marginRight="10dp"
                 android:textSize="18dp"
                 android:textColor="@color/black"
                 ></TextView>
@@ -122,11 +173,11 @@
                 android:layout_weight="1"
                 android:focusable="true"
                 android:focusableInTouchMode="true"
-                android:hint="ex) 300"
+                android:hint="미입력 시 50(명)으로 설정됩니다"
                 android:textSize="15dp"
                 android:lines="1"
                 android:inputType="numberDecimal"
-                android:background="@color/white"
+                android:backgroundTint="@color/gray2"
                 ></EditText>
         </LinearLayout>
         <LinearLayout
@@ -134,20 +185,20 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_marginHorizontal="20dp"
-            android:layout_marginTop="10dp"
             >
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="참여 보상"
                 android:textSize="18dp"
+                android:layout_marginRight="10dp"
                 android:textColor="@color/black"
                 ></TextView>
             <CheckBox
                 android:id="@+id/with_prize"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:buttonTint="@color/black"
+                android:buttonTint="@color/gray2"
                 ></CheckBox>
             <EditText
                 android:layout_marginLeft="5dp"
@@ -161,7 +212,7 @@
                 android:textSize="15dp"
                 android:lines="1"
                 android:inputType="text"
-                android:background="@color/white"
+                android:backgroundTint="@color/gray2"
                 android:enabled="false"
                 android:layout_marginRight="0dp"
                 />
@@ -174,6 +225,7 @@
                 android:id="@+id/prize_count"
                 android:inputType="number"
                 android:visibility="gone"
+                android:backgroundTint="@color/gray2"
                 />
         </LinearLayout>
         <RelativeLayout
@@ -214,7 +266,6 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_marginHorizontal="20dp"
-            android:layout_marginTop="10dp"
             >
             <TextView
                 android:layout_width="wrap_content"
@@ -222,6 +273,7 @@
                 android:text="설문 링크"
                 android:textSize="18dp"
                 android:textColor="@color/black"
+                android:layout_marginRight="10dp"
                 ></TextView>
             <EditText
                 android:layout_marginLeft="5dp"
@@ -231,11 +283,11 @@
                 android:layout_weight="1"
                 android:focusable="true"
                 android:focusableInTouchMode="true"
-                android:hint="현재는 구글 폼만 제공하고 있습니다"
+                android:hint="수정불가. 구글폼만 제공하고 있습니다"
                 android:textSize="15dp"
                 android:lines="1"
                 android:inputType="text"
-                android:background="@color/white"
+                android:backgroundTint="@color/gray2"
                 />
             <Button
                 android:id="@+id/write_url_check"
@@ -249,52 +301,41 @@
                 android:visibility="gone"
                 />
         </LinearLayout>
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
             android:layout_marginHorizontal="20dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="15dp"
             >
             <TextView
+                android:id="@+id/est_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="소요 시간"
                 android:textSize="18dp"
                 android:textColor="@color/black"
-                ></TextView>
-            <EditText
-                android:layout_marginLeft="5dp"
+                android:layout_marginRight="10dp"
+                />
+            <Spinner
                 android:id="@+id/write_est_time"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:focusable="true"
-                android:focusableInTouchMode="true"
-                android:hint="ex) 5"
+                android:layout_toRightOf="@id/est_time"
+                android:layout_alignParentRight="true"
                 android:textSize="15dp"
-                android:lines="1"
-                android:inputType="numberDecimal"
-                android:background="@color/white"
-                ></EditText>
-        </LinearLayout>
+                android:backgroundTint="@color/gray2"
+                android:gravity="center"
+                ></Spinner>
+        </RelativeLayout>
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:orientation="horizontal"
             android:layout_marginBottom="30dp"
-            android:layout_marginHorizontal="20dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginHorizontal="19dp"
+            android:layout_marginTop="15dp"
             >
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="내용"
-                android:textSize="18dp"
-                android:textColor="@color/black"
-                android:layout_gravity="top"
-                ></TextView>
             <EditText
                 android:layout_marginLeft="5dp"
                 android:id="@+id/write_content"
@@ -313,4 +354,4 @@
                 ></EditText>
         </LinearLayout>
     </LinearLayout>
-</androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>

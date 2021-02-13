@@ -1,7 +1,6 @@
 package com.example.surbay;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -20,9 +19,13 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.surbay.classfile.Notice;
 import com.example.surbay.classfile.Post;
 import com.example.surbay.classfile.PostNonSurvey;
+import com.example.surbay.classfile.Reply;
+import com.example.surbay.classfile.Surveytip;
 import com.example.surbay.classfile.loadingProgress;
+import com.example.surbay.mypage.MypageFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import org.json.JSONArray;
@@ -45,8 +48,9 @@ public class MainActivity extends AppCompatActivity {
     private MypageFragment mypageFragment;
     public static ArrayList<Post> postArrayList = new ArrayList<>();
     public static ArrayList<Post> finishpostArrayList = new ArrayList<>();
-    public static ArrayList<PostNonSurvey> surveytipArrayList = new ArrayList<>();
+    public static ArrayList<Surveytip> surveytipArrayList = new ArrayList<>();
     public static ArrayList<PostNonSurvey> feedbackArrayList = new ArrayList<>();
+    public static ArrayList<Notice> NoticeArrayList = new ArrayList<>();
     private static Context mContext;
     private static Integer done = 0;
 
@@ -240,21 +244,40 @@ public class MainActivity extends AppCompatActivity {
                                     e.printStackTrace();
                                 }
                                 Boolean with_prize = post.getBoolean("with_prize");
-                                String prize;
-                                Integer count;
-                                if(with_prize) {
-                                    prize = post.getString("prize");
-                                    count = post.getInt("__v");
-                                }else{
-                                    prize = "";
-                                    count = 0;
-                                }
+                                String prize = "none";
+                                Integer count= 0;
                                 Integer est_time = post.getInt("est_time");
-
                                 String target = post.getString("target");
+                                Boolean done = post.getBoolean("done");
 
-                                Post newPost = new Post(id, title, author, author_lvl, content, participants, goal_participants, url, date, deadline, with_prize, prize, est_time, target, count);
+                                ArrayList<Reply> comments = new ArrayList<>();
+                                try{
+                                    prize = post.getString("prize");
+                                    count = post.getInt("num_prize");
 
+                                    JSONArray ja = (JSONArray)post.get("comments");
+                                    if (ja.length() != 0){
+                                        for (int j = 0; j<ja.length(); j++){
+                                            JSONObject reply = ja.getJSONObject(i);
+                                            String reid = reply.getString("_id");
+                                            String writer = reply.getString("writer");
+                                            String contetn = reply.getString("content");
+                                            Date datereply = null;
+                                            try {
+                                                datereply = fm.parse(post.getString("deadline"));
+                                            } catch (ParseException e) {
+                                                e.printStackTrace();
+                                            }
+                                            Reply re = new Reply(reid, writer, contetn, datereply);
+                                            comments.add(re);
+                                        }
+                                    }
+                                    Log.d("start app", "getpost comment"+comments.size()+"");
+                                } catch (Exception e){
+                                    Log.d("parsing date", "non reply");
+                                }
+                                Post newPost = new Post(id, title, author, author_lvl, content, participants, goal_participants, url, date, deadline, with_prize, prize, est_time, target, count,comments,done);
+                                Log.d("start app", "newpost comments"+newPost.getComments().size()+"");
                                 if (newPost.getDeadline().before(today) || (newPost.getParticipants()==newPost.getGoal_participants())) {
                                     finishpostArrayList.add(newPost);
                                 } else {
@@ -262,7 +285,7 @@ public class MainActivity extends AppCompatActivity {
                                 }
                             }
                             Log.d("array size is",""+postArrayList.size());
-                            Log.d("finisharray size is",""+finishpostArrayList.size());
+                            Log.d("finisharray size is",""+finishpostArrayList.get(0).toString());
                             if(done==0){
                                 HomeFragment.receivedPosts();
                                 done = 1;
@@ -287,13 +310,12 @@ public class MainActivity extends AppCompatActivity {
         try{
             Log.d("starting request", "get surveytips");
             String requestURL = "https://surbay-server.herokuapp.com/api/surveytips";
-            ArrayList<Post> list = new ArrayList<>();
             RequestQueue requestQueue = Volley.newRequestQueue(mContext);
             JsonArrayRequest jsonArrayRequest = new JsonArrayRequest
                     (Request.Method.GET, requestURL, null, response -> {
 
                         try {
-                            surveytipArrayList = new ArrayList<PostNonSurvey>();
+                            surveytipArrayList = new ArrayList<Surveytip>();
                             JSONArray resultArr = new JSONArray(response.toString());
                             Log.d("response is", ""+response);
 
@@ -312,9 +334,11 @@ public class MainActivity extends AppCompatActivity {
                                 } catch (ParseException e) {
                                     e.printStackTrace();
                                 }
+                                String category = post.getString("category");
+                                Integer likes = post.getInt("likes");
 
 
-                                PostNonSurvey newSurveytip = new PostNonSurvey(id, title, author, author_lvl, content,  date);
+                                Surveytip newSurveytip = new Surveytip(id, title, author, author_lvl, content,  date, category, likes);
                                 surveytipArrayList.add(newSurveytip);
                             }
 //                            if(done==0){
@@ -367,12 +391,82 @@ public class MainActivity extends AppCompatActivity {
                                 } catch (ParseException e) {
                                     e.printStackTrace();
                                 }
+                                String category = post.getString("category");
+
+                                ArrayList<Reply> comments = new ArrayList<>();
+                                JSONArray ja = (JSONArray)post.get("comments");
+                                for (int j = 0; j<ja.length(); j++){
+                                    JSONObject reply = ja.getJSONObject(i);
+                                    String reid = reply.getString("_id");
+                                    String writer = reply.getString("writer");
+                                    String contetn = reply.getString("content");
+                                    Date datereply = null;
+                                    try {
+                                        datereply = fm.parse(post.getString("deadline"));
+                                    } catch (ParseException e) {
+                                        e.printStackTrace();
+                                    }
+                                    Reply re = new Reply(reid, writer, contetn, datereply);
+                                    comments.add(re);
+                                }
 
 
-                                PostNonSurvey newFeedback = new PostNonSurvey(id, title, author, author_lvl, content, date);
+                                PostNonSurvey newFeedback = new PostNonSurvey(id, title, author, author_lvl, content, date, category, comments);
                                 feedbackArrayList.add(newFeedback);
                             }
 //                            Log.d("array size is",""+postArrayList.size());
+//                            if(done==0){
+//                                HomeFragment.receivedPosts();
+//                                done = 1;
+//                            }
+
+                        } catch (JSONException e) {
+                            Log.d("exception", "JSON error");
+                            e.printStackTrace();
+                        }
+                    }, error -> {
+                        Log.d("exception", "volley error");
+                        error.printStackTrace();
+                    });
+            jsonArrayRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            requestQueue.add(jsonArrayRequest);
+        } catch (Exception e){
+            Log.d("exception", "failed getting response");
+            e.printStackTrace();
+        }
+    }
+
+
+    public static void getNotice() throws Exception{
+        try{
+            Log.d("starting request", "get notices");
+            String requestURL = "https://surbay-server.herokuapp.com/api/notices";
+            RequestQueue requestQueue = Volley.newRequestQueue(mContext);
+            JsonArrayRequest jsonArrayRequest = new JsonArrayRequest
+                    (Request.Method.GET, requestURL, null, response -> {
+                        try {
+                            NoticeArrayList = new ArrayList<Notice>();
+                            JSONArray resultArr = new JSONArray(response.toString());
+                            Log.d("response is", ""+response);
+
+                            for (int i = 0; i < resultArr.length(); i++) {
+                                JSONObject post = resultArr.getJSONObject(i);
+                                String id = post.getString("_id");
+                                String title = post.getString("title");
+                                String author = post.getString("author");
+                                String content = post.getString("content");
+                                SimpleDateFormat fm = new SimpleDateFormat(mContext.getString(R.string.date_format));
+                                Date date = null;
+                                try {
+                                    date = fm.parse(post.getString("date"));
+                                    Log.d("parsing date", "success");
+                                } catch (ParseException e) {
+                                    e.printStackTrace();
+                                }
+
+                                Notice newNotice = new Notice(id, title, author, content, date);
+                                NoticeArrayList.add(newNotice);
+                            }
 //                            if(done==0){
 //                                HomeFragment.receivedPosts();
 //                                done = 1;

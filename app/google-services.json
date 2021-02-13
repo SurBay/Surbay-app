@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "144529683175",
+    "project_id": "surbay-ac4bf",
+    "storage_bucket": "surbay-ac4bf.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:144529683175:android:ea6a7207c80ffcc0e6a842",
+        "android_client_info": {
+          "package_name": "com.example.surbay"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "144529683175-fkp4lftsp520o4fdjlf8luct9i7nclqn.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.surbay",
+            "certificate_hash": "d5ee13be77cdf00add22eed40fe2d6aab2f7d305"
+          }
+        },
+        {
+          "client_id": "144529683175-a91c477v0s3ca1rl6p8jc2qrf259p9h8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC0YEwXN_7f-cBLZrTWJlcPU3nBReCfjtw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "144529683175-a91c477v0s3ca1rl6p8jc2qrf259p9h8.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "144529683175-21slsg51fmsjhtg727q3ee32umens8qk.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.Pumasi.SurBay"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

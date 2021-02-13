@@ -9,28 +9,31 @@
         android:layout_width="match_parent"
         android:layout_height="38dp"
         android:orientation="horizontal"
-        android:background="#EBEBF0"
+        android:background="@color/gray"
         android:padding="5dp">
         <Button
-            android:layout_width="wrap_content"
+            android:layout_width="60dp"
             android:layout_height="25dp"
-            android:text="신규 등록순"
+            android:text="NEW"
+            android:textSize="13dp"
             android:layout_marginLeft="10dp"
             android:id="@+id/fragment1_new_sort_button"
             style="@style/TabButtonSelect"
             />
         <Button
-            android:layout_width="wrap_content"
+            android:layout_width="60dp"
             android:layout_height="25dp"
-            android:text="종료 임박순"
+            android:text="D-Day"
+            android:textSize="13dp"
             android:id="@+id/fragment1_date_sort_button"
             style="@style/TabButtonNotSelect"
             android:layout_toRightOf="@id/fragment1_new_sort_button"
             />
         <Button
-            android:layout_width="wrap_content"
+            android:layout_width="60dp"
             android:layout_height="25dp"
-            android:text="목표 달성순"
+            android:text="99%"
+            android:textSize="13dp"
             android:id="@+id/fragment1_goal_sort_button"
             style="@style/TabButtonNotSelect"
             android:layout_toRightOf="@id/fragment1_date_sort_button"
@@ -40,7 +43,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="0.1"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:background="@color/gray">
         <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"

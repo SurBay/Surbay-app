@@ -3,9 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="#EBEBF0"
-    android:padding="5dp"
-    android:paddingHorizontal="5dp">
+    android:background="@color/gray"
+    android:paddingTop="10dp"
+    android:paddingHorizontal="15dp">
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -72,11 +72,12 @@
                     android:textSize="13dp"
                     android:textColor="@color/text_gray"/>
                 <ImageView
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:src="@drawable/ic_gift_box"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/like"
                     android:layout_toLeftOf="@id/non_recom"
                     android:layout_alignBottom="@id/non_profile"
+                    android:id="@+id/non_recomimage"
                     />
                 <TextView
                     android:layout_width="wrap_content"

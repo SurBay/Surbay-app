@@ -42,6 +42,7 @@ import com.example.surbay.adapter.ReplyListViewAdapter;
 import com.example.surbay.classfile.Post;
 import com.example.surbay.classfile.Reply;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
@@ -51,6 +52,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static android.graphics.Color.WHITE;
 
 public class PostDetailActivity extends AppCompatActivity {
     static final int START_SURVEY = 1;
@@ -96,16 +99,17 @@ public class PostDetailActivity extends AppCompatActivity {
 
     List<Map<String, Object>> dialogItemList;
 
+
     private static final String TAG_TEXT = "text";
     private static final String TAG_IMAGE = "image";
     int[] image = {R.drawable.kakaotalk, R.drawable.googleform};
     String[] text = {" SNS로 공유하기 ", "구글폼 url 복사하기"};
+    final String[] spinner_esttime = {"선택해주세요", "1분 미만", "1~2분", "2~3분", "3~5분", "5~7분", "7~10분", "10분 초과"};
 
     Date today;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.d("start app", "hahaha");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.post_detail);
         setResult(NOT_DONE);
@@ -142,14 +146,14 @@ public class PostDetailActivity extends AppCompatActivity {
         surveyEx = findViewById(R.id.surveyExButton);
         surveyEnd = findViewById(R.id.surveyEndButton);
 
-        post = (Post) intent.getParcelableExtra("post");
+        post = (Post)intent.getParcelableExtra("post");
         position = intent.getIntExtra("position", -1);
         loading_detail(post);
 
         replyArrayList = new ArrayList<Reply>();
+        replyArrayList = intent.getParcelableArrayListExtra("reply");
 
-        Date date = new Date();
-        replyArrayList.add(new Reply("abc","reply",date));
+        Log.d("comments size", replyArrayList.size()+"");
 
         detail_reply_Adapter = new ReplyListViewAdapter(replyArrayList);
         detail_reply_listView.setAdapter(detail_reply_Adapter);
@@ -162,7 +166,6 @@ public class PostDetailActivity extends AppCompatActivity {
                 new View.OnClickListener(){
                     @Override
                     public void onClick(View v) {
-
                         Intent newIntent = new Intent(getApplicationContext(), SurveyWebActivity.class);
                         newIntent.putExtra("url", surveyURL);
                         startActivityForResult(newIntent, START_SURVEY);
@@ -172,7 +175,10 @@ public class PostDetailActivity extends AppCompatActivity {
         reply_enter_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                String reply = reply_enter.getText().toString();
+                if (reply.length() > 0 ){
+                    postReply(reply);
+                }
             }
         });
 
@@ -203,6 +209,41 @@ public class PostDetailActivity extends AppCompatActivity {
 
     }
 
+    private void postReply(String reply) {
+        String requestURL = "https://surbay-server.herokuapp.com/api/posts/writecomment/"+post.getID();
+        try{
+            RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
+            JSONObject params = new JSONObject();
+            params.put("writer",UserPersonalInfo.name);
+            params.put("content",reply);
+
+            Date date = new Date();
+            SimpleDateFormat fm = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss");
+            params.put("date", fm.format(date));
+
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                    (Request.Method.PUT, requestURL, params, response -> {
+                        Log.d("response is", ""+response);
+                        try {
+                            JSONObject resultObj = new JSONObject(response.toString());
+                            String id = resultObj.getString("id");
+                            Reply re = new Reply(id, UserPersonalInfo.name, reply, date);
+                            replyArrayList.add(re);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }, error -> {
+                        Log.d("exception", "volley error");
+                        error.printStackTrace();
+                    });
+            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            requestQueue.add(jsonObjectRequest);
+        } catch (Exception e){
+            Log.d("exception", "failed posting");
+            e.printStackTrace();
+        }
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -231,7 +272,7 @@ public class PostDetailActivity extends AppCompatActivity {
 
     private void updateParticipants(int updatedParticipants) throws Exception{
         participants.setText(""+updatedParticipants+"/"+post.getGoal_participants());
-        String requestURL = "https://surbay-server.herokuapp.com/api/posts/" + post.getID();
+        String requestURL = "https://surbay-server.herokuapp.com/api/posts/updatepost/" + post.getID();
         try{
             RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
             JSONObject params = new JSONObject();
@@ -250,6 +291,26 @@ public class PostDetailActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         updateUserParticipation(post.getID());
+        if (updatedParticipants == post.getGoal_participants()){
+            requestURL = "https://surbay-server.herokuapp.com/api/posts/done/" + post.getID();
+            try{
+                RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
+                JSONObject params = new JSONObject();
+                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                        (Request.Method.PUT, requestURL, params, response -> {
+                            Log.d("response is", ""+response);
+                        }, error -> {
+                            Log.d("exception", "volley error");
+                            error.printStackTrace();
+                        });
+                jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+                requestQueue.add(jsonObjectRequest);
+            } catch (Exception e){
+                Log.d("exception", "failed posting");
+                e.printStackTrace();
+            }
+        }
+
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -305,7 +366,7 @@ public class PostDetailActivity extends AppCompatActivity {
     }
 
     public void setbuttonunable(){
-        if (post.getDeadline().before(today) || post.getGoal_participants()==post.getParticipants()) {
+        if (post.isDone()) {
             surveyButton.setClickable(false);
             surveyButton.setText("마감되었습니다");
         } else {
@@ -362,7 +423,7 @@ public class PostDetailActivity extends AppCompatActivity {
     public void loading_detail(Post post){
         author.setText(post.getAuthor());
         level.setText("Lv "+post.getAuthor_lvl());
-        est_time.setText(post.getEst_time()+"분");
+        est_time.setText(spinner_esttime[post.getEst_time()]);
 
         deadline.setText(new SimpleDateFormat("MM.dd").format(post.getDate()) + " - " + new SimpleDateFormat("MM.dd").format(post.getDeadline()));
         int dday_count = calc_dday(post.getDeadline());

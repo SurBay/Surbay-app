@@ -38,128 +38,129 @@
                     android:layout_marginLeft="10dp"
                     android:text="작성글 공유하기 기능이 추가되었어요"/>
             </LinearLayout>
-            <LinearLayout
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:background="#EBEBF0">
+                android:background="@color/gray"
+                android:paddingTop="10dp"
+                android:paddingHorizontal="15dp">
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="종료 임박 설문"
+                    android:text="오늘 마감이에요...ㅠ.ㅜ"
                     android:textSize="15dp"
                     android:textColor="@color/black"
-                    android:paddingHorizontal="15dp"
-                    android:layout_marginTop="10dp"
                     ></TextView>
                 <ImageButton
                     android:id="@+id/date_sort_button"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:background="#EBEBF0"
-                    android:layout_marginTop="10dp"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:background="@color/gray"
                     android:src="@drawable/leftarrow"
-                    android:scaleType="centerInside">
+                    android:scaleType="centerInside"
+                    android:layout_alignParentRight="true">
                 </ImageButton>
-            </LinearLayout>
+            </RelativeLayout>
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="10dp"
+                android:paddingHorizontal="15dp"
                 android:gravity="center"
-                android:background="#EBEBF0">
+                android:background="@color/gray">
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/recycler1"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="#EBEBF0">
+                    android:background="@color/gray">
 
                 </androidx.recyclerview.widget.RecyclerView>
             </LinearLayout>
-            <LinearLayout
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="#EBEBF0">
+                android:background="@color/gray"
+                android:paddingTop="10dp"
+                android:paddingHorizontal="15dp">
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="목표 달성 임박 설문"
+                    android:text="조금만 더 하면 목표 달성!"
                     android:textColor="@color/black"
                     android:textSize="15dp"
-                    android:paddingHorizontal="15dp"
-                    android:layout_marginTop="10dp"
                     ></TextView>
                 <ImageButton
                     android:id="@+id/goal_sort_button"
-                    android:layout_marginTop="10dp"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:background="#EBEBF0"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:background="@color/gray"
                     android:src="@drawable/leftarrow"
-                    android:scaleType="centerInside">
+                    android:scaleType="centerInside"
+                    android:layout_alignParentRight="true">
                 </ImageButton>
-            </LinearLayout>
+            </RelativeLayout>
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="#EBEBF0"
-                android:padding="10dp"
+                android:background="@color/gray"
+                android:paddingHorizontal="15dp"
                 android:gravity="center">
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/recycler2"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="#EBEBF0">
+                    android:background="@color/gray">
 
                 </androidx.recyclerview.widget.RecyclerView>
             </LinearLayout>
-            <LinearLayout
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="#EBEBF0">
+                android:background="@color/gray"
+                android:paddingHorizontal="15dp"
+                android:paddingTop="10dp">
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="신규 등록 설문"
+                    android:text="방금 올라온 따끈따끈한 설문~"
                     android:textColor="@color/black"
                     android:textSize="15dp"
-                    android:paddingHorizontal="15dp"
-                    android:layout_marginTop="10dp"
                     ></TextView>
                 <ImageButton
                     android:id="@+id/new_sort_button"
-                    android:layout_marginTop="10dp"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:background="#EBEBF0"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:background="@color/gray"
                     android:src="@drawable/leftarrow"
-                    android:scaleType="centerInside">
+                    android:scaleType="centerInside"
+                    android:layout_alignParentRight="true">
                 </ImageButton>
-            </LinearLayout>
+            </RelativeLayout>
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="10dp"
+                android:paddingHorizontal="15dp"
                 android:gravity="center"
-                android:background="#EBEBF0">
+                android:background="@color/gray">
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/recycler3"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="#EBEBF0">
+                    android:background="@color/gray">
 
                 </androidx.recyclerview.widget.RecyclerView>
             </LinearLayout>
-            <LinearLayout
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="#EBEBF0">
+                android:background="@color/gray"
+                android:paddingHorizontal="15dp"
+                android:paddingTop="10dp">
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -167,30 +168,29 @@
                     android:text="주목! 전달할 소식이 있어요"
                     android:textColor="@color/black"
                     android:textSize="15dp"
-                    android:paddingHorizontal="15dp"
-                    android:layout_marginTop="10dp"
                     ></TextView>
                 <ImageButton
                     android:id="@+id/notice_sort_button"
                     android:layout_marginTop="10dp"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:background="#EBEBF0"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:background="@color/gray"
+                    android:layout_alignParentRight="true"
                     android:src="@drawable/leftarrow"
                     android:scaleType="centerInside">
                 </ImageButton>
-            </LinearLayout>
+            </RelativeLayout>
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="10dp"
+                android:paddingHorizontal="15dp"
                 android:gravity="center"
-                android:background="#EBEBF0">
+                android:background="@color/gray">
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/recycler4"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="#EBEBF0">
+                    android:background="@color/gray">
 
                 </androidx.recyclerview.widget.RecyclerView>
             </LinearLayout>

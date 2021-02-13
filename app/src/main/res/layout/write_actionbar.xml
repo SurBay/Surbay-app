@@ -1,17 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:gravity="center_vertical"
     android:background="@color/white"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="horizontal">
+    android:layout_marginHorizontal="20dp">
 
     <Button
         android:id="@+id/btnBack"
         android:layout_width="60dp"
         android:layout_height="56dp"
-        android:text="뒤로"
-        android:textColor="@color/black"
+        android:text="취소"
+        android:textColor="@color/gray2"
+        android:textStyle="bold"
+        android:background="@color/white"
         android:lines ="1"/>
 
     <TextView
@@ -25,10 +27,21 @@
         android:layout_weight="1"/>
 
     <Button
-        android:id="@+id/btnDone"
-        android:text="완료"
-        android:textColor="@color/black"
+        android:id="@+id/btnsave"
+        android:text="보관함"
+        android:textColor="@color/gray2"
+        android:textStyle="bold"
         android:background="@color/white"
         android:layout_width="60dp"
-        android:layout_height="56dp" />
-</LinearLayout>
+        android:layout_height="56dp"
+        android:layout_toLeftOf="@id/btnDone"/>
+    <Button
+        android:id="@+id/btnDone"
+        android:text="등록"
+        android:textColor="@color/teal_200"
+        android:textStyle="bold"
+        android:background="@color/white"
+        android:layout_width="60dp"
+        android:layout_height="56dp"
+        android:layout_alignParentRight="true"/>
+</RelativeLayout>

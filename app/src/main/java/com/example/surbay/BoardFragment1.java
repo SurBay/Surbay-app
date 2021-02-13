@@ -149,8 +149,11 @@ public class BoardFragment1 extends Fragment// Fragment 클래스를 상속받�
                 Post item = (Post) listViewAdapter.getItem(position);
                 Intent intent = new Intent(((AppCompatActivity) getActivity()).getApplicationContext(), PostDetailActivity.class);
                 intent.putExtra("post", item);
+                intent.putParcelableArrayListExtra("reply", item.getComments());
+                Log.d("adapter click", "prize:"+item.getComments().toString());
                 intent.putExtra("position", position);
                 startActivityForResult(intent, DO_SURVEY);
+
             }
         });
 
