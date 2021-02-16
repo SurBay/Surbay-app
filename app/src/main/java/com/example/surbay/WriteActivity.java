@@ -1,11 +1,14 @@
 package com.example.surbay;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.DatePickerDialog;
+import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
@@ -29,29 +32,29 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.surbay.adapter.GiftImageAdapter;
 import com.example.surbay.classfile.Post;
 import com.example.surbay.classfile.Reply;
+import com.example.surbay.classfile.UserPersonalInfo;
 import com.gun0912.tedpicker.Config;
 import com.gun0912.tedpicker.ImagePickerActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-
-import static com.example.surbay.BoardFragment1.listView;
-import static com.example.surbay.BoardFragment1.listViewAdapter;
 
 public class WriteActivity extends AppCompatActivity {
     static final int NEWPOST = 1;
@@ -61,6 +64,8 @@ public class WriteActivity extends AppCompatActivity {
     TextView writeBack;
     TextView writeSave;
     TextView writeDone;
+    RecyclerView gift_image_list;
+    GiftImageAdapter giftImageAdapter;
 
     private EditText writeTitle;
     private EditText writeTarget;
@@ -128,6 +133,7 @@ public class WriteActivity extends AppCompatActivity {
         prize_layout = findViewById(R.id.prize_image_layout);
         prize_plus = findViewById(R.id.prize_image_plus);
         prize_list = findViewById(R.id.gift_list);
+        gift_image_list = findViewById(R.id.gith_image_list);
 
         writeBack = findViewById(R.id.writeBack);
         writeSave = findViewById(R.id.writesave);
@@ -176,12 +182,13 @@ public class WriteActivity extends AppCompatActivity {
         });
 
         if (purpose == 2){
+            writeSave.setVisibility(View.INVISIBLE);
             post = intent.getParcelableExtra("post");
             writeTitle.setText(post.getTitle());
             writeTarget.setText(post.getTarget());
 
             Date date = post.getDeadline();
-            SimpleDateFormat fm = new SimpleDateFormat("yyyy-MM-dd");
+            SimpleDateFormat fm = new SimpleDateFormat("yyyy-MM-dd a KK시");
 
             writeDeadline.setText(fm.format(date));
             writeGoalParticipants.setText(post.getGoal_participants().toString());
@@ -204,9 +211,29 @@ public class WriteActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 url = writeUrl.getText().toString();
-                Intent newIntent = new Intent(getApplicationContext(), SurveyWebActivity.class);
-                newIntent.putExtra("url", url);
-                startActivity(newIntent);
+                if (url.contains("docs.google.com") || url.contains("forms.gle")){
+                    Intent newIntent = new Intent(getApplicationContext(), SurveyWebActivity.class);
+                    newIntent.putExtra("url", url);
+                    startActivity(newIntent);
+                } else {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(WriteActivity.this);
+                    dialog = builder.setMessage("제공하지 않는 url입니다.")
+                            .setNegativeButton("확인", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                }
+                            })
+                            .create();
+                    dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                        @SuppressLint("ResourceAsColor")
+                        @Override
+                        public void onShow(DialogInterface arg0) {
+                            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(R.color.teal_200);
+                            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(R.color.gray);
+                        }
+                    });
+                    dialog.show();
+                }
             }
         });
 
@@ -270,6 +297,13 @@ public class WriteActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Done_survey();
+            }
+        });
+
+        writeSave.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                saveDialog();
             }
         });
     }
@@ -416,13 +450,23 @@ public class WriteActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 13 && resultCode == RESULT_OK){
             image_uris = data.getParcelableArrayListExtra(ImagePickerActivity.EXTRA_IMAGE_URIS);
-            Log.d("prizeplus", image_uris.toString());
 
-            String uritext = "";
-            for(Uri uri : image_uris) {
-                uritext += uri + "\n";
-            }
-            prize_list.setText(uritext);
+            giftImageAdapter = new GiftImageAdapter(WriteActivity.this, image_uris);
+            gift_image_list.setAdapter(giftImageAdapter);
+            gift_image_list.setLayoutManager(new LinearLayoutManager(WriteActivity.this, LinearLayoutManager.HORIZONTAL, false));
+            gift_image_list.setVisibility(View.VISIBLE);
+
+            giftImageAdapter.setOnItemClickListener(new GiftImageAdapter.OnItemClickListener() {
+                @Override
+                public void onItemClick(View v, int position) {
+                    Intent intent = new Intent(WriteActivity.this, TipImageDetail.class);
+                    intent.putExtra("uri", image_uris.get(position));
+                    intent.putExtra("position", position);
+                    startActivityForResult(intent, 20);
+                }
+            });
+            gift_image_list.setVisibility(View.VISIBLE);
+            prize_list.setVisibility(View.GONE);
         }
     }
     public void Back_survey(){
@@ -470,7 +514,7 @@ public class WriteActivity extends AppCompatActivity {
         if (purpose == 1){
             url = writeUrl.getText().toString();
             participants = 0;
-            author = UserPersonalInfo.name;
+            author = UserPersonalInfo.userID;
             author_lvl = UserPersonalInfo.level;
 
             SimpleDateFormat fm = new SimpleDateFormat("yyyy-MM-dd a KK시");
@@ -542,9 +586,7 @@ public class WriteActivity extends AppCompatActivity {
             } else {
                 if (purpose == 1){
                     Post addedpost = new Post(null ,title, author, author_lvl, content, participants, goalParticipants, url, date, deadline, with_prize, prize, est_time, target,count, new ArrayList<Reply>(), false);
-                    MainActivity.postArrayList.add(0, addedpost);
-                    listViewAdapter.notifyDataSetChanged();
-                    listView.setAdapter(listViewAdapter);
+                    MainActivity.postArrayList.add(addedpost);
                     Intent intent = new Intent(WriteActivity.this, BoardFragment1.class);
                     Log.d("date formatted", formatter.format(deadline));
                     try {
@@ -621,5 +663,141 @@ public class WriteActivity extends AppCompatActivity {
         e.setEnabled(false);
         e.setFocusableInTouchMode(false);
         e.setTextColor(R.color.gray2);
+    }
+
+    public void saveDialog(){
+        AlertDialog.Builder builder2 = new AlertDialog.Builder(WriteActivity.this);
+                        builder2.setItems(R.array.savemenu, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                switch (which){
+                                    case 0:
+                                        AlertDialog.Builder builder_save = new AlertDialog.Builder(WriteActivity.this);
+                                        AlertDialog dialog_save = builder_save.setMessage("임시저장은 최대 1개까지 가능하여 임시저장할 경우 기존에 임시저장한 글이 사라집니다.\n" +
+                                                "임시저장하겠습니까?")
+                                                .setPositiveButton("임시저장", new DialogInterface.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(DialogInterface dialog, int which) {
+                                                        tempSave();
+                                                    }
+                                                }).setNegativeButton("취소", new DialogInterface.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(DialogInterface dialog, int which) {
+                                                    }
+                                                })
+                                                .create();
+                                        dialog_save.setOnShowListener(new DialogInterface.OnShowListener() {
+                                            @SuppressLint("ResourceAsColor")
+                                            @Override
+                                            public void onShow(DialogInterface arg0) {
+                                                dialog_save.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(R.color.teal_200);
+                                                dialog_save.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(R.color.gray);
+                                            }
+                                        });
+                                        dialog_save.show();
+                                        break;
+                                    case 1:
+                                        AlertDialog.Builder builder_load = new AlertDialog.Builder(WriteActivity.this);
+                                        String message;
+                                        if (writeTitle.getText().toString().length()==0 && writeTarget.getText().toString().length()==0 && writeDeadline.getText().toString().length()==0 && writePrize.getText().toString().length()==0 && writeUrl.getText().toString().length()==0 && writeContent.getText().toString().length()==0){
+                                            message = "임시저장된 글을 불러오겠습니까?";
+                                        } else {
+                                            message = "임시저장된 글을 불러올 경우\n" +
+                                                    "작성중인 글은 사라지게 됩니다.\n" +
+                                                    "불러오겠습니까?";
+                                        }
+                                        AlertDialog dialog_load = builder_load.setMessage(message)
+                                                .setPositiveButton("불러오기", new DialogInterface.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(DialogInterface dialog, int which) {
+                                                        loadSave();
+                                                    }
+                                                }).setNegativeButton("아니오", new DialogInterface.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(DialogInterface dialog, int which) {
+                                                    }
+                                                })
+                                                .create();
+                                        dialog_load.setOnShowListener(new DialogInterface.OnShowListener() {
+                                            @SuppressLint("ResourceAsColor")
+                                            @Override
+                                            public void onShow(DialogInterface arg0) {
+                                                dialog_load.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(R.color.teal_200);
+                                                dialog_load.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(R.color.gray);
+                                            }
+                                        });
+                                        dialog_load.show();
+                                        break;
+                                    default:
+                                        return;
+                                }
+                            }
+                        });
+                        builder2.setNegativeButton("취소", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                            }
+                        });
+                        Dialog dialog2 = builder2.create();
+                        dialog2.show();
+
+    }
+
+    public void tempSave(){
+        SharedPreferences tempWrite = getSharedPreferences("tempWrite", Activity.MODE_PRIVATE);
+        SharedPreferences.Editor tempWriteedit = tempWrite.edit();
+
+        String title = writeTitle.getText().toString();
+        String content = writeContent.getText().toString();
+        String target = writeTarget.getText().toString();
+        boolean with_prize = withPrize.isChecked();
+        est_time = writeEstTime.getSelectedItemPosition();
+        goalParticipants = Integer.valueOf(writeGoalParticipants.getText().toString());
+        url = writeUrl.getText().toString();
+
+        if (with_prize){
+            count = Integer.valueOf(prize_count.getText().toString());
+            prize = writePrize.getText().toString();
+        } else {
+            count = 0;
+            prize = null;///상품 없을 때는 null 처리해야될듯
+        }
+
+        tempWriteedit.putString("title", title);
+        tempWriteedit.putString("content", content);
+        tempWriteedit.putString("target", target);
+        tempWriteedit.putInt("est_time", est_time);
+        tempWriteedit.putInt("goalparticipations",goalParticipants);
+        tempWriteedit.putString("uri", url);
+        tempWriteedit.putString("deadline", writeDeadline.getText().toString());
+        tempWriteedit.putInt("count", count);
+        tempWriteedit.putString("prize",prize);
+        tempWriteedit.putBoolean("with_prize", with_prize);
+        tempWriteedit.commit();
+    }
+
+    public void loadSave(){
+        SharedPreferences tempWrite = getSharedPreferences("tempWrite", Activity.MODE_PRIVATE);
+
+        writeTitle.setText(tempWrite.getString("title",""));
+        writeTarget.setText(tempWrite.getString("target",""));
+
+        writeDeadline.setText(tempWrite.getString("deadline","수정불가, YYYYMMDD"));
+        if (tempWrite.getInt("goalparticipations",0) != 0){
+            writeGoalParticipants.setText(String.valueOf(tempWrite.getInt("goalparticipations",0)));
+        }
+        if (tempWrite.getBoolean("with_prize",false)){
+            withPrize.setChecked(true);
+            writePrize.setText(tempWrite.getString("prize",""));
+            prize_count.setText(String.valueOf(tempWrite.getInt("count",0)));
+            writePrize.setEnabled(true);
+            prize_count.setVisibility(View.VISIBLE);
+            prize_layout.setVisibility(View.VISIBLE);
+        } else {
+            withPrize.setChecked(false);
+        }
+        writeUrl.setText(tempWrite.getString("uri",""));
+        writeEstTime.setSelection(tempWrite.getInt("est_time",0));
+        writeContent.setText(tempWrite.getString("content",""));
     }
 }

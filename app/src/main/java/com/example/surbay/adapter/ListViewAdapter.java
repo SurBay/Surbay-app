@@ -9,8 +9,9 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.example.surbay.MainActivity;
 import com.example.surbay.R;
-import com.example.surbay.UserPersonalInfo;
+import com.example.surbay.classfile.UserPersonalInfo;
 import com.example.surbay.classfile.Post;
 
 import java.text.SimpleDateFormat;
@@ -19,7 +20,7 @@ import java.util.Date;
 
 public class ListViewAdapter extends BaseAdapter {
     // Adapter에 추가된 데이터를 저장하기 위한 ArrayList
-    private ArrayList<Post> listViewItemList = new ArrayList<Post>();
+    private ArrayList<Post> listViewItemList;
 
     // ListViewAdapter의 생성자
     public ListViewAdapter(ArrayList<Post> listViewItemList) {
@@ -85,7 +86,7 @@ public class ListViewAdapter extends BaseAdapter {
         contentTextView.setText(post.getTarget());
         dateTextView.setText(date+"~"+deadline);
 
-        if (UserPersonalInfo.name.equals(post.getAuthor())){
+        if (UserPersonalInfo.userID.equals(post.getAuthor())){
             background.setBackgroundResource(R.drawable.round_border_gray_list);
         }
         if (UserPersonalInfo.participations.contains(post.getID())){
@@ -115,8 +116,17 @@ public class ListViewAdapter extends BaseAdapter {
 //        Post item = new Post(id, title, author, author_lvl, content, participants, goal_participants, url, date, deadline, with_prize, prize, est_time, target);
 //        listViewItemList.add(item);
 //    }
-    public void addItem(Post item){
-        listViewItemList.add(item);
+    public void changeItem(){
+        try {
+            MainActivity.getPosts();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        notifyDataSetChanged();
+    }
+    public void remove(int position){
+        listViewItemList.remove(position);
+        notifyDataSetChanged();
     }
     public void updateParticipants(int position, int participants){
         Post item = (Post) getItem(position);

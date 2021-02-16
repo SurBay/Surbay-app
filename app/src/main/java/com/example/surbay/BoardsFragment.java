@@ -3,8 +3,6 @@ package com.example.surbay;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.Html;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,25 +12,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentStatePagerAdapter;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-import androidx.viewpager.widget.PagerAdapter;
-import androidx.viewpager.widget.ViewPager;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
-
-import static com.example.surbay.BoardFragment1.listView;
-import static com.example.surbay.BoardFragment1.listViewAdapter;
-import static com.example.surbay.HomeFragment.adapter1;
-import static com.example.surbay.HomeFragment.adapter2;
-import static com.example.surbay.HomeFragment.adapter3;
-import static com.example.surbay.HomeFragment.recyclerView;
-import static com.example.surbay.HomeFragment.recyclerView2;
-import static com.example.surbay.HomeFragment.recyclerView3;
 
 public class BoardsFragment extends Fragment  {
     private View view;
@@ -44,7 +28,6 @@ public class BoardsFragment extends Fragment  {
 
     public static FragmentStateAdapter adapter;
     ImageButton boards_search_button;
-    SwipeRefreshLayout refreshLayout;
     int pos;
 
     @SuppressLint("RestrictedApi")

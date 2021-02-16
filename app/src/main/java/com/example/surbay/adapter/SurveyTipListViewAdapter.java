@@ -8,7 +8,6 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.example.surbay.R;
-import com.example.surbay.classfile.PostNonSurvey;
 import com.example.surbay.classfile.Surveytip;
 
 import java.text.SimpleDateFormat;
@@ -81,4 +80,8 @@ public class SurveyTipListViewAdapter extends BaseAdapter {
         listViewItemList.add(item);
     }
 
+    public void updateLikes(int position, int likes){
+        Surveytip item = (Surveytip) getItem(position);
+        item.setLikes(likes);
+    }
 }

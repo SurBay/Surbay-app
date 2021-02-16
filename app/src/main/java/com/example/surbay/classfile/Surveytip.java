@@ -6,6 +6,7 @@ import android.os.Parcelable;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 public class Surveytip implements Parcelable {
@@ -17,6 +18,7 @@ public class Surveytip implements Parcelable {
     private Date date;
     private String category;
     private Integer likes;
+    private ArrayList<String> liked_users;
 
     private String dateformat = "yyyy-MM-dd'T'hh:mm:ss.SSS";
 
@@ -58,7 +60,15 @@ public class Surveytip implements Parcelable {
     public void setLikes(Integer likes) { this.likes = likes;    }
     public Integer getLikes() { return likes;    }
 
-    public Surveytip(String id, String title, String author, Integer author_lvl, String content, Date date, String category, Integer likes){
+    public void setLiked_users(ArrayList<String> liked_users) {
+        this.liked_users = liked_users;
+    }
+
+    public ArrayList<String> getLiked_users() {
+        return liked_users;
+    }
+
+    public Surveytip(String id, String title, String author, Integer author_lvl, String content, Date date, String category, Integer likes, ArrayList<String> liked_users){
         this.id = id;
         this.title = title;
         this.author = author;
@@ -67,6 +77,7 @@ public class Surveytip implements Parcelable {
         this.date = date;
         this.category = category;
         this.likes = likes;
+        this.liked_users = liked_users;
     }
 
     @SuppressLint("NewApi")
@@ -83,6 +94,8 @@ public class Surveytip implements Parcelable {
         }
         this.category = in.readString();
         this.likes = in.readInt();
+        this.liked_users = new ArrayList<>();
+        in.readStringList(liked_users);
     }
 
     @Override
@@ -103,6 +116,7 @@ public class Surveytip implements Parcelable {
             dest.writeString(this.category);
         }
         dest.writeInt(this.likes);
+        dest.writeStringList(this.liked_users);
     }
     public static final Creator<Surveytip> CREATOR = new Creator<Surveytip>() {
         @Override

@@ -1,14 +1,18 @@
 package com.example.surbay;
 
+import android.content.Context;
+import android.os.Bundle;
+import android.view.MotionEvent;
+import android.view.inputmethod.InputMethodManager;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.viewpager.widget.ViewPager;
-
-import android.os.Bundle;
 
 import com.google.android.material.tabs.TabLayout;
 
@@ -18,6 +22,9 @@ import java.util.List;
 public class FindIdActivity extends AppCompatActivity {
     TabLayout findidtab;
     ViewPager findidview;
+    public static FindIdAdapter adapter;
+    public static String phone;
+    private FragmentTransaction fragmentTransaction;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -27,12 +34,21 @@ public class FindIdActivity extends AppCompatActivity {
 
         findidtab = findViewById(R.id.findidtablayout);
         findidview = findViewById(R.id.findidviewpager);
-        FindIdAdapter adapter = new FindIdAdapter(getSupportFragmentManager());
+        adapter = new FindIdAdapter(getSupportFragmentManager());
         findidview.setAdapter(adapter);
         adapter.notifyDataSetChanged();
 
         findidtab.setupWithViewPager(findidview);
 
+
+
+    }
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+        imm.hideSoftInputFromInputMethod(getCurrentFocus().getWindowToken(), 0);
+        return true;
     }
 
     public class FindIdAdapter extends FragmentPagerAdapter {
@@ -53,7 +69,7 @@ public class FindIdActivity extends AppCompatActivity {
 
         @Override
         public int getCount() {
-            return this.fragments.size();
+            return 2;
         }
 
         @Nullable
@@ -62,4 +78,5 @@ public class FindIdActivity extends AppCompatActivity {
             return titles[position];
         }
     }
+
 }

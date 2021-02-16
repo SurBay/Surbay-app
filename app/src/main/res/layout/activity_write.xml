@@ -260,6 +260,14 @@
                 android:layout_marginLeft="5dp"
                 android:textColor="@android:color/darker_gray"
                 />
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/gith_image_list"
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:layout_toRightOf="@id/prize_image_plus"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                android:visibility="gone"
+                />
         </RelativeLayout>
         <LinearLayout
             android:layout_width="match_parent"

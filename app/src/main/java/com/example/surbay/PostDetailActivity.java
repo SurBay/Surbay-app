@@ -6,8 +6,6 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -41,19 +39,17 @@ import com.android.volley.toolbox.Volley;
 import com.example.surbay.adapter.ReplyListViewAdapter;
 import com.example.surbay.classfile.Post;
 import com.example.surbay.classfile.Reply;
+import com.example.surbay.classfile.UserPersonalInfo;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static android.graphics.Color.WHITE;
 
 public class PostDetailActivity extends AppCompatActivity {
     static final int START_SURVEY = 1;
@@ -69,7 +65,7 @@ public class PostDetailActivity extends AppCompatActivity {
     TextView level;
     TextView title;
     TextView target;
-    TextView content;;
+    TextView content;
 
     TextView est_time;
     TextView deadline;
@@ -149,13 +145,9 @@ public class PostDetailActivity extends AppCompatActivity {
         post = (Post)intent.getParcelableExtra("post");
         position = intent.getIntExtra("position", -1);
         loading_detail(post);
-
-        replyArrayList = new ArrayList<Reply>();
-        replyArrayList = intent.getParcelableArrayListExtra("reply");
-
-        Log.d("comments size", replyArrayList.size()+"");
-
-        detail_reply_Adapter = new ReplyListViewAdapter(replyArrayList);
+        replyArrayList = post.getComments();
+        Log.d("comments size", post.getComments().size()+"");
+        detail_reply_Adapter = new ReplyListViewAdapter(replyArrayList, post.getID());
         detail_reply_listView.setAdapter(detail_reply_Adapter);
 
         doneSurvey = NOT_DONE;
@@ -206,7 +198,6 @@ public class PostDetailActivity extends AppCompatActivity {
 
             dialogItemList.add(itemMap);
         }
-
     }
 
     private void postReply(String reply) {
@@ -214,7 +205,7 @@ public class PostDetailActivity extends AppCompatActivity {
         try{
             RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
             JSONObject params = new JSONObject();
-            params.put("writer",UserPersonalInfo.name);
+            params.put("writer", UserPersonalInfo.userID);
             params.put("content",reply);
 
             Date date = new Date();
@@ -227,8 +218,9 @@ public class PostDetailActivity extends AppCompatActivity {
                         try {
                             JSONObject resultObj = new JSONObject(response.toString());
                             String id = resultObj.getString("id");
-                            Reply re = new Reply(id, UserPersonalInfo.name, reply, date);
+                            Reply re = new Reply(id, UserPersonalInfo.userID, reply, date);
                             replyArrayList.add(re);
+                            detail_reply_Adapter.addItem(re);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -316,7 +308,7 @@ public class PostDetailActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater menuInflater = getMenuInflater();
         menuInflater.inflate(R.menu.post_detail_bar, menu);
-        if (UserPersonalInfo.name.equals(post.getAuthor())){
+        if (UserPersonalInfo.userID.equals(post.getAuthor())){
             menu.getItem(0).setVisible(false);
             menu.getItem(1).setVisible(false);
             menu.getItem(2).setVisible(false);
@@ -324,9 +316,9 @@ public class PostDetailActivity extends AppCompatActivity {
             menu.getItem(3).setVisible(true);
             menu.getItem(4).setVisible(true);
         } else {
-            menu.getItem(0).setVisible(true);
-            menu.getItem(1).setVisible(true);
-            menu.getItem(2).setVisible(true);
+            menu.getItem(0).setVisible(false);
+            menu.getItem(1).setVisible(false);
+            menu.getItem(2).setVisible(false);
 
             menu.getItem(3).setVisible(false);
             menu.getItem(4).setVisible(false);
@@ -370,7 +362,7 @@ public class PostDetailActivity extends AppCompatActivity {
             surveyButton.setClickable(false);
             surveyButton.setText("마감되었습니다");
         } else {
-                if (post.getAuthor().equals(UserPersonalInfo.name)){
+                if (post.getAuthor().equals(UserPersonalInfo.userID)){
                     partilayout.setVisibility(View.GONE);
                     authorlayout.setVisibility(View.VISIBLE);
                 } else if (UserPersonalInfo.participations.contains(post.getID())){
@@ -548,12 +540,19 @@ public class PostDetailActivity extends AppCompatActivity {
                 .setPositiveButton("삭제", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which){
+                        today = new Date();
                         long diff = (today.getTime() - post.getDate().getTime()) / (60*1000);
                         int mindiff = (int)diff;
                         Log.d("todat", mindiff+ "  "+ diff + "  " + today + post.getDate());
                         if (mindiff<10){
-
-                            Toast.makeText(PostDetailActivity.this, "설문이 연장되었습니다", Toast.LENGTH_SHORT).show();
+                            try {
+                                deletePost();
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                            finish();
+                            setResult(4);
+                            Toast.makeText(PostDetailActivity.this, "설문이 삭제되었습니다", Toast.LENGTH_SHORT).show();
                         } else {
                             AlertDialog.Builder builder2 = new AlertDialog.Builder(PostDetailActivity.this);
                             builder2.setMessage("등록 후 10분이 경과하여 삭제할 수 없습니다").setNegativeButton("확인", new DialogInterface.OnClickListener(){
@@ -606,6 +605,7 @@ public class PostDetailActivity extends AppCompatActivity {
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
+                        donepost();
                     }
                 }).setNegativeButton("취소", new DialogInterface.OnClickListener() {
                     @Override
@@ -678,7 +678,7 @@ public class PostDetailActivity extends AppCompatActivity {
     }
 
     private void updateDeadlinePost(Date deadline) throws Exception{
-        String requestURL = "https://surbay-server.herokuapp.com/api/posts/" + post.getID();
+        String requestURL = "https://surbay-server.herokuapp.com/api/posts/updatepost/" + post.getID();
         Log.d("fix", UserPersonalInfo.name);
         try{
             RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
@@ -701,4 +701,47 @@ public class PostDetailActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
+
+
+    public void donepost(){
+        String requestURL = "https://surbay-server.herokuapp.com/api/posts/done/"+post.getID();
+        try{
+            RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
+            JSONObject params = new JSONObject();
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                    (Request.Method.PUT, requestURL, params, response -> {
+                        Log.d("response is", ""+response);
+                    }, error -> {
+                        Log.d("exception", "volley error");
+                        error.printStackTrace();
+                    });
+            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            requestQueue.add(jsonObjectRequest);
+        } catch (Exception e){
+            Log.d("exception", "failed posting");
+            e.printStackTrace();
+        }
+    }
+
+
+    private void deletePost() throws Exception{
+        String requestURL = "https://surbay-server.herokuapp.com/api/posts/deletepost/" + post.getID();
+        try{
+            RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                    (Request.Method.DELETE, requestURL, null, response -> {
+                        Log.d("delete", ""+response);
+                    }, error -> {
+                        Log.d("exception", "volley error");
+                        error.printStackTrace();
+                    });
+            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            requestQueue.add(jsonObjectRequest);
+            Log.d("fix", UserPersonalInfo.name);
+        } catch (Exception e){
+            Log.d("exception", "failed posting");
+            e.printStackTrace();
+        }
+    }
+
 }

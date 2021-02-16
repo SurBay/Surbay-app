@@ -1,19 +1,14 @@
 package com.example.surbay;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -23,14 +18,13 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.surbay.classfile.UserPersonalInfo;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -145,14 +139,16 @@ public class LoginActivity extends AppCompatActivity {
                                                 Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                                                 LoginActivity.this.startActivity(intent);
                                                 try {
+
+                                                    String token = resultObj.getString("token");
+                                                    UserPersonalInfo.token = token;
+
                                                     if (auto_login_check.isChecked()){
                                                         SharedPreferences auto = getSharedPreferences("auto", Activity.MODE_PRIVATE);
                                                         SharedPreferences.Editor autoLogin = auto.edit();
                                                         autoLogin.putString("inputId", username);
                                                         autoLogin.putString("inputPwd", password);
 
-                                                        String token = resultObj.getString("token");
-                                                        UserPersonalInfo.token = token;
                                                         autoLogin.putString("token", token);
                                                         autoLogin.commit();
                                                     } else {
@@ -160,8 +156,6 @@ public class LoginActivity extends AppCompatActivity {
                                                             SharedPreferences auto = getSharedPreferences("auto", Activity.MODE_PRIVATE);
                                                             SharedPreferences.Editor autoLogin = auto.edit();
 
-                                                            String token = resultObj.getString("token");
-                                                            UserPersonalInfo.token = token;
 
                                                             autoLogin.putString("inputId", username);
                                                             autoLogin.remove("inputPwd");
@@ -171,8 +165,6 @@ public class LoginActivity extends AppCompatActivity {
                                                             SharedPreferences auto = getSharedPreferences("auto", Activity.MODE_PRIVATE);
                                                             SharedPreferences.Editor autoLogin = auto.edit();
 
-                                                            String token = resultObj.getString("token");
-                                                            UserPersonalInfo.token = token;
 
                                                             autoLogin.remove("inputId");
                                                             autoLogin.remove("inputPwd");

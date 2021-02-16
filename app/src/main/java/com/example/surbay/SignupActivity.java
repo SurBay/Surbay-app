@@ -1,6 +1,7 @@
 package com.example.surbay;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -11,6 +12,7 @@ import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -20,6 +22,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -28,11 +31,14 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseException;
+import com.google.firebase.FirebaseTooManyRequestsException;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthSettings;
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthOptions;
 import com.google.firebase.auth.PhoneAuthProvider;
@@ -64,7 +70,7 @@ public class SignupActivity extends AppCompatActivity {
     TextView phone_checkTextview;
     EditText phonecheckEditText;
     TextView signupTimer;
-    TextView signupPCNText;
+    private TextView signupPCNText;
     Button usersex_M;
     Button usersex_F;
     Spinner userage;
@@ -85,7 +91,11 @@ public class SignupActivity extends AppCompatActivity {
     String userid;
     String phoneNumber;
 
+    private Boolean phone_check = false;
+
     CountDownTimer CDT;
+    private PhoneAuthProvider.ForceResendingToken mResendToken;
+//    private ActivityPhoneAuthBinding mBinding;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -314,9 +324,14 @@ public class SignupActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 String phone = phonenumberEditText.getText().toString();
-                if (phone.length() == 11){
-                    PhoneAuth(phone);
-                }
+
+//                if (phone.length() == 11){
+//                    PhoneAuth(콜);
+//                }
+//                String realphone = "+82 "+phone.substring(1, 3)+"-"+phone.substring(3,7)+"-"+phone.substring(7,11);
+                String realphone = "+82"+phone.substring(1);
+                Log.d("phone", "num is "+ realphone);
+                PhoneAuth(realphone);
             }
         });
 
@@ -325,23 +340,29 @@ public class SignupActivity extends AppCompatActivity {
             public void onFocusChange(View v, boolean hasFocus) {
                 if (!hasFocus){
                     typesmsCode = phonecheckEditText.getText().toString();
+                    Log.d("code is", "sms code" + typesmsCode);
                     if (typesmsCode.length() == 6){
                         PhoneAuthCredential credential = PhoneAuthProvider.getCredential(getverificationId, typesmsCode);
-                        Task<AuthResult> result = auth.signInWithCredential(credential);
-                        if (result.isSuccessful()){
-                            Log.d("signupauth", credential.getSmsCode());
-                            signupPCNText.setText("인증이 완료되었습니다");
-                            CDT.onFinish();
-                        } else if(result.isCanceled()){
-                            signupPCNText.setText("인증에 실패했습니다. 인증하기를 다시 시도해주세요");
-                            CDT.onFinish();
-                        } else if(result.isComplete()){
-                            Log.d("signupauth", credential.getSmsCode());
-                            signupPCNText.setText("인증이 완료되었습니다");
-                            CDT.onFinish();
-                        }
+                        Task<AuthResult> result = auth.signInWithCredential(credential)
+                                .addOnCompleteListener(SignupActivity.this, new OnCompleteListener<AuthResult>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<AuthResult> task) {
+                                        if (task.isSuccessful()) {
+                                            // Sign in success, update UI with the signed-in user's information
+                                            FirebaseUser user = task.getResult().getUser();
+                                            Log.d("signupauth", "signInWithCredential:success");
+                                            CDT.cancel();
+                                            signupPCNText.setText("인증이 완료되었습니다");
+                                            phone_check = true;
+                                        } else {
+                                            // If sign in fails, display a message to the user.
+                                            Log.d("signupauth", "signInWithCredential:failefail");
 
-                        Log.d("signupauth", result.toString());
+                                            signupPCNText.setText("인증에 실패했습니다. 인증하기를 다시 시도해주세요");
+                                            // ...
+                                        }
+                                    }
+                                });
                     }
                 }
             }
@@ -502,6 +523,14 @@ public class SignupActivity extends AppCompatActivity {
         return check;
     }
 
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        phonecheckEditText.setFocusable(false);
+        phonecheckEditText.setFocusable(true);
+        return true;
+    }
+
     public void TimerStart(){
         signupTimer.setVisibility(View.VISIBLE);
         signupPCNText.setVisibility(View.VISIBLE);
@@ -522,80 +551,66 @@ public class SignupActivity extends AppCompatActivity {
             public void onFinish() {
                 signupPCNText.setText("인증에 실패했습니다. 인증하기를 다시 시도해주세요");
             }
+
+
         };
         CDT.start();
     }
 
     public void PhoneAuth(String phoneNumber){
-        phoneNumber = "+1 1111111111";
+//        phoneNumber = "+1 1231231234";
         auth = FirebaseAuth.getInstance();
+//        FirebaseAuth.getInstance().getFirebaseAuthSettings().forceRecaptchaFlowForTesting(true);
         PhoneAuthOptions options = PhoneAuthOptions.newBuilder(auth)
                 .setPhoneNumber(phoneNumber)
                 .setTimeout(120L, TimeUnit.SECONDS)
                 .setActivity(this)
                 .setCallbacks(new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
                     @Override
-                    public void onCodeSent(String verificationId,
-                                           PhoneAuthProvider.ForceResendingToken forceResendingToken) {
+                    public void onCodeSent(@NonNull String verificationId,
+                                           @NonNull PhoneAuthProvider.ForceResendingToken forceResendingToken) {
                         // Save the verification id somewhere
                         // ...
 
                         // The corresponding whitelisted code above should be used to complete sign-in.
                         Log.d("signupauth", forceResendingToken.toString() + verificationId);
+                        Log.d("signupauth", "onCodeSent:" + verificationId);
                         TimerStart();
                         phonecheckEditText.setEnabled(true);
                         getverificationId = verificationId;
+                        mResendToken = forceResendingToken;
 
                     }
 
-                    @Override
-                    public void onVerificationCompleted(PhoneAuthCredential phoneAuthCredential) {
-                        // Sign in with the credential
-                        // ...
-                    }
-
-                    @Override
-                    public void onVerificationFailed(FirebaseException e) {
-                        // ...
-                    }
-                })
-                .build();
-        PhoneAuthProvider.verifyPhoneNumber(options);
-    }
-
-
-    public void testPhoneAutoRetrieve(String phoneNumber, String smsCode) {
-        // [START auth_test_phone_auto]
-        // The test phone number and code should be whitelisted in the console.
-        phoneNumber = "+1 1111111111";
-
-        FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
-        FirebaseAuthSettings firebaseAuthSettings = firebaseAuth.getFirebaseAuthSettings();
-
-        // Configure faking the auto-retrieval with the whitelisted numbers.
-        firebaseAuthSettings.setAutoRetrievedSmsCodeForPhoneNumber(phoneNumber, smsCode);
-
-        PhoneAuthOptions options = PhoneAuthOptions.newBuilder(firebaseAuth)
-                .setPhoneNumber(phoneNumber)
-                .setTimeout(120L, TimeUnit.SECONDS)
-                .setActivity(this)
-                .setCallbacks(new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
                     @Override
                     public void onVerificationCompleted(PhoneAuthCredential credential) {
-                        // Instant verification is applied and a credential is directly returned.
-                        // ...
-                        Log.d("signupauth", credential.getSmsCode());
-                        signupPCNText.setText("인증이 완료되었습니다");
-                        CDT.onFinish();
+                        // This callback will be invoked in two situations:
+                        // 1 - Instant verification. In some cases the phone number can be instantly
+                        //     verified without needing to send or enter a verification code.
+                        // 2 - Auto-retrieval. On some devices Google Play services can automatically
+                        //     detect the incoming verification SMS and perform verification without
+                        //     user action.
+                        Log.d("phone auth", "onVerificationCompleted:" + credential);
+
                     }
 
-                    // [START_EXCLUDE]
                     @Override
                     public void onVerificationFailed(FirebaseException e) {
-                        signupPCNText.setText("인증에 실패했습니다. 인증하기를 다시 시도해주세요");
-                        Log.d("signupauth", e.toString());
+                        // This callback is invoked in an invalid request for verification is made,
+                        // for instance if the the phone number format is not valid.
+                        Log.w("phone auth", "onVerificationFailed", e);
+
+                        if (e instanceof FirebaseAuthInvalidCredentialsException) {
+                            // Invalid request
+                            // ...
+                        } else if (e instanceof FirebaseTooManyRequestsException) {
+                            // The SMS quota for the project has been exceeded
+                            // ...
+                        }
+
+                        // Show a message and update the UI
+                        // ...
                     }
-                    // [END_EXCLUDE]
                 })
                 .build();
         PhoneAuthProvider.verifyPhoneNumber(options);
@@ -641,6 +656,11 @@ public class SignupActivity extends AppCompatActivity {
             gender = 1;
         } else {
             Toast.makeText(getApplicationContext(), "성별을 선택해주세요", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        if(phone_check==false){
+            Toast.makeText(getApplicationContext(), "번호 인증을 진행해주세요", Toast.LENGTH_SHORT).show();
             return false;
         }
 

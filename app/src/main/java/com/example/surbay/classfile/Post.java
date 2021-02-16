@@ -1,7 +1,6 @@
 package com.example.surbay.classfile;
 
 import android.annotation.SuppressLint;
-import android.content.Intent;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -9,7 +8,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 public class Post implements Parcelable{
     private String id;
@@ -29,9 +27,7 @@ public class Post implements Parcelable{
     private String target;
     private ArrayList<Reply> comments;
     private boolean done;
-
     private String dateformat = "yyyy-MM-dd'T'hh:mm:ss.SSS";
-
     public String getID() {
         return id;
     }
@@ -104,12 +100,10 @@ public class Post implements Parcelable{
     public void setTarget(String target) {
         this.target = target;
     }
-
     public void setDone(boolean done) { this.done = done;    }
     public boolean isDone() { return done;    }
     public ArrayList<Reply> getComments() {        return comments;    }
     public void setComments(ArrayList<Reply> comments) { this.comments = comments;    }
-
     public Post(String id, String title, String author, Integer author_lvl, String content, Integer participants, Integer goal_participants, String url, Date date, Date deadline, Boolean with_prize, String prize, Integer est_time, String target, Integer num_prize, ArrayList<Reply> comments, boolean done){
         this.id = id;
         this.title = title;
@@ -126,10 +120,9 @@ public class Post implements Parcelable{
         this.est_time = est_time;
         this.target = target;
         this.num_prize = num_prize;
-        this.comments = comments;
+        this.comments = new ArrayList<>(comments);
         this.done = done;
     }
-
     @SuppressLint("NewApi")
     public Post(Parcel in){
         this.id = in.readString();
@@ -156,16 +149,13 @@ public class Post implements Parcelable{
         this.est_time = in.readInt();
         this.target = in.readString();
         this.done = in.readBoolean();
-
         this.comments = new ArrayList();
-        in.readTypedList(comments, Reply.CREATOR);
+        in.readTypedList(this.comments, Reply.CREATOR);
     }
-
     @Override
     public int describeContents() {
         return 0;
     }
-
     @SuppressLint("NewApi")
     @Override
     public void writeToParcel(Parcel dest, int flags) {
@@ -180,17 +170,14 @@ public class Post implements Parcelable{
         dest.writeString(new SimpleDateFormat(dateformat).format(this.date));
         dest.writeString(new SimpleDateFormat(dateformat).format(this.deadline));
         dest.writeBoolean( this.with_prize);
-        if (!with_prize){
-            dest.writeString(this.prize);
-        }
+        dest.writeString(this.prize);
         dest.writeInt(this.num_prize);
         dest.writeInt(this.est_time);
         dest.writeString(this.target);
         dest.writeBoolean(this.done);
-
         dest.writeTypedList(this.comments);
     }
-    public static final Parcelable.Creator<Post> CREATOR = new Parcelable.Creator<Post>() {
+    public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
         @Override
         public Post createFromParcel(Parcel in) {
             return new Post(in);
@@ -200,7 +187,4 @@ public class Post implements Parcelable{
             return new Post[size];
         }
     };
-
-
-
 }

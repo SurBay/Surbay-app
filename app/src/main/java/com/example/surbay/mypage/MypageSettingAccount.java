@@ -1,25 +1,37 @@
 package com.example.surbay.mypage;
 
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.example.surbay.LoginActivity;
 import com.example.surbay.R;
-import com.example.surbay.UserPersonalInfo;
-import com.example.surbay.WriteActivity;
-import com.example.surbay.classfile.AccountFix;
+import com.example.surbay.classfile.UserPersonalInfo;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class MypageSettingAccount extends AppCompatActivity {
     TextView id;
@@ -69,12 +81,19 @@ public class MypageSettingAccount extends AppCompatActivity {
 
         id.setText(UserPersonalInfo.userID);
         name.setText(UserPersonalInfo.name);
+        phone.setText(UserPersonalInfo.phoneNumber);
+        if (UserPersonalInfo.gender == 0){
+            sex.setText("남성");
+        } else {
+            sex.setText("여성");
+        }
+        birth.setText(UserPersonalInfo.yearBirth.toString());
 
         uifix.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MypageSettingAccount.this, AccountFix.class);
-                startActivity(intent);
+                startActivityForResult(intent, 40);
             }
         });
         schoolAuth.setOnClickListener(new View.OnClickListener() {
@@ -86,7 +105,8 @@ public class MypageSettingAccount extends AppCompatActivity {
         pwchange.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                Intent intent = new Intent(MypageSettingAccount.this, PwChange.class);
+                startActivity(intent);
             }
         });
         logout.setOnClickListener(new View.OnClickListener() {
@@ -132,6 +152,7 @@ public class MypageSettingAccount extends AppCompatActivity {
                         .setPositiveButton("확인", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
+                                deletePersonalInfo();
                                 Intent intent = new Intent(MypageSettingAccount.this, LoginActivity.class);
                                 startActivity(intent);
                                 SharedPreferences auto = getSharedPreferences("auto", Activity.MODE_PRIVATE);
@@ -159,5 +180,60 @@ public class MypageSettingAccount extends AppCompatActivity {
                 dialog.show();
             }
         });
+    }
+
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode==40 && resultCode==RESULT_OK){
+            id.setText(UserPersonalInfo.userID);
+            name.setText(UserPersonalInfo.name);
+            phone.setText(UserPersonalInfo.phoneNumber);
+            if (UserPersonalInfo.gender == 0){
+                sex.setText("남성");
+            } else {
+                sex.setText("여성");
+            }
+            birth.setText(UserPersonalInfo.yearBirth.toString());
+        }
+    }
+
+    private void deletePersonalInfo() {
+        String token = UserPersonalInfo.token;
+        try{
+            String requestURL = "https://surbay-server.herokuapp.com/personalinfo";
+            RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
+            JsonObjectRequest jsonObjectRequest= new JsonObjectRequest
+                    (Request.Method.DELETE, requestURL, null, response -> {
+                        try {
+                            JSONObject res = new JSONObject(response.toString());
+                            Log.d("response is", ""+response);
+
+                            SharedPreferences auto = getSharedPreferences("auto", Activity.MODE_PRIVATE);
+                            SharedPreferences.Editor autoLogin = auto.edit();
+                            autoLogin.clear();
+                            autoLogin.commit();
+                        } catch (JSONException e) {
+                            Log.d("exception", "JSON error");
+                            e.printStackTrace();
+                        }
+                    }, error -> {
+                        Log.d("exception", "volley error");
+                        error.printStackTrace();
+                    }){
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    HashMap<String, String> headers = new HashMap<String, String>();
+                    headers.put("Authorization", "Bearer " + token);
+                    return headers;
+                }
+            };
+            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            requestQueue.add(jsonObjectRequest);
+        } catch (Exception e){
+            Log.d("exception", "failed getting response");
+            e.printStackTrace();
+        }
     }
 }

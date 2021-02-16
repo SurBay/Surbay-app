@@ -44,21 +44,19 @@ public class noticeActivity extends AppCompatActivity {
 
 
         notice_list = new ArrayList<>(MainActivity.NoticeArrayList);
-        if (notice_list.size() > 0){
-            notice_listAdapter = new NoticeListAdapter(notice_list);
-            notice_listview.setAdapter(notice_listAdapter);
+        notice_listAdapter = new NoticeListAdapter(notice_list);
+        notice_listview.setAdapter(notice_listAdapter);
 
-            notice_listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    //클릭시 글 확대 기능 추가 예정
-                    PostNonSurvey item = (PostNonSurvey) notice_listAdapter.getItem(position);
-                    Intent intent = new Intent(noticeActivity.this, NoticeDetailActivity.class);
-                    intent.putExtra("post", item);
-                    intent.putExtra("position", position);
-                    startActivity(intent);
-                }
-            });
-        }
+        notice_listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                //클릭시 글 확대 기능 추가 예정
+                Notice item = (Notice) notice_listAdapter.getItem(position);
+                Intent intent = new Intent(noticeActivity.this, NoticeDetailActivity.class);
+                intent.putExtra("post", item);
+                intent.putExtra("position", position);
+                startActivity(intent);
+            }
+        });
     }
 }

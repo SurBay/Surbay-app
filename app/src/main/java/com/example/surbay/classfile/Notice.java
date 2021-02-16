@@ -67,15 +67,15 @@ public class Notice implements Parcelable{
         this.id = in.readString();
         this.author = in.readString();
         this.content = in.readString();
+        this.title = in.readString();
         try {
             this.date = new SimpleDateFormat(dateformat).parse(in.readString());
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        this.title = in.readString();
     }
 
-    public static final Parcelable.Creator<Notice> CREATOR = new Parcelable.Creator<Notice>() {
+    public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
         @Override
         public Notice createFromParcel(Parcel in) {
             return new Notice(in);

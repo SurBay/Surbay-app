@@ -19,7 +19,7 @@
             android:background="@color/gray">
         </ListView>
         <TextView
-            android:id="@+id/writeButton"
+            android:id="@+id/tipwriteButton"
             android:layout_width="100dp"
             android:layout_height="50dp"
             android:gravity="center"

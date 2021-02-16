@@ -1,8 +1,5 @@
 package com.example.surbay;
 
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
@@ -19,6 +16,9 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.example.surbay.adapter.ListViewAdapter;
 import com.example.surbay.adapter.NonSurveyListViewAdapter;
 import com.example.surbay.adapter.SurveyTipListViewAdapter;
@@ -29,6 +29,8 @@ import com.example.surbay.classfile.Surveytip;
 import java.util.ArrayList;
 
 public class BoardsSearchActivity extends AppCompatActivity {
+    static final int LIKED = 5;
+    static final int DISLIKED = 4;
 
     public final int SURBAY_SELECT = 0;
     public final int TIP_SELECT = 1;
@@ -36,6 +38,7 @@ public class BoardsSearchActivity extends AppCompatActivity {
 
     static final int DO_SURVEY = 2;
     static final int DONE = 1;
+    static final int LIKE_SURVEY = 3;
 
     final String[] spinner_context = {"서베이", "설문 Tip", "건의사항"};
     ListView search_listview;
@@ -76,6 +79,8 @@ public class BoardsSearchActivity extends AppCompatActivity {
 
 
         search_list_post = new ArrayList<Post>();
+        search_list_tip = new ArrayList<>();
+        search_list_postNon = new ArrayList<>();
         search_SurveyAdapter = new ListViewAdapter(search_list_post);
         search_listview.setAdapter(search_SurveyAdapter);
 
@@ -157,6 +162,7 @@ public class BoardsSearchActivity extends AppCompatActivity {
     private void do_search(String search_keyword) {
         switch (selected_spinner){
             case SURBAY_SELECT:
+                search_list_post.clear();
                 for (Post post : MainActivity.postArrayList){
                     if (post.getContent().contains(search_keyword) || (post.getTitle().contains(search_keyword))){
                         search_list_post.add(post);
@@ -169,9 +175,25 @@ public class BoardsSearchActivity extends AppCompatActivity {
                 }
                 search_SurveyAdapter = new ListViewAdapter(search_list_post);
                 search_listview.setAdapter(search_SurveyAdapter);
+                search_listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        //클릭시 글 확대 기능 추가 예정
+                        if (selected_spinner == SURBAY_SELECT){
+                            Post item = (Post)search_SurveyAdapter.getItem(position);
+                            Log.d("search", item.toString());
+                            Intent intent = new Intent(BoardsSearchActivity.this, PostDetailActivity.class);
+                            intent.putExtra("post", item);
+                            intent.putExtra("position", position);
+                            Log.d("search", item.toString());
+                            startActivityForResult(intent, DO_SURVEY);
+                        }
+                    }
+                });
 
                 break;
             case TIP_SELECT:
+                search_list_tip.clear();
                 for (Surveytip post : MainActivity.surveytipArrayList){
                     if ((post.getContent().contains(search_keyword)) || (post.getTitle().contains(search_keyword))){
                         search_list_tip.add(post);
@@ -184,10 +206,20 @@ public class BoardsSearchActivity extends AppCompatActivity {
                 search_listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        if (selected_spinner == TIP_SELECT){
+                            Surveytip item = (Surveytip)search_TipAdapter.getItem(position);
+                            Log.d("search", item.toString());
+                            Intent intent = new Intent(BoardsSearchActivity.this, TipdetailActivity.class);
+                            intent.putExtra("post", item);
+                            intent.putExtra("position", position);
+                            Log.d("search", item.toString());
+                            startActivityForResult(intent, LIKE_SURVEY);
+                        }
                     }
                 });
                 break;
             case FEEDBACK_SELECT:
+                search_list_postNon.clear();
                 for (PostNonSurvey post : MainActivity.feedbackArrayList){
                     if ((post.getContent().contains(search_keyword)) || (post.getTitle().contains(search_keyword))){
                         search_list_postNon.add(post);
@@ -199,6 +231,13 @@ public class BoardsSearchActivity extends AppCompatActivity {
                 search_listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        PostNonSurvey item = (PostNonSurvey)search_NonsurveyAdapter.getItem(position);
+                        Log.d("search", item.toString());
+                        Intent intent = new Intent(BoardsSearchActivity.this, Feedbackdetail.class);
+                        intent.putExtra("post", item);
+                        intent.putExtra("position", position);
+                        Log.d("search", item.toString());
+                        startActivity(intent);
                     }
                 });
                 break;
@@ -225,6 +264,8 @@ public class BoardsSearchActivity extends AppCompatActivity {
                     default:
                         return;
                 }
+            case LIKE_SURVEY:
+                break;
             default:
                 return;
         }

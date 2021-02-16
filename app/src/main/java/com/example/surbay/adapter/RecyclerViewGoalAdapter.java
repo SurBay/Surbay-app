@@ -25,6 +25,7 @@ public class RecyclerViewGoalAdapter extends RecyclerView.Adapter<RecyclerViewGo
     public RecyclerViewGoalAdapter(Context ctx, ArrayList<Post> imageModelArrayList){
         inflater = LayoutInflater.from(ctx);
         this.imageModelArrayList = imageModelArrayList;
+
     }
 
     public interface OnItemClickListener {

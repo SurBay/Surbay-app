@@ -24,6 +24,7 @@ import com.example.surbay.classfile.Post;
 import com.example.surbay.classfile.PostNonSurvey;
 import com.example.surbay.classfile.Reply;
 import com.example.surbay.classfile.Surveytip;
+import com.example.surbay.classfile.UserPersonalInfo;
 import com.example.surbay.classfile.loadingProgress;
 import com.example.surbay.mypage.MypageFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -172,6 +173,11 @@ public class MainActivity extends AppCompatActivity {
                             UserPersonalInfo.email = user.getString("email");
                             UserPersonalInfo.points = user.getInt("points");
                             UserPersonalInfo.level = user.getInt("level");
+                            UserPersonalInfo.userID = user.getString("userID");
+                            UserPersonalInfo.userPassword = user.getString("userPassword");
+                            UserPersonalInfo.gender = user.getInt("gender");
+                            UserPersonalInfo.yearBirth = user.getInt("yearBirth");
+                            UserPersonalInfo.phoneNumber = user.getString("phoneNumber");
                             JSONArray ja = (JSONArray)user.get("participations");
 
                             ArrayList<String> partiarray = new ArrayList<String>();
@@ -210,12 +216,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
     public static void getPosts() throws Exception{
         try{
             Log.d("starting request", "get posts");
             String requestURL = "https://surbay-server.herokuapp.com/api/posts";
-            ArrayList<Post> list = new ArrayList<>();
             RequestQueue requestQueue = Volley.newRequestQueue(mContext);
             JsonArrayRequest jsonArrayRequest = new JsonArrayRequest
                     (Request.Method.GET, requestURL, null, response -> {
@@ -224,7 +228,6 @@ public class MainActivity extends AppCompatActivity {
                             finishpostArrayList = new ArrayList<Post>();
                             JSONArray resultArr = new JSONArray(response.toString());
                             Log.d("getpost", ""+response+"\n");
-
                             for (int i = 0; i < resultArr.length(); i++) {
                                 JSONObject post = resultArr.getJSONObject(i);
                                 String id = post.getString("_id");
@@ -235,7 +238,6 @@ public class MainActivity extends AppCompatActivity {
                                 Integer participants = post.getInt("participants");
                                 Integer goal_participants = post.getInt("goal_participants");
                                 String url = post.getString("url");
-
                                 SimpleDateFormat fm = new SimpleDateFormat(mContext.getString(R.string.date_format));
                                 Date date = null;
                                 try {
@@ -256,37 +258,41 @@ public class MainActivity extends AppCompatActivity {
                                 Integer est_time = post.getInt("est_time");
                                 String target = post.getString("target");
                                 Boolean done = post.getBoolean("done");
-
-                                ArrayList<Reply> comments = new ArrayList<>();
-                                try{
+                                if(with_prize) {
                                     prize = post.getString("prize");
                                     count = post.getInt("num_prize");
-
+                                }
+                                ArrayList<Reply> comments = new ArrayList<>();
+                                try{
                                     JSONArray ja = (JSONArray)post.get("comments");
                                     if (ja.length() != 0){
                                         for (int j = 0; j<ja.length(); j++){
-                                            JSONObject reply = ja.getJSONObject(i);
+                                            JSONObject reply = ja.getJSONObject(j);
                                             String reid = reply.getString("_id");
                                             String writer = reply.getString("writer");
                                             String contetn = reply.getString("content");
                                             Date datereply = null;
                                             try {
-                                                datereply = fm.parse(post.getString("deadline"));
+                                                datereply = fm.parse(reply.getString("date"));
                                             } catch (ParseException e) {
                                                 e.printStackTrace();
                                             }
+                                            Log.d("start app comment", ""+datereply.toString());
                                             Reply re = new Reply(reid, writer, contetn, datereply);
+                                            Log.d("start app reply", ""+re.getDate().toString());
                                             comments.add(re);
                                         }
                                     }
                                     Log.d("start app", "getpost comment"+comments.size()+"");
                                 } catch (Exception e){
+                                    e.printStackTrace();
                                     Log.d("parsing date", "non reply");
                                 }
                                 Post newPost = new Post(id, title, author, author_lvl, content, participants, goal_participants, url, date, deadline, with_prize, prize, est_time, target, count,comments,done);
                                 Log.d("start app", "newpost comments"+newPost.getComments().size()+"");
-                                if (newPost.getDeadline().before(today) || (newPost.getParticipants()==newPost.getGoal_participants())) {
+                                if (!newPost.isDone()) {
                                     finishpostArrayList.add(newPost);
+                                    postArrayList.add(newPost);
                                 } else {
                                     postArrayList.add(newPost);
                                 }
@@ -297,7 +303,6 @@ public class MainActivity extends AppCompatActivity {
                                 HomeFragment.receivedPosts();
                                 done = 1;
                             }
-
                         } catch (JSONException e) {
                             Log.d("exception", "JSON error");
                             e.printStackTrace();
@@ -343,9 +348,14 @@ public class MainActivity extends AppCompatActivity {
                                 }
                                 String category = post.getString("category");
                                 Integer likes = post.getInt("likes");
+                                JSONArray ja = (JSONArray)post.get("liked_users");
 
+                                ArrayList<String> liked_users = new ArrayList<String>();
+                                for (int j = 0; j<ja.length(); j++){
+                                    liked_users.add(ja.getString(j));
+                                }
 
-                                Surveytip newSurveytip = new Surveytip(id, title, author, author_lvl, content,  date, category, likes);
+                                Surveytip newSurveytip = new Surveytip(id, title, author, author_lvl, content,  date, category, likes, liked_users);
                                 surveytipArrayList.add(newSurveytip);
                             }
 //                            if(done==0){
@@ -398,7 +408,7 @@ public class MainActivity extends AppCompatActivity {
                                 } catch (ParseException e) {
                                     e.printStackTrace();
                                 }
-                                String category = post.getString("category");
+                                Integer category = post.getInt("category");
 
                                 ArrayList<Reply> comments = new ArrayList<>();
                                 JSONArray ja = (JSONArray)post.get("comments");

@@ -5,6 +5,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.widget.LinearLayout;
 
+import java.lang.reflect.Array;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -18,8 +19,8 @@ public class PostNonSurvey implements Parcelable{
     private Integer author_lvl;
     private String content;
     private Date date;
-    private String category;
-    private List<Reply> comments;
+    private Integer category;
+    private ArrayList<Reply> comments;
 
 
     private String dateformat = "yyyy-MM-dd'T'hh:mm:ss.SSS";
@@ -56,12 +57,12 @@ public class PostNonSurvey implements Parcelable{
     }
     public Integer getAuthor_lvl() {return author_lvl;}
     public void setAuthor_lvl(Integer author_lvl) {this.author_lvl = author_lvl;}
-    public void setCategory(String category) { this.category = category;    }
-    public String getCategory() { return category;    }
-    public List<Reply> getComments() {        return comments;    }
-    public void setComments(List<Reply> comments) { this.comments = comments;    }
+    public void setCategory(Integer category) { this.category = category;    }
+    public Integer getCategory() { return category;    }
+    public ArrayList<Reply> getComments() {        return comments;    }
+    public void setComments(ArrayList<Reply> comments) { this.comments = comments;    }
 
-    public PostNonSurvey(String id, String title, String author, Integer author_lvl, String content, Date date, String category, List<Reply> comments){
+    public PostNonSurvey(String id, String title, String author, Integer author_lvl, String content, Date date, Integer category, ArrayList<Reply> comments){
         this.id = id;
         this.title = title;
         this.author = author;
@@ -69,7 +70,7 @@ public class PostNonSurvey implements Parcelable{
         this.content = content;
         this.date = date;
         this.category = category;
-        this.comments = comments;
+        this.comments = new ArrayList<>(comments);
     }
 
     @SuppressLint("NewApi")
@@ -84,18 +85,9 @@ public class PostNonSurvey implements Parcelable{
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        if (category != null ) {
-            this.category = in.readString();
-        }
-
-        int size = in.readInt();
-        if (size == 0) {
-            comments = null;
-        } else {
-            Class<Reply> type = (Class<Reply>) in.readSerializable();
-            comments = new ArrayList<>(size);
-            in.readList(comments, type.getClassLoader());
-        }
+        this.category = in.readInt();
+        this.comments = new ArrayList();
+        in.readTypedList(this.comments, Reply.CREATOR);
     }
 
     @Override
@@ -112,20 +104,10 @@ public class PostNonSurvey implements Parcelable{
         dest.writeInt(this.author_lvl);
         dest.writeString(this.content);
         dest.writeString(new SimpleDateFormat(dateformat).format(this.date));
-        dest.writeString(this.category);
-
-        if (comments == null || comments.size() == 0){
-            dest.writeInt(0);
-        } else {
-            dest.writeInt(comments.size());
-
-            final Class<Reply> objectsType = (Class<Reply>)comments.get(0).getClass();
-            dest.writeSerializable(objectsType);
-
-            dest.writeList(comments);
-        }
+        dest.writeInt(this.category);
+        dest.writeTypedList(this.comments);
     }
-    public static final Creator<PostNonSurvey> CREATOR = new Creator<PostNonSurvey>() {
+    public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
         @Override
         public PostNonSurvey createFromParcel(Parcel in) {
             return new PostNonSurvey(in);

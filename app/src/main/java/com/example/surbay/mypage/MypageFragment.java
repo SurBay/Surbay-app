@@ -21,7 +21,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.surbay.MainActivity;
 import com.example.surbay.PostDetailActivity;
 import com.example.surbay.R;
-import com.example.surbay.UserPersonalInfo;
+import com.example.surbay.classfile.UserPersonalInfo;
 import com.example.surbay.adapter.RecyclerViewAdapter;
 import com.example.surbay.classfile.Post;
 
@@ -229,18 +229,11 @@ public class MypageFragment extends Fragment // Fragment 클래스를 상속받�
     }
 
     public void getlistofI(){
-        String author = UserPersonalInfo.name;
+        String author = UserPersonalInfo.userID;
         list_make = new ArrayList<Post>();
         list_parti = new ArrayList<Post>();
         for (Post post : MainActivity.postArrayList){
             Log.d("post", "post author is "+post.getAuthor()+" and myname is "+author);
-            if (post.getAuthor().equals(author)){
-                list_make.add(post);
-            } else if (UserPersonalInfo.participations.contains(post.getID())) {
-                list_parti.add(post);
-            }
-        }
-        for (Post post : MainActivity.finishpostArrayList){
             if (post.getAuthor().equals(author)){
                 list_make.add(post);
             } else if (UserPersonalInfo.participations.contains(post.getID())) {

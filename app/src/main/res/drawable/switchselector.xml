@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_checked="true"
+        android:trackTint="@color/teal_200"
+        android:thumbTint="@color/teal_200">
+    </item>
+    <item android:state_checked="false"
+        android:trackTint="@color/gray"
+        android:thumbTint="@color/gray">
+    </item>
+</selector>

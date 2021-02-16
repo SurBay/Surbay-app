@@ -34,7 +34,6 @@ import static com.example.surbay.HomeFragment.adapter3;
 import static com.example.surbay.HomeFragment.recyclerView;
 import static com.example.surbay.HomeFragment.recyclerView2;
 import static com.example.surbay.HomeFragment.recyclerView3;
-import static java.lang.Thread.sleep;
 
 
 public class BoardFragment1 extends Fragment// Fragment 클래스를 상속받아야한다
@@ -49,6 +48,7 @@ public class BoardFragment1 extends Fragment// Fragment 클래스를 상속받�
     static final int DO_SURVEY = 2;
     static final int NEWPOST = 1;
     static final int DONE = 1;
+    static final int DELETE = 4;
     static final int NOT_DONE = 0;
     public static ListViewAdapter listViewAdapter;
     public static ListView listView;
@@ -122,8 +122,7 @@ public class BoardFragment1 extends Fragment// Fragment 클래스를 상속받�
                 return ret;
             }
         };
-        list = new ArrayList<>(MainActivity.postArrayList);
-        list.addAll(MainActivity.finishpostArrayList);
+        list = MainActivity.postArrayList;
 
         switch (SORT){
             case NEW:
@@ -293,8 +292,7 @@ public class BoardFragment1 extends Fragment// Fragment 클래스를 상속받�
                 return ret;
             }
         };
-        list = new ArrayList<>(MainActivity.postArrayList);
-        list.addAll(MainActivity.finishpostArrayList);
+        list = MainActivity.postArrayList;
         switch (SORT){
             case NEW:
                 Collections.sort(list, cmpNew);
@@ -321,12 +319,7 @@ public class BoardFragment1 extends Fragment// Fragment 클래스를 상속받�
             case WRITE_NEWPOST:
                 switch (resultCode) {
                     case NEWPOST:
-                        try {
-                            OnRefrech();
-                            MainActivity.getPosts();
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
+                        listViewAdapter.changeItem();
                         return;
                     default:
                         return;
@@ -342,6 +335,11 @@ public class BoardFragment1 extends Fragment// Fragment 클래스를 상속받�
 
                         listView.setAdapter(listViewAdapter);
                         Log.d("new participant", "new is: " + item.getParticipants());
+                        return;
+                    case(DELETE):
+                        int pos = data.getIntExtra("position", -1);
+                        list.remove(pos);
+                        listViewAdapter.remove(pos);
                         return;
                     default:
                         return;

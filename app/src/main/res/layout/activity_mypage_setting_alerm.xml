@@ -50,7 +50,6 @@
             android:layout_alignBaseline="@id/alerm_title"
             android:layout_alignParentRight="true"
             android:id="@+id/alerm_main_switch"
-
             />
         <TextView
             android:layout_width="wrap_content"
