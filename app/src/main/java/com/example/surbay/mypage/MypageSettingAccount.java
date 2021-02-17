@@ -202,7 +202,7 @@ public class MypageSettingAccount extends AppCompatActivity {
     private void deletePersonalInfo() {
         String token = UserPersonalInfo.token;
         try{
-            String requestURL = "https://surbay-server.herokuapp.com/personalinfo";
+            String requestURL = "https://surbay-server.herokuapp.com/api/users/delete";
             RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
             JsonObjectRequest jsonObjectRequest= new JsonObjectRequest
                     (Request.Method.DELETE, requestURL, null, response -> {

@@ -387,7 +387,7 @@ public class WriteActivity extends AppCompatActivity {
                         try {
                             JSONObject resultObj = new JSONObject(response.toString());
                             String id = resultObj.getString("id");
-                            Post item = new Post(id, title, author, author_lvl, content, participants, goal_participants, url, date, deadline, with_prize, prize, est_time, target, count, new ArrayList<Reply>(), false);
+                            Post item = new Post(id, title, author, author_lvl, content, participants, goal_participants, url, date, deadline, with_prize, prize, est_time, target, count, new ArrayList<Reply>(), false, 0, new ArrayList<String>());
                             MainActivity.postArrayList.add(item);
 
                         } catch (JSONException e) {
@@ -585,8 +585,7 @@ public class WriteActivity extends AppCompatActivity {
                 dialog.show();
             } else {
                 if (purpose == 1){
-                    Post addedpost = new Post(null ,title, author, author_lvl, content, participants, goalParticipants, url, date, deadline, with_prize, prize, est_time, target,count, new ArrayList<Reply>(), false);
-                    MainActivity.postArrayList.add(addedpost);
+                    Post addedpost = new Post(null ,title, author, author_lvl, content, participants, goalParticipants, url, date, deadline, with_prize, prize, est_time, target,count, new ArrayList<Reply>(), false, 0, new ArrayList<String>());
                     Intent intent = new Intent(WriteActivity.this, BoardFragment1.class);
                     Log.d("date formatted", formatter.format(deadline));
                     try {

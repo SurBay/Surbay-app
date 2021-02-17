@@ -390,6 +390,7 @@ public class PostDetailActivity extends AppCompatActivity {
             RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
             JSONObject params = new JSONObject();
             params.put("post_id",id);
+            params.put("userID", UserPersonalInfo.userID);
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
                     (Request.Method.PUT, requestURL, params, response -> {
                         Log.d("partiarray", ""+response);
@@ -632,33 +633,7 @@ public class PostDetailActivity extends AppCompatActivity {
                 .setPositiveButton("설문 연장", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which){
-                        Date dl = post.getDeadline();
-
-                        Log.d("todat",dl.toString());
-                        long exdl = dl.getTime() + 24*60*60*1000;
-
-                        SimpleDateFormat fm = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss.SSS");
-                        String dlstr = fm.format(exdl);
-                        try {
-                            dl = fm.parse(dlstr);
-
-                            Log.d("todat",dl.toString());
-                            updateDeadlinePost(dl);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                        deadline.setText(new SimpleDateFormat("MM.dd").format(post.getDate()) + " - " + new SimpleDateFormat("MM.dd").format(dl));
-                        int dday_count = calc_dday(dl);
-                        if (dday_count <= 2 && dday_count >= 0 ){
-                            if (dday_count==0){
-                                dday.setVisibility(View.VISIBLE);
-                                dday.setText("D-Day");
-                            } else {
-                                dday.setVisibility(View.VISIBLE);
-                                dday.setText("D-"+(dday_count+1));
-                            }
-                        }
-                        Toast.makeText(PostDetailActivity.this, "설문이 연장되었습니다", Toast.LENGTH_SHORT).show();
+                        extendPost();
                     }
                 }).setNegativeButton("취소", new DialogInterface.OnClickListener() {
                     @Override
@@ -744,4 +719,70 @@ public class PostDetailActivity extends AppCompatActivity {
         }
     }
 
+
+    private void extendPost() {
+        String token = UserPersonalInfo.token;
+        try{
+            String requestURL = "https://surbay-server.herokuapp.com/api/posts/extend/"+post.getID();
+            RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
+            JsonObjectRequest jsonObjectRequest= new JsonObjectRequest
+                    (Request.Method.PUT, requestURL, null, response -> {
+                        try {
+                            JSONObject res = new JSONObject(response.toString());
+                            Log.d("response is", ""+response);
+                            boolean success = res.getBoolean("type");
+                            if (success){
+                                extendView();
+                            } else {
+                                Toast.makeText(PostDetailActivity.this, "설문기간 연장에 실패하였습니다다", Toast.LENGTH_SHORT).show();
+                            }
+                        } catch (JSONException e) {
+                            Log.d("exception", "JSON error");
+                            e.printStackTrace();
+                        }
+                    }, error -> {
+                        Log.d("exception", "volley error");
+                        error.printStackTrace();
+                    }){
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    HashMap<String, String> headers = new HashMap<String, String>();
+                    headers.put("Authorization", "Bearer " + token);
+                    return headers;
+                }
+            };
+            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            requestQueue.add(jsonObjectRequest);
+        } catch (Exception e){
+            Log.d("exception", "failed getting response");
+            e.printStackTrace();
+        }
+    }
+
+    public void extendView(){
+        Date dl = post.getDeadline();
+
+        Log.d("todat",dl.toString());
+        long exdl = dl.getTime() + 24*60*60*1000;
+
+        SimpleDateFormat fm = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss.SSS");
+        String dlstr = fm.format(exdl);
+        try {
+            dl = fm.parse(dlstr);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        deadline.setText(new SimpleDateFormat("MM.dd").format(post.getDate()) + " - " + new SimpleDateFormat("MM.dd").format(dl));
+        int dday_count = calc_dday(dl);
+        if (dday_count <= 2 && dday_count >= 0 ){
+            if (dday_count==0){
+                dday.setVisibility(View.VISIBLE);
+                dday.setText("D-Day");
+            } else {
+                dday.setVisibility(View.VISIBLE);
+                dday.setText("D-"+(dday_count+1));
+            }
+        }
+        Toast.makeText(PostDetailActivity.this, "설문이 연장되었습니다", Toast.LENGTH_SHORT).show();
+    }
 }

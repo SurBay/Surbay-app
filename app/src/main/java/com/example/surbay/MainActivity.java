@@ -258,10 +258,18 @@ public class MainActivity extends AppCompatActivity {
                                 Integer est_time = post.getInt("est_time");
                                 String target = post.getString("target");
                                 Boolean done = post.getBoolean("done");
+                                Integer extended = post.getInt("extended");
                                 if(with_prize) {
                                     prize = post.getString("prize");
                                     count = post.getInt("num_prize");
                                 }
+                                JSONArray ia = (JSONArray)post.get("participants_userids");
+
+                                ArrayList<String> participants_userids = new ArrayList<String>();
+                                for (int j = 0; j<ia.length(); j++){
+                                    participants_userids.add(ia.getString(j));
+                                }
+
                                 ArrayList<Reply> comments = new ArrayList<>();
                                 try{
                                     JSONArray ja = (JSONArray)post.get("comments");
@@ -288,7 +296,7 @@ public class MainActivity extends AppCompatActivity {
                                     e.printStackTrace();
                                     Log.d("parsing date", "non reply");
                                 }
-                                Post newPost = new Post(id, title, author, author_lvl, content, participants, goal_participants, url, date, deadline, with_prize, prize, est_time, target, count,comments,done);
+                                Post newPost = new Post(id, title, author, author_lvl, content, participants, goal_participants, url, date, deadline, with_prize, prize, est_time, target, count,comments,done, extended, participants_userids);
                                 Log.d("start app", "newpost comments"+newPost.getComments().size()+"");
                                 if (!newPost.isDone()) {
                                     finishpostArrayList.add(newPost);

@@ -144,8 +144,7 @@ public class MypageFragment extends Fragment // Fragment 클래스를 상속받�
         i_get_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(((AppCompatActivity) getActivity()).getApplicationContext(), Mypage_uploadNParti.class);
-                intent.putExtra("what", 2);
+                Intent intent = new Intent(((AppCompatActivity) getActivity()).getApplicationContext(), IGotGifts.class);
                 startActivity(intent);
             }
         });

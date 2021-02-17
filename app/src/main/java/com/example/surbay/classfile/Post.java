@@ -27,6 +27,11 @@ public class Post implements Parcelable{
     private String target;
     private ArrayList<Reply> comments;
     private boolean done;
+    private Integer extended;
+    private ArrayList<String> participants_userids;
+
+
+
     private String dateformat = "yyyy-MM-dd'T'hh:mm:ss.SSS";
     public String getID() {
         return id;
@@ -104,7 +109,22 @@ public class Post implements Parcelable{
     public boolean isDone() { return done;    }
     public ArrayList<Reply> getComments() {        return comments;    }
     public void setComments(ArrayList<Reply> comments) { this.comments = comments;    }
-    public Post(String id, String title, String author, Integer author_lvl, String content, Integer participants, Integer goal_participants, String url, Date date, Date deadline, Boolean with_prize, String prize, Integer est_time, String target, Integer num_prize, ArrayList<Reply> comments, boolean done){
+    public Integer getExtended() {
+        return extended;
+    }
+    public void setExtended(Integer extended) {
+        this.extended = extended;
+    }
+
+    public ArrayList<String> getParticipants_userids() {
+        return participants_userids;
+    }
+
+    public void setParticipants_userids(ArrayList<String> participants_userids) {
+        this.participants_userids = participants_userids;
+    }
+
+    public Post(String id, String title, String author, Integer author_lvl, String content, Integer participants, Integer goal_participants, String url, Date date, Date deadline, Boolean with_prize, String prize, Integer est_time, String target, Integer num_prize, ArrayList<Reply> comments, boolean done, Integer extended, ArrayList<String> participants_userids){
         this.id = id;
         this.title = title;
         this.author = author;
@@ -122,6 +142,8 @@ public class Post implements Parcelable{
         this.num_prize = num_prize;
         this.comments = new ArrayList<>(comments);
         this.done = done;
+        this.extended = extended;
+        this.participants_userids = new ArrayList<>(participants_userids);
     }
     @SuppressLint("NewApi")
     public Post(Parcel in){
@@ -151,6 +173,9 @@ public class Post implements Parcelable{
         this.done = in.readBoolean();
         this.comments = new ArrayList();
         in.readTypedList(this.comments, Reply.CREATOR);
+        this.extended = in.readInt();
+        this.participants_userids = new ArrayList<>();
+        in.readStringList(participants_userids);
     }
     @Override
     public int describeContents() {
@@ -176,6 +201,8 @@ public class Post implements Parcelable{
         dest.writeString(this.target);
         dest.writeBoolean(this.done);
         dest.writeTypedList(this.comments);
+        dest.writeInt(this.extended);
+        dest.writeStringList(this.participants_userids);
     }
     public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
         @Override

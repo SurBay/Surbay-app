@@ -20,7 +20,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SurBay"
         android:usesCleartextTraffic="true">
-        <activity android:name=".TipdetailActivity"></activity>
+        <activity android:name=".mypage.IGotGifts"></activity>
+        <activity android:name=".TipdetailActivity" />
         <activity android:name=".TipImageDetail" />
         <activity android:name=".TipWriteActivity" />
         <activity android:name=".Feedbackdetail" />
