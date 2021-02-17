@@ -17,7 +17,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager.widget.ViewPager;
+import androidx.viewpager2.widget.ViewPager2;
 
+import com.example.surbay.adapter.BannerViewPagerAdapter;
 import com.example.surbay.adapter.RecyclerViewDdayAdapter;
 import com.example.surbay.adapter.RecyclerViewGoalAdapter;
 import com.example.surbay.adapter.RecyclerViewNewAdapter;
@@ -30,6 +33,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import static com.example.surbay.BoardFragment1.frag1datesortbutton;
 import static com.example.surbay.BoardFragment1.frag1goalsortbutton;
@@ -67,6 +72,11 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
     private static Comparator<Post> cmpDeadline;
     private static Comparator<Post> cmpNew;
     private static Comparator<Post> cmpGoal;
+
+    private static ViewPager banner;
+    private static BannerViewPagerAdapter adapter;
+    private static final Integer[] IMAGES= {R.drawable.tutorialbanner1, R.drawable.tutorialbanner2};
+    private ArrayList<Integer> ImagesArray = new ArrayList<>();
 
     @Nullable
     @Override
@@ -229,6 +239,34 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
                 startActivity(intent);
             }
         });
+
+        banner = view.findViewById(R.id.banner);
+        for(int i=0;i<IMAGES.length;i++){
+            ImagesArray.add(IMAGES[i]);
+        }
+        adapter = new BannerViewPagerAdapter(mContext, ImagesArray);
+        banner.setAdapter(adapter);
+        final int[] currentPage = {0};
+        int NUM_PAGES = 0;
+
+        final Handler handler = new Handler();
+        final Runnable Update = new Runnable() {
+            public void run() {
+                if (currentPage[0] == NUM_PAGES) {
+                    currentPage[0] = 0;
+                }
+                banner.setCurrentItem(currentPage[0]++, true);
+            }
+        };
+        Timer swipeTimer = new Timer();
+        swipeTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                handler.post(Update);
+            }
+        }, 3000, 3000);
+
+
         return view;
     }
 
