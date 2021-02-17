@@ -214,7 +214,7 @@ public class TipWriteActivity extends AppCompatActivity {
     public void postPost(String title, String author, Integer author_lvl, String content, Date date, String category, Integer likes) throws Exception{
         try{
             Log.d("starting request", "post posts");
-            String requestURL = "https://surbay-server.herokuapp.com/api/surveytips";
+            String requestURL = getString(R.string.server)+"/api/surveytips";
             RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
             JSONObject params = new JSONObject();
             params.put("title", title);

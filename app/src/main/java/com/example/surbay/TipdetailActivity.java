@@ -141,7 +141,7 @@ public class TipdetailActivity extends AppCompatActivity {
 
 
     public void likepost(){
-        String requestURL = "https://surbay-server.herokuapp.com/api/surveytips/like/"+surveytip.getID();
+        String requestURL = getString(R.string.server)+"/api/surveytips/like/"+surveytip.getID();
         try{
             RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
             JSONObject params = new JSONObject();
@@ -163,7 +163,7 @@ public class TipdetailActivity extends AppCompatActivity {
     }
 
     public void dislikepost(){
-        String requestURL = "https://surbay-server.herokuapp.com/api/surveytips/dislike/"+surveytip.getID();
+        String requestURL = getString(R.string.server)+"/api/surveytips/dislike/"+surveytip.getID();
         try{
             RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
             JSONObject params = new JSONObject();

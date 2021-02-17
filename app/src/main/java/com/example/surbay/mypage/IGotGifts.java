@@ -1,27 +1,42 @@
 package com.example.surbay.mypage;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.ListAdapter;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.surbay.R;
 import com.example.surbay.adapter.GridAdapter;
+import com.example.surbay.classfile.UserPersonalInfo;
 
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 
 public class IGotGifts extends AppCompatActivity {
-    GridAdapter gridAdapter;
-    GridView gridview;
+    private GridAdapter gridAdapter;
+    private RecyclerView gridview;
 
-    ArrayList<URL> uris;
+    ArrayList<String> uris;
     ImageView back;
+    private Bitmap bm;
 
+    private ArrayList<Bitmap> prizes = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,18 +50,46 @@ public class IGotGifts extends AppCompatActivity {
                 finish();
             }
         });
-
-        uris = new ArrayList<>();
-        try {
-            uris.add(new URL("https://surbayprizebucket.s3.ap-northeast-2.amazonaws.com/3381613395418010.jfif"));
-            Log.d("gift", "S");
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
         gridview = findViewById(R.id.igotgifts_grid);
-        gridAdapter = new GridAdapter(this, uris);
-        gridview.setAdapter(gridAdapter);
+
+        uris = UserPersonalInfo.prizes;
+        Log.d("i got prizes", ""+uris);
+        final Handler handler = new Handler(){
+            @Override
+            public void handleMessage(@NonNull Message msg) {
+                super.handleMessage(msg);
+                Log.d("prizes", "prize length" + prizes);
+                gridAdapter = new GridAdapter(IGotGifts.this, prizes);
+                gridview.setLayoutManager(new LinearLayoutManager(IGotGifts.this, LinearLayoutManager.HORIZONTAL, false));
+                gridview.setAdapter(gridAdapter);
+            }
+        };
+        for(int i = 0; i<uris.size(); i++) {
+            int finalI = i;
+            new Thread() {
+                Message msg;
+
+                public void run() {
+                    try {
+
+                        Log.d("start", "bitmap no." + finalI);
+                        String uri = uris.get(finalI);
+                        URL url = new
+                                URL(uri);
+                        URLConnection conn = url.openConnection();
+                        conn.connect();
+                        BufferedInputStream bis = new
+                                BufferedInputStream(conn.getInputStream());
+                        bm = BitmapFactory.decodeStream(bis);
+                        Log.d("got bitmap", "bitmap no." + finalI + "    "+ bm);
+                        prizes.add(bm);
+                        bis.close();
+                        msg = handler.obtainMessage();
+                        handler.sendMessage(msg);
+                    } catch (IOException e) {
+                    }
+                }
+            }.start();
+        }
     }
-
-
 }

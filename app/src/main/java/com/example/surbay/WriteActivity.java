@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
@@ -38,23 +39,33 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.surbay.adapter.GiftImageAdapter;
 import com.example.surbay.classfile.Post;
 import com.example.surbay.classfile.Reply;
 import com.example.surbay.classfile.UserPersonalInfo;
+import com.example.surbay.classfile.VolleyMultipartRequest;
 import com.gun0912.tedpicker.Config;
 import com.gun0912.tedpicker.ImagePickerActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public class WriteActivity extends AppCompatActivity {
     static final int NEWPOST = 1;
@@ -98,7 +109,7 @@ public class WriteActivity extends AppCompatActivity {
     String prize;
     Integer count;
 
-    ArrayList<Uri> image_uris;
+    ArrayList<Uri> image_uris = new ArrayList<>();
 
     int purpose;
     private static Post post;
@@ -349,64 +360,146 @@ public class WriteActivity extends AppCompatActivity {
         }
     }
 
+    public void postPost(String title, String author, Integer author_lvl, String content,
+                         Integer participants, Integer goal_participants, String url, Date date,
+                         Date deadline, Boolean with_prize, String prize, Integer est_time,
+                         String target, Integer count, ArrayList<Reply> comments, boolean done, ArrayList<Uri> images) {
+        String requestURL = getString(R.string.server)+"/api/posts/";
+        VolleyMultipartRequest volleyMultipartRequest = new VolleyMultipartRequest(Request.Method.POST, requestURL,
+                response -> {
+                    try {
+                        Log.d("response is", ""+new String(response.data));
+                        JSONObject resultObj = new JSONObject(new String(response.data));
+                        String id = resultObj.getString("id");
+                        Post item = new Post(id, title, author, author_lvl, content, participants, goal_participants, url, date, deadline, with_prize, prize, est_time, target, count, new ArrayList<Reply>(), false, 0, new ArrayList<String>());
+                        MainActivity.postArrayList.add(item);
+                        Log.d("response id", id);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.e("GotError",""+error);
+                    }
+                }) {
 
 
-    public void postPost(String title, String author, Integer author_lvl, String content, Integer participants, Integer goal_participants, String url, Date date, Date deadline, Boolean with_prize, String prize, Integer est_time, String target, Integer count, ArrayList<Reply> comments, boolean done) throws Exception{
-        try{
-            Log.d("starting request", "post posts");
-            String requestURL = "https://surbay-server.herokuapp.com/api/posts";
-            RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
-            JSONObject params = new JSONObject();
-            params.put("title", title);
-            params.put("author", author);
-            params.put("author_lvl", author_lvl);
-            params.put("content", content);
-            params.put("participants", participants);
-            if(goal_participants!=0) {
-                params.put("goal_participants", goal_participants);
+            @Override
+            protected Map<String, DataPart> getByteData() { //이미지 추가하는곳
+                Map<String, DataPart> params = new HashMap<>();
+                for(int i=0; i<images.size(); i++){
+                    long imagename = System.currentTimeMillis();
+                    try {
+                        params.put("image"+i, new DataPart(imagename + ".png", getBytes(WriteActivity.this, images.get(i))));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                return params;
             }
-            params.put("url", url);
-            SimpleDateFormat fm = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss.SSS");
-            params.put("date", fm.format(date));
-            params.put("deadline", fm.format(deadline));
-            params.put("with_prize", with_prize);
-            if(with_prize) {
-                params.put("prize", prize);
-                params.put("num_prize", count);
-            } else {
-                params.put("prize", "");
-                params.put("num_prize", 0);
-            }
-            params.put("est_time", est_time);
-            params.put("target", target);
-            params.put("done", false);
-            params.put("comments", new ArrayList<Reply>());
-            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
-                    (Request.Method.POST, requestURL, params, response -> {
-                        Log.d("response is", ""+response);
-                        try {
-                            JSONObject resultObj = new JSONObject(response.toString());
-                            String id = resultObj.getString("id");
-                            Post item = new Post(id, title, author, author_lvl, content, participants, goal_participants, url, date, deadline, with_prize, prize, est_time, target, count, new ArrayList<Reply>(), false, 0, new ArrayList<String>());
-                            MainActivity.postArrayList.add(item);
 
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }, error -> {
-                        Log.d("exception", "volley error");
-                        error.printStackTrace();
-                    });
-            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-            requestQueue.add(jsonObjectRequest);
-        } catch (Exception e){
-            Log.d("exception", "failed posting");
-            e.printStackTrace();
-        }
+            @Override
+            protected Map<String, String> getParams() { //이미지 외 param은 여기서 추가해주세요. 단 전부 string이어야 해서 .toString()을 붙여주세요
+                Map<String, String> params = new HashMap<>();
+
+                params.put("title", title);
+                params.put("author", author);
+                params.put("author_lvl", String.valueOf(author_lvl));
+                params.put("content", content);
+                params.put("participants", String.valueOf(participants));
+                if(goal_participants!=0) {
+                    params.put("goal_participants", String.valueOf(goal_participants));
+                }
+                params.put("url", url);
+                SimpleDateFormat fm = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss.SSS");
+                params.put("date", fm.format(date));
+                params.put("deadline", fm.format(deadline));
+                params.put("with_prize", String.valueOf(with_prize));
+                if(with_prize) {
+                    params.put("prize", prize);
+                    params.put("num_prize", String.valueOf(count));
+                } else {
+                    params.put("prize", "");
+                    params.put("num_prize", String.valueOf(0));
+                }
+                params.put("est_time", String.valueOf(est_time));
+                params.put("target", target);
+                params.put("done", String.valueOf(false));
+                params.put("comments", String.valueOf(new ArrayList<Reply>()));
+                params.put("author_userid", UserPersonalInfo.userID);
+
+                return params;
+            }
+
+        };
+
+        //adding the request to volley
+        volleyMultipartRequest.setRetryPolicy(new DefaultRetryPolicy(
+                0,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        Volley.newRequestQueue(this).add(volleyMultipartRequest);
     }
 
+//    public void postPost(String title, String author, Integer author_lvl, String content, Integer participants, Integer goal_participants, String url, Date date, Date deadline, Boolean with_prize, String prize, Integer est_time, String target, Integer count, ArrayList<Reply> comments, boolean done) throws Exception{
+//        try{
+//            Log.d("starting request", "post posts");
+//            String requestURL = "https://surbay-server.herokuapp.com/api/posts";
+//            RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
+//            JSONObject params = new JSONObject();
+//            params.put("title", title);
+//            params.put("author", author);
+//            params.put("author_lvl", author_lvl);
+//            params.put("content", content);
+//            params.put("participants", participants);
+//            if(goal_participants!=0) {
+//                params.put("goal_participants", goal_participants);
+//            }
+//            params.put("url", url);
+//            SimpleDateFormat fm = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss.SSS");
+//            params.put("date", fm.format(date));
+//            params.put("deadline", fm.format(deadline));
+//            params.put("with_prize", with_prize);
+//            if(with_prize) {
+//                params.put("prize", prize);
+//                params.put("num_prize", count);
+//            } else {
+//                params.put("prize", "");
+//                params.put("num_prize", 0);
+//            }
+//            params.put("est_time", est_time);
+//            params.put("target", target);
+//            params.put("done", false);
+//            params.put("comments", new ArrayList<Reply>());
+//            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+//                    (Request.Method.POST, requestURL, params, response -> {
+//                        Log.d("response is", ""+response);
+//                        try {
+//                            JSONObject resultObj = new JSONObject(response.toString());
+//                            String id = resultObj.getString("id");
+//                            Post item = new Post(id, title, author, author_lvl, content, participants, goal_participants, url, date, deadline, with_prize, prize, est_time, target, count, new ArrayList<Reply>(), false, 0, new ArrayList<String>());
+//                            MainActivity.postArrayList.add(item);
+//
+//                        } catch (JSONException e) {
+//                            e.printStackTrace();
+//                        }
+//                    }, error -> {
+//                        Log.d("exception", "volley error");
+//                        error.printStackTrace();
+//                    });
+//            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+//            requestQueue.add(jsonObjectRequest);
+//        } catch (Exception e){
+//            Log.d("exception", "failed posting");
+//            e.printStackTrace();
+//        }
+//    }
+
     private void updatePost(String title, String author, String content, Integer goal_participants, Integer est_time, String target) throws Exception{
-        String requestURL = "https://surbay-server.herokuapp.com/api/posts/updatepost/" + post.getID();
+        String requestURL = getString(R.string.server)+"/api/posts/updatepost/" + post.getID();
         Log.d("fix", UserPersonalInfo.name);
         try{
             RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
@@ -514,7 +607,7 @@ public class WriteActivity extends AppCompatActivity {
         if (purpose == 1){
             url = writeUrl.getText().toString();
             participants = 0;
-            author = UserPersonalInfo.userID;
+            author = UserPersonalInfo.name;
             author_lvl = UserPersonalInfo.level;
 
             SimpleDateFormat fm = new SimpleDateFormat("yyyy-MM-dd a KK시");
@@ -589,7 +682,8 @@ public class WriteActivity extends AppCompatActivity {
                     Intent intent = new Intent(WriteActivity.this, BoardFragment1.class);
                     Log.d("date formatted", formatter.format(deadline));
                     try {
-                        postPost(title, author, author_lvl, content, participants, goalParticipants, url, date, deadline, with_prize, prize, est_time, target, count, new ArrayList<Reply>(), false);
+                        Log.d("author is ", "author" + author);
+                        postPost(title, author, author_lvl, content, participants, goalParticipants, url, date, deadline, with_prize, prize, est_time, target, count, new ArrayList<Reply>(), false, image_uris);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -798,5 +892,74 @@ public class WriteActivity extends AppCompatActivity {
         writeUrl.setText(tempWrite.getString("uri",""));
         writeEstTime.setSelection(tempWrite.getInt("est_time",0));
         writeContent.setText(tempWrite.getString("content",""));
+    }
+    public byte[] getFileDataFromDrawable(Bitmap bitmap) {
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 80, byteArrayOutputStream);
+        return byteArrayOutputStream.toByteArray();
+    }
+    /**
+     * get bytes array from Uri.
+     *
+     * @param context current context.
+     * @param uri uri fo the file to read.
+     * @return a bytes array.
+     * @throws IOException
+     */
+    public static byte[] getBytes(Context context, Uri uri) throws IOException {
+        InputStream iStream = context.getContentResolver().openInputStream(Uri.fromFile(new File(uri.getPath())));
+        try {
+            return getBytes(iStream);
+        } finally {
+            // close the stream
+            try {
+                iStream.close();
+            } catch (IOException ignored) { /* do nothing */ }
+        }
+    }
+
+
+
+    /**
+     * get bytes from input stream.
+     *
+     * @param inputStream inputStream.
+     * @return byte array read from the inputStream.
+     * @throws IOException
+     */
+    public static byte[] getBytes(InputStream inputStream) throws IOException {
+
+        byte[] bytesResult = null;
+        ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
+        int bufferSize = 1024;
+        byte[] buffer = new byte[bufferSize];
+        try {
+            int len;
+            while ((len = inputStream.read(buffer)) != -1) {
+                byteBuffer.write(buffer, 0, len);
+            }
+            bytesResult = byteBuffer.toByteArray();
+        } finally {
+            // close the stream
+            try{ byteBuffer.close(); } catch (IOException ignored){ /* do nothing */ }
+        }
+        return bytesResult;
+    }
+
+    public byte[] getFileDataFromUri(Uri uri){
+        InputStream iStream = null;
+        try {
+            iStream = getContentResolver().openInputStream(uri);
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        byte[] inputData = new byte[0];
+        try {
+            inputData = getBytes(iStream);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return inputData;
     }
 }

@@ -119,7 +119,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private void makeLoginRequest(String username, String password) throws Exception{
         try{
-            String requestURL = "https://surbay-server.herokuapp.com/login";
+            String requestURL = getString(R.string.server)+"/login";
             RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
             JSONObject params = new JSONObject();
             params.put("userID", username);

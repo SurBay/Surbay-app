@@ -103,7 +103,7 @@ public class Feedbackdetail extends AppCompatActivity {
     }
 
     private void postReply(String reply) {
-        String requestURL = "https://surbay-server.herokuapp.com/api/feedbacks/writecomment/"+post.getID();
+        String requestURL = getString(R.string.server)+"/api/feedbacks/writecomment/"+post.getID();
         try{
             RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
             JSONObject params = new JSONObject();

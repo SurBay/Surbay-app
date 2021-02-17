@@ -228,7 +228,7 @@ public class FindIdFragment extends Fragment {
     }
 
     private void getID(String phoneNumber) {
-        String requestURL = "https://surbay-server.herokuapp.com/api/users/finduserid?phoneNumber="+phoneNumber;
+        String requestURL = getString(R.string.server)+"/api/users/finduserid?phoneNumber="+phoneNumber;
         try{
             RequestQueue requestQueue = Volley.newRequestQueue((AppCompatActivity)getActivity());
             JsonObjectRequest jsonObjectRequest= new JsonObjectRequest

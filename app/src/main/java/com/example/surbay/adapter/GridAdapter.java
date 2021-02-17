@@ -24,9 +24,9 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.MyViewHolder> 
     // OnItemClickListener 리스너 객체 참조를 어댑터에 전달하는 메서드
 
     private LayoutInflater inflater;
-    private ArrayList<URL> imageModelArrayList;
+    private ArrayList<Bitmap> imageModelArrayList;
 
-    public GridAdapter(Context ctx, ArrayList<URL> imageModelArrayList) {
+    public GridAdapter(Context ctx, ArrayList<Bitmap> imageModelArrayList) {
         inflater = LayoutInflater.from(ctx);
         this.imageModelArrayList = imageModelArrayList;
     }
@@ -67,18 +67,9 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.MyViewHolder> 
     public void onBindViewHolder(GridAdapter.MyViewHolder holder, int position) {
         Bitmap bm;
 
-        try {
-            URL url = imageModelArrayList.get(position);
-            URLConnection conn = url.openConnection();
-            conn.connect();
-            BufferedInputStream bis = new
-                    BufferedInputStream(conn.getInputStream());
-            bm = BitmapFactory.decodeStream(bis);
-            bm = Bitmap.createScaledBitmap(bm, 320, 320, false);
-            bis.close();
-            holder.imageView.setImageBitmap(bm);
-        } catch (IOException e) {
-        }
+        bm = imageModelArrayList.get(position);
+        bm = Bitmap.createScaledBitmap(bm, 320, 320, false);
+        holder.imageView.setImageBitmap(bm);
 
 
         //---------------------------------------------------------------
@@ -110,7 +101,7 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.MyViewHolder> 
         public MyViewHolder(View itemView) {
             super(itemView);
 
-            imageView = itemView.findViewById(R.id.gridimageitemview);
+            imageView = itemView.findViewById(R.id.imageitemview);
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

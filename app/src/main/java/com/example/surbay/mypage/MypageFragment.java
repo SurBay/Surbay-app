@@ -21,6 +21,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.surbay.MainActivity;
 import com.example.surbay.PostDetailActivity;
 import com.example.surbay.R;
+import com.example.surbay.adapter.RecyclerViewMakeAdapter;
+import com.example.surbay.adapter.RecyclerViewPartiAdapter;
 import com.example.surbay.classfile.UserPersonalInfo;
 import com.example.surbay.adapter.RecyclerViewAdapter;
 import com.example.surbay.classfile.Post;
@@ -36,8 +38,8 @@ public class MypageFragment extends Fragment // Fragment 클래스를 상속받�
     private static View view;
     private static RecyclerView recyclerView_make;
     private static RecyclerView recyclerView_parti;
-    private static RecyclerViewAdapter adapter_make;
-    private static RecyclerViewAdapter adapter_parti;
+    private static RecyclerViewMakeAdapter adapter_make;
+    private static RecyclerViewPartiAdapter adapter_parti;
     private static Context mContext;
 
     private static ArrayList<Post> list_make;
@@ -58,6 +60,8 @@ public class MypageFragment extends Fragment // Fragment 클래스를 상속받�
     TextView can_sur;
     TextView willdo_sur;
     TextView willdo_sur_below;
+
+    TextView get_2nd;
 
     @Nullable
     @Override
@@ -88,8 +92,8 @@ public class MypageFragment extends Fragment // Fragment 클래스를 상속받�
 
         Log.d("listmake size is", ""+list_make.size());
 
-        adapter_make = new RecyclerViewAdapter(mContext, list_make);
-        adapter_parti = new RecyclerViewAdapter(mContext, list_parti);
+        adapter_make = new RecyclerViewMakeAdapter(mContext, list_make);
+        adapter_parti = new RecyclerViewPartiAdapter(mContext, list_parti);
         if(MainActivity.postArrayList.size()==0) {
             view.setVisibility(View.INVISIBLE);
         }
@@ -98,31 +102,30 @@ public class MypageFragment extends Fragment // Fragment 클래스를 상속받�
             recyclerView_make.setAdapter(adapter_make);
             recyclerView_parti.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
             recyclerView_parti.setAdapter(adapter_parti);
-            if (list_make.size() > 0){
-                adapter_make.setOnItemClickListener(new RecyclerViewAdapter.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(View v, int position) {
-                        Post item = (Post) adapter_make.getItem(position);
-                        Intent intent = new Intent(((AppCompatActivity) getActivity()).getApplicationContext(), PostDetailActivity.class);
-                        intent.putExtra("post", item);
-                        intent.putExtra("position", position);
-                        startActivity(intent);
-                    }
-                });
-            }
-            if (list_parti.size() > 0 ){
-                adapter_parti.setOnItemClickListener(new RecyclerViewAdapter.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(View v, int position) {
-                        Post item = (Post) adapter_parti.getItem(position);
-                        Intent intent = new Intent(((AppCompatActivity) getActivity()).getApplicationContext(), PostDetailActivity.class);
-                        intent.putExtra("post", item);
-                        intent.putExtra("position", position);
-                        startActivity(intent);
-                    }
-                });
-            }
+
         }
+        adapter_make.setOnItemClickListener(new RecyclerViewMakeAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View v, int position) {
+                Post item = (Post) adapter_make.getItem(position);
+                Log.d("on click", "title is "+item.getTitle());
+                Intent intent = new Intent(mContext, PostDetailActivity.class);
+                intent.putExtra("post", item);
+                intent.putExtra("position", position);
+                startActivity(intent);
+            }
+        });
+        adapter_parti.setOnItemClickListener(new RecyclerViewPartiAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View v, int position) {
+                Post item = (Post) adapter_parti.getItem(position);
+                Log.d("on click parti", "title is "+item.getTitle());
+                Intent intent = new Intent(mContext, PostDetailActivity.class);
+                intent.putExtra("post", item);
+                intent.putExtra("position", position);
+                startActivity(intent);
+            }
+        });
         i_make_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -159,10 +162,14 @@ public class MypageFragment extends Fragment // Fragment 클래스를 상속받�
         willdo_sur = view.findViewById(R.id.mypage_willdo_sur);
         willdo_sur_below = view.findViewById(R.id.mypage_willdo_sur_below);
 
+        get_2nd = view.findViewById(R.id.get_2nd);
+
         nameview.setText(UserPersonalInfo.name);
         levelview.setText("레벨 " + UserPersonalInfo.level.toString());
         upload_2nd.setText(list_make.size() + "개");
         parti_2nd.setText(list_parti.size() + "개");
+        get_2nd.setText(UserPersonalInfo.prizes.size() + "개");
+
 
         if (list_parti.size()!=0){
             can_sur.setText(list_make.size()/(list_parti.size()*7)+"회");
@@ -186,26 +193,29 @@ public class MypageFragment extends Fragment // Fragment 클래스를 상속받�
     private static void makeView(){
         list_make = new ArrayList<>(MainActivity.postArrayList);
         list_parti = new ArrayList<>(MainActivity.postArrayList);
-        adapter_make = new RecyclerViewAdapter(mContext, list_make);
-        adapter_parti = new RecyclerViewAdapter(mContext, list_parti);
+        adapter_make = new RecyclerViewMakeAdapter(mContext, list_make);
+        adapter_parti = new RecyclerViewPartiAdapter(mContext, list_parti);
         recyclerView_make.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
         recyclerView_make.setAdapter(adapter_make);
         recyclerView_parti.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
         recyclerView_parti.setAdapter(adapter_parti);
-        adapter_make.setOnItemClickListener(new RecyclerViewAdapter.OnItemClickListener() {
+        adapter_make.setOnItemClickListener(new RecyclerViewMakeAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View v, int position) {
+
                 Post item = (Post) adapter_make.getItem(position);
+                Log.d("on click2", "title is "+item.getTitle());
                 Intent intent = new Intent(mContext, PostDetailActivity.class);
                 intent.putExtra("post", item);
                 intent.putExtra("position", position);
                 mContext.startActivity(intent);
             }
         });
-        adapter_parti.setOnItemClickListener(new RecyclerViewAdapter.OnItemClickListener() {
+        adapter_parti.setOnItemClickListener(new RecyclerViewPartiAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View v, int position) {
                 Post item = (Post) adapter_parti.getItem(position);
+                Log.d("on click2 parti", "title is "+item.getTitle());
                 Intent intent = new Intent(mContext, PostDetailActivity.class);
                 intent.putExtra("post", item);
                 intent.putExtra("position", position);

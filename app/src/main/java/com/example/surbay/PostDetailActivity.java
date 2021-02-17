@@ -201,7 +201,7 @@ public class PostDetailActivity extends AppCompatActivity {
     }
 
     private void postReply(String reply) {
-        String requestURL = "https://surbay-server.herokuapp.com/api/posts/writecomment/"+post.getID();
+        String requestURL = getString(R.string.server)+"/api/posts/writecomment/"+post.getID();
         try{
             RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
             JSONObject params = new JSONObject();
@@ -264,7 +264,7 @@ public class PostDetailActivity extends AppCompatActivity {
 
     private void updateParticipants(int updatedParticipants) throws Exception{
         participants.setText(""+updatedParticipants+"/"+post.getGoal_participants());
-        String requestURL = "https://surbay-server.herokuapp.com/api/posts/updatepost/" + post.getID();
+        String requestURL = getString(R.string.server)+"/api/posts/updatepost/" + post.getID();
         try{
             RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
             JSONObject params = new JSONObject();
@@ -284,7 +284,7 @@ public class PostDetailActivity extends AppCompatActivity {
         }
         updateUserParticipation(post.getID());
         if (updatedParticipants == post.getGoal_participants()){
-            requestURL = "https://surbay-server.herokuapp.com/api/posts/done/" + post.getID();
+            requestURL = getString(R.string.server)+"/api/posts/done/" + post.getID();
             try{
                 RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
                 JSONObject params = new JSONObject();
@@ -385,7 +385,7 @@ public class PostDetailActivity extends AppCompatActivity {
 
     public void updateUserParticipation(String id){
         String token = UserPersonalInfo.token;
-        String requestURL = "https://surbay-server.herokuapp.com/user/survey";
+        String requestURL = getString(R.string.server)+"/user/survey";
         try{
             RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
             JSONObject params = new JSONObject();
@@ -653,7 +653,7 @@ public class PostDetailActivity extends AppCompatActivity {
     }
 
     private void updateDeadlinePost(Date deadline) throws Exception{
-        String requestURL = "https://surbay-server.herokuapp.com/api/posts/updatepost/" + post.getID();
+        String requestURL = getString(R.string.server)+"/api/posts/updatepost/" + post.getID();
         Log.d("fix", UserPersonalInfo.name);
         try{
             RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
@@ -679,7 +679,7 @@ public class PostDetailActivity extends AppCompatActivity {
 
 
     public void donepost(){
-        String requestURL = "https://surbay-server.herokuapp.com/api/posts/done/"+post.getID();
+        String requestURL = getString(R.string.server)+"/api/posts/done/"+post.getID();
         try{
             RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
             JSONObject params = new JSONObject();
@@ -700,7 +700,7 @@ public class PostDetailActivity extends AppCompatActivity {
 
 
     private void deletePost() throws Exception{
-        String requestURL = "https://surbay-server.herokuapp.com/api/posts/deletepost/" + post.getID();
+        String requestURL =getString(R.string.server)+ "/api/posts/deletepost/" + post.getID();
         try{
             RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
@@ -723,7 +723,7 @@ public class PostDetailActivity extends AppCompatActivity {
     private void extendPost() {
         String token = UserPersonalInfo.token;
         try{
-            String requestURL = "https://surbay-server.herokuapp.com/api/posts/extend/"+post.getID();
+            String requestURL = getString(R.string.server)+"/api/posts/extend/"+post.getID();
             RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
             JsonObjectRequest jsonObjectRequest= new JsonObjectRequest
                     (Request.Method.PUT, requestURL, null, response -> {

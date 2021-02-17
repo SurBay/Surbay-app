@@ -161,7 +161,7 @@ public class MainActivity extends AppCompatActivity {
         }
         String token = UserPersonalInfo.token;
         try{
-            String requestURL = "https://surbay-server.herokuapp.com/personalinfo";
+            String requestURL = getString(R.string.server) + "/personalinfo";
             RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
             JsonObjectRequest jsonObjectRequest= new JsonObjectRequest
                     (Request.Method.GET, requestURL, null, response -> {
@@ -187,6 +187,14 @@ public class MainActivity extends AppCompatActivity {
 
                             UserPersonalInfo.participations = partiarray;
                             Log.d("partiarray", ""+UserPersonalInfo.participations.toString());
+
+                            JSONArray ja2 = (JSONArray)user.get("prizes");
+                            ArrayList<String> prizearray = new ArrayList<String>();
+                            for (int j = 0; j<ja2.length(); j++){
+                                prizearray.add(ja2.getString(j));
+                            }
+                            UserPersonalInfo.prizes = prizearray;
+                            Log.d("prizearray", ""+UserPersonalInfo.prizes.toString());
 
 
                             SharedPreferences auto = getSharedPreferences("auto", Activity.MODE_PRIVATE);
@@ -219,7 +227,7 @@ public class MainActivity extends AppCompatActivity {
     public static void getPosts() throws Exception{
         try{
             Log.d("starting request", "get posts");
-            String requestURL = "https://surbay-server.herokuapp.com/api/posts";
+            String requestURL = "http://ec2-3-35-152-40.ap-northeast-2.compute.amazonaws.com/api/posts";
             RequestQueue requestQueue = Volley.newRequestQueue(mContext);
             JsonArrayRequest jsonArrayRequest = new JsonArrayRequest
                     (Request.Method.GET, requestURL, null, response -> {
@@ -329,7 +337,7 @@ public class MainActivity extends AppCompatActivity {
     public static void getSurveytips() throws Exception{
         try{
             Log.d("starting request", "get surveytips");
-            String requestURL = "https://surbay-server.herokuapp.com/api/surveytips";
+            String requestURL = "http://ec2-3-35-152-40.ap-northeast-2.compute.amazonaws.com/api/surveytips";
             RequestQueue requestQueue = Volley.newRequestQueue(mContext);
             JsonArrayRequest jsonArrayRequest = new JsonArrayRequest
                     (Request.Method.GET, requestURL, null, response -> {
@@ -389,7 +397,7 @@ public class MainActivity extends AppCompatActivity {
     public static void getFeedbacks() throws Exception{
         try{
             Log.d("starting request", "get feedbacks");
-            String requestURL = "https://surbay-server.herokuapp.com/api/feedbacks";
+            String requestURL = "http://ec2-3-35-152-40.ap-northeast-2.compute.amazonaws.com/api/feedbacks";
             ArrayList<Post> list = new ArrayList<>();
             RequestQueue requestQueue = Volley.newRequestQueue(mContext);
             JsonArrayRequest jsonArrayRequest = new JsonArrayRequest
@@ -421,13 +429,13 @@ public class MainActivity extends AppCompatActivity {
                                 ArrayList<Reply> comments = new ArrayList<>();
                                 JSONArray ja = (JSONArray)post.get("comments");
                                 for (int j = 0; j<ja.length(); j++){
-                                    JSONObject reply = ja.getJSONObject(i);
+                                    JSONObject reply = ja.getJSONObject(j);
                                     String reid = reply.getString("_id");
                                     String writer = reply.getString("writer");
                                     String contetn = reply.getString("content");
                                     Date datereply = null;
                                     try {
-                                        datereply = fm.parse(post.getString("deadline"));
+                                        datereply = fm.parse(post.getString("date"));
                                     } catch (ParseException e) {
                                         e.printStackTrace();
                                     }
@@ -465,7 +473,7 @@ public class MainActivity extends AppCompatActivity {
     public static void getNotices() throws Exception{
         try{
             Log.d("starting request", "get notices");
-            String requestURL = "https://surbay-server.herokuapp.com/api/notices";
+            String requestURL = "http://ec2-3-35-152-40.ap-northeast-2.compute.amazonaws.com/api/notices";
             RequestQueue requestQueue = Volley.newRequestQueue(mContext);
             JsonArrayRequest jsonArrayRequest = new JsonArrayRequest
                     (Request.Method.GET, requestURL, null, response -> {

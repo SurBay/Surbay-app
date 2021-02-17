@@ -371,7 +371,7 @@ public class SignupActivity extends AppCompatActivity {
 
     private void makeSignupRequest(String name, String email, String username, String password, Integer gender, Integer yearBirth, String phoneNumber) throws Exception{
         try{
-            String requestURL = "https://surbay-server.herokuapp.com/signup";
+            String requestURL = getString(R.string.server)+"/signup";
             RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
             JSONObject params = new JSONObject();
             params.put("name", name);
@@ -435,7 +435,7 @@ public class SignupActivity extends AppCompatActivity {
             try {
                 RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
                 String temp_name = v.getText().toString();
-                String requestURL = "https://surbay-server.herokuapp.com/names/duplicate?name=" + temp_name;
+                String requestURL = getString(R.string.server)+"/names/duplicate?name=" + temp_name;
                 JSONObject params = new JSONObject();
                 params.put("name", temp_name);
                 JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
@@ -473,7 +473,7 @@ public class SignupActivity extends AppCompatActivity {
             try {
                 String userid = useridEditText.getText().toString() + "@" + spinner_email[posadd];
                 RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
-                String requestURL = "https://surbay-server.herokuapp.com/userids/duplicate?userID="+ userid;
+                String requestURL = getString(R.string.server)+"/userids/duplicate?userID="+ userid;
                 JSONObject params = new JSONObject();
                 params.put("userID", userid);
                 JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
