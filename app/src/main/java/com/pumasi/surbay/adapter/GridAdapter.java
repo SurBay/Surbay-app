@@ -32,8 +32,8 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.MyViewHolder> 
     }
 
 
-    public Object getItem(int position) {
-        return (null != imageModelArrayList) ? imageModelArrayList.get(position) : 0;
+    public Bitmap getItem(int position) {
+        return (null != imageModelArrayList) ? imageModelArrayList.get(position) : null;
     }
 
     public long getItemId(int position) {

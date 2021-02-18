@@ -20,6 +20,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SurBay"
         android:usesCleartextTraffic="true">
+        <activity android:name="com.pumasi.surbay.mypage.GiftDetailActivity"
+            android:screenOrientation="portrait"></activity>
         <activity android:name="com.pumasi.surbay.mypage.IGotGifts"
             android:screenOrientation="portrait"></activity>
         <activity android:name="com.pumasi.surbay.TipdetailActivity"

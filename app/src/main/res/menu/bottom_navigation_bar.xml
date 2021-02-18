@@ -1,22 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/action_home"
         android:enabled="true"
-        android:icon="@drawable/ic_home"
-        android:title="홈"
-        />
+        android:icon="@drawable/home_selector"
+        tools:ignore="MenuTitle" />
 
     <item
         android:id="@+id/action_boards"
         android:enabled="true"
-        android:icon="@drawable/ic_baseline_apps_24"
-        android:iconTint="@color/black"
-        android:title="게시판"/>
+        android:icon="@drawable/board_selector"
+        tools:ignore="MenuTitle" />
 
     <item
         android:id="@+id/action_mypage"
         android:enabled="true"
-        android:icon="@drawable/ic_user__2_"
-        android:title="마이"/>
+        android:icon="@drawable/my_selector"
+        tools:ignore="MenuTitle" />
 </menu>
