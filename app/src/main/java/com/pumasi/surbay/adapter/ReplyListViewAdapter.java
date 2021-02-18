@@ -52,7 +52,7 @@ public class ReplyListViewAdapter extends BaseAdapter {
         TextView replycontentview = (TextView)convertView.findViewById(R.id.reply_context);
         ImageView replymenu = (ImageView)convertView.findViewById(R.id.reply_menu);
 
-        SimpleDateFormat fm = new SimpleDateFormat("MM-dd'T'hh:mm");
+        SimpleDateFormat fm = new SimpleDateFormat("MM-dd hh:mm");
         Reply reply = listViewItemList.get(position);
         String date = fm.format(reply.getDate());
 
