@@ -1,6 +1,8 @@
 package com.pumasi.surbay;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
@@ -20,13 +22,26 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.pumasi.surbay.adapter.ListViewAdapter;
 import com.pumasi.surbay.classfile.Post;
+import com.pumasi.surbay.classfile.UserPersonalInfo;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.pumasi.surbay.HomeFragment.adapter1;
 import static com.pumasi.surbay.HomeFragment.adapter2;
@@ -49,6 +64,7 @@ public class BoardFragment1 extends Fragment// Fragment 클래스를 상속받�
     static final int NEWPOST = 1;
     static final int DONE = 1;
     static final int DELETE = 4;
+    static final int FIX_DONE = 3;
     static final int NOT_DONE = 0;
     public static ListViewAdapter listViewAdapter;
     public static ListView listView;
@@ -314,19 +330,25 @@ public class BoardFragment1 extends Fragment// Fragment 클래스를 상속받�
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
 
         super.onActivityResult(requestCode, resultCode, data);
+        Log.d("result code is", ""+requestCode+"   "+resultCode);
         switch (requestCode) {
             case WRITE_NEWPOST:
                 switch (resultCode) {
                     case NEWPOST:
+                        list = MainActivity.postArrayList;
+                        OnRefrech();
                         listViewAdapter.changeItem();
+//                        Log.d("listview num after write", ""+listViewAdapter.getCount());
+//                        listView.setAdapter(listViewAdapter);
                         return;
                     default:
                         return;
                 }
             case DO_SURVEY:
-                Log.d("result code is", ""+resultCode);
+
                 switch (resultCode){
                     case(DONE):
+                        getPersonalInfo();
                         int position = data.getIntExtra("position", -1);
                         int newParticipants = data.getIntExtra("participants", -1);
                         listViewAdapter.updateParticipants(position, newParticipants);
@@ -337,9 +359,23 @@ public class BoardFragment1 extends Fragment// Fragment 클래스를 상속받�
                         return;
                     case(DELETE):
                         int pos = data.getIntExtra("position", -1);
-                        list.remove(pos);
-                        listViewAdapter.remove(pos);
+                        if(pos!=-1) {
+                            list.remove(pos);
+                        }
+                        OnRefrech();
+                        listViewAdapter.changeItem();
+                        listView.setAdapter(listViewAdapter);
                         return;
+                    case(FIX_DONE):
+                        int fix_pos = data.getIntExtra("position", -1);
+                        if(fix_pos!=-1) {
+                            Post newpost = data.getParcelableExtra("post");
+                            list.set(fix_pos, newpost);
+                        }
+
+                        OnRefrech();
+                        listViewAdapter.changeItem();
+                        listView.setAdapter(listViewAdapter);
                     default:
                         return;
                 }
@@ -347,6 +383,74 @@ public class BoardFragment1 extends Fragment// Fragment 클래스를 상속받�
                 return;
         }
 
+    }
+    private void getPersonalInfo() {
+        if (UserPersonalInfo.token == null) {
+            return;
+        }
+        String token = UserPersonalInfo.token;
+        try{
+            String requestURL = getString(R.string.server) + "/personalinfo";
+            RequestQueue requestQueue = Volley.newRequestQueue(getActivity().getApplicationContext());
+            JsonObjectRequest jsonObjectRequest= new JsonObjectRequest
+                    (Request.Method.GET, requestURL, null, response -> {
+                        try {
+                            JSONObject res = new JSONObject(response.toString());
+                            Log.d("response is", ""+response);
+                            JSONObject user = res.getJSONObject("data");
+                            UserPersonalInfo.name = user.getString("name");
+                            UserPersonalInfo.email = user.getString("email");
+                            UserPersonalInfo.points = user.getInt("points");
+                            UserPersonalInfo.level = user.getInt("level");
+                            UserPersonalInfo.userID = user.getString("userID");
+                            UserPersonalInfo.userPassword = user.getString("userPassword");
+                            UserPersonalInfo.gender = user.getInt("gender");
+                            UserPersonalInfo.yearBirth = user.getInt("yearBirth");
+                            UserPersonalInfo.phoneNumber = user.getString("phoneNumber");
+                            JSONArray ja = (JSONArray)user.get("participations");
+
+                            ArrayList<String> partiarray = new ArrayList<String>();
+                            for (int j = 0; j<ja.length(); j++){
+                                partiarray.add(ja.getString(j));
+                            }
+
+                            UserPersonalInfo.participations = partiarray;
+                            Log.d("partiarray", ""+UserPersonalInfo.participations.toString());
+
+                            JSONArray ja2 = (JSONArray)user.get("prizes");
+                            ArrayList<String> prizearray = new ArrayList<String>();
+                            for (int j = 0; j<ja2.length(); j++){
+                                prizearray.add(ja2.getString(j));
+                            }
+                            UserPersonalInfo.prizes = prizearray;
+                            Log.d("prizearray", ""+UserPersonalInfo.prizes.toString());
+
+
+                            SharedPreferences auto = getActivity().getSharedPreferences("auto", Activity.MODE_PRIVATE);
+                            SharedPreferences.Editor autoLogin = auto.edit();
+                            autoLogin.putString("name", user.getString("name"));
+                            autoLogin.commit();
+                        } catch (JSONException e) {
+                            Log.d("exception", "JSON error");
+                            e.printStackTrace();
+                        }
+                    }, error -> {
+                        Log.d("exception", "volley error");
+                        error.printStackTrace();
+                    }){
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    HashMap<String, String> headers = new HashMap<String, String>();
+                    headers.put("Authorization", "Bearer " + token);
+                    return headers;
+                }
+            };
+            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            requestQueue.add(jsonObjectRequest);
+        } catch (Exception e){
+            Log.d("exception", "failed getting response");
+            e.printStackTrace();
+        }
     }
 
     public void OnRefrech(){

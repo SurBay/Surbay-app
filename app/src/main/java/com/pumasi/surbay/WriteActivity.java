@@ -228,7 +228,7 @@ public class WriteActivity extends AppCompatActivity {
                     startActivity(newIntent);
                 } else {
                     AlertDialog.Builder builder = new AlertDialog.Builder(WriteActivity.this);
-                    dialog = builder.setMessage("제공하지 않는 url입니다.")
+                    dialog = builder.setMessage("제공하지 않는 url입니다")
                             .setNegativeButton("확인", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
@@ -273,17 +273,29 @@ public class WriteActivity extends AppCompatActivity {
                     String hour = new SimpleDateFormat("hh").format(date);
                     DatePickerDialog dialog = new DatePickerDialog(WriteActivity.this, callbackMethod, Integer.valueOf(year), Integer.valueOf(month)-1, Integer.valueOf(day));
                     timedialog = new TimePickerDialog(WriteActivity.this, tcallbackMethod, Integer.valueOf(hour), 00, false);
-
                     Calendar cal = Calendar.getInstance();
                     cal.setTime(new Date());
-                    cal.add(Calendar.DATE, 7);
+                    cal.add(Calendar.DATE, 3);
 
                     dialog.getDatePicker().setMinDate(date.getTime());
                     dialog.getDatePicker().setMaxDate(cal.getTime().getTime());
+
+                    dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                        @Override
+                        public void onShow(DialogInterface dialogInterface) {
+                            dialog.getButton(Dialog.BUTTON_NEGATIVE).setVisibility(View.GONE);
+                        }
+                    });
                     dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
                         @Override
                         public void onDismiss(DialogInterface dialog) {
                             timedialog.show();
+                        }
+                    });
+                    timedialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                        @Override
+                        public void onShow(DialogInterface dialog) {
+                            timedialog.getButton(DialogInterface.BUTTON_NEGATIVE).setVisibility(View.GONE);
                         }
                     });
                     timedialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
@@ -374,6 +386,9 @@ public class WriteActivity extends AppCompatActivity {
                         Post item = new Post(id, title, author, author_lvl, content, participants, goal_participants, url, date, deadline, with_prize, prize, est_time, target, count, new ArrayList<Reply>(), false, 0, new ArrayList<String>());
                         MainActivity.postArrayList.add(item);
                         Log.d("response id", id);
+                        Intent intent = new Intent(WriteActivity.this, BoardFragment1.class);
+                        setResult(NEWPOST, intent);
+                        finish();
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -443,60 +458,6 @@ public class WriteActivity extends AppCompatActivity {
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         Volley.newRequestQueue(this).add(volleyMultipartRequest);
     }
-
-//    public void postPost(String title, String author, Integer author_lvl, String content, Integer participants, Integer goal_participants, String url, Date date, Date deadline, Boolean with_prize, String prize, Integer est_time, String target, Integer count, ArrayList<Reply> comments, boolean done) throws Exception{
-//        try{
-//            Log.d("starting request", "post posts");
-//            String requestURL = "https://surbay-server.herokuapp.com/api/posts";
-//            RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
-//            JSONObject params = new JSONObject();
-//            params.put("title", title);
-//            params.put("author", author);
-//            params.put("author_lvl", author_lvl);
-//            params.put("content", content);
-//            params.put("participants", participants);
-//            if(goal_participants!=0) {
-//                params.put("goal_participants", goal_participants);
-//            }
-//            params.put("url", url);
-//            SimpleDateFormat fm = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss.SSS");
-//            params.put("date", fm.format(date));
-//            params.put("deadline", fm.format(deadline));
-//            params.put("with_prize", with_prize);
-//            if(with_prize) {
-//                params.put("prize", prize);
-//                params.put("num_prize", count);
-//            } else {
-//                params.put("prize", "");
-//                params.put("num_prize", 0);
-//            }
-//            params.put("est_time", est_time);
-//            params.put("target", target);
-//            params.put("done", false);
-//            params.put("comments", new ArrayList<Reply>());
-//            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
-//                    (Request.Method.POST, requestURL, params, response -> {
-//                        Log.d("response is", ""+response);
-//                        try {
-//                            JSONObject resultObj = new JSONObject(response.toString());
-//                            String id = resultObj.getString("id");
-//                            Post item = new Post(id, title, author, author_lvl, content, participants, goal_participants, url, date, deadline, with_prize, prize, est_time, target, count, new ArrayList<Reply>(), false, 0, new ArrayList<String>());
-//                            MainActivity.postArrayList.add(item);
-//
-//                        } catch (JSONException e) {
-//                            e.printStackTrace();
-//                        }
-//                    }, error -> {
-//                        Log.d("exception", "volley error");
-//                        error.printStackTrace();
-//                    });
-//            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-//            requestQueue.add(jsonObjectRequest);
-//        } catch (Exception e){
-//            Log.d("exception", "failed posting");
-//            e.printStackTrace();
-//        }
-//    }
 
     private void updatePost(String title, String author, String content, Integer goal_participants, Integer est_time, String target) throws Exception{
         String requestURL = getString(R.string.server)+"/api/posts/updatepost/" + post.getID();
@@ -641,9 +602,9 @@ public class WriteActivity extends AppCompatActivity {
         SimpleDateFormat formatter = new SimpleDateFormat(getString(R.string.date_format));
 
 
-        if (title.getBytes().length <= 0 || content.getBytes().length <= 0 || target.getBytes().length <= 0 || est_time <= 0){
+        if (title.getBytes().length <= 0 || content.getBytes().length <= 0 || target.getBytes().length <= 0 || est_time <= 0 || deadline==null){
             AlertDialog.Builder bu = new AlertDialog.Builder(WriteActivity.this);
-            dialog = bu.setMessage("모든 값들을 입력해주세요")
+            dialog = bu.setMessage("입력되지 않은 정보가 있습니다")
                     .setNegativeButton("확인", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
@@ -676,38 +637,77 @@ public class WriteActivity extends AppCompatActivity {
                     }
                 });
                 dialog.show();
-            } else {
-                if (purpose == 1){
-                    Post addedpost = new Post(null ,title, author, author_lvl, content, participants, goalParticipants, url, date, deadline, with_prize, prize, est_time, target,count, new ArrayList<Reply>(), false, 0, new ArrayList<String>());
-                    Intent intent = new Intent(WriteActivity.this, BoardFragment1.class);
-                    Log.d("date formatted", formatter.format(deadline));
-                    try {
-                        Log.d("author is ", "author" + author);
-                        postPost(title, author, author_lvl, content, participants, goalParticipants, url, date, deadline, with_prize, prize, est_time, target, count, new ArrayList<Reply>(), false, image_uris);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    setResult(NEWPOST, intent);
-                    finish();
-                } else if (purpose == 2){
-                    post.setTitle(title);
-                    post.setTarget(target);
-                    post.setGoal_participants(goalParticipants);
-                    post.setEst_time(est_time);
-                    post.setContent(content);
+            } else{
+                if(url.length()<=0){
+                    AlertDialog.Builder bu = new AlertDialog.Builder(WriteActivity.this);
+                    dialog = bu.setMessage("입력되지 않은 정보가 있습니다")
+                            .setNegativeButton("확인", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                }
+                            })
+                            .create();
+                    dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                        @SuppressLint("ResourceAsColor")
+                        @Override
+                        public void onShow(DialogInterface arg0) {
+                            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(R.color.black);
+                        }
+                    });
+                    dialog.show();
+                }else if(!(url.contains("docs.google.com") || url.contains("forms.gle"))){
+                    AlertDialog.Builder bu = new AlertDialog.Builder(WriteActivity.this);
+                    dialog = bu.setMessage("제공하지 않는 url입니다")
+                            .setNegativeButton("확인", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                }
+                            })
+                            .create();
+                    dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                        @SuppressLint("ResourceAsColor")
+                        @Override
+                        public void onShow(DialogInterface arg0) {
+                            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(R.color.black);
+                        }
+                    });
+                    dialog.show();
+                }
+                else {
+                    if (purpose == 1) {
+                        Post addedpost = new Post(null, title, author, author_lvl, content, participants, goalParticipants, url, date, deadline, with_prize, prize, est_time, target, count, new ArrayList<Reply>(), false, 0, new ArrayList<String>());
 
-                    Intent intent = new Intent(WriteActivity.this, PostDetailActivity.class);
-                    intent.putExtra("post", post);
-                    Log.d("date formatted", formatter.format(deadline));
-                    try {
-                        updatePost(title, author, content, goalParticipants, est_time, target);
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                        Log.d("date formatted", formatter.format(deadline));
+                        try {
+                            Log.d("author is ", "author" + author);
+                            postPost(title, author, author_lvl, content, participants, goalParticipants, url, date, deadline, with_prize, prize, est_time, target, count, new ArrayList<Reply>(), false, image_uris);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            Intent intent = new Intent(WriteActivity.this, BoardFragment1.class);
+                            setResult(0, intent);
+                            finish();
+                        }
+
+                    } else if (purpose == 2) {
+                        post.setTitle(title);
+                        post.setTarget(target);
+                        post.setGoal_participants(goalParticipants);
+                        post.setEst_time(est_time);
+                        post.setContent(content);
+
+                        Intent intent = new Intent(WriteActivity.this, PostDetailActivity.class);
+                        intent.putExtra("post", post);
+                        Log.d("date formatted", formatter.format(deadline));
+                        try {
+                            updatePost(title, author, content, goalParticipants, est_time, target);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        startActivity(intent);
+                        setResult(FIX_DONE, intent);
+                        Log.d("fix", UserPersonalInfo.name);
+                        finish();
                     }
-                    startActivity(intent);
-                    setResult(FIX_DONE);
-                    Log.d("fix", UserPersonalInfo.name);
-                    finish();
                 }
             }
         }

@@ -80,7 +80,6 @@ public class Surveytip implements Parcelable {
         this.liked_users = liked_users;
     }
 
-    @SuppressLint("NewApi")
     public Surveytip(Parcel in){
         this.id = in.readString();
         this.title = in.readString();
@@ -103,7 +102,6 @@ public class Surveytip implements Parcelable {
         return 0;
     }
 
-    @SuppressLint("NewApi")
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(this.id);

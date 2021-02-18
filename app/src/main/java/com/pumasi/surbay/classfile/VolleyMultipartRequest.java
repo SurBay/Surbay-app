@@ -3,6 +3,8 @@ package com.pumasi.surbay.classfile;
 
 // VolleyMultipartRequest.java
 
+import android.util.Log;
+
 import com.android.volley.AuthFailureError;
 import com.android.volley.NetworkResponse;
 import com.android.volley.ParseError;
@@ -16,6 +18,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 public class VolleyMultipartRequest extends Request<NetworkResponse> {
@@ -118,6 +124,7 @@ public class VolleyMultipartRequest extends Request<NetworkResponse> {
     private void textParse(DataOutputStream dataOutputStream, Map<String, String> params, String encoding) throws IOException {
         try {
             for (Map.Entry<String, String> entry : params.entrySet()) {
+                Log.d("posting", "entry value "+ entry.getValue());
                 buildTextPart(dataOutputStream, entry.getKey(), entry.getValue());
             }
         } catch (UnsupportedEncodingException uee) {
@@ -150,7 +157,15 @@ public class VolleyMultipartRequest extends Request<NetworkResponse> {
         dataOutputStream.writeBytes(twoHyphens + boundary + lineEnd);
         dataOutputStream.writeBytes("Content-Disposition: form-data; name=\"" + parameterName + "\"" + lineEnd);
         dataOutputStream.writeBytes(lineEnd);
-        dataOutputStream.writeBytes(parameterValue + lineEnd);
+        List<String> koreanPossible = new ArrayList<>(
+                Arrays.asList("title", "author", "content", "prize", "target", "author_userid"));
+        if(koreanPossible.contains(parameterName)) {
+            dataOutputStream.write(parameterValue.getBytes("utf-8"));
+            dataOutputStream.writeBytes(lineEnd);
+        }
+        else {
+            dataOutputStream.writeBytes(parameterValue + lineEnd);
+        }
     }
 
     /**

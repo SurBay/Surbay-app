@@ -1,8 +1,10 @@
 package com.pumasi.surbay;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -22,6 +24,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -30,6 +33,8 @@ import com.android.volley.toolbox.Volley;
 import com.pumasi.surbay.classfile.Surveytip;
 import com.pumasi.surbay.classfile.UserPersonalInfo;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -40,6 +45,8 @@ import java.util.Map;
 public class TipdetailActivity extends AppCompatActivity {
     static final int LIKED = 5;
     static final int DISLIKED = 4;
+    int LIKE_CHANGE = 0;
+    int ORIGIN_LIKE = 0;
 
     TextView author;
     TextView level;
@@ -103,8 +110,10 @@ public class TipdetailActivity extends AppCompatActivity {
         likescount.setText(surveytip.getLikes().toString());
         if (likedlist.contains(UserPersonalInfo.userID)){
             likedselected = true;
+            ORIGIN_LIKE = LIKED;
         } else {
             likedselected = false;
+            ORIGIN_LIKE = DISLIKED;
         }
         setLikesbutton();
 
@@ -112,9 +121,11 @@ public class TipdetailActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (likedselected){
-                    dislikepost();
+                    LIKE_CHANGE = DISLIKED;
+                    likescount.setText((Integer.valueOf(likescount.getText().toString())-1)+"");
                 } else {
-                    likepost();
+                    LIKE_CHANGE = LIKED;
+                    likescount.setText((Integer.valueOf(likescount.getText().toString())+1)+"");
                 }
                 likedselected = !likedselected;
                 setLikesbutton();
@@ -149,7 +160,7 @@ public class TipdetailActivity extends AppCompatActivity {
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
                     (Request.Method.PUT, requestURL, params, response -> {
                         Log.d("response is", ""+response);
-                        likescount.setText((Integer.valueOf(likescount.getText().toString())+1)+"");
+
                     }, error -> {
                         Log.d("exception", "volley error");
                         error.printStackTrace();
@@ -171,7 +182,7 @@ public class TipdetailActivity extends AppCompatActivity {
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
                     (Request.Method.PUT, requestURL, params, response -> {
                         Log.d("response is", ""+response);
-                        likescount.setText((Integer.valueOf(likescount.getText().toString())-1)+"");
+
                     }, error -> {
                         Log.d("exception", "volley error");
                         error.printStackTrace();
@@ -203,6 +214,22 @@ public class TipdetailActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()){
             case android.R.id.home:
+                if(ORIGIN_LIKE==LIKED && LIKE_CHANGE==DISLIKED){
+                    dislikepost();
+                    surveytip.setLikes(surveytip.getLikes()-1);
+                    surveytip.getLiked_users().remove(UserPersonalInfo.userID);
+                }
+                else if(ORIGIN_LIKE==DISLIKED && LIKE_CHANGE==LIKED){
+                    likepost();
+                    surveytip.setLikes(surveytip.getLikes()+1);
+                    surveytip.getLiked_users().add(UserPersonalInfo.userID);
+                }
+                Intent intent = new Intent(TipdetailActivity.this, BoardFragment2.class);
+                intent.putExtra("position", position);
+                intent.putExtra("surveyTip", surveytip);
+
+                Log.d("surveytip date", "date is"+ surveytip.getDate());
+                setResult(0, intent);
                 finish();
                 break;
             case R.id.share:
@@ -291,6 +318,8 @@ public class TipdetailActivity extends AppCompatActivity {
         });
         dialog.show();
     }
+
+
 
 
 }

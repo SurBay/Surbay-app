@@ -12,6 +12,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -84,13 +85,16 @@ public class FindIdFragment extends Fragment {
             public void onClick(View v) {
                 phone = findid_PNedit.getText().toString();
 
-//                if (phone.length() == 11){
-//                    PhoneAuth(콜);
-//                }
+                if (phone.length() == 11){
+                    String realphone = "+82"+phone.substring(1);
+                    Log.d("phone", "num is "+ realphone);
+                    PhoneAuth(realphone);
+                }
+                else{
+                    Toast.makeText(getActivity().getApplicationContext(), "휴대폰 번호를 확인해주세요", Toast.LENGTH_SHORT);
+                }
 //                String realphone = "+82 "+phone.substring(1, 3)+"-"+phone.substring(3,7)+"-"+phone.substring(7,11);
-                String realphone = "+82"+phone.substring(1);
-                Log.d("phone", "num is "+ realphone);
-                PhoneAuth(realphone);
+
             }
         });
         findid_PNCedit.setOnFocusChangeListener(new View.OnFocusChangeListener() {

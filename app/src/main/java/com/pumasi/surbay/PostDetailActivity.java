@@ -1,11 +1,13 @@
 package com.pumasi.surbay;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -41,6 +43,7 @@ import com.pumasi.surbay.classfile.Post;
 import com.pumasi.surbay.classfile.Reply;
 import com.pumasi.surbay.classfile.UserPersonalInfo;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -58,7 +61,6 @@ public class PostDetailActivity extends AppCompatActivity {
     static final int FIX = 2;
     static final int FIX_DONE = 3;
 
-    private int doneSurvey;
     private TextView participants;
     private TextView participants_percent;
     TextView author;
@@ -150,10 +152,6 @@ public class PostDetailActivity extends AppCompatActivity {
         detail_reply_Adapter = new ReplyListViewAdapter(replyArrayList, post.getID());
         detail_reply_listView.setAdapter(detail_reply_Adapter);
 
-        doneSurvey = NOT_DONE;
-
-        setbuttonunable();
-
         surveyButton.setOnClickListener(
                 new View.OnClickListener(){
                     @Override
@@ -164,6 +162,10 @@ public class PostDetailActivity extends AppCompatActivity {
                     }
                 }
         );
+
+        setbuttonunable();
+
+
         reply_enter_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -239,17 +241,18 @@ public class PostDetailActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        Log.d("result code", "result code is " +resultCode);
         switch (resultCode){
             case DONE:
                 try {
                     int updatedParticipants = post.getParticipants()+1;
                     updateParticipants(updatedParticipants);
-                    doneSurvey = DONE;
+                    surveyButton.setClickable(false);
+                    surveyButton.setText("이미 참여한 설문입니다");
                     Intent resultIntent = new Intent(getApplicationContext(), BoardFragment1.class);
                     resultIntent.putExtra("position", position);
                     resultIntent.putExtra("participants", updatedParticipants);
                     setResult(DONE, resultIntent);
-                    Log.d("result code setting to ", "1");
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -258,7 +261,80 @@ public class PostDetailActivity extends AppCompatActivity {
                 setResult(NOT_DONE);
                 return;
             case FIX_DONE:
+                Intent resultIntent = new Intent(getApplicationContext(), BoardFragment1.class);
+                Post post = data.getParcelableExtra("post");
+                resultIntent.putExtra("post", post);
+                resultIntent.putExtra("position", position);
+                setResult(FIX_DONE, resultIntent);
                 finish();
+        }
+    }
+    private void getPersonalInfo() {
+        if (UserPersonalInfo.token == null) {
+            return;
+        }
+        String token = UserPersonalInfo.token;
+        try{
+            String requestURL = getString(R.string.server) + "/personalinfo";
+            RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
+            JsonObjectRequest jsonObjectRequest= new JsonObjectRequest
+                    (Request.Method.GET, requestURL, null, response -> {
+                        try {
+                            JSONObject res = new JSONObject(response.toString());
+                            Log.d("response is", ""+response);
+                            JSONObject user = res.getJSONObject("data");
+                            UserPersonalInfo.name = user.getString("name");
+                            UserPersonalInfo.email = user.getString("email");
+                            UserPersonalInfo.points = user.getInt("points");
+                            UserPersonalInfo.level = user.getInt("level");
+                            UserPersonalInfo.userID = user.getString("userID");
+                            UserPersonalInfo.userPassword = user.getString("userPassword");
+                            UserPersonalInfo.gender = user.getInt("gender");
+                            UserPersonalInfo.yearBirth = user.getInt("yearBirth");
+                            UserPersonalInfo.phoneNumber = user.getString("phoneNumber");
+                            JSONArray ja = (JSONArray)user.get("participations");
+
+                            ArrayList<String> partiarray = new ArrayList<String>();
+                            for (int j = 0; j<ja.length(); j++){
+                                partiarray.add(ja.getString(j));
+                            }
+
+                            UserPersonalInfo.participations = partiarray;
+                            Log.d("partiarray", ""+UserPersonalInfo.participations.toString());
+
+                            JSONArray ja2 = (JSONArray)user.get("prizes");
+                            ArrayList<String> prizearray = new ArrayList<String>();
+                            for (int j = 0; j<ja2.length(); j++){
+                                prizearray.add(ja2.getString(j));
+                            }
+                            UserPersonalInfo.prizes = prizearray;
+                            Log.d("prizearray", ""+UserPersonalInfo.prizes.toString());
+
+
+                            SharedPreferences auto = getSharedPreferences("auto", Activity.MODE_PRIVATE);
+                            SharedPreferences.Editor autoLogin = auto.edit();
+                            autoLogin.putString("name", user.getString("name"));
+                            autoLogin.commit();
+                        } catch (JSONException e) {
+                            Log.d("exception", "JSON error");
+                            e.printStackTrace();
+                        }
+                    }, error -> {
+                        Log.d("exception", "volley error");
+                        error.printStackTrace();
+                    }){
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    HashMap<String, String> headers = new HashMap<String, String>();
+                    headers.put("Authorization", "Bearer " + token);
+                    return headers;
+                }
+            };
+            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            requestQueue.add(jsonObjectRequest);
+        } catch (Exception e){
+            Log.d("exception", "failed getting response");
+            e.printStackTrace();
         }
     }
 
@@ -272,6 +348,7 @@ public class PostDetailActivity extends AppCompatActivity {
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
                     (Request.Method.PUT, requestURL, params, response -> {
                         Log.d("response is", ""+response);
+                        getPersonalInfo();
                     }, error -> {
                         Log.d("exception", "volley error");
                         error.printStackTrace();
@@ -549,11 +626,15 @@ public class PostDetailActivity extends AppCompatActivity {
                             try {
                                 deletePost();
                             } catch (Exception e) {
+                                setResult(0);
+                                Toast.makeText(PostDetailActivity.this, "삭제 오류", Toast.LENGTH_SHORT).show();
+                                finish();
                                 e.printStackTrace();
                             }
-                            finish();
-                            setResult(4);
-                            Toast.makeText(PostDetailActivity.this, "설문이 삭제되었습니다", Toast.LENGTH_SHORT).show();
+//                            setResult(4);
+//                            Toast.makeText(PostDetailActivity.this, "설문이 삭제되었습니다", Toast.LENGTH_SHORT).show();
+//                            finish();
+
                         } else {
                             AlertDialog.Builder builder2 = new AlertDialog.Builder(PostDetailActivity.this);
                             builder2.setMessage("등록 후 10분이 경과하여 삭제할 수 없습니다").setNegativeButton("확인", new DialogInterface.OnClickListener(){
@@ -706,7 +787,12 @@ public class PostDetailActivity extends AppCompatActivity {
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
                     (Request.Method.DELETE, requestURL, null, response -> {
                         Log.d("delete", ""+response);
-                    }, error -> {
+                            Intent intent = new Intent(PostDetailActivity.this, BoardFragment1.class);
+                            intent.putExtra("position", position);
+                            setResult(4, intent);
+                            Toast.makeText(PostDetailActivity.this, "설문이 삭제되었습니다", Toast.LENGTH_SHORT).show();
+                            finish();
+                        }, error -> {
                         Log.d("exception", "volley error");
                         error.printStackTrace();
                     });
