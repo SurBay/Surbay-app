@@ -325,13 +325,15 @@ public class SignupActivity extends AppCompatActivity {
             public void onClick(View v) {
                 String phone = phonenumberEditText.getText().toString();
 
-//                if (phone.length() == 11){
-//                    PhoneAuth(콜);
-//                }
-//                String realphone = "+82 "+phone.substring(1, 3)+"-"+phone.substring(3,7)+"-"+phone.substring(7,11);
-                String realphone = "+82"+phone.substring(1);
-                Log.d("phone", "num is "+ realphone);
-                PhoneAuth(realphone);
+                if (phone.length() == 11){
+                    String realphone = "+82"+phone.substring(1);
+                    Log.d("phone", "num is "+ realphone);
+                    PhoneAuth(realphone);
+                }
+                else{
+                    Toast.makeText(SignupActivity.this, "휴대폰 번호를 확인해주세요", Toast.LENGTH_SHORT);
+                }
+
             }
         });
 
@@ -575,6 +577,7 @@ public class SignupActivity extends AppCompatActivity {
                         // The corresponding whitelisted code above should be used to complete sign-in.
                         Log.d("signupauth", forceResendingToken.toString() + verificationId);
                         Log.d("signupauth", "onCodeSent:" + verificationId);
+                        Toast.makeText(SignupActivity.this, "인증번호를 발송했습니다", Toast.LENGTH_SHORT);
                         TimerStart();
                         phonecheckEditText.setEnabled(true);
                         getverificationId = verificationId;

@@ -145,7 +145,7 @@ public class Post implements Parcelable{
         this.extended = extended;
         this.participants_userids = new ArrayList<>(participants_userids);
     }
-    @SuppressLint("NewApi")
+
     public Post(Parcel in){
         this.id = in.readString();
         this.title = in.readString();
@@ -165,12 +165,12 @@ public class Post implements Parcelable{
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        this.with_prize = in.readBoolean();
+        this.with_prize = Boolean.parseBoolean(in.readString());
         this.prize = in.readString();
         this.num_prize = in.readInt();
         this.est_time = in.readInt();
         this.target = in.readString();
-        this.done = in.readBoolean();
+        this.done = Boolean.parseBoolean(in.readString());
         this.comments = new ArrayList();
         in.readTypedList(this.comments, Reply.CREATOR);
         this.extended = in.readInt();
@@ -181,7 +181,6 @@ public class Post implements Parcelable{
     public int describeContents() {
         return 0;
     }
-    @SuppressLint("NewApi")
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(this.id);
@@ -194,12 +193,12 @@ public class Post implements Parcelable{
         dest.writeString(this.url);
         dest.writeString(new SimpleDateFormat(dateformat).format(this.date));
         dest.writeString(new SimpleDateFormat(dateformat).format(this.deadline));
-        dest.writeBoolean( this.with_prize);
+        dest.writeString(String.valueOf(this.with_prize));
         dest.writeString(this.prize);
         dest.writeInt(this.num_prize);
         dest.writeInt(this.est_time);
         dest.writeString(this.target);
-        dest.writeBoolean(this.done);
+        dest.writeString(String.valueOf(this.done));
         dest.writeTypedList(this.comments);
         dest.writeInt(this.extended);
         dest.writeStringList(this.participants_userids);

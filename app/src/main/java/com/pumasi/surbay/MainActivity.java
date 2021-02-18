@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
     public static ArrayList<Surveytip> surveytipArrayList = new ArrayList<>();
     public static ArrayList<PostNonSurvey> feedbackArrayList = new ArrayList<>();
     public static ArrayList<Notice> NoticeArrayList = new ArrayList<>();
-    private static Context mContext;
+    public static Context mContext;
     private static Integer done = 0;
 
     public static int SORT = 1;
