@@ -11,11 +11,14 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.webkit.JavascriptInterface;
+import android.webkit.ValueCallback;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -29,10 +32,46 @@ import com.pumasi.surbay.classfile.UserPersonalInfo;
 import org.json.JSONException;
 
 public class SurveyWebActivity extends AppCompatActivity {
+    private static final String WEBVIEW_INTERFACE_NAME = "survey";
     private AlertDialog dialog;
     private WebView mWebView;
     static final int DONE = 1;
     static final int NOT_DONE = 0;
+    private class WebViewInterface
+    {
+        Context mContext;
+
+        WebViewInterface(Context context)
+        {
+            mContext = context;
+        }
+
+        @JavascriptInterface
+        public void googleFormSubmitted()
+        {
+            // Do what you need
+            Log.d("survey", "survey done");
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(SurveyWebActivity.this);
+            dialog = builder.setMessage("응답 완료")
+                    .setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            setResult(DONE);
+                            finish();
+                        }
+                    })
+                    .create();
+            dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                @SuppressLint("ResourceAsColor")
+                @Override
+                public void onShow(DialogInterface arg0) {
+                    dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(R.color.black);
+                }
+            });
+            dialog.show();
+        }
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,40 +92,63 @@ public class SurveyWebActivity extends AppCompatActivity {
 
 
         WebViewClient mWebViewClient = new WebViewClient(){
-            @Override
-            public void onPageFinished(WebView view, String url){
-                Log.d("on page", "url is "+ url);
-                Log.d("on page geturl", "url is "+ view.getUrl());
-                Log.d("on page getorgurl", "url is "+ view.getOriginalUrl());
-                if(url.contains("/formResponse")){
-                    Log.d("survey", "survey done");
 
-                    AlertDialog.Builder builder = new AlertDialog.Builder(SurveyWebActivity.this);
-                    dialog = builder.setMessage("응답 완료")
-                            .setPositiveButton("확인", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    setResult(DONE);
-                                    finish();
-                                }
-                            })
-                            .create();
-                    dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-                        @SuppressLint("ResourceAsColor")
-                        @Override
-                        public void onShow(DialogInterface arg0) {
-                            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(R.color.black);
-                        }
-                    });
-                    dialog.show();
-                }
-            }
             @Override
-            public boolean shouldOverrideUrlLoading(WebView webView, WebResourceRequest request){
-                String url = webView.getUrl();
-                Log.d("overide", "url is "+ url);
-                return true;
+            public void onPageFinished(WebView view, String url)
+            {
+                String js =
+                        "( " +
+                                "function() { " +
+                                "if(document.getElementsByClassName('freebirdFormviewerViewResponseConfirmContentContainer').length > 0) {" +
+                                WEBVIEW_INTERFACE_NAME + ".googleFormSubmitted();" +
+                                "}" +
+                                "}) " +
+                                "()";
+
+                if(android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT)
+                    mWebView.evaluateJavascript(js, null);
+                else
+                    mWebView.loadUrl("javascript:" + js);
             }
+//
+//            @Override
+//            public void onPageFinished(WebView view, String url){
+//                Log.d("on page", "url is "+ url);
+//                Log.d("on page geturl", "url is "+ view.getUrl());
+//                Log.d("on page getorgurl", "url is "+ view.getOriginalUrl());
+//                super.onPageFinished(view, url);
+//                view.evaluateJavascript("document.getElementsByClassName('freebirdFormviewerViewResponseConfirmContentContainer').length > 0", new ValueCallback<String>(){
+//                    @Override
+//                    public void onReceiveValue(String s) {
+//                        Log.d("survey", "survey done");
+//
+//                        AlertDialog.Builder builder = new AlertDialog.Builder(SurveyWebActivity.this);
+//                        dialog = builder.setMessage("응답 완료")
+//                                .setPositiveButton("확인", new DialogInterface.OnClickListener() {
+//                                    @Override
+//                                    public void onClick(DialogInterface dialog, int which) {
+//                                        setResult(DONE);
+//                                        finish();
+//                                    }
+//                                })
+//                                .create();
+//                        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+//                            @SuppressLint("ResourceAsColor")
+//                            @Override
+//                            public void onShow(DialogInterface arg0) {
+//                                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(R.color.black);
+//                            }
+//                        });
+//                        dialog.show();
+//                    }
+//                });
+//            }
+//            @Override
+//            public boolean shouldOverrideUrlLoading(WebView webView, WebResourceRequest request){
+//                String url = webView.getUrl();
+//                Log.d("overide", "url is "+ url);
+//                return true;
+//            }
 
             @Override
             public boolean shouldOverrideUrlLoading(WebView webView, String url) {
@@ -139,6 +201,8 @@ public class SurveyWebActivity extends AppCompatActivity {
             }
         };
         mWebView.setWebViewClient(mWebViewClient);
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1)
+            mWebView.addJavascriptInterface(new WebViewInterface(SurveyWebActivity.this), WEBVIEW_INTERFACE_NAME);
     }
 
     @Override
