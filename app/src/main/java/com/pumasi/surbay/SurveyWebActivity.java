@@ -9,12 +9,14 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -51,22 +53,11 @@ public class SurveyWebActivity extends AppCompatActivity {
 
 
         WebViewClient mWebViewClient = new WebViewClient(){
-//            @Override
-//            public void doUpdateVisitedHistory (WebView view, String url, boolean isReload){
-//              if(url.contains("/formResponse") && !isReload){
-//                  Log.d("survey", "survey done");
-//                  doneSurvey = DONE;
-//              }
-//              else if(url.contains("/formResponse") && isReload){
-//                  Log.d("no survey", "survey done again");
-//              }
-//              else{
-//                  Log.d("haha", "hahahah");
-//              }
-//            }
-
             @Override
             public void onPageFinished(WebView view, String url){
+                Log.d("on page", "url is "+ url);
+                Log.d("on page geturl", "url is "+ view.getUrl());
+                Log.d("on page getorgurl", "url is "+ view.getOriginalUrl());
                 if(url.contains("/formResponse")){
                     Log.d("survey", "survey done");
 
@@ -89,6 +80,12 @@ public class SurveyWebActivity extends AppCompatActivity {
                     });
                     dialog.show();
                 }
+            }
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView webView, WebResourceRequest request){
+                String url = webView.getUrl();
+                Log.d("overide", "url is "+ url);
+                return true;
             }
 
             @Override
