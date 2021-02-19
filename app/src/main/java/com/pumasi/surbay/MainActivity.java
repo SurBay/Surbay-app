@@ -266,6 +266,7 @@ public class MainActivity extends AppCompatActivity {
                                 Integer est_time = post.getInt("est_time");
                                 String target = post.getString("target");
                                 Boolean done = post.getBoolean("done");
+                                Boolean hide = post.getBoolean("hide");
                                 Integer extended = post.getInt("extended");
                                 if(with_prize) {
                                     prize = post.getString("prize");
@@ -276,6 +277,13 @@ public class MainActivity extends AppCompatActivity {
                                 ArrayList<String> participants_userids = new ArrayList<String>();
                                 for (int j = 0; j<ia.length(); j++){
                                     participants_userids.add(ia.getString(j));
+                                }
+
+                                JSONArray ka = (JSONArray)post.get("reports");
+
+                                ArrayList<String> reports = new ArrayList<String>();
+                                for (int j = 0; j<ka.length(); j++){
+                                    reports.add(ka.getString(j));
                                 }
 
                                 ArrayList<Reply> comments = new ArrayList<>();
@@ -293,8 +301,15 @@ public class MainActivity extends AppCompatActivity {
                                             } catch (ParseException e) {
                                                 e.printStackTrace();
                                             }
+                                            Boolean replyhide = post.getBoolean("hide");
+                                            JSONArray ua = (JSONArray)post.get("reports");
+
+                                            ArrayList<String> replyreports = new ArrayList<String>();
+                                            for (int u = 0; u<ua.length(); u++){
+                                                replyreports.add(ua.getString(u));
+                                            }
                                             Log.d("start app comment", ""+datereply.toString());
-                                            Reply re = new Reply(reid, writer, contetn, datereply);
+                                            Reply re = new Reply(reid, writer, contetn, datereply,replyreports,replyhide);
                                             Log.d("start app reply", ""+re.getDate().toString());
                                             comments.add(re);
                                         }
@@ -304,7 +319,7 @@ public class MainActivity extends AppCompatActivity {
                                     e.printStackTrace();
                                     Log.d("parsing date", "non reply");
                                 }
-                                Post newPost = new Post(id, title, author, author_lvl, content, participants, goal_participants, url, date, deadline, with_prize, prize, est_time, target, count,comments,done, extended, participants_userids);
+                                Post newPost = new Post(id, title, author, author_lvl, content, participants, goal_participants, url, date, deadline, with_prize, prize, est_time, target, count,comments,done, extended, participants_userids, reports, hide);
                                 Log.d("start app", "newpost comments"+newPost.getComments().size()+"");
                                 if (!newPost.isDone()) {
                                     finishpostArrayList.add(newPost);
@@ -439,7 +454,15 @@ public class MainActivity extends AppCompatActivity {
                                     } catch (ParseException e) {
                                         e.printStackTrace();
                                     }
-                                    Reply re = new Reply(reid, writer, contetn, datereply);
+                                    Boolean replyhide = post.getBoolean("hide");
+                                    JSONArray ua = (JSONArray)post.get("reports");
+
+                                    ArrayList<String> replyreports = new ArrayList<String>();
+                                    for (int u = 0; u<ua.length(); u++){
+                                        replyreports.add(ua.getString(u));
+                                    }
+                                    Log.d("start app comment", ""+datereply.toString());
+                                    Reply re = new Reply(reid, writer, contetn, datereply,replyreports,replyhide);
                                     comments.add(re);
                                 }
 

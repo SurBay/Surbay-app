@@ -1,6 +1,7 @@
 package com.pumasi.surbay.adapter;
 
 import android.annotation.SuppressLint;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.util.Log;
@@ -10,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 
@@ -107,7 +109,7 @@ public class ReplyListViewAdapter extends BaseAdapter {
                     dialog.show();
                 }
             });
-        } else {/*
+        } else {
             replymenu.setVisibility(View.VISIBLE);
             replymenu.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -117,16 +119,20 @@ public class ReplyListViewAdapter extends BaseAdapter {
                             .setPositiveButton("신고", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which){
-                                    AlertDialog.Builder builder2 = new AlertDialog.Builder(context);
-                                    builder2.setTitle("신고 사유");
-                                    builder2.setItems(R.array.reportreason, new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            Toast.makeText(context, "신고 사유는 "+report[which], Toast.LENGTH_SHORT).show();
-                                        }
-                                    });
-                                    Dialog dialog2 = builder2.create();
-                                    dialog2.show();
+                                    if (reply.getReports().contains(UserPersonalInfo.userID)){
+                                        Toast.makeText(context, "이미 신고한 댓글입니다", Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        AlertDialog.Builder builder2 = new AlertDialog.Builder(context);
+                                        builder2.setTitle("신고 사유");
+                                        builder2.setItems(R.array.reportreason, new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                Toast.makeText(context, "신고 사유는 "+report[which], Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
+                                        Dialog dialog2 = builder2.create();
+                                        dialog2.show();
+                                    }
                                 }
                             }).setNegativeButton("취소", new DialogInterface.OnClickListener() {
                                 @Override
@@ -144,7 +150,7 @@ public class ReplyListViewAdapter extends BaseAdapter {
                     });
                     dialog.show();
                 }
-            });*/
+            });
         }
 
         return convertView;
@@ -163,6 +169,34 @@ public class ReplyListViewAdapter extends BaseAdapter {
 
     @Override
     public long getItemId(int position) {return position;    }
-
-
+/*
+    private void updateReplyReports() throws Exception {
+        String requestURL = "http://ec2-3-35-152-40.ap-northeast-2.compute.amazonaws.com" + "/api/posts/report/" + postid;
+        try {
+            RequestQueue requestQueue = Volley.newRequestQueue(g);
+            JSONObject params = new JSONObject();
+            params.put("userID", UserPersonalInfo.userID);
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                    (Request.Method.PUT, requestURL, params, response -> {
+                        Log.d("response is", "" + response);
+                        if (post.getReports().size() == 3){
+                            post.setHide(true);
+                            MainActivity.postArrayList.set(position, post);
+                            try {
+                                MainActivity.getPosts();
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }, error -> {
+                        Log.d("exception", "volley error");
+                        error.printStackTrace();
+                    });
+            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            requestQueue.add(jsonObjectRequest);
+        } catch (Exception e) {
+            Log.d("exception", "failed posting");
+            e.printStackTrace();
+        }
+    }*/
 }

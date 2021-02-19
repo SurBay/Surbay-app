@@ -7,6 +7,7 @@ import android.util.Log;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 public class Reply implements Parcelable {
@@ -15,11 +16,16 @@ public class Reply implements Parcelable {
     private String content;
     private Date date;
     private String dateformat = "yyyy-MM-dd'T'hh:mm:ss.SSS";
-    public Reply(String id, String writer, String content, Date date){
+    private ArrayList<String> reports;
+    private boolean hide;
+
+    public Reply(String id, String writer, String content, Date date, ArrayList<String> reports, Boolean hide){
         this.id = id;
         this.writer = writer;
         this.content = content;
         this.date = date;
+        this.reports = new ArrayList<>(reports);
+        this.hide = hide;
     }
     public String getID() {
         return id;
@@ -41,6 +47,11 @@ public class Reply implements Parcelable {
     public void setDate(Date date) {
         this.date = date;
     }
+    public ArrayList<String> getReports() {        return reports;    }
+    public void setReports(ArrayList<String> reports) {        this.reports = reports;    }
+    public boolean isHide() {        return hide;    }
+    public void setHide(boolean hide) {        this.hide = hide;    }
+
     @SuppressLint("NewApi")
     public Reply(Parcel in){
         this.id = in.readString();
@@ -53,6 +64,9 @@ public class Reply implements Parcelable {
         } catch (ParseException e) {
             e.printStackTrace();
         }
+        this.reports = new ArrayList<>();
+        in.readStringList(reports);
+        this.hide=Boolean.parseBoolean(in.readString());
     }
     public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
         @Override
@@ -71,5 +85,7 @@ public class Reply implements Parcelable {
         dest.writeString(this.content);
         dest.writeString(new SimpleDateFormat(dateformat).format(this.date));
         Log.d("in reply3", ""+this.id+this.writer+this.content+this.date);
+        dest.writeStringList(this.reports);
+        dest.writeString(String.valueOf(this.hide));
     }
 }

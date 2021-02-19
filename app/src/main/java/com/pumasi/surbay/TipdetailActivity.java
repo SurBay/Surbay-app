@@ -1,10 +1,8 @@
 package com.pumasi.surbay;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -24,7 +22,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -33,8 +30,6 @@ import com.android.volley.toolbox.Volley;
 import com.pumasi.surbay.classfile.Surveytip;
 import com.pumasi.surbay.classfile.UserPersonalInfo;
 
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -132,11 +127,15 @@ public class TipdetailActivity extends AppCompatActivity {
             }
         });
 
+        Intent resultIntent = new Intent(getApplicationContext(), BoardFragment2.class);
+        resultIntent.putExtra("position", position);
+        setResult(RESULT_OK, resultIntent);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
     }
 
     @SuppressLint("ResourceAsColor")
@@ -208,6 +207,28 @@ public class TipdetailActivity extends AppCompatActivity {
         menu.getItem(4).setVisible(true);
         return super.onCreateOptionsMenu(menu);
     }
+
+    @Override
+    public void onBackPressed() {
+        if(ORIGIN_LIKE==LIKED && LIKE_CHANGE==DISLIKED){
+            dislikepost();
+            surveytip.setLikes(surveytip.getLikes()-1);
+            surveytip.getLiked_users().remove(UserPersonalInfo.userID);
+        }
+        else if(ORIGIN_LIKE==DISLIKED && LIKE_CHANGE==LIKED){
+            likepost();
+            surveytip.setLikes(surveytip.getLikes()+1);
+            surveytip.getLiked_users().add(UserPersonalInfo.userID);
+        }
+        Intent intent = new Intent(TipdetailActivity.this, BoardFragment2.class);
+        intent.putExtra("position", position);
+        intent.putExtra("surveyTip", surveytip);
+
+        Log.d("surveytip date", "date is"+ surveytip.getDate());
+        setResult(0, intent);
+        finish();
+    }
+
 
 
     @Override

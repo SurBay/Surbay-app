@@ -52,10 +52,9 @@ public class SurveyTipListViewAdapter extends BaseAdapter {
         // Data Set(listViewItemList)에서 position에 위치한 데이터 참조 획득
         SimpleDateFormat fm = new SimpleDateFormat("MM.dd");
         Surveytip post = listViewItemList.get(position);
-        String date = fm.format(post.getDate());
 
+        dateTextView.setText(fm.format(post.getDate()));
         titleTextView.setText(post.getTitle());
-        dateTextView.setText(date);
         authorLvlTextView.setText("LV " + post.getAuthor_lvl());
         likesTextView.setText(post.getLikes().toString());
         return convertView;

@@ -7,14 +7,12 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Spinner;
-import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -100,7 +98,7 @@ public class BoardsSearchActivity extends AppCompatActivity {
         search_enter.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                search_editview.setText("");
+                search_editview.getText().clear();
                 search_enter.setVisibility(View.GONE);
             }
         });
@@ -119,23 +117,21 @@ public class BoardsSearchActivity extends AppCompatActivity {
             }
         });
 
-        search_editview.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        search_editview.setOnKeyListener(new View.OnKeyListener() {
             @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                selected_spinner = selecting_spinner;
-                String search_keyword = search_editview.getText().toString();
-                switch (actionId){
-                    case EditorInfo
-                            .IME_ACTION_DONE:
-                        break;
-                    default:
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                switch (keyCode){
+                    case KeyEvent.KEYCODE_ENTER:
+                        selected_spinner = selecting_spinner;
+                        String search_keyword = search_editview.getText().toString();
                         if (search_keyword.length() > 0 ){
-                            search_editview.setText(search_keyword);
                             Log.d("search", " " + search_keyword);
                             search_list_post = new ArrayList<Post>();
                             search_list_postNon = new ArrayList<PostNonSurvey>();
                             do_search(search_keyword);
                         }
+                        break;
+                    default:
                         return false;
                 }
                 return true;
@@ -164,7 +160,7 @@ public class BoardsSearchActivity extends AppCompatActivity {
             case SURBAY_SELECT:
                 search_list_post.clear();
                 for (Post post : MainActivity.postArrayList){
-                    if (post.getContent().contains(search_keyword) || (post.getTitle().contains(search_keyword))){
+                    if (post.getContent().toUpperCase().contains(search_keyword.toUpperCase()) || (post.getTitle().toUpperCase().contains(search_keyword.toUpperCase()))){
                         search_list_post.add(post);
                     }
                 }
@@ -265,6 +261,19 @@ public class BoardsSearchActivity extends AppCompatActivity {
                         return;
                 }
             case LIKE_SURVEY:
+                int pos = data.getIntExtra("position", -1);
+                Surveytip surveytip = data.getParcelableExtra("surveyTip");
+                search_list_tip.set(pos, surveytip);
+                MainActivity.surveytipArrayList.set(pos, surveytip);
+                try {
+                    MainActivity.getSurveytips();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                search_TipAdapter = new SurveyTipListViewAdapter(search_list_tip);
+                search_TipAdapter.notifyDataSetChanged();
+                search_listview.setAdapter(search_TipAdapter);
                 break;
             default:
                 return;

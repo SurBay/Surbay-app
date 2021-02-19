@@ -200,6 +200,8 @@ public class PostDetailActivity extends AppCompatActivity {
 
             dialogItemList.add(itemMap);
         }
+
+        Log.d("reports", post.getReports().toString());
     }
 
     private void postReply(String reply) {
@@ -220,7 +222,7 @@ public class PostDetailActivity extends AppCompatActivity {
                         try {
                             JSONObject resultObj = new JSONObject(response.toString());
                             String id = resultObj.getString("id");
-                            Reply re = new Reply(id, UserPersonalInfo.userID, reply, date);
+                            Reply re = new Reply(id, UserPersonalInfo.userID, reply, date, new ArrayList<>(), false);
                             replyArrayList.add(re);
                             detail_reply_Adapter.addItem(re);
                         } catch (JSONException e) {
@@ -379,8 +381,39 @@ public class PostDetailActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
-
     }
+
+
+    private void updateReports() throws Exception {
+        String requestURL = getString(R.string.server) + "/api/posts/report/" + post.getID();
+        try {
+            RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
+            JSONObject params = new JSONObject();
+            params.put("userID", UserPersonalInfo.userID);
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                    (Request.Method.PUT, requestURL, params, response -> {
+                        Log.d("response is", "" + response);
+                        if (post.getReports().size() == 3){
+                            post.setHide(true);
+                            MainActivity.postArrayList.set(position, post);
+                            try {
+                                MainActivity.getPosts();
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }, error -> {
+                        Log.d("exception", "volley error");
+                        error.printStackTrace();
+                    });
+            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            requestQueue.add(jsonObjectRequest);
+        } catch (Exception e) {
+            Log.d("exception", "failed posting");
+            e.printStackTrace();
+        }
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater menuInflater = getMenuInflater();
@@ -393,7 +426,7 @@ public class PostDetailActivity extends AppCompatActivity {
             menu.getItem(3).setVisible(true);
             menu.getItem(4).setVisible(true);
         } else {
-            menu.getItem(0).setVisible(false);
+            menu.getItem(0).setVisible(true);
             menu.getItem(1).setVisible(false);
             menu.getItem(2).setVisible(false);
 
@@ -522,39 +555,49 @@ public class PostDetailActivity extends AppCompatActivity {
     }
 
     public void ReportDialog(){
-        AlertDialog.Builder builder = new AlertDialog.Builder(PostDetailActivity.this);
-        dialog = builder.setMessage("신고는 반대의견을 나타내는 기능이 아닙니다.\n" +
-                "신고 사유에 맞지 않는 신고의 경우,\n" +
-                "해당 신고는 처리되지 않습니다.")
-                .setPositiveButton("확인", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        AlertDialog.Builder builder2 = new AlertDialog.Builder(PostDetailActivity.this);
-                        builder2.setTitle("신고 사유");
-                        builder2.setItems(R.array.reportreason, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                Toast.makeText(PostDetailActivity.this, "신고 사유는 "+getResources().getStringArray(R.array.reportreason)[which], Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                        Dialog dialog2 = builder2.create();
-                        dialog2.show();
-                    }
-                }).setNegativeButton("취소", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                })
-                .create();
-        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-            @SuppressLint("ResourceAsColor")
-            @Override
-            public void onShow(DialogInterface arg0) {
-                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(R.color.teal_200);
-                dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(R.color.gray);
-            }
-        });
-        dialog.show();
+        if (post.getReports().contains(UserPersonalInfo.userID)){
+            Toast.makeText(PostDetailActivity.this, "이미 신고하셨습니다", Toast.LENGTH_SHORT).show();
+        } else {
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(PostDetailActivity.this);
+            dialog = builder.setMessage("신고는 반대의견을 나타내는 기능이 아닙니다.\n" +
+                    "신고 사유에 맞지 않는 신고의 경우,\n" +
+                    "해당 신고는 처리되지 않습니다.")
+                    .setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            AlertDialog.Builder builder2 = new AlertDialog.Builder(PostDetailActivity.this);
+                            builder2.setTitle("신고 사유");
+                            builder2.setItems(R.array.reportreason, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    try {
+                                        updateReports();
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+                                    Toast.makeText(PostDetailActivity.this, "신고 사유는 "+getResources().getStringArray(R.array.reportreason)[which], Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                            Dialog dialog2 = builder2.create();
+                            dialog2.show();
+                        }
+                    }).setNegativeButton("취소", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                        }
+                    })
+                    .create();
+            dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                @SuppressLint("ResourceAsColor")
+                @Override
+                public void onShow(DialogInterface arg0) {
+                    dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(R.color.teal_200);
+                    dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(R.color.gray);
+                }
+            });
+            dialog.show();
+        }
     }
 
     private void ShareDialog()

@@ -218,7 +218,7 @@ public class BoardFragment1 extends Fragment// Fragment 클래스를 상속받�
                 try {
                     MainActivity.getPosts();
 
-                    list = new ArrayList<>(MainActivity.postArrayList);
+                    list = MainActivity.postArrayList;
                     switch (SORT){
                         case NEW:
                             Collections.sort(list, cmpNew);

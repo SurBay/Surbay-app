@@ -16,6 +16,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
@@ -46,6 +47,8 @@ public class BoardFragment2 extends Fragment {
     private View view;
     TextView writeButton;
     private int intentposition;
+    private SwipeRefreshLayout refreshLayout;
+    ArrayList<Surveytip> list;
 
     @Nullable
     @Override
@@ -65,7 +68,8 @@ public class BoardFragment2 extends Fragment {
                 startActivityForResult(intent, WRITE_NEWPOST);
             }
         });
-        listViewAdapter = new SurveyTipListViewAdapter(MainActivity.surveytipArrayList);
+        list = MainActivity.surveytipArrayList;
+        listViewAdapter = new SurveyTipListViewAdapter(list);
         listView.setAdapter(listViewAdapter);
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -76,6 +80,29 @@ public class BoardFragment2 extends Fragment {
                 String tipid = item.getID();
                 getSurveyTip(tipid);
 
+            }
+        });
+
+
+        refreshLayout = view.findViewById(R.id.refresh_boards2);
+
+        refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                try {
+                    MainActivity.getSurveytips();
+
+                    list = MainActivity.surveytipArrayList;
+
+                    listViewAdapter = new SurveyTipListViewAdapter(list);
+                    listView.setAdapter(listViewAdapter);
+
+                    Log.d("refreshing is", "finish");
+
+                    refreshLayout.setRefreshing(false);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         });
         return view;

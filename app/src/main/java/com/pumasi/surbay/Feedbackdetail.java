@@ -47,6 +47,7 @@ public class Feedbackdetail extends AppCompatActivity {
     private static ListView detail_reply_listView;
     private static ArrayList<Reply> replyArrayList;
     Date today;
+    int position;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,6 +77,7 @@ public class Feedbackdetail extends AppCompatActivity {
         Intent intent = getIntent();
 
         post = (PostNonSurvey)intent.getParcelableExtra("post");
+        position = intent.getIntExtra("position", 0);
 
         author.setText(post.getAuthor());
         date.setText(new SimpleDateFormat("MM.dd").format(post.getDate()));
@@ -100,6 +102,9 @@ public class Feedbackdetail extends AppCompatActivity {
             }
         });
 
+        Intent resultIntent = new Intent(getApplicationContext(), BoardFragment3.class);
+        resultIntent.putExtra("position", position);
+        setResult(RESULT_OK, resultIntent);
     }
 
     private void postReply(String reply) {
@@ -120,7 +125,7 @@ public class Feedbackdetail extends AppCompatActivity {
                         try {
                             JSONObject resultObj = new JSONObject(response.toString());
                             String id = resultObj.getString("id");
-                            Reply re = new Reply(id, UserPersonalInfo.userID, reply, date);
+                            Reply re = new Reply(id, UserPersonalInfo.userID, reply, date, new ArrayList<>(), false);
                             replyArrayList.add(re);
                         } catch (JSONException e) {
                             e.printStackTrace();

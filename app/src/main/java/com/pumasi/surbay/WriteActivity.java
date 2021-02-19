@@ -383,7 +383,7 @@ public class WriteActivity extends AppCompatActivity {
                         Log.d("response is", ""+new String(response.data));
                         JSONObject resultObj = new JSONObject(new String(response.data));
                         String id = resultObj.getString("id");
-                        Post item = new Post(id, title, author, author_lvl, content, participants, goal_participants, url, date, deadline, with_prize, prize, est_time, target, count, new ArrayList<Reply>(), false, 0, new ArrayList<String>());
+                        Post item = new Post(id, title, author, author_lvl, content, participants, goal_participants, url, date, deadline, with_prize, prize, est_time, target, count, new ArrayList<Reply>(), false, 0, new ArrayList<String>(), new ArrayList<String>(), false);
                         MainActivity.postArrayList.add(item);
                         Log.d("response id", id);
                         Intent intent = new Intent(WriteActivity.this, BoardFragment1.class);
@@ -675,7 +675,7 @@ public class WriteActivity extends AppCompatActivity {
                 }
                 else {
                     if (purpose == 1) {
-                        Post addedpost = new Post(null, title, author, author_lvl, content, participants, goalParticipants, url, date, deadline, with_prize, prize, est_time, target, count, new ArrayList<Reply>(), false, 0, new ArrayList<String>());
+                        Post addedpost = new Post(null, title, author, author_lvl, content, participants, goalParticipants, url, date, deadline, with_prize, prize, est_time, target, count, new ArrayList<Reply>(), false, 0, new ArrayList<String>(), new ArrayList<String>(), false);
 
                         Log.d("date formatted", formatter.format(deadline));
                         try {

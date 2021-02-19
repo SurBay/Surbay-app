@@ -14,15 +14,21 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.pumasi.surbay.adapter.NonSurveyListViewAdapter;
 import com.pumasi.surbay.classfile.PostNonSurvey;
+
+import java.util.ArrayList;
 
 public class BoardFragment3 extends Fragment {
 
     private NonSurveyListViewAdapter listViewAdapter;
     private ListView listView;
     private View view;
+    private SwipeRefreshLayout refreshLayout;
+    ArrayList<PostNonSurvey> list;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -32,7 +38,9 @@ public class BoardFragment3 extends Fragment {
         getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         listView = view.findViewById(R.id.list);
-        listViewAdapter = new NonSurveyListViewAdapter(MainActivity.feedbackArrayList);
+
+        list = MainActivity.feedbackArrayList;
+        listViewAdapter = new NonSurveyListViewAdapter(list);
         listView.setAdapter(listViewAdapter);
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -47,7 +55,27 @@ public class BoardFragment3 extends Fragment {
                 intent.putExtra("position", position);
             }
         });
+        refreshLayout = view.findViewById(R.id.refresh_boards3);
 
+        refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                try {
+                    MainActivity.getFeedbacks();
+
+                    list = MainActivity.feedbackArrayList;
+
+                    listViewAdapter = new NonSurveyListViewAdapter(list);
+                    listView.setAdapter(listViewAdapter);
+
+                    Log.d("refreshing is", "finish");
+
+                    refreshLayout.setRefreshing(false);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
         return view;
     }
     @Override

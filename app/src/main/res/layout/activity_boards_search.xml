@@ -41,8 +41,8 @@
             android:lines="1"
             android:imeOptions="actionDone"/>
         <ImageButton
-            android:layout_width="10dp"
-            android:layout_height="10dp"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
             android:id="@+id/boards_enter_button"
             android:layout_centerVertical="true"
             android:layout_alignParentRight="true"

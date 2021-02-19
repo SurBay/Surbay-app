@@ -1,6 +1,5 @@
 package com.pumasi.surbay.classfile;
 
-import android.annotation.SuppressLint;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -29,6 +28,8 @@ public class Post implements Parcelable{
     private boolean done;
     private Integer extended;
     private ArrayList<String> participants_userids;
+    private ArrayList<String> reports;
+    private boolean hide;
 
 
 
@@ -115,16 +116,17 @@ public class Post implements Parcelable{
     public void setExtended(Integer extended) {
         this.extended = extended;
     }
-
     public ArrayList<String> getParticipants_userids() {
         return participants_userids;
     }
+    public void setParticipants_userids(ArrayList<String> participants_userids) {  this.participants_userids = participants_userids;    }
+    public ArrayList<String> getReports() {        return reports;    }
+    public void setReports(ArrayList<String> reports) {        this.reports = reports;    }
+    public boolean isHide() {        return hide;    }
+    public void setHide(boolean hide) {        this.hide = hide;    }
 
-    public void setParticipants_userids(ArrayList<String> participants_userids) {
-        this.participants_userids = participants_userids;
-    }
-
-    public Post(String id, String title, String author, Integer author_lvl, String content, Integer participants, Integer goal_participants, String url, Date date, Date deadline, Boolean with_prize, String prize, Integer est_time, String target, Integer num_prize, ArrayList<Reply> comments, boolean done, Integer extended, ArrayList<String> participants_userids){
+    public Post(String id, String title, String author, Integer author_lvl, String content, Integer participants, Integer goal_participants, String url, Date date, Date deadline, Boolean with_prize, String prize, Integer est_time, String target, Integer num_prize, ArrayList<Reply> comments, Boolean done, Integer extended, ArrayList<String> participants_userids,
+                ArrayList<String> reports, Boolean hide){
         this.id = id;
         this.title = title;
         this.author = author;
@@ -144,6 +146,8 @@ public class Post implements Parcelable{
         this.done = done;
         this.extended = extended;
         this.participants_userids = new ArrayList<>(participants_userids);
+        this.reports = new ArrayList<>(reports);
+        this.hide = hide;
     }
 
     public Post(Parcel in){
@@ -176,6 +180,9 @@ public class Post implements Parcelable{
         this.extended = in.readInt();
         this.participants_userids = new ArrayList<>();
         in.readStringList(participants_userids);
+        this.reports = new ArrayList<>();
+        in.readStringList(reports);
+        this.hide=Boolean.parseBoolean(in.readString());
     }
     @Override
     public int describeContents() {
@@ -202,6 +209,8 @@ public class Post implements Parcelable{
         dest.writeTypedList(this.comments);
         dest.writeInt(this.extended);
         dest.writeStringList(this.participants_userids);
+        dest.writeStringList(this.reports);
+        dest.writeString(String.valueOf(this.hide));
     }
     public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
         @Override
