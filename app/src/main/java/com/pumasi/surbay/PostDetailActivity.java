@@ -393,14 +393,12 @@ public class PostDetailActivity extends AppCompatActivity {
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
                     (Request.Method.PUT, requestURL, params, response -> {
                         Log.d("response is", "" + response);
-                        if (post.getReports().size() == 3){
-                            post.setHide(true);
-                            MainActivity.postArrayList.set(position, post);
-                            try {
-                                MainActivity.getPosts();
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
+                        MainActivity.postArrayList.remove(position);
+                        finish();
+                        try {
+                            MainActivity.getPosts();
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
                     }, error -> {
                         Log.d("exception", "volley error");

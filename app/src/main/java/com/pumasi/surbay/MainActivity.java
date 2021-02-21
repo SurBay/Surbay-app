@@ -49,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
     private MypageFragment mypageFragment;
     public static ArrayList<Post> postArrayList = new ArrayList<>();
     public static ArrayList<Post> finishpostArrayList = new ArrayList<>();
+    public static ArrayList<Post> reportpostArrayList = new ArrayList<>();
     public static ArrayList<Surveytip> surveytipArrayList = new ArrayList<>();
     public static ArrayList<PostNonSurvey> feedbackArrayList = new ArrayList<>();
     public static ArrayList<Notice> NoticeArrayList = new ArrayList<>();
@@ -234,6 +235,7 @@ public class MainActivity extends AppCompatActivity {
                         try {
                             postArrayList = new ArrayList<Post>();
                             finishpostArrayList = new ArrayList<Post>();
+                            reportpostArrayList = new ArrayList<Post>();
                             JSONArray resultArr = new JSONArray(response.toString());
                             Log.d("getpost", ""+response+"\n");
                             for (int i = 0; i < resultArr.length(); i++) {
@@ -311,7 +313,9 @@ public class MainActivity extends AppCompatActivity {
                                             Log.d("start app comment", ""+datereply.toString());
                                             Reply re = new Reply(reid, writer, contetn, datereply,replyreports,replyhide);
                                             Log.d("start app reply", ""+re.getDate().toString());
-                                            comments.add(re);
+                                            if (!replyhide && !replyreports.contains(UserPersonalInfo.userID)){
+                                                comments.add(re);
+                                            }
                                         }
                                     }
                                     Log.d("start app", "getpost comment"+comments.size()+"");
@@ -322,8 +326,12 @@ public class MainActivity extends AppCompatActivity {
                                 Post newPost = new Post(id, title, author, author_lvl, content, participants, goal_participants, url, date, deadline, with_prize, prize, est_time, target, count,comments,done, extended, participants_userids, reports, hide);
                                 Log.d("start app", "newpost comments"+newPost.getComments().size()+"");
                                 if (!newPost.isDone()) {
-                                    finishpostArrayList.add(newPost);
-                                    postArrayList.add(newPost);
+                                    if(reports.contains(UserPersonalInfo.userID) || hide) {
+                                        reportpostArrayList.add(newPost);
+                                    } else {
+                                        finishpostArrayList.add(newPost);
+                                        postArrayList.add(newPost);
+                                    }
                                 } else {
                                     postArrayList.add(newPost);
                                 }

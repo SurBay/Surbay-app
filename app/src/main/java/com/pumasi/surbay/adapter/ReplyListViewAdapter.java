@@ -20,6 +20,7 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.pumasi.surbay.MainActivity;
 import com.pumasi.surbay.R;
 import com.pumasi.surbay.classfile.Reply;
 import com.pumasi.surbay.classfile.UserPersonalInfo;
@@ -119,20 +120,23 @@ public class ReplyListViewAdapter extends BaseAdapter {
                             .setPositiveButton("신고", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which){
-                                    if (reply.getReports().contains(UserPersonalInfo.userID)){
-                                        Toast.makeText(context, "이미 신고한 댓글입니다", Toast.LENGTH_SHORT).show();
-                                    } else {
-                                        AlertDialog.Builder builder2 = new AlertDialog.Builder(context);
-                                        builder2.setTitle("신고 사유");
-                                        builder2.setItems(R.array.reportreason, new DialogInterface.OnClickListener() {
-                                            @Override
-                                            public void onClick(DialogInterface dialog, int which) {
-                                                Toast.makeText(context, "신고 사유는 "+report[which], Toast.LENGTH_SHORT).show();
+                                    AlertDialog.Builder builder2 = new AlertDialog.Builder(context);
+                                    builder2.setTitle("신고 사유");
+                                    builder2.setItems(R.array.reportreason, new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            listViewItemList.remove(position);
+                                            try {
+                                                MainActivity.getPosts();
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
                                             }
-                                        });
-                                        Dialog dialog2 = builder2.create();
-                                        dialog2.show();
-                                    }
+                                            notifyDataSetChanged();
+                                            Toast.makeText(context, "신고 사유는 "+report[which], Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
+                                    Dialog dialog2 = builder2.create();
+                                    dialog2.show();
                                 }
                             }).setNegativeButton("취소", new DialogInterface.OnClickListener() {
                                 @Override

@@ -28,7 +28,6 @@ public class BoardsFragment extends Fragment  {
 
     public static FragmentStateAdapter adapter;
     ImageButton boards_search_button;
-    int pos;
 
     @SuppressLint("RestrictedApi")
     @Override
@@ -44,13 +43,10 @@ public class BoardsFragment extends Fragment  {
             @Override
             public Fragment createFragment(int position) {
                 if(position==0) {
-                    pos = position;
                     return new BoardFragment1();
                 }else if(position==1){
-                    pos = position;
                     return new BoardFragment2();
                 }else if(position==2){
-                    pos = position;
                     return new BoardFragment3();
                 }
                 return new BoardFragment1();
@@ -69,7 +65,7 @@ public class BoardsFragment extends Fragment  {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(((AppCompatActivity) getActivity()).getApplicationContext(), BoardsSearchActivity.class);
-                intent.putExtra("pos", pos);
+                intent.putExtra("pos", viewPager.getCurrentItem());
                 startActivity(intent);
             }
         });
