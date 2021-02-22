@@ -20,42 +20,60 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SurBay"
         android:usesCleartextTraffic="true">
-        <activity android:name="com.pumasi.surbay.mypage.GiftDetailActivity"
-            android:screenOrientation="portrait"></activity>
-        <activity android:name="com.pumasi.surbay.mypage.IGotGifts"
-            android:screenOrientation="portrait"></activity>
-        <activity android:name="com.pumasi.surbay.TipdetailActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name="com.pumasi.surbay.TipImageDetail"
-            android:screenOrientation="portrait" />
-        <activity android:name="com.pumasi.surbay.TipWriteActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name="com.pumasi.surbay.Feedbackdetail"
-            android:screenOrientation="portrait" />
-        <activity android:name="com.pumasi.surbay.mypage.MypageSettingAlerm"
-            android:screenOrientation="portrait" />
-        <activity android:name="com.pumasi.surbay.mypage.PwChange"
-            android:screenOrientation="portrait" />
-        <activity android:name="com.pumasi.surbay.mypage.SchoolAuth"
-            android:screenOrientation="portrait" />
-        <activity android:name="com.pumasi.surbay.mypage.AccountFix"
-            android:screenOrientation="portrait" />
-        <activity android:name="com.pumasi.surbay.mypage.MypageSettingAccount"
-            android:screenOrientation="portrait" />
-        <activity android:name="com.pumasi.surbay.mypage.MypageSettingMain"
-            android:screenOrientation="portrait" />
-        <activity android:name="com.pumasi.surbay.FindIdActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name="com.pumasi.surbay.NoticeDetailActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name="com.pumasi.surbay.noticeActivity"
-            android:screenOrientation="portrait" />
-        <activity android:name="com.pumasi.surbay.mypage.Mypage_uploadNParti"
-            android:screenOrientation="portrait" />
-        <activity android:name="com.pumasi.surbay.BoardsSearchActivity"
-            android:screenOrientation="portrait"/>
+        <activity android:name=".FeedbackWrite"></activity>
         <activity
-            android:name="com.pumasi.surbay.SplashActivity"
+            android:name=".mypage.GiftDetailActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".mypage.IGotGifts"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".TipdetailActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".TipImageDetail"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".TipWriteActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".Feedbackdetail"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".mypage.MypageSettingAlerm"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".mypage.PwChange"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".mypage.SchoolAuth"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".mypage.AccountFix"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".mypage.MypageSettingAccount"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".mypage.MypageSettingMain"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".FindIdActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".NoticeDetailActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".noticeActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".mypage.Mypage_uploadNParti"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".BoardsSearchActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".SplashActivity"
             android:screenOrientation="portrait"
             android:theme="@style/SplashTheme">
             <intent-filter>
@@ -64,18 +82,24 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.pumasi.surbay.MainActivity"
+        <activity
+            android:name=".MainActivity"
             android:screenOrientation="portrait" />
-        <activity android:name="com.pumasi.surbay.LoginActivity"
+        <activity
+            android:name=".LoginActivity"
             android:screenOrientation="portrait" />
-        <activity android:name="com.pumasi.surbay.WriteActivity"
+        <activity
+            android:name=".WriteActivity"
             android:screenOrientation="portrait" />
-        <activity android:name="com.pumasi.surbay.SurveyWebActivity"
+        <activity
+            android:name=".SurveyWebActivity"
             android:screenOrientation="portrait" />
-        <activity android:name="com.pumasi.surbay.PostDetailActivity"
+        <activity
+            android:name=".PostDetailActivity"
             android:screenOrientation="portrait" />
-        <activity android:name="com.pumasi.surbay.SignupActivity"
-            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".SignupActivity"
+            android:screenOrientation="portrait" />
         <activity
             android:name="com.gun0912.tedpicker.ImagePickerActivity"
             android:screenOrientation="portrait"

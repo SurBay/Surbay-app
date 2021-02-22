@@ -19,7 +19,6 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.pumasi.surbay.adapter.FeedbackReplyListViewAdapter;
-import com.pumasi.surbay.adapter.ReplyListViewAdapter;
 import com.pumasi.surbay.classfile.PostNonSurvey;
 import com.pumasi.surbay.classfile.Reply;
 import com.pumasi.surbay.classfile.UserPersonalInfo;
@@ -32,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Date;
 
 public class Feedbackdetail extends AppCompatActivity {
+    final String[] spinner_category = {"선택해주세요", "운영정책", "앱 구동 불편사항", "기능 추가/개선", "기타"};
     TextView author;
     TextView date;
     TextView title;
@@ -84,12 +84,9 @@ public class Feedbackdetail extends AppCompatActivity {
         date.setText(new SimpleDateFormat("MM.dd").format(post.getDate()));
         title.setText(post.getTitle());
         content.setText(post.getContent());
-        category.setText(post.getCategory().toString());
+        category.setText(spinner_category[post.getCategory()]);
 
         replyArrayList = post.getComments();
-        if (replyArrayList.size() == 0){
-            line.setVisibility(View.GONE);
-        }
         detail_reply_Adapter = new FeedbackReplyListViewAdapter(replyArrayList, post);
         detail_reply_listView.setAdapter(detail_reply_Adapter);
 

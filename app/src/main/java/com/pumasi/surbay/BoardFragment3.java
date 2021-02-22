@@ -2,6 +2,7 @@ package com.pumasi.surbay;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,6 +10,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -22,10 +24,14 @@ import com.pumasi.surbay.classfile.PostNonSurvey;
 import java.util.ArrayList;
 
 public class BoardFragment3 extends Fragment {
+    static final int WRITE_NEWPOST = 1;
+    static final int LIKE_SURVEY = 2;
+    static final int NEWPOST = 1;
 
     private NonSurveyListViewAdapter listViewAdapter;
     private ListView listView;
     private View view;
+    TextView writeButton;
     private SwipeRefreshLayout refreshLayout;
     ArrayList<PostNonSurvey> list;
 
@@ -36,7 +42,15 @@ public class BoardFragment3 extends Fragment {
         view = inflater.inflate(R.layout.fragment_board3,container,false);
 
         getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-
+        writeButton = view.findViewById(R.id.writeButton);
+        writeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(((AppCompatActivity) getActivity()).getApplicationContext(), FeedbackWrite.class);
+                intent.putExtra("purpose", WRITE_NEWPOST);
+                startActivityForResult(intent, WRITE_NEWPOST);
+            }
+        });
         listView = view.findViewById(R.id.list);
 
         list = MainActivity.feedbackArrayList;
@@ -97,5 +111,38 @@ public class BoardFragment3 extends Fragment {
                 startActivity(intent);
             }
         });
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case WRITE_NEWPOST:
+                switch (resultCode) {
+                    case NEWPOST:
+                        try {
+                            MainActivity.getFeedbacks();
+                            OnRefrech();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        return;
+                    default:
+                        return;
+                }
+            default:
+                return;
+        }
+    }
+
+    public void OnRefrech(){
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+
+                listViewAdapter.notifyDataSetChanged();
+                listView.setAdapter(listViewAdapter);
+            }
+        },300);
     }
 }
