@@ -1,13 +1,14 @@
 package com.pumasi.surbay.mypage;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.pumasi.surbay.PostDetailActivity;
 import com.pumasi.surbay.R;
@@ -29,13 +30,20 @@ public class Mypage_uploadNParti extends AppCompatActivity {
     ArrayList upNpar_list;
 
 
+    ImageView back;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mypage_upload_n_parti);
 
         this.getSupportActionBar().hide();
-
+        back = findViewById(R.id.uploadNparti_back);
+        back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
         upNpar_title = findViewById(R.id.upNPar_title);
         upNpar_1st = findViewById(R.id.upNPar_1st_text);
         upNpar_2nd = findViewById(R.id.upNPar_2nd_text);

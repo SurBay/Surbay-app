@@ -9,9 +9,11 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -31,6 +33,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -43,13 +46,13 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.gun0912.tedpicker.Config;
+import com.gun0912.tedpicker.ImagePickerActivity;
 import com.pumasi.surbay.adapter.GiftImageAdapter;
 import com.pumasi.surbay.classfile.Post;
 import com.pumasi.surbay.classfile.Reply;
 import com.pumasi.surbay.classfile.UserPersonalInfo;
 import com.pumasi.surbay.classfile.VolleyMultipartRequest;
-import com.gun0912.tedpicker.Config;
-import com.gun0912.tedpicker.ImagePickerActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -165,6 +168,7 @@ public class WriteActivity extends AppCompatActivity {
         if(writeContent.getText().length()!=0){writeContent.setTextColor(Color.parseColor("#000000"));}
 
         withPrize.setOnClickListener(new View.OnClickListener(){
+            @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
             @Override
             public void onClick(View v) {
                 if (((CheckBox)v).isChecked()){
@@ -172,11 +176,13 @@ public class WriteActivity extends AppCompatActivity {
                     writePrize.setEnabled(true);
                     prize_count.setVisibility(View.VISIBLE);
                     prize_layout.setVisibility(View.VISIBLE);
+                    withPrize.setButtonTintList(ColorStateList.valueOf(Color.parseColor("#3AD1BF")));
                 } else {
                     writePrize.setHint("체크하면 내용을 입력할 수 있습니다");
                     writePrize.setEnabled(false);
                     prize_count.setVisibility(View.GONE);
                     prize_layout.setVisibility(View.GONE);
+                    withPrize.setButtonTintList(ColorStateList.valueOf(Color.parseColor("#C4C4C4")));
                 }
             }
         });
@@ -224,6 +230,9 @@ public class WriteActivity extends AppCompatActivity {
             public void onClick(View v) {
                 url = writeUrl.getText().toString();
                 if (url.contains("docs.google.com") || url.contains("forms.gle")){
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+
                     Intent newIntent = new Intent(getApplicationContext(), SurveyWebActivity.class);
                     newIntent.putExtra("url", url);
                     newIntent.putExtra("requestCode", CHECK);
@@ -356,8 +365,16 @@ public class WriteActivity extends AppCompatActivity {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        imm.hideSoftInputFromWindow(findViewById(R.id.write_title).getWindowToken(), 0);
-        imm.hideSoftInputFromWindow(findViewById(R.id.write_content).getWindowToken(), 0);
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        if(getCurrentFocus()!=null)imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+        /*imm.hideSoftInputFromWindow(findViewById(R.id.write_title).getWindowToken(), 0);
+        imm.hideSoftInputFromWindow(findViewById(R.id.write_content).getWindowToken(), 0);*/
+        url = writeUrl.getText().toString();
+        if (url.length() > 0){
+            urlCheck.setVisibility(View.VISIBLE);
+        } else {
+            urlCheck.setVisibility(View.INVISIBLE);
+        }
         return super.onTouchEvent(event);
     }
 
@@ -526,18 +543,24 @@ public class WriteActivity extends AppCompatActivity {
             prize_list.setVisibility(View.GONE);
         }
     }
+
+    @Override
+    public void onBackPressed() {
+        Back_survey();
+    }
+
     public void Back_survey(){
         setResult(0);
         String message;
-        if(purpose==1){message = "게시글 작성을 취소하시겠습니까";} else {message = "게시글 수정을 취소하시겠습니까";}
+        if(purpose==1){message = "'보관함'에서 작성중인 글을 임시저장 할 수 있습니다. 임시저장 없이 작성중인 글을 취소하겠습니까";} else {message = "게시글 수정을 취소하시겠습니까";}
         AlertDialog.Builder builder = new AlertDialog.Builder(WriteActivity.this);
         dialog = builder.setMessage(message)
-                .setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                .setPositiveButton("작성취소", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         finish();
                     }
-                }).setNegativeButton("취소", new DialogInterface.OnClickListener() {
+                }).setNegativeButton("아니오", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                     }
@@ -793,6 +816,7 @@ public class WriteActivity extends AppCompatActivity {
                                         dialog_save.show();
                                         break;
                                     case 1:
+
                                         AlertDialog.Builder builder_load = new AlertDialog.Builder(WriteActivity.this);
                                         String message;
                                         if (writeTitle.getText().toString().length()==0 && writeTarget.getText().toString().length()==0 && writeDeadline.getText().toString().length()==0 && writePrize.getText().toString().length()==0 && writeUrl.getText().toString().length()==0 && writeContent.getText().toString().length()==0){
@@ -823,6 +847,7 @@ public class WriteActivity extends AppCompatActivity {
                                             }
                                         });
                                         dialog_load.show();
+
                                         break;
                                     default:
                                         return;
