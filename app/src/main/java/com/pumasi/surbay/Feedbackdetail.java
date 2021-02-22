@@ -18,6 +18,7 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.pumasi.surbay.adapter.FeedbackReplyListViewAdapter;
 import com.pumasi.surbay.adapter.ReplyListViewAdapter;
 import com.pumasi.surbay.classfile.PostNonSurvey;
 import com.pumasi.surbay.classfile.Reply;
@@ -43,7 +44,7 @@ public class Feedbackdetail extends AppCompatActivity {
     ImageView back;
     private PostNonSurvey post;
 
-    private static ReplyListViewAdapter detail_reply_Adapter;
+    private static FeedbackReplyListViewAdapter detail_reply_Adapter;
     private static ListView detail_reply_listView;
     private static ArrayList<Reply> replyArrayList;
     Date today;
@@ -89,7 +90,7 @@ public class Feedbackdetail extends AppCompatActivity {
         if (replyArrayList.size() == 0){
             line.setVisibility(View.GONE);
         }
-        detail_reply_Adapter = new ReplyListViewAdapter(replyArrayList, post.getID());
+        detail_reply_Adapter = new FeedbackReplyListViewAdapter(replyArrayList, post);
         detail_reply_listView.setAdapter(detail_reply_Adapter);
 
         reply_enter_button.setOnClickListener(new View.OnClickListener() {

@@ -30,6 +30,7 @@ public class Post implements Parcelable{
     private ArrayList<String> participants_userids;
     private ArrayList<String> reports;
     private boolean hide;
+    private String author_userid;
 
 
 
@@ -126,7 +127,7 @@ public class Post implements Parcelable{
     public void setHide(boolean hide) {        this.hide = hide;    }
 
     public Post(String id, String title, String author, Integer author_lvl, String content, Integer participants, Integer goal_participants, String url, Date date, Date deadline, Boolean with_prize, String prize, Integer est_time, String target, Integer num_prize, ArrayList<Reply> comments, Boolean done, Integer extended, ArrayList<String> participants_userids,
-                ArrayList<String> reports, Boolean hide){
+                ArrayList<String> reports, Boolean hide, String author_userid){
         this.id = id;
         this.title = title;
         this.author = author;
@@ -148,6 +149,7 @@ public class Post implements Parcelable{
         this.participants_userids = new ArrayList<>(participants_userids);
         this.reports = new ArrayList<>(reports);
         this.hide = hide;
+        this.author_userid = author_userid;
     }
 
     public Post(Parcel in){
@@ -183,6 +185,7 @@ public class Post implements Parcelable{
         this.reports = new ArrayList<>();
         in.readStringList(reports);
         this.hide=Boolean.parseBoolean(in.readString());
+        this.author_userid = in.readString();
     }
     @Override
     public int describeContents() {
@@ -211,6 +214,7 @@ public class Post implements Parcelable{
         dest.writeStringList(this.participants_userids);
         dest.writeStringList(this.reports);
         dest.writeString(String.valueOf(this.hide));
+        dest.writeString(this.author_userid);
     }
     public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
         @Override
@@ -222,4 +226,12 @@ public class Post implements Parcelable{
             return new Post[size];
         }
     };
+
+    public String getAuthor_userid() {
+        return author_userid;
+    }
+
+    public void setAuthor_userid(String author_userid) {
+        this.author_userid = author_userid;
+    }
 }

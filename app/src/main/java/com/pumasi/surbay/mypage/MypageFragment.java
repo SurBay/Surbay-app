@@ -237,14 +237,13 @@ public class MypageFragment extends Fragment // Fragment 클래스를 상속받�
     }
 
     public void getlistofI(){
-        String author = UserPersonalInfo.userID;
+        String userid = UserPersonalInfo.userID;
         list_make = new ArrayList<Post>();
         list_parti = new ArrayList<Post>();
         for (Post post : MainActivity.postArrayList){
-            Log.d("post", "post author is "+post.getAuthor()+" and myname is "+author);
-            if (post.getAuthor().equals(author)){
+            if (post.getAuthor_userid().equals(userid)){
                 list_make.add(post);
-            } else if (UserPersonalInfo.participations.contains(post.getID())) {
+            } else if (UserPersonalInfo.participations.contains(post.getID()) && !post.getAuthor_userid().equals(userid)) {
                 list_parti.add(post);
             }
         }

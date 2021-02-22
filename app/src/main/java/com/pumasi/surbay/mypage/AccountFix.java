@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.text.Editable;
@@ -56,6 +57,7 @@ import java.util.concurrent.TimeUnit;
 
 public class AccountFix extends AppCompatActivity {
     TextView check_name;
+    Integer name_checked = 0; //0: 중복 확인중, 1: 중복임, 2: 사용가능
 
     ArrayList<String> spinner_age;
 
@@ -70,7 +72,8 @@ public class AccountFix extends AppCompatActivity {
     Spinner userage;
     int posyear;
 
-    private boolean MPressed, FPressed;
+    public boolean MPressed = false;
+    public boolean FPressed = false;
     String typesmsCode;
     String getverificationId;
     FirebaseAuth auth;
@@ -126,11 +129,10 @@ public class AccountFix extends AppCompatActivity {
         signupButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (CheckableSignup()){}
-                updatePersonalInfo();
-                setResult(RESULT_OK);
-                finish();
-                Toast.makeText(getApplicationContext(), "회원정보가 변경되었습니다.", Toast.LENGTH_SHORT).show();
+                if (CheckableSignup()) {
+                    updatePersonalInfo();
+
+                }
             }
         });
 
@@ -138,38 +140,58 @@ public class AccountFix extends AppCompatActivity {
         userage.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                Log.d("press", "pressed "+ usersex_M.isPressed() + usersex_F.isPressed() + MPressed + FPressed);
+                usersex_M.setBackground(getDrawable(R.drawable.sexselector));
+                usersex_F.setBackground(getDrawable(R.drawable.sexselector));
+                if(MPressed) usersex_M.setPressed(true);
+                else if(FPressed) usersex_F.setPressed(true);
                 posyear = position;
             }
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-
+                Log.d("pres2", "pressed "+ usersex_M.isPressed() + usersex_F.isPressed()+ MPressed + FPressed);
+                usersex_M.setBackground(getDrawable(R.drawable.sexselector));
+                usersex_F.setBackground(getDrawable(R.drawable.sexselector));
+                if(MPressed) usersex_M.setPressed(true);
+                else if(FPressed) usersex_F.setPressed(true);
+            }
+        });
+        userage.setOnTouchListener(new View.OnTouchListener() { //스피너 누를시 버튼 눌림 해제되는 버그때문에 넣음
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                Log.d("press3", "pressed "+ usersex_M.isPressed() + usersex_F.isPressed()+ MPressed + FPressed);
+                if(MPressed) usersex_M.setBackgroundColor(Color.parseColor("#3AD1BF"));
+                else if(FPressed) usersex_F.setBackgroundColor(Color.parseColor("#3AD1BF"));
+                return false;
             }
         });
 
-        nameEditText.setOnFocusChangeListener(new View.OnFocusChangeListener(){
+        nameEditText.addTextChangedListener(new TextWatcher() {
             @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (!hasFocus) {
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            @Override
+            public void afterTextChanged(Editable s) {
+                Log.d("name is", "username"+UserPersonalInfo.name);
+                Boolean b = nameEditText.getText().toString().equals(UserPersonalInfo.name);
+                Log.d("new name is", "username"+nameEditText.getText().toString()+ "is equal?  "+b);
+                if(!nameEditText.getText().toString().equals(UserPersonalInfo.name)) {
                     check_name.setVisibility(View.VISIBLE);
                     check_name.setText("중복 확인 중입니다.");
                     check_name.setTextColor(getResources().getColor(R.color.red));
                     try {
-                        nameCheck((EditText)v);
+                        nameCheck(nameEditText);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
-            }
-        });
-        nameEditText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {            }
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {            }
-            @Override
-            public void afterTextChanged(Editable s) {
-                check_name.setVisibility(View.GONE);
-                check_name.setTextColor(getResources().getColor(R.color.red));
+
+                else{
+                    name_checked = 2;
+                    check_name.setVisibility(View.GONE);
+                }
+
             }
         });
 
@@ -207,37 +229,45 @@ public class AccountFix extends AppCompatActivity {
                 }
             }
         });
-
-        phonecheckEditText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        phonecheckEditText.addTextChangedListener(new TextWatcher() {
             @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (!hasFocus){
-                    typesmsCode = phonecheckEditText.getText().toString();
-                    Log.d("code is", "sms code" + typesmsCode);
-                    if (typesmsCode.length() == 6){
-                        PhoneAuthCredential credential = PhoneAuthProvider.getCredential(getverificationId, typesmsCode);
-                        Task<AuthResult> result = auth.signInWithCredential(credential)
-                                .addOnCompleteListener(AccountFix.this, new OnCompleteListener<AuthResult>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<AuthResult> task) {
-                                        if (task.isSuccessful()) {
-                                            // Sign in success, update UI with the signed-in user's information
-                                            FirebaseUser user = task.getResult().getUser();
-                                            Log.d("signupauth", "signInWithCredential:success");
-                                            CDT.cancel();
-                                            signupPCNText.setText("인증이 완료되었습니다");
-                                            phone_check = true;
-                                        } else {
-                                            // If sign in fails, display a message to the user.
-                                            Log.d("signupauth", "signInWithCredential:failefail");
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
-                                            signupPCNText.setText("인증에 실패했습니다. 인증하기를 다시 시도해주세요");
-                                            // ...
-                                        }
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                typesmsCode = phonecheckEditText.getText().toString();
+                Log.d("code is", "sms code" + typesmsCode);
+                if (typesmsCode.length() == 6){
+                    PhoneAuthCredential credential = PhoneAuthProvider.getCredential(getverificationId, typesmsCode);
+                    Task<AuthResult> result = auth.signInWithCredential(credential)
+                            .addOnCompleteListener(AccountFix.this, new OnCompleteListener<AuthResult>() {
+                                @Override
+                                public void onComplete(@NonNull Task<AuthResult> task) {
+                                    if (task.isSuccessful()) {
+                                        // Sign in success, update UI with the signed-in user's information
+                                        FirebaseUser user = task.getResult().getUser();
+                                        Log.d("signupauth", "signInWithCredential:success");
+                                        CDT.cancel();
+                                        signupPCNText.setText("인증이 완료되었습니다");
+                                        phone_check = true;
+                                    } else {
+                                        // If sign in fails, display a message to the user.
+                                        Log.d("signupauth", "signInWithCredential:failefail");
+
+                                        signupPCNText.setText("인증에 실패했습니다. 인증하기를 다시 시도해주세요");
+                                        // ...
                                     }
-                                });
-                    }
+                                }
+                            });
                 }
+
             }
         });
     }
@@ -249,7 +279,7 @@ public class AccountFix extends AppCompatActivity {
             try {
                 RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
                 String temp_name = v.getText().toString();
-                String requestURL = "https://surbay-server.herokuapp.com/names/duplicate?name=" + temp_name;
+                String requestURL = getString(R.string.server)+"/names/duplicate?name=" + temp_name;
                 JSONObject params = new JSONObject();
                 params.put("name", temp_name);
                 JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
@@ -260,9 +290,11 @@ public class AccountFix extends AppCompatActivity {
                                 Boolean success = nameObj.getBoolean("type");
                                 if (success) {
                                     check_name.setText("사용할 수 있는 닉네임입니다.");
+                                    name_checked = 2;
                                     check_name.setTextColor(getResources().getColor(R.color.blue));
                                 } else {
                                     check_name.setText("중복된 닉네임입니다.");
+                                    name_checked = 1;
                                     check_name.setTextColor(getResources().getColor(R.color.red));
                                 }
                             } catch (JSONException e) {
@@ -283,15 +315,13 @@ public class AccountFix extends AppCompatActivity {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        phonecheckEditText.setFocusable(false);
-        phonecheckEditText.setFocusable(true);
         return true;
     }
 
     private void phoneCheck() throws Exception{
         try {
             RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
-            String requestURL = "https://surbay-server.herokuapp.com/phonenumbers/duplicate?phoneNumber=" + phoneNumber;
+            String requestURL = getString(R.string.server)+"/phonenumbers/duplicate?phoneNumber=" + phoneNumber;
             JSONObject params = new JSONObject();
             params.put("phoneNumber", phoneNumber);
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
@@ -447,16 +477,24 @@ public class AccountFix extends AppCompatActivity {
         name = nameEditText.getText().toString();
 
         if(name.length()==0){
-            Toast.makeText(getApplicationContext(), "이름을 입력해주세요", Toast.LENGTH_SHORT).show();
+            Toast.makeText(AccountFix.this, "이름을 입력해주세요", Toast.LENGTH_SHORT).show();
             return false;
         }
 
+        if(name_checked == 0){
+            Toast.makeText(AccountFix.this, "중복 확인중입니다", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if(name_checked == 1){
+            Toast.makeText(AccountFix.this, "중복된 닉네임입니다.", Toast.LENGTH_SHORT).show();
+            return false;
+        }
         phoneNumber = phonenumberEditText.getText().toString();
 
         if (posyear != 0){
             yearBirth = Integer.valueOf(spinner_age.get(posyear));
         } else {
-            Toast.makeText(getApplicationContext(), "출생연도를 선택해주세요", Toast.LENGTH_SHORT).show();
+            Toast.makeText(AccountFix.this, "출생연도를 선택해주세요", Toast.LENGTH_SHORT).show();
             return false;
         }
 
@@ -465,12 +503,12 @@ public class AccountFix extends AppCompatActivity {
         } else if (MPressed == false && FPressed == true){
             gender = 1;
         } else {
-            Toast.makeText(getApplicationContext(), "성별을 선택해주세요", Toast.LENGTH_SHORT).show();
+            Toast.makeText(AccountFix.this, "성별을 선택해주세요", Toast.LENGTH_SHORT).show();
             return false;
         }
 
         if (!phone_check){
-            Toast.makeText(getApplicationContext(), "휴대폰 인증을 해주세요", Toast.LENGTH_SHORT).show();
+            Toast.makeText(AccountFix.this, "휴대폰 인증을 해주세요", Toast.LENGTH_SHORT).show();
             return false;
         }
 
@@ -486,22 +524,32 @@ public class AccountFix extends AppCompatActivity {
             params.put("gender", gender);
             params.put("yearBirth", yearBirth);
             params.put("phoneNumber", phoneNumber);
-            String requestURL = "https://surbay-server.herokuapp.com/personalinfo";
+            String requestURL = getString(R.string.server)+"/personalinfo";
             RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
             JsonObjectRequest jsonObjectRequest= new JsonObjectRequest
                     (Request.Method.PUT, requestURL, params, response -> {
                         try {
                             JSONObject res = new JSONObject(response.toString());
                             Log.d("response is", ""+response);
-                            UserPersonalInfo.name = name;
-                            UserPersonalInfo.gender = gender;
-                            UserPersonalInfo.yearBirth = yearBirth;
-                            UserPersonalInfo.phoneNumber = phoneNumber;
+                            Boolean success = res.getBoolean("type");
+                            if(success) {
+                                UserPersonalInfo.name = name;
+                                UserPersonalInfo.gender = gender;
+                                UserPersonalInfo.yearBirth = yearBirth;
+                                UserPersonalInfo.phoneNumber = phoneNumber;
 
-                            SharedPreferences auto = getSharedPreferences("auto", Activity.MODE_PRIVATE);
-                            SharedPreferences.Editor autoLogin = auto.edit();
-                            autoLogin.putString("name", name);
-                            autoLogin.commit();
+                                SharedPreferences auto = getSharedPreferences("auto", Activity.MODE_PRIVATE);
+                                SharedPreferences.Editor autoLogin = auto.edit();
+                                autoLogin.putString("name", name);
+                                autoLogin.commit();
+                                setResult(RESULT_OK);
+                                finish();
+                                Toast.makeText(AccountFix.this, "회원정보가 변경되었습니다.", Toast.LENGTH_SHORT).show();
+                            }
+                            else{
+                                Toast.makeText(AccountFix.this, "오류가 발생하였습니다", Toast.LENGTH_SHORT).show();
+
+                            }
                         } catch (JSONException e) {
                             Log.d("exception", "JSON error");
                             e.printStackTrace();

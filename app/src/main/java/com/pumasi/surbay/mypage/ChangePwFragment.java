@@ -45,6 +45,7 @@ public class ChangePwFragment extends Fragment {
     String password;
     String phone;
 
+
     public static ChangePwFragment newInstance() {
         return new ChangePwFragment();
     }
@@ -175,7 +176,7 @@ public class ChangePwFragment extends Fragment {
 
 
     private void updatePw(String newpassword) throws Exception{
-        String requestURL = "https://surbay-server.herokuapp.com/api/users/changepassword?phoneNumber=" + FindIdActivity.phone;
+        String requestURL = getString(R.string.server)+"/api/users/changepassword?phoneNumber=" + FindIdActivity.phone;
         try{
             RequestQueue requestQueue = Volley.newRequestQueue((AppCompatActivity)getActivity());
             JSONObject params = new JSONObject();

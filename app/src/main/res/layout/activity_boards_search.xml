@@ -13,12 +13,22 @@
         android:paddingHorizontal="10dp"
         android:layout_marginTop="10dp"
         >
+        <ImageButton
+            android:id="@+id/go_back_search"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@drawable/leftarrow2"
+
+            android:layout_centerVertical="true"
+            android:layout_alignParentLeft="true">
+
+        </ImageButton>
         <Spinner
             android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:id="@+id/search_spinner"
             android:layout_centerVertical="true"
-            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="20dp"
             android:padding="0dp"
             android:spinnerMode="dropdown"/>
         <LinearLayout
@@ -37,6 +47,7 @@
             android:layout_toRightOf="@id/search_spinner"
             android:layout_toLeftOf="@id/boards_enter_button"
             android:hint="설문 제목, 내용을 입력하세요"
+            android:textSize="18dp"
             android:textColorHint="@color/gray"
             android:lines="1"
             android:imeOptions="actionDone"/>

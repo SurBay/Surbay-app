@@ -70,6 +70,7 @@ import java.util.Map;
 public class WriteActivity extends AppCompatActivity {
     static final int NEWPOST = 1;
     static final int FIX_DONE = 3;
+    static final int CHECK = 2;
     private InputMethodManager imm;
 
     TextView writeBack;
@@ -225,7 +226,9 @@ public class WriteActivity extends AppCompatActivity {
                 if (url.contains("docs.google.com") || url.contains("forms.gle")){
                     Intent newIntent = new Intent(getApplicationContext(), SurveyWebActivity.class);
                     newIntent.putExtra("url", url);
+                    newIntent.putExtra("requestCode", CHECK);
                     startActivity(newIntent);
+                    startActivityForResult(newIntent, CHECK);
                 } else {
                     AlertDialog.Builder builder = new AlertDialog.Builder(WriteActivity.this);
                     dialog = builder.setMessage("제공하지 않는 url입니다")
@@ -375,7 +378,7 @@ public class WriteActivity extends AppCompatActivity {
     public void postPost(String title, String author, Integer author_lvl, String content,
                          Integer participants, Integer goal_participants, String url, Date date,
                          Date deadline, Boolean with_prize, String prize, Integer est_time,
-                         String target, Integer count, ArrayList<Reply> comments, boolean done, ArrayList<Uri> images) {
+                         String target, Integer count, ArrayList<Reply> comments, boolean done, ArrayList<Uri> images, String author_userid) {
         String requestURL = getString(R.string.server)+"/api/posts/";
         VolleyMultipartRequest volleyMultipartRequest = new VolleyMultipartRequest(Request.Method.POST, requestURL,
                 response -> {
@@ -383,7 +386,7 @@ public class WriteActivity extends AppCompatActivity {
                         Log.d("response is", ""+new String(response.data));
                         JSONObject resultObj = new JSONObject(new String(response.data));
                         String id = resultObj.getString("id");
-                        Post item = new Post(id, title, author, author_lvl, content, participants, goal_participants, url, date, deadline, with_prize, prize, est_time, target, count, new ArrayList<Reply>(), false, 0, new ArrayList<String>(), new ArrayList<String>(), false);
+                        Post item = new Post(id, title, author, author_lvl, content, participants, goal_participants, url, date, deadline, with_prize, prize, est_time, target, count, new ArrayList<Reply>(), false, 0, new ArrayList<String>(), new ArrayList<String>(), false, author_userid);
                         MainActivity.postArrayList.add(item);
                         Log.d("response id", id);
                         Intent intent = new Intent(WriteActivity.this, BoardFragment1.class);
@@ -675,12 +678,12 @@ public class WriteActivity extends AppCompatActivity {
                 }
                 else {
                     if (purpose == 1) {
-                        Post addedpost = new Post(null, title, author, author_lvl, content, participants, goalParticipants, url, date, deadline, with_prize, prize, est_time, target, count, new ArrayList<Reply>(), false, 0, new ArrayList<String>(), new ArrayList<String>(), false);
+                        Post addedpost = new Post(null, title, author, author_lvl, content, participants, goalParticipants, url, date, deadline, with_prize, prize, est_time, target, count, new ArrayList<Reply>(), false, 0, new ArrayList<String>(), new ArrayList<String>(), false, UserPersonalInfo.userID);
 
                         Log.d("date formatted", formatter.format(deadline));
                         try {
                             Log.d("author is ", "author" + author);
-                            postPost(title, author, author_lvl, content, participants, goalParticipants, url, date, deadline, with_prize, prize, est_time, target, count, new ArrayList<Reply>(), false, image_uris);
+                            postPost(title, author, author_lvl, content, participants, goalParticipants, url, date, deadline, with_prize, prize, est_time, target, count, new ArrayList<Reply>(), false, image_uris, UserPersonalInfo.userID);
                         } catch (Exception e) {
                             e.printStackTrace();
                             Intent intent = new Intent(WriteActivity.this, BoardFragment1.class);

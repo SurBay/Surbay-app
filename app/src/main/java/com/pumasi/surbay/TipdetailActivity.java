@@ -70,7 +70,7 @@ public class TipdetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tipdetail);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
-        getSupportActionBar().setDisplayShowCustomEnabled(true);
+//        getSupportActionBar().setDisplayShowCustomEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         Intent intent = getIntent();
@@ -195,18 +195,18 @@ public class TipdetailActivity extends AppCompatActivity {
     }
 
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater menuInflater = getMenuInflater();
-        menuInflater.inflate(R.menu.post_detail_bar, menu);
-        menu.getItem(0).setVisible(false);
-        menu.getItem(1).setVisible(false);
-        menu.getItem(2).setVisible(false);
-
-        menu.getItem(3).setVisible(true);
-        menu.getItem(4).setVisible(true);
-        return super.onCreateOptionsMenu(menu);
-    }
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        MenuInflater menuInflater = getMenuInflater();
+//        menuInflater.inflate(R.menu.post_detail_bar, menu);
+//        menu.getItem(0).setVisible(false);
+//        menu.getItem(1).setVisible(false);
+//        menu.getItem(2).setVisible(false);
+//
+//        menu.getItem(3).setVisible(true);
+//        menu.getItem(4).setVisible(true);
+//        return super.onCreateOptionsMenu(menu);
+//    }
 
     @Override
     public void onBackPressed() {

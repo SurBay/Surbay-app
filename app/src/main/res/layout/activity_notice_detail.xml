@@ -3,15 +3,16 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:paddingHorizontal="40dp">
+    android:orientation="vertical">
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:paddingVertical="20dp"
+        android:paddingVertical="15dp"
+        android:paddingHorizontal="17dp"
         >
         <ImageView
+
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:src="@drawable/leftarrow2"
@@ -24,6 +25,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
+        android:paddingHorizontal="40dp"
         >
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/notice_detail_date"
@@ -48,6 +50,7 @@
             android:textColor="@color/text_gray"/>
     </LinearLayout>
     <androidx.appcompat.widget.AppCompatTextView
+        android:paddingHorizontal="40dp"
         android:id="@+id/notice_detail_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -57,6 +60,7 @@
         android:textSize="24dp"
         android:textColor="@color/black"/>
     <androidx.appcompat.widget.AppCompatTextView
+        android:paddingHorizontal="40dp"
         android:id="@+id/notice_detail_content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

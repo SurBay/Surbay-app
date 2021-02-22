@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.text.Editable;
@@ -42,6 +43,8 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthOptions;
 import com.google.firebase.auth.PhoneAuthProvider;
+import com.pumasi.surbay.classfile.UserPersonalInfo;
+import com.pumasi.surbay.mypage.AccountFix;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -157,30 +160,21 @@ public class SignupActivity extends AppCompatActivity {
             }
         });
 
-        useridEditText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (!hasFocus) {
-                    check_id.setVisibility(View.VISIBLE);
-                    check_id.setText("중복 확인 중입니다.");
-                    check_id.setTextColor(getResources().getColor(R.color.red));
-                    try {
-                        idCheck((EditText)v);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        });
         useridEditText.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {            }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {            }
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
             @Override
             public void afterTextChanged(Editable s) {
-                check_id.setVisibility(View.GONE);
-                check_name.setTextColor(getResources().getColor(R.color.red));
+                check_id.setVisibility(View.VISIBLE);
+                check_id.setText("중복 확인 중입니다.");
+                check_id.setTextColor(getResources().getColor(R.color.red));
+                try {
+                    idCheck(useridEditText);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         });
 
@@ -208,56 +202,50 @@ public class SignupActivity extends AppCompatActivity {
         userage.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                Log.d("press", "pressed "+ usersex_M.isPressed() + usersex_F.isPressed() + MPressed + FPressed);
+                usersex_M.setBackground(getDrawable(R.drawable.sexselector));
+                usersex_F.setBackground(getDrawable(R.drawable.sexselector));
+                if(MPressed) usersex_M.setPressed(true);
+                else if(FPressed) usersex_F.setPressed(true);
                 posyear = position;
             }
-
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-
+                Log.d("pres2", "pressed "+ usersex_M.isPressed() + usersex_F.isPressed()+ MPressed + FPressed);
+                usersex_M.setBackground(getDrawable(R.drawable.sexselector));
+                usersex_F.setBackground(getDrawable(R.drawable.sexselector));
+                if(MPressed) usersex_M.setPressed(true);
+                else if(FPressed) usersex_F.setPressed(true);
             }
         });
-
-        nameEditText.setOnFocusChangeListener(new View.OnFocusChangeListener(){
+        userage.setOnTouchListener(new View.OnTouchListener() { //스피너 누를시 버튼 눌림 해제되는 버그때문에 넣음
             @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (!hasFocus) {
-                    check_name.setVisibility(View.VISIBLE);
-                    check_name.setText("중복 확인 중입니다.");
-                    check_name.setTextColor(getResources().getColor(R.color.red));
-                    try {
-                        nameCheck((EditText)v);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                Log.d("press3", "pressed "+ usersex_M.isPressed() + usersex_F.isPressed()+ MPressed + FPressed);
+                if(MPressed) usersex_M.setBackgroundColor(Color.parseColor("#3AD1BF"));
+                else if(FPressed) usersex_F.setBackgroundColor(Color.parseColor("#3AD1BF"));
+                return false;
             }
         });
+
         nameEditText.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {            }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {            }
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
             @Override
             public void afterTextChanged(Editable s) {
-                check_name.setVisibility(View.GONE);
+                check_name.setVisibility(View.VISIBLE);
+                check_name.setText("중복 확인 중입니다.");
                 check_name.setTextColor(getResources().getColor(R.color.red));
-            }
-        });
-
-        passwordEditText.setOnFocusChangeListener(new View.OnFocusChangeListener(){
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (!hasFocus) {
-                    String pw = passwordEditText.getText().toString();
-                    if (pw.length() < 6 || !pwChk(pw)){
-                        pwchecklength.setVisibility(View.VISIBLE);
-                        pwchecklength.setTextColor(getResources().getColor(R.color.red));
-                    } else {
-                        pwchecklength.setVisibility(View.GONE);
-                    }
+                try {
+                    nameCheck(nameEditText);
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
         });
+
         passwordEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {            }
@@ -265,24 +253,12 @@ public class SignupActivity extends AppCompatActivity {
             public void onTextChanged(CharSequence s, int start, int before, int count) {            }
             @Override
             public void afterTextChanged(Editable s) {
-                pwchecklength.setVisibility(View.GONE);
-            }
-        });
-
-        passwordcheckEditText.setOnFocusChangeListener(new View.OnFocusChangeListener(){
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (!hasFocus) {
-                    if (passwordcheckEditText.getText().toString().length() > 0){
-                        if (passwordEditText.getText().toString().equals(passwordcheckEditText.getText().toString())){
-                            pwcheckword.setVisibility(View.GONE);
-                            pwcheckword.setTextColor(getResources().getColor(R.color.red));
-                        } else {
-                            pwcheckword.setText("비밀번호가 불일치합니다");
-                            pwcheckword.setTextColor(getResources().getColor(R.color.red));
-                            pwcheckword.setVisibility(View.VISIBLE);
-                        }
-                    }
+                String pw = passwordEditText.getText().toString();
+                if (pw.length() < 6 || !pwChk(pw)){
+                    pwchecklength.setVisibility(View.VISIBLE);
+                    pwchecklength.setTextColor(getResources().getColor(R.color.red));
+                } else {
+                    pwchecklength.setVisibility(View.GONE);
                 }
             }
         });
@@ -293,9 +269,19 @@ public class SignupActivity extends AppCompatActivity {
             public void onTextChanged(CharSequence s, int start, int before, int count) {            }
             @Override
             public void afterTextChanged(Editable s) {
-                pwcheckword.setVisibility(View.GONE);
+                if (passwordcheckEditText.getText().toString().length() > 0){
+                    if (passwordEditText.getText().toString().equals(passwordcheckEditText.getText().toString())){
+                        pwcheckword.setVisibility(View.GONE);
+                        pwcheckword.setTextColor(getResources().getColor(R.color.red));
+                    } else {
+                        pwcheckword.setText("비밀번호가 불일치합니다");
+                        pwcheckword.setTextColor(getResources().getColor(R.color.red));
+                        pwcheckword.setVisibility(View.VISIBLE);
+                    }
+                }
             }
         });
+
 
         usersex_M.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -323,12 +309,14 @@ public class SignupActivity extends AppCompatActivity {
         phone_checkTextview.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String phone = phonenumberEditText.getText().toString();
+                phoneNumber = phonenumberEditText.getText().toString();
 
-                if (phone.length() == 11){
-                    String realphone = "+82"+phone.substring(1);
-                    Log.d("phone", "num is "+ realphone);
-                    PhoneAuth(realphone);
+                if (phoneNumber.length() == 11){
+                    try {
+                        phoneCheck();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
                 else{
                     Toast.makeText(SignupActivity.this, "휴대폰 번호를 확인해주세요", Toast.LENGTH_SHORT);
@@ -337,38 +325,41 @@ public class SignupActivity extends AppCompatActivity {
             }
         });
 
-        phonecheckEditText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        passwordcheckEditText.addTextChangedListener(new TextWatcher() {
             @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (!hasFocus){
-                    typesmsCode = phonecheckEditText.getText().toString();
-                    Log.d("code is", "sms code" + typesmsCode);
-                    if (typesmsCode.length() == 6){
-                        PhoneAuthCredential credential = PhoneAuthProvider.getCredential(getverificationId, typesmsCode);
-                        Task<AuthResult> result = auth.signInWithCredential(credential)
-                                .addOnCompleteListener(SignupActivity.this, new OnCompleteListener<AuthResult>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<AuthResult> task) {
-                                        if (task.isSuccessful()) {
-                                            // Sign in success, update UI with the signed-in user's information
-                                            FirebaseUser user = task.getResult().getUser();
-                                            Log.d("signupauth", "signInWithCredential:success");
-                                            CDT.cancel();
-                                            signupPCNText.setText("인증이 완료되었습니다");
-                                            phone_check = true;
-                                        } else {
-                                            // If sign in fails, display a message to the user.
-                                            Log.d("signupauth", "signInWithCredential:failefail");
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {            }
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {            }
+            @Override
+            public void afterTextChanged(Editable s) {
+                typesmsCode = phonecheckEditText.getText().toString();
+                Log.d("code is", "sms code" + typesmsCode);
+                if (typesmsCode.length() == 6){
+                    PhoneAuthCredential credential = PhoneAuthProvider.getCredential(getverificationId, typesmsCode);
+                    Task<AuthResult> result = auth.signInWithCredential(credential)
+                            .addOnCompleteListener(SignupActivity.this, new OnCompleteListener<AuthResult>() {
+                                @Override
+                                public void onComplete(@NonNull Task<AuthResult> task) {
+                                    if (task.isSuccessful()) {
+                                        // Sign in success, update UI with the signed-in user's information
+                                        FirebaseUser user = task.getResult().getUser();
+                                        Log.d("signupauth", "signInWithCredential:success");
+                                        CDT.cancel();
+                                        signupPCNText.setText("인증이 완료되었습니다");
+                                        phone_check = true;
+                                    } else {
+                                        // If sign in fails, display a message to the user.
+                                        Log.d("signupauth", "signInWithCredential:failefail");
 
-                                            signupPCNText.setText("인증에 실패했습니다. 인증하기를 다시 시도해주세요");
-                                            // ...
-                                        }
+                                        signupPCNText.setText("인증에 실패했습니다. 인증하기를 다시 시도해주세요");
+                                        // ...
                                     }
-                                });
-                    }
+                                }
+                            });
                 }
             }
         });
+
     }
 
     private void makeSignupRequest(String name, String email, String username, String password, Integer gender, Integer yearBirth, String phoneNumber) throws Exception{
@@ -528,8 +519,7 @@ public class SignupActivity extends AppCompatActivity {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        phonecheckEditText.setFocusable(false);
-        phonecheckEditText.setFocusable(true);
+        if(getCurrentFocus()!=null)imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
         return true;
     }
 
@@ -623,7 +613,7 @@ public class SignupActivity extends AppCompatActivity {
         name = nameEditText.getText().toString();
 
         if(name.length()==0){
-            Toast.makeText(getApplicationContext(), "이름을 입력해주세요", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "닉네임을 입력해주세요", Toast.LENGTH_SHORT).show();
             return false;
         }
 
@@ -668,5 +658,55 @@ public class SignupActivity extends AppCompatActivity {
         }
 
         return true;
+    }
+    private void phoneCheck() throws Exception{
+        try {
+            RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
+            String requestURL = getString(R.string.server)+"/phonenumbers/duplicate?phoneNumber=" + phoneNumber;
+            JSONObject params = new JSONObject();
+            params.put("phoneNumber", phoneNumber);
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                    (Request.Method.GET, requestURL, params, response -> {
+                        Log.d("response is", "" + response);
+                        try {
+                            JSONObject nameObj = new JSONObject(response.toString());
+                            Boolean success = nameObj.getBoolean("type");
+                            if (success) {
+                                String realphone = "+82"+phoneNumber.substring(1);
+                                Log.d("phone", "num is "+ realphone);
+                                PhoneAuth(realphone);
+                            } else {
+                                if(nameObj.getString("message").startsWith("number")) {
+                                    AlertDialog.Builder builder = new AlertDialog.Builder(SignupActivity.this);
+                                    AlertDialog dialog = builder.setMessage("이미 가입된 전화번호입니다")
+                                            .setNegativeButton("확인", new DialogInterface.OnClickListener() {
+                                                @Override
+                                                public void onClick(DialogInterface dialog, int which) {
+                                                    dialog.cancel();
+                                                }
+                                            })
+                                            .create();
+                                    dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                                        @SuppressLint("ResourceAsColor")
+                                        @Override
+                                        public void onShow(DialogInterface arg0) {
+                                            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(R.color.black);
+                                        }
+                                    });
+                                    dialog.show();
+                                }
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }, error -> {
+                        Log.d("exception", "volley error");
+                        error.printStackTrace();
+                    });
+            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            requestQueue.add(jsonObjectRequest);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

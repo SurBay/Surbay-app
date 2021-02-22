@@ -43,6 +43,7 @@ public class BoardsSearchActivity extends AppCompatActivity {
     EditText search_editview;
     ImageButton search_enter;
     Spinner search_spinner;
+    ImageButton back;
 
     static ListViewAdapter search_SurveyAdapter;
     static NonSurveyListViewAdapter search_NonsurveyAdapter;
@@ -82,6 +83,14 @@ public class BoardsSearchActivity extends AppCompatActivity {
         search_SurveyAdapter = new ListViewAdapter(search_list_post);
         search_listview.setAdapter(search_SurveyAdapter);
 
+        back = findViewById(R.id.go_back_search);
+        back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+
         search_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -113,28 +122,15 @@ public class BoardsSearchActivity extends AppCompatActivity {
             }
 
             @Override
-            public void afterTextChanged(Editable s) { search_enter.setVisibility(View.VISIBLE);
-            }
-        });
-
-        search_editview.setOnKeyListener(new View.OnKeyListener() {
-            @Override
-            public boolean onKey(View v, int keyCode, KeyEvent event) {
-                switch (keyCode){
-                    case KeyEvent.KEYCODE_ENTER:
-                        selected_spinner = selecting_spinner;
-                        String search_keyword = search_editview.getText().toString();
-                        if (search_keyword.length() > 0 ){
-                            Log.d("search", " " + search_keyword);
-                            search_list_post = new ArrayList<Post>();
-                            search_list_postNon = new ArrayList<PostNonSurvey>();
-                            do_search(search_keyword);
-                        }
-                        break;
-                    default:
-                        return false;
-                }
-                return true;
+            public void afterTextChanged(Editable s) {
+                selected_spinner = selecting_spinner;
+                String search_keyword = search_editview.getText().toString();
+                if (search_keyword.length() > 0 ){
+                    Log.d("search", " " + search_keyword);
+                    search_list_post = new ArrayList<Post>();
+                    search_list_postNon = new ArrayList<PostNonSurvey>();
+                    do_search(search_keyword);
+                };
             }
         });
 

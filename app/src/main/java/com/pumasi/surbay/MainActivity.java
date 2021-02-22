@@ -73,7 +73,6 @@ public class MainActivity extends AppCompatActivity {
         if(postArrayList.size() == 0 || finishpostArrayList.size() == 0) {
             try {
                 getPosts();
-
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -270,6 +269,7 @@ public class MainActivity extends AppCompatActivity {
                                 Boolean done = post.getBoolean("done");
                                 Boolean hide = post.getBoolean("hide");
                                 Integer extended = post.getInt("extended");
+                                String author_userid = post.getString("author_userid");
                                 if(with_prize) {
                                     prize = post.getString("prize");
                                     count = post.getInt("num_prize");
@@ -303,8 +303,8 @@ public class MainActivity extends AppCompatActivity {
                                             } catch (ParseException e) {
                                                 e.printStackTrace();
                                             }
-                                            Boolean replyhide = post.getBoolean("hide");
-                                            JSONArray ua = (JSONArray)post.get("reports");
+                                            Boolean replyhide = reply.getBoolean("hide");
+                                            JSONArray ua = (JSONArray)reply.get("reports");
 
                                             ArrayList<String> replyreports = new ArrayList<String>();
                                             for (int u = 0; u<ua.length(); u++){
@@ -323,7 +323,7 @@ public class MainActivity extends AppCompatActivity {
                                     e.printStackTrace();
                                     Log.d("parsing date", "non reply");
                                 }
-                                Post newPost = new Post(id, title, author, author_lvl, content, participants, goal_participants, url, date, deadline, with_prize, prize, est_time, target, count,comments,done, extended, participants_userids, reports, hide);
+                                Post newPost = new Post(id, title, author, author_lvl, content, participants, goal_participants, url, date, deadline, with_prize, prize, est_time, target, count,comments,done, extended, participants_userids, reports, hide, author_userid);
                                 Log.d("start app", "newpost comments"+newPost.getComments().size()+"");
                                 if (!newPost.isDone()) {
                                     if(reports.contains(UserPersonalInfo.userID) || hide) {

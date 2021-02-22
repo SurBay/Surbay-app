@@ -180,7 +180,7 @@ public class TipWriteActivity extends AppCompatActivity {
 
         if (title.getBytes().length <= 0 || content.getBytes().length <= 0 || category.getBytes().length <= 0){
             AlertDialog.Builder bu = new AlertDialog.Builder(TipWriteActivity.this);
-            dialog = bu.setMessage("모든 값들을 입력해주세요")
+            dialog = bu.setMessage("입력되지 않은 정보가 있습니다")
                     .setNegativeButton("확인", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {

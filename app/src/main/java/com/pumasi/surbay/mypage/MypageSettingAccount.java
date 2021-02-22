@@ -187,6 +187,7 @@ public class MypageSettingAccount extends AppCompatActivity {
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode==40 && resultCode==RESULT_OK){
+
             id.setText(UserPersonalInfo.userID);
             name.setText(UserPersonalInfo.name);
             phone.setText(UserPersonalInfo.phoneNumber);
@@ -202,7 +203,7 @@ public class MypageSettingAccount extends AppCompatActivity {
     private void deletePersonalInfo() {
         String token = UserPersonalInfo.token;
         try{
-            String requestURL = "https://surbay-server.herokuapp.com/api/users/delete";
+            String requestURL = getString(R.string.server)+"/api/users/delete";
             RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
             JsonObjectRequest jsonObjectRequest= new JsonObjectRequest
                     (Request.Method.DELETE, requestURL, null, response -> {

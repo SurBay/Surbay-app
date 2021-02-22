@@ -86,13 +86,21 @@ public class ListViewAdapter extends BaseAdapter {
         contentTextView.setText(post.getTarget());
         dateTextView.setText(date+"~"+deadline);
 
-        if (UserPersonalInfo.userID.equals(post.getAuthor())){
-            background.setBackgroundResource(R.drawable.round_border_gray_list);
-        }
-        if (UserPersonalInfo.participations.contains(post.getID())){
+        if (UserPersonalInfo.participations.contains(post.getID()) && !UserPersonalInfo.userID.equals(post.getAuthor_userid())){
             background.setBackgroundResource(R.drawable.round_border_gray_list);
             DoneView.setVisibility(View.VISIBLE);
+        }else{
+            background.setBackgroundResource(R.drawable.round_border_teal_list);
+            DoneView.setVisibility(View.GONE);
         }
+        if (UserPersonalInfo.userID.equals(post.getAuthor_userid())){
+            background.setBackgroundResource(R.drawable.round_border_gray_list);
+            DoneView.setVisibility(View.GONE);
+        }else{
+            background.setBackgroundResource(R.drawable.round_border_teal_list);
+            DoneView.setVisibility(View.GONE);
+        }
+
 
         authornameTextView.setText(post.getAuthor());
         participantsTextView.setText(post.getParticipants().toString());

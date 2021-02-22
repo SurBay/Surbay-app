@@ -46,7 +46,6 @@ public class BoardFragment2 extends Fragment {
     public static ListView listView;
     private View view;
     TextView writeButton;
-    private int intentposition;
     private SwipeRefreshLayout refreshLayout;
     ArrayList<Surveytip> list;
 
@@ -75,10 +74,9 @@ public class BoardFragment2 extends Fragment {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                intentposition = position;
-                Surveytip item = (Surveytip) listViewAdapter.getItem(intentposition);
+                Surveytip item = (Surveytip) listViewAdapter.getItem(position);
                 String tipid = item.getID();
-                getSurveyTip(tipid);
+                getSurveyTip(tipid, position);
 
             }
         });
@@ -149,7 +147,7 @@ public class BoardFragment2 extends Fragment {
         }
 
     }
-    private void getSurveyTip(String id) {
+    private void getSurveyTip(String id, int position) {
         try{
             String requestURL = getString(R.string.server) + "/api/surveytips/getsurveytip/"+ id;
             RequestQueue requestQueue = Volley.newRequestQueue(getActivity().getApplicationContext());
@@ -183,7 +181,7 @@ public class BoardFragment2 extends Fragment {
                             Surveytip surveytip = new Surveytip(tip_id, title, author, author_lvl, content,  date, category, likes, liked_users);
                             Intent intent = new Intent(((AppCompatActivity) getActivity()).getApplicationContext(), TipdetailActivity.class);
                             intent.putExtra("post", surveytip);
-                            intent.putExtra("position", intentposition);
+                            intent.putExtra("position", position);
                             startActivityForResult(intent, LIKE_SURVEY);
 
 

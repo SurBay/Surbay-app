@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -14,9 +15,11 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -31,6 +34,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.view.ContextThemeWrapper;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
@@ -60,6 +64,7 @@ public class PostDetailActivity extends AppCompatActivity {
     static final int NOT_DONE = 0;
     static final int FIX = 2;
     static final int FIX_DONE = 3;
+    static final int REPORTED = 5;
 
     private TextView participants;
     private TextView participants_percent;
@@ -149,7 +154,7 @@ public class PostDetailActivity extends AppCompatActivity {
         loading_detail(post);
         replyArrayList = post.getComments();
         Log.d("comments size", post.getComments().size()+"");
-        detail_reply_Adapter = new ReplyListViewAdapter(replyArrayList, post.getID());
+        detail_reply_Adapter = new ReplyListViewAdapter(replyArrayList, post);
         detail_reply_listView.setAdapter(detail_reply_Adapter);
 
         surveyButton.setOnClickListener(
@@ -172,6 +177,9 @@ public class PostDetailActivity extends AppCompatActivity {
                 String reply = reply_enter.getText().toString();
                 if (reply.length() > 0 ){
                     postReply(reply);
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+                    reply_enter.setText(null);
                 }
             }
         });
@@ -221,15 +229,22 @@ public class PostDetailActivity extends AppCompatActivity {
                         Log.d("response is", ""+response);
                         try {
                             JSONObject resultObj = new JSONObject(response.toString());
-                            String id = resultObj.getString("id");
-                            Reply re = new Reply(id, UserPersonalInfo.userID, reply, date, new ArrayList<>(), false);
-                            replyArrayList.add(re);
-                            detail_reply_Adapter.addItem(re);
+                            Boolean success = resultObj.getBoolean("type");
+                            if(success) {
+                                String id = resultObj.getString("id");
+                                Reply re = new Reply(id, UserPersonalInfo.userID, reply, date, new ArrayList<>(), false);
+                                detail_reply_Adapter.addItem(re);
+                            }
+                            else{
+                                Toast.makeText(PostDetailActivity.this, "오류가 발생했습니다", Toast.LENGTH_SHORT).show();
+                            }
                         } catch (JSONException e) {
+                            Toast.makeText(PostDetailActivity.this, "오류가 발생했습니다", Toast.LENGTH_SHORT).show();
                             e.printStackTrace();
                         }
                     }, error -> {
                         Log.d("exception", "volley error");
+                        Toast.makeText(PostDetailActivity.this, "오류가 발생했습니다", Toast.LENGTH_SHORT).show();
                         error.printStackTrace();
                     });
             jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
@@ -239,6 +254,14 @@ public class PostDetailActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        if(getCurrentFocus()!=null)imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+        return true;
+    }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -251,6 +274,7 @@ public class PostDetailActivity extends AppCompatActivity {
                     updateParticipants(updatedParticipants);
                     surveyButton.setClickable(false);
                     surveyButton.setText("이미 참여한 설문입니다");
+                    surveyButton.setBackgroundColor(getColor(R.color.nav_gray));
                     Intent resultIntent = new Intent(getApplicationContext(), BoardFragment1.class);
                     resultIntent.putExtra("position", position);
                     resultIntent.putExtra("participants", updatedParticipants);
@@ -393,13 +417,11 @@ public class PostDetailActivity extends AppCompatActivity {
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
                     (Request.Method.PUT, requestURL, params, response -> {
                         Log.d("response is", "" + response);
-                        MainActivity.postArrayList.remove(position);
+                        Intent intent = new Intent(PostDetailActivity.this, BoardFragment1.class);
+                        setResult(REPORTED, intent);
+                        intent.putExtra("position", position);
+                        Toast.makeText(PostDetailActivity.this, "설문이 신고되었습니다", Toast.LENGTH_SHORT).show();
                         finish();
-                        try {
-                            MainActivity.getPosts();
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
                     }, error -> {
                         Log.d("exception", "volley error");
                         error.printStackTrace();
@@ -416,7 +438,8 @@ public class PostDetailActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater menuInflater = getMenuInflater();
         menuInflater.inflate(R.menu.post_detail_bar, menu);
-        if (UserPersonalInfo.userID.equals(post.getAuthor())){
+        Log.d("this is", "is it mine  "+UserPersonalInfo.userID+ post.getAuthor_userid()+UserPersonalInfo.userID.equals(post.getAuthor_userid()));
+        if (UserPersonalInfo.userID.equals(post.getAuthor_userid())){
             menu.getItem(0).setVisible(false);
             menu.getItem(1).setVisible(false);
             menu.getItem(2).setVisible(false);
@@ -470,12 +493,13 @@ public class PostDetailActivity extends AppCompatActivity {
             surveyButton.setClickable(false);
             surveyButton.setText("마감되었습니다");
         } else {
-                if (post.getAuthor().equals(UserPersonalInfo.userID)){
+                if (UserPersonalInfo.userID.equals(post.getAuthor_userid())){
                     partilayout.setVisibility(View.GONE);
                     authorlayout.setVisibility(View.VISIBLE);
                 } else if (UserPersonalInfo.participations.contains(post.getID())){
                     surveyButton.setClickable(false);
                     surveyButton.setText("이미 참여한 설문입니다");
+                    surveyButton.setBackgroundColor(getColor(R.color.nav_gray));
 
             }
         }
@@ -603,11 +627,12 @@ public class PostDetailActivity extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(PostDetailActivity.this);
         LayoutInflater inflater = getLayoutInflater();
         View view = inflater.inflate(R.layout.share_dialog, null);
-        builder.setView(view);
+//        builder.setView(view);
+
 
         final ListView listview = (ListView)view.findViewById(R.id.listview_alterdialog_list);
         final AlertDialog dialog = builder.create();
-
+        dialog.setView(view, 0, 0, 0, 0);
         SimpleAdapter simpleAdapter = new SimpleAdapter(PostDetailActivity.this, dialogItemList,
                 R.layout.share_listitem,
                 new String[]{TAG_IMAGE, TAG_TEXT},

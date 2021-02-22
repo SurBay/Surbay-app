@@ -22,6 +22,7 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.pumasi.surbay.MainActivity;
 import com.pumasi.surbay.R;
+import com.pumasi.surbay.classfile.Post;
 import com.pumasi.surbay.classfile.Reply;
 import com.pumasi.surbay.classfile.UserPersonalInfo;
 
@@ -32,18 +33,19 @@ import java.util.ArrayList;
 
 public class ReplyListViewAdapter extends BaseAdapter {
     private ArrayList<Reply> listViewItemList = new ArrayList<Reply>();
-    private String postid;
+    private Post post;
     final private static String[] report = {"욕설","비하상업적 광고 및 판매낚시","놀람/도배/사기","게시판 성격에 부적절함기타"};
+    private Context context;
 
-    public ReplyListViewAdapter(ArrayList<Reply> listViewItemList, String postid) {
+    public ReplyListViewAdapter(ArrayList<Reply> listViewItemList, Post post) {
         this.listViewItemList = listViewItemList;
-        this.postid = postid;
+        this.post = post;
     }
 
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        final Context context = parent.getContext();
+        context = parent.getContext();
 
         // "listview_item" Layout을 inflate하여 convertView 참조 획득.
         if (convertView == null) {
@@ -72,7 +74,7 @@ public class ReplyListViewAdapter extends BaseAdapter {
                             .setPositiveButton("삭제", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which){
-                                    String requestURL = "https://surbay-server.herokuapp.com/api/posts/deletecomment/"+postid;
+                                    String requestURL = context.getString(R.string.server)+"/api/posts/deletecomment/"+post.getID();
                                     try{
                                         RequestQueue requestQueue = Volley.newRequestQueue(context);
                                         JSONObject params = new JSONObject();
@@ -125,14 +127,11 @@ public class ReplyListViewAdapter extends BaseAdapter {
                                     builder2.setItems(R.array.reportreason, new DialogInterface.OnClickListener() {
                                         @Override
                                         public void onClick(DialogInterface dialog, int which) {
-                                            listViewItemList.remove(position);
                                             try {
-                                                MainActivity.getPosts();
+                                                updateReplyReports(position, reply.getID());
                                             } catch (Exception e) {
                                                 e.printStackTrace();
                                             }
-                                            notifyDataSetChanged();
-                                            Toast.makeText(context, "신고 사유는 "+report[which], Toast.LENGTH_SHORT).show();
                                         }
                                     });
                                     Dialog dialog2 = builder2.create();
@@ -173,25 +172,26 @@ public class ReplyListViewAdapter extends BaseAdapter {
 
     @Override
     public long getItemId(int position) {return position;    }
-/*
-    private void updateReplyReports() throws Exception {
-        String requestURL = "http://ec2-3-35-152-40.ap-northeast-2.compute.amazonaws.com" + "/api/posts/report/" + postid;
+
+    private void updateReplyReports(int position, String comment_id) throws Exception {
+        String requestURL = context.getString(R.string.server) + "/api/posts/reportcomment/" + post.getID();
         try {
-            RequestQueue requestQueue = Volley.newRequestQueue(g);
+            RequestQueue requestQueue = Volley.newRequestQueue(context);
             JSONObject params = new JSONObject();
             params.put("userID", UserPersonalInfo.userID);
+            params.put("comment_id", comment_id);
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
                     (Request.Method.PUT, requestURL, params, response -> {
                         Log.d("response is", "" + response);
-                        if (post.getReports().size() == 3){
-                            post.setHide(true);
-                            MainActivity.postArrayList.set(position, post);
+                            listViewItemList.get(position).setHide(true);
+                            listViewItemList.remove(position);
+                            notifyDataSetChanged();
                             try {
                                 MainActivity.getPosts();
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
-                        }
+                            notifyDataSetChanged();
                     }, error -> {
                         Log.d("exception", "volley error");
                         error.printStackTrace();
@@ -202,5 +202,5 @@ public class ReplyListViewAdapter extends BaseAdapter {
             Log.d("exception", "failed posting");
             e.printStackTrace();
         }
-    }*/
+    }
 }

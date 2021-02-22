@@ -137,7 +137,7 @@
             android:id="@+id/pwchange_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="회원가입"
+            android:text="비밀번호 변경"
             android:textColor="@color/white"
             android:background="@drawable/round_border_teal_list"
             android:backgroundTint="@color/teal_200"

@@ -37,6 +37,7 @@ public class SurveyWebActivity extends AppCompatActivity {
     private WebView mWebView;
     static final int DONE = 1;
     static final int NOT_DONE = 0;
+    int requestCode;
     private class WebViewInterface
     {
         Context mContext;
@@ -81,6 +82,8 @@ public class SurveyWebActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true); //뒤로가기
 
         Intent intent = getIntent();
+
+        requestCode= intent.getIntExtra("requestCode", -1);
         mWebView = (WebView) findViewById(R.id.webview);//xml 자바코드 연결
         mWebView.getSettings().setJavaScriptEnabled(true);//자바스크립트 허용
         String url = intent.getStringExtra("url");
@@ -209,30 +212,34 @@ public class SurveyWebActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case android.R.id.home:{ //toolbar의 back키 눌렀을 때 동작
-                AlertDialog.Builder builder = new AlertDialog.Builder(SurveyWebActivity.this);
-                dialog = builder.setMessage("응답을 취소하겠습니까?")
-                        .setPositiveButton("확인", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                setResult(NOT_DONE);
-                                finish();
-                            }
-                        })
-                        .setNegativeButton("취소", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                            }
-                        })
-                        .create();
-                dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-                    @SuppressLint("ResourceAsColor")
-                    @Override
-                    public void onShow(DialogInterface arg0) {
-                        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(R.color.black);
-                        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(R.color.black);
-                    }
-                });
-                dialog.show();
+                if(requestCode==-1) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(SurveyWebActivity.this);
+                    dialog = builder.setMessage("응답을 취소하겠습니까?")
+                            .setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    setResult(NOT_DONE);
+                                    finish();
+                                }
+                            })
+                            .setNegativeButton("취소", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                }
+                            })
+                            .create();
+                    dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                        @SuppressLint("ResourceAsColor")
+                        @Override
+                        public void onShow(DialogInterface arg0) {
+                            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(R.color.black);
+                            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(R.color.black);
+                        }
+                    });
+                    dialog.show();
+                }else if(requestCode==2){
+                    finish();
+                }
 
                 return true;
             }
@@ -241,30 +248,32 @@ public class SurveyWebActivity extends AppCompatActivity {
     }
     @Override
     public void onBackPressed() {//뒤로가기 버튼 이벤트
-        AlertDialog.Builder builder = new AlertDialog.Builder(SurveyWebActivity.this);
-        dialog = builder.setMessage("응답을 취소하겠습니까?")
-                .setPositiveButton("확인", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        setResult(NOT_DONE);
-                        finish();
-                    }
-                })
-                .setNegativeButton("취소", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                })
-                .create();
-        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-            @SuppressLint("ResourceAsColor")
-            @Override
-            public void onShow(DialogInterface arg0) {
-                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(R.color.black);
-                dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(R.color.black);
-            }
-        });
-        dialog.show();
+        if(requestCode==-1) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(SurveyWebActivity.this);
+            dialog = builder.setMessage("응답을 취소하겠습니까?")
+                    .setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            setResult(NOT_DONE);
+                            finish();
+                        }
+                    })
+                    .setNegativeButton("취소", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                        }
+                    })
+                    .create();
+            dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                @SuppressLint("ResourceAsColor")
+                @Override
+                public void onShow(DialogInterface arg0) {
+                    dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(R.color.black);
+                    dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(R.color.black);
+                }
+            });
+            dialog.show();
+        }
     }
 
     private class WebViewClientClass extends WebViewClient {//페이지 이동

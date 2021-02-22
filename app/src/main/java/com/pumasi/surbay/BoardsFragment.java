@@ -29,11 +29,9 @@ public class BoardsFragment extends Fragment  {
     public static FragmentStateAdapter adapter;
     ImageButton boards_search_button;
 
-    @SuppressLint("RestrictedApi")
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_boards, container, false);
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setShowHideAnimationEnabled(false);
         ((AppCompatActivity) getActivity()).getSupportActionBar().hide();
         tabLayout = (TabLayout) view.findViewById(R.id.tabLayout);
 
@@ -78,7 +76,7 @@ public class BoardsFragment extends Fragment  {
         new TabLayoutMediator(tabLayout, viewPager,
                 (tab, position) -> {
                     if(position==0){
-                        tab.setText("서베이");
+                        tab.setText("SurBay");
                     }
                     else if(position==1){tab.setText("설문 TIP");}
                     else if(position==2){tab.setText("건의/의견");}
