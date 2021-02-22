@@ -4,6 +4,26 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:paddingVertical="5dp"
+        android:background="@color/white"
+        >
+        <ImageView
+            android:id="@+id/view"
+            android:layout_width="wrap_content"
+            android:layout_height="5dp"
+            android:background="@color/white"></ImageView>
+        <ImageView
+            android:layout_below="@+id/view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/surbay_logo_short"
+            android:scaleType="fitCenter"
+            android:gravity="center"
+            />
+    </RelativeLayout>
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"

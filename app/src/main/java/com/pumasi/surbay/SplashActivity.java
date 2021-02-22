@@ -48,7 +48,6 @@ public class SplashActivity extends AppCompatActivity {
                 Log.d("자동로그인", ""+loginId+loginPwd+name+token);
 
                 if(loginId !=null && loginPwd != null) {
-                    Toast.makeText(SplashActivity.this, name +"님 반갑습니다", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(SplashActivity.this, MainActivity.class);
                     UserPersonalInfo.token = token;
                     try {

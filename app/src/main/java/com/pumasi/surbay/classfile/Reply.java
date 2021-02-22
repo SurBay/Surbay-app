@@ -23,7 +23,9 @@ public class Reply implements Parcelable {
         this.id = id;
         this.writer = writer;
         this.content = content;
-        this.date = date;
+        Date seoul_date = date;
+        seoul_date.setTime(seoul_date.getTime()+(9*60*60*1000));
+        this.date = seoul_date;
         this.reports = new ArrayList<>(reports);
         this.hide = hide;
     }

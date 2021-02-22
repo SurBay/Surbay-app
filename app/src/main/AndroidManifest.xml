@@ -20,7 +20,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SurBay"
         android:usesCleartextTraffic="true">
-        <activity android:name=".FeedbackWrite"></activity>
+        <activity
+            android:name=".mypage.NotificationsActivity"
+            android:screenOrientation="portrait" />
+        <activity android:name=".FeedbackWrite"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".mypage.GiftDetailActivity"
             android:screenOrientation="portrait" />

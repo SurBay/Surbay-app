@@ -1,11 +1,13 @@
 package com.pumasi.surbay.adapter;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -58,7 +60,7 @@ public class ListViewAdapter extends BaseAdapter {
         ImageView withPrizeView = (ImageView) convertView.findViewById(R.id.with_prize);
         TextView DoneView = (TextView) convertView.findViewById(R.id.done);
         TextView ddayView = (TextView) convertView.findViewById(R.id.dday);
-        RelativeLayout background = (RelativeLayout)convertView.findViewById(R.id.list_item_background);
+        LinearLayout background = (LinearLayout)convertView.findViewById(R.id.list_item_background);
 
         // Data Set(listViewItemList)에서 position에 위치한 데이터 참조 획득
         SimpleDateFormat fm = new SimpleDateFormat("MM.dd");
@@ -66,16 +68,20 @@ public class ListViewAdapter extends BaseAdapter {
         String date = fm.format(post.getDate());
         String deadline = fm.format(post.getDeadline());
         int dday = calc_dday(post.getDeadline());
-
-        if (dday <= 2 && dday >= 0 ){
+        Date now = new Date();
+        if(now.after(post.getDeadline()) || post.isDone()){
+            ddayView.setVisibility(View.VISIBLE);
+            ddayView.setText("종료");
+        }else if (dday <= 3 && dday >= 0 ){
             if (dday==0){
                 ddayView.setVisibility(View.VISIBLE);
                 ddayView.setText("D-Day");
             } else {
                 ddayView.setVisibility(View.VISIBLE);
-                ddayView.setText("D-"+(dday+1));
+                ddayView.setText("D-"+dday);
             }
-        } else {
+        }
+        else {
             ddayView.setVisibility(View.INVISIBLE);
         }
 
@@ -84,7 +90,7 @@ public class ListViewAdapter extends BaseAdapter {
         }
         titleTextView.setText(post.getTitle());
         contentTextView.setText(post.getTarget());
-        dateTextView.setText(date+"~"+deadline);
+        dateTextView.setText(date+" - "+deadline);
 
         if (UserPersonalInfo.participations.contains(post.getID()) && !UserPersonalInfo.userID.equals(post.getAuthor_userid())){
             background.setBackgroundResource(R.drawable.round_border_gray_list);
@@ -104,8 +110,11 @@ public class ListViewAdapter extends BaseAdapter {
 
         authornameTextView.setText(post.getAuthor());
         participantsTextView.setText(post.getParticipants().toString());
-        goalParticipantsTextView.setText(post.getGoal_participants().toString());
-
+        if(post.getGoal_participants()>999){
+            goalParticipantsTextView.setText("999+");
+        }else {
+            goalParticipantsTextView.setText(post.getGoal_participants().toString());
+        }
         return convertView;
     }
 
@@ -143,8 +152,10 @@ public class ListViewAdapter extends BaseAdapter {
 
     public int calc_dday(Date goal){
         Date dt = new Date();
+        Log.d("today is", "dday  "+ dt +"\n"+goal);
 
-        long diff = (goal.getTime() - dt.getTime()) / (24*60*60*1000);
+        long diff = goal.getDate()-dt.getDate();
+        Log.d("diff is", "diff" + diff);
         int dday = (int)diff;
 
         return dday;

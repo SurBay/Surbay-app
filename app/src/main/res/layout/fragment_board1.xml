@@ -62,7 +62,7 @@
             android:layout_width="100dp"
             android:layout_height="50dp"
             android:gravity="center"
-            android:text="글쓰기"
+            android:text="설문 작성"
             android:textSize="16dp"
             android:textColor="@color/teal_200"
             android:background="@drawable/round_border_teal_list"

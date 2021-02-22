@@ -15,6 +15,7 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -273,7 +274,62 @@ public class WriteActivity extends AppCompatActivity {
                 }
             }
         });
+        writeDeadline.setCursorVisible(false);
+        writeDeadline.setOnTouchListener(new View.OnTouchListener(){
 
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                int inType = writeDeadline.getInputType(); // backup the input type
+                writeDeadline.setInputType(InputType.TYPE_NULL); // disable soft input
+                writeDeadline.onTouchEvent(event); // call native handler
+                writeDeadline.setInputType(inType); // restore input type
+                return true; // consume touch even
+            }
+        });
+        writeDeadline.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                date = new Date();
+                String year = new SimpleDateFormat("yyyy").format(date);
+                String month = new SimpleDateFormat("MM").format(date);
+                String day = new SimpleDateFormat("dd").format(date);
+                String hour = new SimpleDateFormat("hh").format(date);
+                DatePickerDialog dialog = new DatePickerDialog(WriteActivity.this, callbackMethod, Integer.valueOf(year), Integer.valueOf(month)-1, Integer.valueOf(day));
+                timedialog = new TimePickerDialog(WriteActivity.this, tcallbackMethod, Integer.valueOf(hour), 00, false);
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(new Date());
+                cal.add(Calendar.DATE, 3);
+
+                dialog.getDatePicker().setMinDate(date.getTime());
+                dialog.getDatePicker().setMaxDate(cal.getTime().getTime());
+
+                dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                    @Override
+                    public void onShow(DialogInterface dialogInterface) {
+                        dialog.getButton(Dialog.BUTTON_NEGATIVE).setVisibility(View.GONE);
+                    }
+                });
+                dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    @Override
+                    public void onDismiss(DialogInterface dialog) {
+                        if(datestr!=null) timedialog.show();
+                    }
+                });
+                timedialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                    @Override
+                    public void onShow(DialogInterface dialog) {
+                        timedialog.getButton(DialogInterface.BUTTON_NEGATIVE).setVisibility(View.GONE);
+                    }
+                });
+                timedialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    @Override
+                    public void onDismiss(DialogInterface dialog) {
+                        setDeadline();
+                    }
+                });
+                dialog.show();
+            }
+        });
         writeDeadline.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
@@ -301,7 +357,7 @@ public class WriteActivity extends AppCompatActivity {
                     dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
                         @Override
                         public void onDismiss(DialogInterface dialog) {
-                            timedialog.show();
+                            if(datestr!=null) timedialog.show();
                         }
                     });
                     timedialog.setOnShowListener(new DialogInterface.OnShowListener() {
@@ -450,8 +506,12 @@ public class WriteActivity extends AppCompatActivity {
                 }
                 params.put("url", url);
                 SimpleDateFormat fm = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss.SSS");
-                params.put("date", fm.format(date));
-                params.put("deadline", fm.format(deadline));
+                Date gmt_date = date;
+                gmt_date.setTime(gmt_date.getTime()-(9*60*60*1000));
+                params.put("date", fm.format(gmt_date));
+                Date gmt_deadline = deadline;
+                gmt_deadline.setTime(gmt_deadline.getTime()-(9*60*60*1000));
+                params.put("deadline", fm.format(gmt_deadline));
                 params.put("with_prize", String.valueOf(with_prize));
                 if(with_prize) {
                     params.put("prize", prize);
@@ -746,6 +806,7 @@ public class WriteActivity extends AppCompatActivity {
             Log.d("writedeadline", deadline.toString());
         } catch (ParseException e) {
             e.printStackTrace();
+            return;
         }
         long diff = deadline.getTime() - date.getTime();
         Log.d("writedeadline", String.valueOf(diff));

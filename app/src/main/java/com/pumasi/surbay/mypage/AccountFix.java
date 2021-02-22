@@ -88,6 +88,7 @@ public class AccountFix extends AppCompatActivity {
     ImageView back;
     private Boolean phone_check = false;
     private PhoneAuthProvider.ForceResendingToken mResendToken;
+    private String mVerificationId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,6 +96,8 @@ public class AccountFix extends AppCompatActivity {
         setContentView(R.layout.activity_account_fix);
 
         getSupportActionBar().hide();
+
+        auth = FirebaseAuth.getInstance();
 
         back = findViewById(R.id.uifix_back);
         back.setOnClickListener(new View.OnClickListener() {
@@ -261,7 +264,7 @@ public class AccountFix extends AppCompatActivity {
                                         // If sign in fails, display a message to the user.
                                         Log.d("signupauth", "signInWithCredential:failefail");
 
-                                        signupPCNText.setText("인증에 실패했습니다. 인증하기를 다시 시도해주세요");
+                                        signupPCNText.setText("인증번호가 일치하지 않습니다");
                                         // ...
                                     }
                                 }
@@ -432,6 +435,7 @@ public class AccountFix extends AppCompatActivity {
                         // The corresponding whitelisted code above should be used to complete sign-in.
                         Log.d("signupauth", forceResendingToken.toString() + verificationId);
                         Log.d("signupauth", "onCodeSent:" + verificationId);
+                        mVerificationId = verificationId;
                         TimerStart();
                         phonecheckEditText.setEnabled(true);
                         getverificationId = verificationId;
@@ -448,6 +452,16 @@ public class AccountFix extends AppCompatActivity {
                         //     detect the incoming verification SMS and perform verification without
                         //     user action.
                         Log.d("phone auth", "onVerificationCompleted:" + credential);
+                        String code = credential.getSmsCode();
+
+                        //sometime the code is not detected automatically
+                        //in this case the code will be null
+                        //so user has to manually enter the code
+                        if (code != null) {
+                            phonecheckEditText.setText(code);
+                            //verifying the code
+                            verifyVerificationCode(code);
+                        }
 
                     }
 
@@ -471,6 +485,16 @@ public class AccountFix extends AppCompatActivity {
                 })
                 .build();
         PhoneAuthProvider.verifyPhoneNumber(options);
+    }
+    private void verifyVerificationCode(String otp) {
+        //creating the credential
+        PhoneAuthCredential credential = PhoneAuthProvider.getCredential(mVerificationId, otp);
+
+        //signing the user
+        signInWithPhoneAuthCredential(credential);
+    }
+    private void signInWithPhoneAuthCredential(PhoneAuthCredential credential) {
+        auth.signInWithCredential(credential);
     }
 
     public boolean CheckableSignup(){

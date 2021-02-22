@@ -65,7 +65,9 @@ public class PostNonSurvey implements Parcelable{
         this.author = author;
         this.author_lvl = author_lvl;
         this.content = content;
-        this.date = date;
+        Date seoul_date = date;
+        seoul_date.setTime(seoul_date.getTime()+(9*60*60*1000));
+        this.date = seoul_date;
         this.category = category;
         this.comments = new ArrayList<>(comments);
     }

@@ -17,6 +17,7 @@ import java.util.ArrayList;
 public class NonSurveyListViewAdapter extends BaseAdapter {
     // Adapter에 추가된 데이터를 저장하기 위한 ArrayList
     private ArrayList<PostNonSurvey> listViewItemList = new ArrayList<PostNonSurvey>();
+    private String[] categories = {"운영정책", "앱 구동 불편사항","기능 추가/개선", "기타"};
 
     // ListViewAdapter의 생성자
     public NonSurveyListViewAdapter(ArrayList<PostNonSurvey> listViewItemList) {
@@ -47,9 +48,9 @@ public class NonSurveyListViewAdapter extends BaseAdapter {
         // 화면에 표시될 View(Layout이 inflate된)으로부터 위젯에 대한 참조 획득
         TextView titleTextView = (TextView) convertView.findViewById(R.id.non_title);
         TextView dateTextView = (TextView) convertView.findViewById(R.id.non_date);
-        TextView authorLvlTextView = (TextView) convertView.findViewById(R.id.non_level);
         TextView likesTextView = (TextView) convertView.findViewById(R.id.non_recom);
         ImageView likesimgae = (ImageView) convertView.findViewById(R.id.non_recomimage);
+        TextView categoryTextView = (TextView) convertView.findViewById(R.id.non_cate);
 
         // Data Set(listViewItemList)에서 position에 위치한 데이터 참조 획득
         SimpleDateFormat fm = new SimpleDateFormat("MM.dd");
@@ -58,7 +59,8 @@ public class NonSurveyListViewAdapter extends BaseAdapter {
 
         titleTextView.setText(post.getTitle());
         dateTextView.setText(date);
-        authorLvlTextView.setText("LV " + post.getAuthor_lvl());
+
+        categoryTextView.setText(categories[post.getCategory()]);
 
         likesimgae.setVisibility(View.GONE);
         likesTextView.setVisibility(View.GONE);

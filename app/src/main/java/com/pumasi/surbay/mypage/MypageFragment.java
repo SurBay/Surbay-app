@@ -62,6 +62,8 @@ public class MypageFragment extends Fragment // Fragment 클래스를 상속받�
 
     TextView get_2nd;
 
+    TextView parti_3rd;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
@@ -80,6 +82,14 @@ public class MypageFragment extends Fragment // Fragment 클래스를 상속받�
         setting = view.findViewById(R.id.mypage_setting);
         bell = view.findViewById(R.id.mypage_bell);
 
+        bell.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(((AppCompatActivity) getActivity()).getApplicationContext(), NotificationsActivity.class);
+                startActivity(intent);
+            }
+        });
+
         setting.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -93,7 +103,7 @@ public class MypageFragment extends Fragment // Fragment 클래스를 상속받�
 
         adapter_make = new RecyclerViewMakeAdapter(mContext, list_make);
         adapter_parti = new RecyclerViewPartiAdapter(mContext, list_parti);
-        if(MainActivity.postArrayList.size()==0) {
+        if(MainActivity.notreportedpostArrayList.size()==0) {
             view.setVisibility(View.INVISIBLE);
         }
         else{
@@ -163,19 +173,24 @@ public class MypageFragment extends Fragment // Fragment 클래스를 상속받�
 
         get_2nd = view.findViewById(R.id.get_2nd);
 
+        parti_3rd = view.findViewById(R.id.parti_3rd);
+
         nameview.setText(UserPersonalInfo.name);
         levelview.setText("레벨 " + UserPersonalInfo.level.toString());
         upload_2nd.setText(list_make.size() + "개");
         parti_2nd.setText(list_parti.size() + "개");
-        get_2nd.setText(UserPersonalInfo.prizes.size() + "개");
+        parti_3rd.setText("에 참여했어요 감사해요 <3");
+//        get_2nd.setText(UserPersonalInfo.prizes.size() + "개");
 
+        can_sur.setText(UserPersonalInfo.points+"크레딧");
 
-        if (list_parti.size()!=0){
-            can_sur.setText(list_make.size()/(list_parti.size()*7)+"회");
-        } else {
-            can_sur.setText("0회");
-        }
-        willdo_sur.setText((list_parti.size()%7)+"회/7회");
+//        if (list_parti.size()!=0){
+//            can_sur.setText(list_make.size()/(list_parti.size()*7)+"회");
+//        } else {
+//            can_sur.setText("0크레딧");
+//        }
+//        willdo_sur.setText((list_parti.size()%7)+"회/7회");
+//        willdo_sur.setText(UserPersonalInfo.po);
 
         return view;
     }
@@ -190,8 +205,8 @@ public class MypageFragment extends Fragment // Fragment 클래스를 상속받�
         makeView();
     }
     private static void makeView(){
-        list_make = new ArrayList<>(MainActivity.postArrayList);
-        list_parti = new ArrayList<>(MainActivity.postArrayList);
+        list_make = new ArrayList<>(MainActivity.notreportedpostArrayList);
+        list_parti = new ArrayList<>(MainActivity.notreportedpostArrayList);
         adapter_make = new RecyclerViewMakeAdapter(mContext, list_make);
         adapter_parti = new RecyclerViewPartiAdapter(mContext, list_parti);
         recyclerView_make.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
@@ -240,7 +255,7 @@ public class MypageFragment extends Fragment // Fragment 클래스를 상속받�
         String userid = UserPersonalInfo.userID;
         list_make = new ArrayList<Post>();
         list_parti = new ArrayList<Post>();
-        for (Post post : MainActivity.postArrayList){
+        for (Post post : MainActivity.notreportedpostArrayList){
             if (post.getAuthor_userid().equals(userid)){
                 list_make.add(post);
             } else if (UserPersonalInfo.participations.contains(post.getID()) && !post.getAuthor_userid().equals(userid)) {

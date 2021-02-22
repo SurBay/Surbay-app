@@ -1,7 +1,9 @@
 package com.pumasi.surbay;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
@@ -19,6 +21,12 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.pumasi.surbay.adapter.BannerViewPagerAdapter;
 import com.pumasi.surbay.adapter.RecyclerViewDdayAdapter;
 import com.pumasi.surbay.adapter.RecyclerViewGoalAdapter;
@@ -27,11 +35,18 @@ import com.pumasi.surbay.adapter.RecyclerViewNoticeAdapter;
 import com.pumasi.surbay.classfile.Notice;
 import com.pumasi.surbay.classfile.Post;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.pumasi.surbay.classfile.UserPersonalInfo;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -43,7 +58,8 @@ import static com.pumasi.surbay.BoardFragment1.listViewAdapter;
 
 public class HomeFragment extends Fragment // Fragment 클래스를 상속받아야한다
 {
-    private Integer DO_SURVEY = 2;
+    private static final int NOTICE = 3;
+    private static int DO_SURVEY = 2;
     private static final int NEW = 1;
     private static final int GOAL = 2;
     private static final int DEADLINE= 3;
@@ -82,9 +98,7 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
     {
         view = inflater.inflate(R.layout.fragment_home,container,false);
-        ((AppCompatActivity) getActivity()).getSupportActionBar().show();
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(true);
-        Log.d("title is", ""+((AppCompatActivity) getActivity()).getSupportActionBar().getTitle());
+        ((AppCompatActivity) getActivity()).getSupportActionBar().hide();
 
         recyclerView = view.findViewById(R.id.recycler1);
         recyclerView2 = view.findViewById(R.id.recycler2);
@@ -131,6 +145,13 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
             @Override
             public int compare(Post o1, Post o2) {
                 int ret;
+                Date now = new Date();
+                if (now.after(o1.getDeadline()) || o1.isDone()) {
+                    return -1;
+                } else if (now.after(o2.getDeadline()) || o2.isDone()) {
+                    return 1;
+                }
+
                 Date date1 = o1.getDeadline();
                 Date date2 = o2.getDeadline();
                 int compare = date1.compareTo(date2);
@@ -144,9 +165,9 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
             }
         };
 
-        list1 = new ArrayList<>(MainActivity.finishpostArrayList);
-        list2 = new ArrayList<>(MainActivity.finishpostArrayList);
-        list3 = new ArrayList<>(MainActivity.finishpostArrayList);
+        list1 = new ArrayList<>(MainActivity.postArrayList);
+        list2 = new ArrayList<>(MainActivity.postArrayList);
+        list3 = new ArrayList<>(MainActivity.postArrayList);
         list4 = new ArrayList<>(MainActivity.NoticeArrayList);
         Collections.sort(list1, cmpDeadline);
         Collections.sort(list2, cmpGoal);
@@ -171,7 +192,7 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
                 intent.putExtra("post", item);
                 intent.putParcelableArrayListExtra("reply", item.getComments());
                 intent.putExtra("position", position);
-                mContext.startActivity(intent);
+                startActivityForResult(intent, DO_SURVEY);
             }
         });
         adapter2.setOnItemClickListener(new RecyclerViewGoalAdapter.OnItemClickListener() {
@@ -182,7 +203,7 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
                 intent.putExtra("post", item);
                 intent.putParcelableArrayListExtra("reply", item.getComments());
                 intent.putExtra("position", position);
-                mContext.startActivity(intent);
+                startActivityForResult(intent, DO_SURVEY);
             }
         });
         adapter3.setOnItemClickListener(new RecyclerViewNewAdapter.OnItemClickListener() {
@@ -193,7 +214,7 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
                 intent.putExtra("post", item);
                 intent.putParcelableArrayListExtra("reply", item.getComments());
                 intent.putExtra("position", position);
-                mContext.startActivity(intent);
+                startActivityForResult(intent, DO_SURVEY);
             }
         });
         adapter4.setOnItemClickListener(new RecyclerViewNoticeAdapter.OnItemClickListener() {
@@ -203,7 +224,7 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
                 Intent intent = new Intent(mContext, NoticeDetailActivity.class);
                 intent.putExtra("post", item);
                 intent.putExtra("position", position);
-                mContext.startActivity(intent);
+                startActivityForResult(intent, DO_SURVEY);
             }
         });
 
@@ -235,7 +256,7 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(mContext, noticeActivity.class);
-                startActivity(intent);
+                startActivityForResult(intent, NOTICE);
             }
         });
 
@@ -277,9 +298,9 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
         makeView();
     }
     private static void makeView(){
-        list1 = new ArrayList<>(MainActivity.finishpostArrayList);
-        list2 = new ArrayList<>(MainActivity.finishpostArrayList);
-        list3 = new ArrayList<>(MainActivity.finishpostArrayList);
+        list1 = new ArrayList<>(MainActivity.postArrayList);
+        list2 = new ArrayList<>(MainActivity.postArrayList);
+        list3 = new ArrayList<>(MainActivity.postArrayList);
         list4 = new ArrayList<>(MainActivity.NoticeArrayList);
         Collections.sort(list1, cmpDeadline);
         Collections.sort(list2, cmpGoal);
@@ -303,7 +324,7 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
                 Intent intent = new Intent(mContext, PostDetailActivity.class);
                 intent.putExtra("post", item);
                 intent.putExtra("position", position);
-                mContext.startActivity(intent);
+                ((Activity)mContext).startActivityForResult(intent, DO_SURVEY);
             }
         });
         adapter2.setOnItemClickListener(new RecyclerViewGoalAdapter.OnItemClickListener() {
@@ -313,7 +334,7 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
                 Intent intent = new Intent(mContext, PostDetailActivity.class);
                 intent.putExtra("post", item);
                 intent.putExtra("position", position);
-                mContext.startActivity(intent);
+                ((Activity)mContext).startActivityForResult(intent, DO_SURVEY);
             }
         });
         adapter3.setOnItemClickListener(new RecyclerViewNewAdapter.OnItemClickListener() {
@@ -323,7 +344,7 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
                 Intent intent = new Intent(mContext, PostDetailActivity.class);
                 intent.putExtra("post", item);
                 intent.putExtra("position", position);
-                mContext.startActivity(intent);
+                ((Activity)mContext).startActivityForResult(intent, DO_SURVEY);
             }
         });
         adapter4.setOnItemClickListener(new RecyclerViewNoticeAdapter.OnItemClickListener() {
@@ -333,7 +354,7 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
                 Intent intent = new Intent(mContext, NoticeDetailActivity.class);
                 intent.putExtra("post", item);
                 intent.putExtra("position", position);
-                mContext.startActivity(intent);
+                ((Activity)mContext).startActivityForResult(intent, DO_SURVEY);
             }
         });
 
@@ -378,6 +399,15 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
             }
         },100);
     }
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        try {
+            MainActivity.getPosts();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        getPersonalInfo();
+    }
 
 
     public void frag1dateselect(){
@@ -405,5 +435,76 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
         frag1goalsortbutton.setTextColor(Color.parseColor("#FFFFFF"));
         frag1datesortbutton.setTextColor(Color.parseColor("#BDBDBD"));
         frag1newsortbutton.setTextColor(Color.parseColor("#BDBDBD"));
+    }
+
+    private void getPersonalInfo() {
+        if (UserPersonalInfo.token == null) {
+            return;
+        }
+        String token = UserPersonalInfo.token;
+        try{
+            String requestURL = getString(R.string.server) + "/personalinfo";
+            RequestQueue requestQueue = Volley.newRequestQueue(getActivity().getApplicationContext());
+            JsonObjectRequest jsonObjectRequest= new JsonObjectRequest
+                    (Request.Method.GET, requestURL, null, response -> {
+                        try {
+                            JSONObject res = new JSONObject(response.toString());
+                            Log.d("response is", ""+response);
+                            JSONObject user = res.getJSONObject("data");
+                            UserPersonalInfo.name = user.getString("name");
+                            UserPersonalInfo.email = user.getString("email");
+                            UserPersonalInfo.points = user.getInt("points");
+                            UserPersonalInfo.level = user.getInt("level");
+                            UserPersonalInfo.userID = user.getString("userID");
+                            UserPersonalInfo.userPassword = user.getString("userPassword");
+                            UserPersonalInfo.gender = user.getInt("gender");
+                            UserPersonalInfo.yearBirth = user.getInt("yearBirth");
+                            UserPersonalInfo.phoneNumber = user.getString("phoneNumber");
+                            JSONArray ja = (JSONArray)user.get("participations");
+
+                            ArrayList<String> partiarray = new ArrayList<String>();
+                            for (int j = 0; j<ja.length(); j++){
+                                partiarray.add(ja.getString(j));
+                            }
+
+                            UserPersonalInfo.participations = partiarray;
+                            Log.d("partiarray", ""+UserPersonalInfo.participations.toString());
+
+                            JSONArray ja2 = (JSONArray)user.get("prizes");
+                            ArrayList<String> prizearray = new ArrayList<String>();
+                            for (int j = 0; j<ja2.length(); j++){
+                                prizearray.add(ja2.getString(j));
+                            }
+                            UserPersonalInfo.prizes = prizearray;
+                            Log.d("prizearray", ""+UserPersonalInfo.prizes.toString());
+
+
+                            if(getActivity()!=null) {
+                                SharedPreferences auto = getActivity().getSharedPreferences("auto", Activity.MODE_PRIVATE);
+                                SharedPreferences.Editor autoLogin = auto.edit();
+                                autoLogin.putString("name", user.getString("name"));
+                                autoLogin.commit();
+                            }
+                        } catch (JSONException e) {
+                            Log.d("exception", "JSON error");
+                            e.printStackTrace();
+                        }
+                    }, error -> {
+                        Log.d("exception", "volley error");
+                        error.printStackTrace();
+                    }){
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    HashMap<String, String> headers = new HashMap<String, String>();
+                    headers.put("Authorization", "Bearer " + token);
+                    return headers;
+                }
+            };
+            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            requestQueue.add(jsonObjectRequest);
+        } catch (Exception e){
+            Log.d("exception", "failed getting response");
+            e.printStackTrace();
+        }
     }
 }

@@ -2,12 +2,14 @@ package com.pumasi.surbay;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -48,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
     private BoardsFragment boardsFragment;
     private MypageFragment mypageFragment;
     public static ArrayList<Post> postArrayList = new ArrayList<>();
-    public static ArrayList<Post> finishpostArrayList = new ArrayList<>();
+    public static ArrayList<Post> notreportedpostArrayList = new ArrayList<>();
     public static ArrayList<Post> reportpostArrayList = new ArrayList<>();
     public static ArrayList<Surveytip> surveytipArrayList = new ArrayList<>();
     public static ArrayList<PostNonSurvey> feedbackArrayList = new ArrayList<>();
@@ -70,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
 
         loadingProgress loadingProgress = new loadingProgress();
 
-        if(postArrayList.size() == 0 || finishpostArrayList.size() == 0) {
+        if(postArrayList.size() == 0 || notreportedpostArrayList.size() == 0) {
             try {
                 getPosts();
             } catch (Exception e) {
@@ -233,7 +235,7 @@ public class MainActivity extends AppCompatActivity {
                     (Request.Method.GET, requestURL, null, response -> {
                         try {
                             postArrayList = new ArrayList<Post>();
-                            finishpostArrayList = new ArrayList<Post>();
+                            notreportedpostArrayList = new ArrayList<Post>();
                             reportpostArrayList = new ArrayList<Post>();
                             JSONArray resultArr = new JSONArray(response.toString());
                             Log.d("getpost", ""+response+"\n");
@@ -325,19 +327,19 @@ public class MainActivity extends AppCompatActivity {
                                 }
                                 Post newPost = new Post(id, title, author, author_lvl, content, participants, goal_participants, url, date, deadline, with_prize, prize, est_time, target, count,comments,done, extended, participants_userids, reports, hide, author_userid);
                                 Log.d("start app", "newpost comments"+newPost.getComments().size()+"");
-                                if (!newPost.isDone()) {
-                                    if(reports.contains(UserPersonalInfo.userID) || hide) {
-                                        reportpostArrayList.add(newPost);
-                                    } else {
-                                        finishpostArrayList.add(newPost);
-                                        postArrayList.add(newPost);
-                                    }
-                                } else {
+                                Date now = new Date();
+                                if(reports.contains(UserPersonalInfo.userID) || hide) {
+                                    reportpostArrayList.add(newPost);
+                                } else if (now.after(newPost.getDeadline()) || newPost.isDone()){
+                                    notreportedpostArrayList.add(newPost);
+                                }
+                                 else {
                                     postArrayList.add(newPost);
+                                    notreportedpostArrayList.add(newPost);
                                 }
                             }
                             Log.d("array size is",""+postArrayList.size());
-                            Log.d("finisharray size is",""+finishpostArrayList.get(0).toString());
+                            Log.d("finisharray size is",""+ notreportedpostArrayList.size());
                             if(done==0){
                                 HomeFragment.receivedPosts();
                                 done = 1;
@@ -550,5 +552,15 @@ public class MainActivity extends AppCompatActivity {
             Log.d("exception", "failed getting response");
             e.printStackTrace();
         }
+    }
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        try {
+            getPosts();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        getPersonalInfo();
     }
 }

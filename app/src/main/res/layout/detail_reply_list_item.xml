@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/gray"
+    android:layout_height="wrap_content"
+    android:background="@color/comments_back"
     android:orientation="vertical"
     android:paddingVertical="5dp">
     <RelativeLayout
@@ -21,24 +21,35 @@
             android:layout_height="wrap_content"
             android:id="@+id/reply_date"
             android:text="01.18 00:48"
+
             android:layout_toRightOf="@id/reply_name"
             />
         <ImageView
-            android:layout_width="15dp"
-            android:layout_height="15dp"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
             android:id="@+id/reply_menu"
             android:layout_alignParentRight="true"
             android:src="@drawable/menu"
-            android:visibility="gone"
+            android:scaleType="fitCenter"
+            android:layout_marginRight="10dp"
+
             />
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="댓글"
+            android:maxLines="3"
+            android:ellipsize="end"
+            android:textColor="@color/black"
             android:id="@+id/reply_context"
             android:layout_marginTop="5dp"
             android:layout_below="@id/reply_name"
             android:layout_toLeftOf="@id/reply_menu"
             />
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_below="@id/reply_context"
+            android:background="@color/nav_gray"></ImageView>
     </RelativeLayout>
 </LinearLayout>

@@ -99,6 +99,14 @@ public class BoardFragment1 extends Fragment// Fragment 클래스를 상속받�
         cmpGoal = new Comparator<Post>() {
             @Override
             public int compare(Post o1, Post o2) {
+                Date now = new Date();
+                if((now.after(o1.getDeadline()) || o1.isDone()) && (!(now.after(o2.getDeadline()) || o2.isDone()))){
+                    Log.d("comparing", ""+o1.getTitle() + o2.getTitle());
+                    return 1;
+                }else if((!(now.after(o1.getDeadline()) || o1.isDone())) && (now.after(o2.getDeadline()) || o2.isDone())){
+                    Log.d("comparing2", ""+o1.getTitle() + o2.getTitle());
+                    return -1;
+                }
                 int ret;
                 float goal1 = ((float)o1.getParticipants()/o1.getGoal_participants());
                 float goal2 = ((float)o2.getParticipants()/o2.getGoal_participants());
@@ -114,6 +122,14 @@ public class BoardFragment1 extends Fragment// Fragment 클래스를 상속받�
         cmpNew = new Comparator<Post>() {
             @Override
             public int compare(Post o1, Post o2) {
+                Date now = new Date();
+                if((now.after(o1.getDeadline()) || o1.isDone()) && (!(now.after(o2.getDeadline()) || o2.isDone()))){
+                    Log.d("comparing", ""+o1.getTitle() + o2.getTitle());
+                    return 1;
+                }else if((!(now.after(o1.getDeadline()) || o1.isDone())) && (now.after(o2.getDeadline()) || o2.isDone())){
+                    Log.d("comparing2", ""+o1.getTitle() + o2.getTitle());
+                    return -1;
+                }
                 int ret;
                 Date date1 = o1.getDate();
                 Date date2 = o2.getDate();
@@ -131,19 +147,30 @@ public class BoardFragment1 extends Fragment// Fragment 클래스를 상속받�
             @Override
             public int compare(Post o1, Post o2) {
                 int ret;
-                Date date1 = o1.getDeadline();
-                Date date2 = o2.getDeadline();
-                int compare = date1.compareTo(date2);
-                if(compare<0)
-                    ret = -1; //date2>date1
-                else if(compare==0)
-                    ret = 0;
-                else
-                    ret = 1;
-                return ret;
+                Date now = new Date();
+                if((now.after(o1.getDeadline()) || o1.isDone()) && (!(now.after(o2.getDeadline()) || o2.isDone()))){
+                    Log.d("comparing", ""+o1.getTitle() + o2.getTitle());
+                    return 1;
+                }else if((!(now.after(o1.getDeadline()) || o1.isDone())) && (now.after(o2.getDeadline()) || o2.isDone())){
+                    Log.d("comparing2", ""+o1.getTitle() + o2.getTitle());
+                    return -1;
+                }
+                else {
+                    Log.d("comparing3", ""+o1.getTitle() + o2.getTitle());
+                    Date date1 = o1.getDeadline();
+                    Date date2 = o2.getDeadline();
+                    int compare = date1.compareTo(date2);
+                    if (compare < 0)
+                        ret = -1; //date2>date1
+                    else if (compare == 0)
+                        ret = 0;
+                    else
+                        ret = 1;
+                    return ret;
+                }
             }
         };
-        list = MainActivity.postArrayList;
+        list = MainActivity.notreportedpostArrayList;
 
         switch (SORT){
             case NEW:
@@ -219,7 +246,7 @@ public class BoardFragment1 extends Fragment// Fragment 클래스를 상속받�
                 try {
                     MainActivity.getPosts();
 
-                    list = MainActivity.postArrayList;
+                    list = MainActivity.notreportedpostArrayList;
                     switch (SORT){
                         case NEW:
                             Collections.sort(list, cmpNew);
@@ -264,6 +291,14 @@ public class BoardFragment1 extends Fragment// Fragment 클래스를 상속받�
         cmpGoal = new Comparator<Post>() {
             @Override
             public int compare(Post o1, Post o2) {
+                Date now = new Date();
+                if((now.after(o1.getDeadline()) || o1.isDone()) && (!(now.after(o2.getDeadline()) || o2.isDone()))){
+                    Log.d("comparing", ""+o1.getTitle() + o2.getTitle());
+                    return 1;
+                }else if((!(now.after(o1.getDeadline()) || o1.isDone())) && (now.after(o2.getDeadline()) || o2.isDone())){
+                    Log.d("comparing2", ""+o1.getTitle() + o2.getTitle());
+                    return -1;
+                }
                 int ret;
                 float goal1 = ((float)o1.getParticipants()/o1.getGoal_participants());
                 float goal2 = ((float)o2.getParticipants()/o2.getGoal_participants());
@@ -279,6 +314,14 @@ public class BoardFragment1 extends Fragment// Fragment 클래스를 상속받�
         cmpNew = new Comparator<Post>() {
             @Override
             public int compare(Post o1, Post o2) {
+                Date now = new Date();
+                if((now.after(o1.getDeadline()) || o1.isDone()) && (!(now.after(o2.getDeadline()) || o2.isDone()))){
+                    Log.d("comparing", ""+o1.getTitle() + o2.getTitle());
+                    return 1;
+                }else if((!(now.after(o1.getDeadline()) || o1.isDone())) && (now.after(o2.getDeadline()) || o2.isDone())){
+                    Log.d("comparing2", ""+o1.getTitle() + o2.getTitle());
+                    return -1;
+                }
                 int ret;
                 Date date1 = o1.getDate();
                 Date date2 = o2.getDate();
@@ -295,20 +338,30 @@ public class BoardFragment1 extends Fragment// Fragment 클래스를 상속받�
         cmpDeadline = new Comparator<Post>() {
             @Override
             public int compare(Post o1, Post o2) {
-                int ret;
-                Date date1 = o1.getDeadline();
-                Date date2 = o2.getDeadline();
-                int compare = date1.compareTo(date2);
-                if(compare<0)
-                    ret = -1; //date2>date1
-                else if(compare==0)
-                    ret = 0;
-                else
-                    ret = 1;
-                return ret;
+                Date now = new Date();
+                if((now.after(o1.getDeadline()) || o1.isDone()) && (!(now.after(o2.getDeadline()) || o2.isDone()))){
+                    Log.d("comparing", ""+o1.getTitle() + o2.getTitle());
+                    return 1;
+                }else if((!(now.after(o1.getDeadline()) || o1.isDone())) && (now.after(o2.getDeadline()) || o2.isDone())){
+                    Log.d("comparing2", ""+o1.getTitle() + o2.getTitle());
+                    return -1;
+                }
+                else {
+                    int ret;
+                    Date date1 = o1.getDeadline();
+                    Date date2 = o2.getDeadline();
+                    int compare = date1.compareTo(date2);
+                    if (compare < 0)
+                        ret = -1; //date2>date1
+                    else if (compare == 0)
+                        ret = 0;
+                    else
+                        ret = 1;
+                    return ret;
+                }
             }
         };
-        list = MainActivity.postArrayList;
+        list = MainActivity.notreportedpostArrayList;
         switch (SORT){
             case NEW:
                 Collections.sort(list, cmpNew);
@@ -332,11 +385,12 @@ public class BoardFragment1 extends Fragment// Fragment 클래스를 상속받�
 
         super.onActivityResult(requestCode, resultCode, data);
         Log.d("result code is", ""+requestCode+"   "+resultCode);
+        getPersonalInfo();
         switch (requestCode) {
             case WRITE_NEWPOST:
                 switch (resultCode) {
                     case NEWPOST:
-                        list = MainActivity.postArrayList;
+                        list = MainActivity.notreportedpostArrayList;
                         OnRefrech();
                         listViewAdapter.changeItem();
                         listView.setAdapter(listViewAdapter);
@@ -345,10 +399,8 @@ public class BoardFragment1 extends Fragment// Fragment 클래스를 상속받�
                         return;
                 }
             case DO_SURVEY:
-
                 switch (resultCode){
                     case(DONE):
-                        getPersonalInfo();
                         int position = data.getIntExtra("position", -1);
                         int newParticipants = data.getIntExtra("participants", -1);
                         listViewAdapter.updateParticipants(position, newParticipants);
@@ -372,7 +424,6 @@ public class BoardFragment1 extends Fragment// Fragment 클래스를 상속받�
                             Post newpost = data.getParcelableExtra("post");
                             list.set(fix_pos, newpost);
                         }
-
                         OnRefrech();
                         listViewAdapter.changeItem();
                         listView.setAdapter(listViewAdapter);
@@ -385,6 +436,10 @@ public class BoardFragment1 extends Fragment// Fragment 클래스를 상속받�
                         listViewAdapter.changeItem();
                         listView.setAdapter(listViewAdapter);
                     default:
+                        list = MainActivity.notreportedpostArrayList;
+                        OnRefrech();
+                        listViewAdapter.changeItem();
+                        listView.setAdapter(listViewAdapter);
                         return;
                 }
             default:

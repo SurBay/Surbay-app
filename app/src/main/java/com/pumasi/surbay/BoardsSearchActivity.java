@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -155,13 +154,8 @@ public class BoardsSearchActivity extends AppCompatActivity {
         switch (selected_spinner){
             case SURBAY_SELECT:
                 search_list_post.clear();
-                for (Post post : MainActivity.postArrayList){
+                for (Post post : MainActivity.notreportedpostArrayList){
                     if (post.getContent().toUpperCase().contains(search_keyword.toUpperCase()) || (post.getTitle().toUpperCase().contains(search_keyword.toUpperCase()))){
-                        search_list_post.add(post);
-                    }
-                }
-                for (Post post : MainActivity.finishpostArrayList){
-                    if ((post.getContent().contains(search_keyword)) || (post.getTitle().contains(search_keyword))){
                         search_list_post.add(post);
                     }
                 }

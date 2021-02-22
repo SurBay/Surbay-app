@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
+<menu xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/report"
@@ -21,6 +22,6 @@
     <item
         android:id="@+id/share"
         android:title="공유"
-        android:icon="@android:drawable/ic_menu_share"
-        app:showAsAction="always"/>
+        android:icon="@drawable/shrae_menu"
+        app:showAsAction="always" />
 </menu>

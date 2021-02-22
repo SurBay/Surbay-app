@@ -8,31 +8,32 @@
     android:background="@color/gray">
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="70dp"
         android:background="@drawable/box_white"
-        android:paddingVertical="10dp"
         android:paddingHorizontal="20dp"
         >
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="마이페이지"
+            android:textStyle="bold"
             android:textSize="20dp"
+            android:layout_centerVertical="true"
             android:textColor="@color/black"
             android:layout_marginVertical="8dp"
             android:gravity="center"
             />
         <ImageView
-            android:layout_width="30dp"
-            android:layout_height="30dp"
+            android:layout_width="26dp"
+            android:layout_height="26dp"
             android:id="@+id/mypage_setting"
             android:src="@drawable/settings"
             android:layout_centerVertical="true"
             android:clickable="true"
             />
         <ImageView
-            android:layout_width="30dp"
-            android:layout_height="30dp"
+            android:layout_width="26dp"
+            android:layout_height="26dp"
             android:id="@+id/mypage_bell"
             android:src="@drawable/bell"
             android:layout_centerVertical="true"
@@ -76,7 +77,8 @@
                             android:layout_width="80dp"
                             android:layout_height="80dp"
                             android:id="@+id/mypage_profile_image"
-                            android:src="@drawable/ic_gift_box"
+                            android:src="@drawable/level1tiger"
+                            android:scaleType="fitCenter"
                             />
                         <TextView
                             android:layout_width="match_parent"
@@ -99,10 +101,11 @@
                     <RelativeLayout
                         android:layout_width="260dp"
                         android:layout_height="115dp"
+                        android:layout_marginLeft="10dp"
                         android:padding="15dp"
                         android:layout_alignTop="@id/mypage_profile"
                         android:layout_toRightOf="@id/mypage_profile"
-                        android:layout_marginLeft="10dp"
+                        android:layout_alignParentRight="true"
                         android:background="@drawable/round_border_white_mypage">
                         <TextView
                             android:layout_width="wrap_content"
@@ -152,7 +155,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="짝짝짝"
+                        android:text="짝짝짝 "
                         android:id="@+id/upload_1st"
                         android:textSize="20dp"
                         android:layout_alignBottom="@id/mypage_i_make"
@@ -203,7 +206,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="벌써"
+                        android:text="벌써 "
                         android:id="@+id/parti_1st"
                         android:textSize="20dp"
                         android:layout_alignBottom="@id/mypage_i_parti"
@@ -254,12 +257,13 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="내가 받은 경품 :"
+                        android:text="내가 받은 경품"
                         android:id="@+id/get_1st"
                         android:textSize="20dp"
                         android:layout_alignBottom="@id/mypage_i_get"
                         android:textColor="@color/black"/>
                     <TextView
+                        android:visibility="gone"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:id="@+id/get_2nd"

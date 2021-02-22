@@ -51,26 +51,28 @@ public class SurveyWebActivity extends AppCompatActivity {
         public void googleFormSubmitted()
         {
             // Do what you need
-            Log.d("survey", "survey done");
+            if(requestCode!=2) {
+                Log.d("survey", "survey done");
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(SurveyWebActivity.this);
-            dialog = builder.setMessage("응답 완료")
-                    .setPositiveButton("확인", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            setResult(DONE);
-                            finish();
-                        }
-                    })
-                    .create();
-            dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-                @SuppressLint("ResourceAsColor")
-                @Override
-                public void onShow(DialogInterface arg0) {
-                    dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(R.color.black);
-                }
-            });
-            dialog.show();
+                AlertDialog.Builder builder = new AlertDialog.Builder(SurveyWebActivity.this);
+                dialog = builder.setMessage("응답 완료")
+                        .setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                setResult(DONE);
+                                finish();
+                            }
+                        })
+                        .create();
+                dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                    @SuppressLint("ResourceAsColor")
+                    @Override
+                    public void onShow(DialogInterface arg0) {
+                        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(R.color.black);
+                    }
+                });
+                dialog.show();
+            }
         }
     }
     @Override
@@ -211,7 +213,7 @@ public class SurveyWebActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
-            case android.R.id.home:{ //toolbar의 back키 눌렀을 때 동작
+            case android.R.id.home: //toolbar의 back키 눌렀을 때 동작
                 if(requestCode==-1) {
                     AlertDialog.Builder builder = new AlertDialog.Builder(SurveyWebActivity.this);
                     dialog = builder.setMessage("응답을 취소하겠습니까?")
@@ -237,12 +239,11 @@ public class SurveyWebActivity extends AppCompatActivity {
                         }
                     });
                     dialog.show();
-                }else if(requestCode==2){
+                }else{
                     finish();
                 }
-
                 return true;
-            }
+
         }
         return super.onOptionsItemSelected(item);
     }
@@ -273,6 +274,8 @@ public class SurveyWebActivity extends AppCompatActivity {
                 }
             });
             dialog.show();
+        }else{
+            finish();
         }
     }
 

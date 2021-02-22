@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,6 +18,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
@@ -25,6 +27,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
@@ -35,6 +38,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.view.ContextThemeWrapper;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
@@ -42,7 +47,7 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-import com.pumasi.surbay.adapter.ReplyListViewAdapter;
+import com.pumasi.surbay.adapter.ReplyListViewAdapter2;
 import com.pumasi.surbay.classfile.Post;
 import com.pumasi.surbay.classfile.Reply;
 import com.pumasi.surbay.classfile.UserPersonalInfo;
@@ -51,11 +56,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class PostDetailActivity extends AppCompatActivity {
@@ -94,8 +101,8 @@ public class PostDetailActivity extends AppCompatActivity {
     String surveyURL;
 
 
-    private static ReplyListViewAdapter detail_reply_Adapter;
-    private static ListView detail_reply_listView;
+    private static ReplyListViewAdapter2 detail_reply_Adapter;
+    private static RecyclerView detail_reply_listView;
     private static ArrayList<Reply> replyArrayList;
 
     static Button surveyButton;
@@ -110,6 +117,7 @@ public class PostDetailActivity extends AppCompatActivity {
     final String[] spinner_esttime = {"선택해주세요", "1분 미만", "1~2분", "2~3분", "3~5분", "5~7분", "7~10분", "10분 초과"};
 
     Date today;
+    private LinearLayoutManager mLayoutManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -154,8 +162,13 @@ public class PostDetailActivity extends AppCompatActivity {
         loading_detail(post);
         replyArrayList = post.getComments();
         Log.d("comments size", post.getComments().size()+"");
-        detail_reply_Adapter = new ReplyListViewAdapter(replyArrayList, post);
+        detail_reply_Adapter = new ReplyListViewAdapter2(PostDetailActivity.this, replyArrayList);
+        detail_reply_Adapter.setPost(post);
+        mLayoutManager = new LinearLayoutManager(this);
+        detail_reply_listView.setLayoutManager(mLayoutManager);
         detail_reply_listView.setAdapter(detail_reply_Adapter);
+//        setListViewHeightBasedOnChildren(detail_reply_listView);
+
 
         surveyButton.setOnClickListener(
                 new View.OnClickListener(){
@@ -273,8 +286,8 @@ public class PostDetailActivity extends AppCompatActivity {
                     int updatedParticipants = post.getParticipants()+1;
                     updateParticipants(updatedParticipants);
                     surveyButton.setClickable(false);
-                    surveyButton.setText("이미 참여한 설문입니다");
-                    surveyButton.setBackgroundColor(getColor(R.color.nav_gray));
+                    surveyButton.setText("이미 참여했습니다");
+                    surveyButton.setBackgroundResource(R.drawable.not_round_gray_fill);
                     Intent resultIntent = new Intent(getApplicationContext(), BoardFragment1.class);
                     resultIntent.putExtra("position", position);
                     resultIntent.putExtra("participants", updatedParticipants);
@@ -461,7 +474,32 @@ public class PostDetailActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()){
             case android.R.id.home:
-                finish();
+                if(reply_enter.getText().toString().length()>0){
+                    AlertDialog.Builder builder = new AlertDialog.Builder(PostDetailActivity.this);
+                    dialog = builder.setMessage("댓글 작성을 취소하겠습니까?")
+                            .setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    finish();
+                                }
+                            }).setNegativeButton("취소", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                }
+                            })
+                            .create();
+                    dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                        @SuppressLint("ResourceAsColor")
+                        @Override
+                        public void onShow(DialogInterface arg0) {
+                            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(R.color.teal_200);
+                            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(R.color.gray);
+                        }
+                    });
+                    dialog.show();
+                }else{
+                    finish();
+                }
                 break;
             case R.id.share:
                 ShareDialog();
@@ -492,14 +530,15 @@ public class PostDetailActivity extends AppCompatActivity {
         if (post.isDone()) {
             surveyButton.setClickable(false);
             surveyButton.setText("마감되었습니다");
+            surveyButton.setBackgroundResource(R.drawable.not_round_gray_fill);
         } else {
                 if (UserPersonalInfo.userID.equals(post.getAuthor_userid())){
                     partilayout.setVisibility(View.GONE);
                     authorlayout.setVisibility(View.VISIBLE);
                 } else if (UserPersonalInfo.participations.contains(post.getID())){
                     surveyButton.setClickable(false);
-                    surveyButton.setText("이미 참여한 설문입니다");
-                    surveyButton.setBackgroundColor(getColor(R.color.nav_gray));
+                    surveyButton.setText("이미 참여했습니다");
+                    surveyButton.setBackgroundResource(R.drawable.not_round_gray_fill);
 
             }
         }
@@ -509,7 +548,7 @@ public class PostDetailActivity extends AppCompatActivity {
     public int calc_dday(Date goal){
         Date dt = new Date();
 
-        long diff = (goal.getTime() - dt.getTime()) / (24*60*60*1000);
+        long diff = goal.getDate() - dt.getDate();
         int dday = (int)diff;
 
         return (int)diff;
@@ -550,15 +589,19 @@ public class PostDetailActivity extends AppCompatActivity {
         level.setText("Lv "+post.getAuthor_lvl());
         est_time.setText(spinner_esttime[post.getEst_time()]);
 
-        deadline.setText(new SimpleDateFormat("MM.dd").format(post.getDate()) + " - " + new SimpleDateFormat("MM.dd").format(post.getDeadline()));
+        deadline.setText(new SimpleDateFormat("MM.dd").format(post.getDate()) + " - " + new SimpleDateFormat("MM.dd a H시", Locale.KOREA).format(post.getDeadline()));
         int dday_count = calc_dday(post.getDeadline());
-        if (dday_count <= 2 && dday_count >= 0 ){
+        Date now = new Date();
+        if(now.after(post.getDeadline()) || post.isDone()){
+            dday.setVisibility(View.VISIBLE);
+            dday.setText("종료");
+        }if (dday_count <= 3 && dday_count >= 0 ){
             if (dday_count==0){
                 dday.setVisibility(View.VISIBLE);
                 dday.setText("D-Day");
             } else {
                 dday.setVisibility(View.VISIBLE);
-                dday.setText("D-"+(dday_count+1));
+                dday.setText("D-"+dday_count);
             }
         }
         participants.setText(""+post.getParticipants()+"/"+post.getGoal_participants());
@@ -624,7 +667,7 @@ public class PostDetailActivity extends AppCompatActivity {
 
     private void ShareDialog()
     {
-        AlertDialog.Builder builder = new AlertDialog.Builder(PostDetailActivity.this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(PostDetailActivity.this, R.style.CustomDialog);
         LayoutInflater inflater = getLayoutInflater();
         View view = inflater.inflate(R.layout.share_dialog, null);
 //        builder.setView(view);
@@ -632,6 +675,11 @@ public class PostDetailActivity extends AppCompatActivity {
 
         final ListView listview = (ListView)view.findViewById(R.id.listview_alterdialog_list);
         final AlertDialog dialog = builder.create();
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(getColor(R.color.transparent)));
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+
+//        dialog.setCancelable(false);
+//        dialog.setContentView(R.layout.share_dialog);
         dialog.setView(view, 0, 0, 0, 0);
         SimpleAdapter simpleAdapter = new SimpleAdapter(PostDetailActivity.this, dialogItemList,
                 R.layout.share_listitem,
@@ -745,9 +793,10 @@ public class PostDetailActivity extends AppCompatActivity {
                         partilayout.setVisibility(View.VISIBLE);
                         authorlayout.setVisibility(View.GONE);
                         surveyButton.setClickable(false);
+                        surveyButton.setBackgroundResource(R.drawable.not_round_gray_fill);
                         surveyButton.setText("마감되었습니다");
 
-                        deadline.setText(new SimpleDateFormat("MM.dd").format(post.getDate()) + " - " + new SimpleDateFormat("MM.dd").format(today));
+                        deadline.setText(new SimpleDateFormat("MM.dd").format(post.getDate()) + " - " + new SimpleDateFormat("MM.dd a H시", Locale.KOREA).format(post.getDeadline()));
                         try {
                             updateDeadlinePost(today);
                         } catch (Exception e) {
@@ -884,9 +933,18 @@ public class PostDetailActivity extends AppCompatActivity {
                             Log.d("response is", ""+response);
                             boolean success = res.getBoolean("type");
                             if (success){
-                                extendView();
+                                String deadline = res.getString("new_deadline");
+                                extendView(deadline);
                             } else {
-                                Toast.makeText(PostDetailActivity.this, "설문기간 연장에 실패하였습니다다", Toast.LENGTH_SHORT).show();
+                                if(res.getString("message").startsWith("already")){
+                                    Toast.makeText(PostDetailActivity.this, "이미 1회 연장하셨습니다", Toast.LENGTH_SHORT).show();
+
+                                }else if(res.getString("message").startsWith("not")){
+                                    Toast.makeText(PostDetailActivity.this, "연장 크레딧이 부족합니다", Toast.LENGTH_SHORT).show();
+
+                                }else {
+                                    Toast.makeText(PostDetailActivity.this, "설문기간 연장에 실패하였습니다", Toast.LENGTH_SHORT).show();
+                                }
                             }
                         } catch (JSONException e) {
                             Log.d("exception", "JSON error");
@@ -911,21 +969,20 @@ public class PostDetailActivity extends AppCompatActivity {
         }
     }
 
-    public void extendView(){
-        Date dl = post.getDeadline();
+    public void extendView(String dl){
 
-        Log.d("todat",dl.toString());
-        long exdl = dl.getTime() + 24*60*60*1000;
-
+        Log.d("todat",dl);
         SimpleDateFormat fm = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss.SSS");
-        String dlstr = fm.format(exdl);
+        Date new_deadline = null;
         try {
-            dl = fm.parse(dlstr);
-        } catch (Exception e) {
+            new_deadline = fm.parse(dl);
+        } catch (ParseException e) {
+            Log.d("parsing", "failed");
             e.printStackTrace();
         }
-        deadline.setText(new SimpleDateFormat("MM.dd").format(post.getDate()) + " - " + new SimpleDateFormat("MM.dd").format(dl));
-        int dday_count = calc_dday(dl);
+
+        deadline.setText(new SimpleDateFormat("MM.dd").format(post.getDate()) + " - " + new SimpleDateFormat("MM.dd a H시", Locale.KOREA).format(new_deadline));
+        int dday_count = calc_dday(new_deadline);
         if (dday_count <= 2 && dday_count >= 0 ){
             if (dday_count==0){
                 dday.setVisibility(View.VISIBLE);
@@ -936,5 +993,59 @@ public class PostDetailActivity extends AppCompatActivity {
             }
         }
         Toast.makeText(PostDetailActivity.this, "설문이 연장되었습니다", Toast.LENGTH_SHORT).show();
+    }
+    public static void setListViewHeightBasedOnChildren(ListView listView) {
+        ListAdapter listAdapter = listView.getAdapter();
+        if (listAdapter == null)
+            return;
+
+        int desiredWidth = View.MeasureSpec.makeMeasureSpec(
+                listView.getWidth(), View.MeasureSpec.UNSPECIFIED);
+        int totalHeight = 0;
+
+        View view = null;
+
+        for (int i = 0; i < listAdapter.getCount(); i++) {
+            view = listAdapter.getView(i, view, listView);
+            if (i == 0)
+                view.setLayoutParams(new ViewGroup.LayoutParams(
+                        desiredWidth, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+            view.measure(desiredWidth, View.MeasureSpec.UNSPECIFIED);
+            totalHeight += view.getMeasuredHeight();
+        }
+        ViewGroup.LayoutParams params = listView.getLayoutParams();
+        params.height = totalHeight + (listView.getDividerHeight() * (listAdapter.getCount() - 1));
+        listView.setLayoutParams(params);
+    }
+    @Override
+    public void onBackPressed() {
+        if(reply_enter.getText().toString().length()>0){
+            AlertDialog.Builder builder = new AlertDialog.Builder(PostDetailActivity.this);
+            dialog = builder.setMessage("댓글 작성을 취소하겠습니까?")
+                    .setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            finish();
+                        }
+                    }).setNegativeButton("취소", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                        }
+                    })
+                    .create();
+            dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                @SuppressLint("ResourceAsColor")
+                @Override
+                public void onShow(DialogInterface arg0) {
+                    dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(R.color.teal_200);
+                    dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(R.color.gray);
+                }
+            });
+            dialog.show();
+        }
+        else{
+            finish();
+        }
     }
 }

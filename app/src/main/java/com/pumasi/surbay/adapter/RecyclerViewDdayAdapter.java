@@ -1,6 +1,7 @@
 package com.pumasi.surbay.adapter;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -52,14 +53,18 @@ public class RecyclerViewDdayAdapter extends RecyclerView.Adapter<RecyclerViewDd
         holder.title.setText(imageModelArrayList.get(position).getTitle());
         holder.content.setText(imageModelArrayList.get(position).getContent());
         int dday = calc_dday(imageModelArrayList.get(position).getDeadline());
+        Date now = new Date();
 
-        if (dday <= 2 && dday >= 0) {
+        if (dday <= 3 && dday >= 0) {
             if (dday == 0) {
                 holder.participate.setText("D-Day");
             } else {
                 holder.participate.setText("D-" + (dday + 1));
             }
-        } else {
+        } else if(now.after(imageModelArrayList.get(position).getDeadline()) || imageModelArrayList.get(position).isDone()){
+            holder.participate.setVisibility(View.VISIBLE);
+            holder.participate.setText("종료");
+        }else {
             holder.participate.setVisibility(View.INVISIBLE);
         }
 
@@ -126,8 +131,10 @@ public class RecyclerViewDdayAdapter extends RecyclerView.Adapter<RecyclerViewDd
 
     public int calc_dday(Date goal){
         Date dt = new Date();
+        Log.d("today is", "dday  "+ dt +"\n"+goal);
 
-        long diff = (goal.getTime() - dt.getTime()) / (24*60*60*1000);
+        long diff = goal.getDate()-dt.getDate();
+        Log.d("diff is", "diff" + diff);
         int dday = (int)diff;
 
         return dday;

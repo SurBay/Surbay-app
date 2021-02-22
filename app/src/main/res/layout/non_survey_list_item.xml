@@ -26,8 +26,8 @@
                     android:id="@+id/non_cate"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="#구글폼 #설문제작"
-                    android:textColor="@color/teal_200"
+                    android:text="앱 구동 불편 사항"
+                    android:textColor="@color/black"
                     />
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/non_title"
@@ -38,6 +38,7 @@
                     android:lines="1"
                     android:layout_weight="1"
                     android:text="제목"
+                    android:textStyle="bold"
                     android:textSize="18dp"
                     android:textColor="@color/black"
                     android:maxLines="1"/>
@@ -52,6 +53,9 @@
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:id="@+id/non_profile"
+                    android:background="@drawable/rectangle_rounded"
+                    android:backgroundTint="@color/nav_gray"
+                    android:layout_marginRight="10dp"
                     />
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/non_level"
@@ -59,7 +63,7 @@
                     android:layout_height="wrap_content"
                     android:layout_toRightOf="@id/non_profile"
                     android:layout_below="@id/non_date"
-                    android:text="작성자"
+                    android:text="익명"
                     android:textSize="13dp"
                     android:textColor="@color/text_gray"/>
                 <androidx.appcompat.widget.AppCompatTextView

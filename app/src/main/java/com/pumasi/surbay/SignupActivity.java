@@ -43,8 +43,6 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthOptions;
 import com.google.firebase.auth.PhoneAuthProvider;
-import com.pumasi.surbay.classfile.UserPersonalInfo;
-import com.pumasi.surbay.mypage.AccountFix;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -70,7 +68,7 @@ public class SignupActivity extends AppCompatActivity {
     TextView pwchecklength;
     TextView pwcheckword;
     EditText phonenumberEditText;
-    TextView phone_checkTextview;
+    Button phone_checkButton;
     EditText phonecheckEditText;
     TextView signupTimer;
     private TextView signupPCNText;
@@ -98,6 +96,7 @@ public class SignupActivity extends AppCompatActivity {
 
     CountDownTimer CDT;
     private PhoneAuthProvider.ForceResendingToken mResendToken;
+    private String mVerificationId;
 //    private ActivityPhoneAuthBinding mBinding;
 
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,7 +114,7 @@ public class SignupActivity extends AppCompatActivity {
         pwcheckword = findViewById(R.id.signup_check_pw);
         pwchecklength = findViewById(R.id.signup_pw_length);
         phonenumberEditText = findViewById(R.id.userphone);
-        phone_checkTextview = findViewById(R.id.userphone_check);
+        phone_checkButton = findViewById(R.id.userphone_check);
         signupTimer = findViewById(R.id.signup_timer);
         signupPCNText = findViewById(R.id.signup_PCNtext);
         phonecheckEditText = findViewById(R.id.phone_checknumber);
@@ -306,7 +305,7 @@ public class SignupActivity extends AppCompatActivity {
             }
         });
 
-        phone_checkTextview.setOnClickListener(new View.OnClickListener() {
+        phone_checkButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 phoneNumber = phonenumberEditText.getText().toString();
@@ -325,7 +324,7 @@ public class SignupActivity extends AppCompatActivity {
             }
         });
 
-        passwordcheckEditText.addTextChangedListener(new TextWatcher() {
+        phonecheckEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {            }
             @Override
@@ -351,7 +350,7 @@ public class SignupActivity extends AppCompatActivity {
                                         // If sign in fails, display a message to the user.
                                         Log.d("signupauth", "signInWithCredential:failefail");
 
-                                        signupPCNText.setText("인증에 실패했습니다. 인증하기를 다시 시도해주세요");
+                                        signupPCNText.setText("인증번호가 일치하지 않습니다");
                                         // ...
                                     }
                                 }
@@ -567,6 +566,7 @@ public class SignupActivity extends AppCompatActivity {
                         // The corresponding whitelisted code above should be used to complete sign-in.
                         Log.d("signupauth", forceResendingToken.toString() + verificationId);
                         Log.d("signupauth", "onCodeSent:" + verificationId);
+                        mVerificationId = verificationId;
                         Toast.makeText(SignupActivity.this, "인증번호를 발송했습니다", Toast.LENGTH_SHORT);
                         TimerStart();
                         phonecheckEditText.setEnabled(true);
@@ -584,6 +584,16 @@ public class SignupActivity extends AppCompatActivity {
                         //     detect the incoming verification SMS and perform verification without
                         //     user action.
                         Log.d("phone auth", "onVerificationCompleted:" + credential);
+                        String code = credential.getSmsCode();
+
+                        //sometime the code is not detected automatically
+                        //in this case the code will be null
+                        //so user has to manually enter the code
+                        if (code != null) {
+                            phonecheckEditText.setText(code);
+                            //verifying the code
+                            verifyVerificationCode(code);
+                        }
 
                     }
 
@@ -658,6 +668,16 @@ public class SignupActivity extends AppCompatActivity {
         }
 
         return true;
+    }
+    private void verifyVerificationCode(String otp) {
+        //creating the credential
+        PhoneAuthCredential credential = PhoneAuthProvider.getCredential(mVerificationId, otp);
+
+        //signing the user
+        signInWithPhoneAuthCredential(credential);
+    }
+    private void signInWithPhoneAuthCredential(PhoneAuthCredential credential) {
+        auth.signInWithCredential(credential);
     }
     private void phoneCheck() throws Exception{
         try {

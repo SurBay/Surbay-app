@@ -22,7 +22,9 @@ public class Notice implements Parcelable{
         this.title = title;
         this.author = author;
         this.content = content;
-        this.date = date;
+        Date seoul_date = date;
+        seoul_date.setTime(seoul_date.getTime()+(9*60*60*1000));
+        this.date = seoul_date;
     }
 
     public String getID() {

@@ -48,6 +48,7 @@ public class SurveyTipListViewAdapter extends BaseAdapter {
         TextView dateTextView = (TextView) convertView.findViewById(R.id.non_date);
         TextView authorLvlTextView = (TextView) convertView.findViewById(R.id.non_level);
         TextView likesTextView = (TextView) convertView.findViewById(R.id.non_recom);
+        TextView categoryTextView = (TextView) convertView.findViewById(R.id.non_cate);
 
         // Data Set(listViewItemList)에서 position에 위치한 데이터 참조 획득
         SimpleDateFormat fm = new SimpleDateFormat("MM.dd");
@@ -57,6 +58,8 @@ public class SurveyTipListViewAdapter extends BaseAdapter {
         titleTextView.setText(post.getTitle());
         authorLvlTextView.setText("LV " + post.getAuthor_lvl());
         likesTextView.setText(post.getLikes().toString());
+        categoryTextView.setText(post.getCategory());
+
         return convertView;
     }
 
