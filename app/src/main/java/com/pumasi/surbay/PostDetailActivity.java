@@ -37,7 +37,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.view.ContextThemeWrapper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -547,11 +546,13 @@ public class PostDetailActivity extends AppCompatActivity {
 
     public int calc_dday(Date goal){
         Date dt = new Date();
+        Log.d("today is", "dday  "+ dt +"\n"+goal);
 
-        long diff = goal.getDate() - dt.getDate();
+        long diff = goal.getDate()-dt.getDate();
+        Log.d("diff is", "diff" + diff);
         int dday = (int)diff;
 
-        return (int)diff;
+        return dday;
     }
 
     public void updateUserParticipation(String id){

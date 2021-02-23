@@ -1,8 +1,6 @@
 package com.pumasi.surbay.mypage;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -14,7 +12,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.android.volley.AuthFailureError;
@@ -25,6 +22,7 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.pumasi.surbay.LoginActivity;
 import com.pumasi.surbay.R;
+import com.pumasi.surbay.classfile.CustomDialog;
 import com.pumasi.surbay.classfile.UserPersonalInfo;
 
 import org.json.JSONException;
@@ -112,6 +110,25 @@ public class MypageSettingAccount extends AppCompatActivity {
         logout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                CustomDialog customDialog = new CustomDialog(MypageSettingAccount.this, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent(MypageSettingAccount.this, LoginActivity.class);
+                        startActivity(intent);
+                        SharedPreferences auto = getSharedPreferences("auto", Activity.MODE_PRIVATE);
+                        SharedPreferences.Editor editor = auto.edit();
+                        //editor.clear()는 auto에 들어있는 모든 정보를 기기에서 지웁니다.
+                        editor.clear();
+                        editor.commit();
+                        Toast.makeText(MypageSettingAccount.this, "로그아웃 되었습니다", Toast.LENGTH_SHORT).show();
+                        finish();
+                    }
+                });
+                customDialog.show();
+                customDialog.setMessage("로그아웃 하겠습니까?");
+                customDialog.setPositiveButton("로그아웃");
+                customDialog.setNegativeButton("취소");
+                /*
                 AlertDialog.Builder builder = new AlertDialog.Builder(MypageSettingAccount.this);
                 AlertDialog dialog = builder.setMessage("로그아웃 하겠습니까?")
                         .setPositiveButton("로그아웃", new DialogInterface.OnClickListener() {
@@ -141,43 +158,31 @@ public class MypageSettingAccount extends AppCompatActivity {
                         dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(R.color.gray);
                     }
                 });
-                dialog.show();
+                dialog.show();*/
             }
         });
         userdelect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(MypageSettingAccount.this);
-                AlertDialog dialog = builder.setMessage("회원 탈퇴를 하겠습니까?")
-                        .setPositiveButton("확인", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                deletePersonalInfo();
-                                Intent intent = new Intent(MypageSettingAccount.this, LoginActivity.class);
-                                startActivity(intent);
-                                SharedPreferences auto = getSharedPreferences("auto", Activity.MODE_PRIVATE);
-                                SharedPreferences.Editor editor = auto.edit();
-                                //editor.clear()는 auto에 들어있는 모든 정보를 기기에서 지웁니다.
-                                editor.clear();
-                                editor.commit();
-                                Toast.makeText(MypageSettingAccount.this, "회원 탈퇴가 완료되었습니다", Toast.LENGTH_SHORT).show();
-                                finish();
-                            }
-                        }).setNegativeButton("취소", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                            }
-                        })
-                        .create();
-                dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-                    @SuppressLint("ResourceAsColor")
+                CustomDialog customDialog = new CustomDialog(MypageSettingAccount.this, new View.OnClickListener() {
                     @Override
-                    public void onShow(DialogInterface arg0) {
-                        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(R.color.teal_200);
-                        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(R.color.gray);
+                    public void onClick(View v) {
+                        deletePersonalInfo();
+                        Intent intent = new Intent(MypageSettingAccount.this, LoginActivity.class);
+                        startActivity(intent);
+                        SharedPreferences auto = getSharedPreferences("auto", Activity.MODE_PRIVATE);
+                        SharedPreferences.Editor editor = auto.edit();
+                        //editor.clear()는 auto에 들어있는 모든 정보를 기기에서 지웁니다.
+                        editor.clear();
+                        editor.commit();
+                        Toast.makeText(MypageSettingAccount.this, "회원 탈퇴가 완료되었습니다", Toast.LENGTH_SHORT).show();
+                        finish();
                     }
                 });
-                dialog.show();
+                customDialog.show();
+                customDialog.setMessage("회원 탈퇴를 하겠습니까?");
+                customDialog.setPositiveButton("회원탈퇴");
+                customDialog.setNegativeButton("취소");
             }
         });
     }

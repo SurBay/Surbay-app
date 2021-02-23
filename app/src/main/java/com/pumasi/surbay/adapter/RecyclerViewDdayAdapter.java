@@ -59,7 +59,7 @@ public class RecyclerViewDdayAdapter extends RecyclerView.Adapter<RecyclerViewDd
             if (dday == 0) {
                 holder.participate.setText("D-Day");
             } else {
-                holder.participate.setText("D-" + (dday + 1));
+                holder.participate.setText("D-" + (dday));
             }
         } else if(now.after(imageModelArrayList.get(position).getDeadline()) || imageModelArrayList.get(position).isDone()){
             holder.participate.setVisibility(View.VISIBLE);
