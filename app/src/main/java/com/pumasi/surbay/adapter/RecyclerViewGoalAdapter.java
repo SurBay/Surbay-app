@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.pumasi.surbay.R;
 import com.pumasi.surbay.classfile.Post;
+import com.pumasi.surbay.classfile.UserPersonalInfo;
 
 import java.util.ArrayList;
 
@@ -52,7 +53,11 @@ public class RecyclerViewGoalAdapter extends RecyclerView.Adapter<RecyclerViewGo
         holder.title.setText(imageModelArrayList.get(position).getTitle());
         holder.content.setText(imageModelArrayList.get(position).getContent());
         holder.participate.setText((100 * imageModelArrayList.get(position).getParticipants() / imageModelArrayList.get(position).getGoal_participants()) + "%");
-
+        if(UserPersonalInfo.participations.contains(imageModelArrayList.get(position).getID())&&!imageModelArrayList.get(position).getAuthor_userid().equals(UserPersonalInfo.userID)){
+            holder.participated.setVisibility(View.VISIBLE);
+        }else{
+            holder.participated.setVisibility(View.INVISIBLE);
+        }
     }
 
     @Override
@@ -69,6 +74,7 @@ public class RecyclerViewGoalAdapter extends RecyclerView.Adapter<RecyclerViewGo
         TextView title;
         TextView content;
         TextView participate;
+        TextView participated;
 
         public MyViewGoalHolder(View itemView) {
             super(itemView);
@@ -76,6 +82,7 @@ public class RecyclerViewGoalAdapter extends RecyclerView.Adapter<RecyclerViewGo
             title = (TextView) itemView.findViewById(R.id.title);
             content = (TextView) itemView.findViewById(R.id.content);
             participate = (TextView) itemView.findViewById(R.id.recyc_participants);
+            participated = (TextView) itemView.findViewById(R.id.recyc_participated);
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override

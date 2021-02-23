@@ -143,8 +143,7 @@
                             android:layout_below="@id/mypage_willdo_sur"
                             android:layout_marginTop="5dp"
                             android:id="@+id/mypage_willdo_sur_below"
-                            android:text="* 5크레딧으로 설문 게시글을 1회 업로드 할
-  수 있어요 (게시 기간은 3일입니다) "
+                            android:text="* 5크레딧으로 설문 게시글을 1회 업로드 할 수 있어요 (게시 기간은 3일입니다) "
                             android:textSize="12dp"/>
                     </RelativeLayout>
                 </RelativeLayout>

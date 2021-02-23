@@ -43,6 +43,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthOptions;
 import com.google.firebase.auth.PhoneAuthProvider;
+import com.pumasi.surbay.mypage.SettingInfo;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -92,6 +93,8 @@ public class SignupActivity extends AppCompatActivity {
     String userid;
     String phoneNumber;
 
+    TextView user_agree_info;
+
     private Boolean phone_check = false;
 
     CountDownTimer CDT;
@@ -125,6 +128,14 @@ public class SignupActivity extends AppCompatActivity {
         visibletoggle = (ImageButton)findViewById(R.id.visible_toggle);
         check_id = findViewById(R.id.signup_check_id);
         check_name = findViewById(R.id.signup_check_name);
+
+        user_agree_info = findViewById(R.id.user_agree_info);
+        user_agree_info.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(SignupActivity.this, SettingInfo.class));
+            }
+        });
 
         ArrayAdapter emailadapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, spinner_email);
         emailadapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -166,13 +177,15 @@ public class SignupActivity extends AppCompatActivity {
             public void onTextChanged(CharSequence s, int start, int before, int count) {}
             @Override
             public void afterTextChanged(Editable s) {
-                check_id.setVisibility(View.VISIBLE);
-                check_id.setText("중복 확인 중입니다.");
-                check_id.setTextColor(getResources().getColor(R.color.red));
-                try {
-                    idCheck(useridEditText);
-                } catch (Exception e) {
-                    e.printStackTrace();
+                if(posadd!=0) {
+                    check_id.setVisibility(View.VISIBLE);
+                    check_id.setText("중복 확인 중입니다.");
+                    check_id.setTextColor(getResources().getColor(R.color.red));
+                    try {
+                        idCheck(useridEditText);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         });
@@ -313,6 +326,28 @@ public class SignupActivity extends AppCompatActivity {
                 if (phoneNumber.length() == 11){
                     try {
                         phoneCheck();
+                        AlertDialog.Builder builder = new AlertDialog.Builder(SignupActivity.this);
+                            AlertDialog dialog;
+                            dialog = builder.setMessage("인증번호를 발송했습니다")
+                                        .setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                phone_checkButton.setEnabled(false);
+                                                phonenumberEditText.setEnabled(false);
+
+                                                dialog.cancel();
+                                            }
+                                        })
+                                        .create();
+                                dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                                    @SuppressLint("ResourceAsColor")
+                                    @Override
+                                    public void onShow(DialogInterface arg0) {
+                                        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(R.color.black);
+                                    }
+                                });
+                                dialog.show();
+
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -585,6 +620,8 @@ public class SignupActivity extends AppCompatActivity {
                         //     user action.
                         Log.d("phone auth", "onVerificationCompleted:" + credential);
                         String code = credential.getSmsCode();
+                        phone_checkButton.setEnabled(true);
+                        phonenumberEditText.setEnabled(true);
 
                         //sometime the code is not detected automatically
                         //in this case the code will be null
@@ -602,6 +639,8 @@ public class SignupActivity extends AppCompatActivity {
                         // This callback is invoked in an invalid request for verification is made,
                         // for instance if the the phone number format is not valid.
                         Log.w("phone auth", "onVerificationFailed", e);
+                        phone_checkButton.setEnabled(true);
+                        phonenumberEditText.setEnabled(true);
 
                         if (e instanceof FirebaseAuthInvalidCredentialsException) {
                             // Invalid request
@@ -622,16 +661,19 @@ public class SignupActivity extends AppCompatActivity {
     public boolean CheckableSignup(){
         name = nameEditText.getText().toString();
 
-        if(name.length()==0){
-            Toast.makeText(getApplicationContext(), "닉네임을 입력해주세요", Toast.LENGTH_SHORT).show();
-            return false;
-        }
 
-        userid = useridEditText.getText().toString() + "@" + spinner_email[posadd];
-        if(userid.length()==0){
+
+        if(posadd!=0) {
+            userid = useridEditText.getText().toString() + "@" + spinner_email[posadd];
+            if (userid.length() == 0) {
+                Toast.makeText(getApplicationContext(), "아이디를 입력해주세요", Toast.LENGTH_SHORT).show();
+                return false;
+            }
+        }else if (posadd==0){
             Toast.makeText(getApplicationContext(), "아이디를 입력해주세요", Toast.LENGTH_SHORT).show();
             return false;
         }
+
 
         if(pwcheckword.getVisibility() == View.GONE){
             password = passwordEditText.getText().toString();
@@ -644,12 +686,16 @@ public class SignupActivity extends AppCompatActivity {
             return false;
         }
 
+        if(name.length()==0){
+            Toast.makeText(getApplicationContext(), "닉네임을 입력해주세요", Toast.LENGTH_SHORT).show();
+            return false;
+        }
         phoneNumber = phonenumberEditText.getText().toString();
 
         if (posyear != 0){
             yearBirth = Integer.valueOf(spinner_age.get(posyear));
         } else {
-            Toast.makeText(getApplicationContext(), "출생연도를 선택해주세요", Toast.LENGTH_SHORT).show();
+            yearBirth = 0;
             return false;
         }
 
@@ -658,7 +704,7 @@ public class SignupActivity extends AppCompatActivity {
         } else if (MPressed == false && FPressed == true){
             gender = 1;
         } else {
-            Toast.makeText(getApplicationContext(), "성별을 선택해주세요", Toast.LENGTH_SHORT).show();
+            gender = 2;
             return false;
         }
 

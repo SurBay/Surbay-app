@@ -518,8 +518,7 @@ public class AccountFix extends AppCompatActivity {
         if (posyear != 0){
             yearBirth = Integer.valueOf(spinner_age.get(posyear));
         } else {
-            Toast.makeText(AccountFix.this, "출생연도를 선택해주세요", Toast.LENGTH_SHORT).show();
-            return false;
+            yearBirth = 0;
         }
 
         if(MPressed == true && FPressed == false){
@@ -527,12 +526,10 @@ public class AccountFix extends AppCompatActivity {
         } else if (MPressed == false && FPressed == true){
             gender = 1;
         } else {
-            Toast.makeText(AccountFix.this, "성별을 선택해주세요", Toast.LENGTH_SHORT).show();
-            return false;
+            gender = 2;
         }
 
         if (!phone_check){
-            Toast.makeText(AccountFix.this, "휴대폰 인증을 해주세요", Toast.LENGTH_SHORT).show();
             return false;
         }
 

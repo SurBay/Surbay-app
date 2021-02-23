@@ -20,7 +20,7 @@ public class Surveytip implements Parcelable {
     private Integer likes;
     private ArrayList<String> liked_users;
 
-    private String dateformat = "yyyy-MM-dd'T'hh:mm:ss.SSS";
+    private String dateformat = "yyyy-MM-dd'T'kk:mm:ss.SSS";
 
     public String getID() {
         return id;

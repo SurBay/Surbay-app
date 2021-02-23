@@ -114,31 +114,51 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
             @Override
             public int compare(Post o1, Post o2) {
                 int ret;
-                float goal1 = ((float)o1.getParticipants()/o1.getGoal_participants());
-                float goal2 = ((float)o2.getParticipants()/o2.getGoal_participants());
-                if(goal1>goal2)
-                    ret = -1;
-                else if(goal1==goal2)
-                    ret = 0;
-                else
-                    ret = 1;
-                return ret;
+                Date now = new Date();
+                if((now.after(o1.getDeadline()) || o1.isDone()) && (!(now.after(o2.getDeadline()) || o2.isDone()))){
+                    Log.d("comparing", ""+o1.getTitle() + o2.getTitle());
+                    return 1;
+                }else if((!(now.after(o1.getDeadline()) || o1.isDone())) && (now.after(o2.getDeadline()) || o2.isDone())){
+                    Log.d("comparing2", ""+o1.getTitle() + o2.getTitle());
+                    return -1;
+                }
+                else {
+                    float goal1 = ((float) o1.getParticipants() / o1.getGoal_participants());
+                    float goal2 = ((float) o2.getParticipants() / o2.getGoal_participants());
+                    if (goal1 > goal2)
+                        ret = -1;
+                    else if (goal1 == goal2)
+                        ret = 0;
+                    else
+                        ret = 1;
+                    return ret;
+                }
             }
         };
         cmpNew = new Comparator<Post>() {
             @Override
             public int compare(Post o1, Post o2) {
                 int ret;
-                Date date1 = o1.getDate();
-                Date date2 = o2.getDate();
-                int compare = date1.compareTo(date2);
-                if(compare>0)
-                    ret = -1; //date2<date1
-                else if(compare==0)
-                    ret = 0;
-                else
-                    ret = 1;
-                return ret;
+                Date now = new Date();
+                if((now.after(o1.getDeadline()) || o1.isDone()) && (!(now.after(o2.getDeadline()) || o2.isDone()))){
+                    Log.d("comparing", ""+o1.getTitle() + o2.getTitle());
+                    return 1;
+                }else if((!(now.after(o1.getDeadline()) || o1.isDone())) && (now.after(o2.getDeadline()) || o2.isDone())){
+                    Log.d("comparing2", ""+o1.getTitle() + o2.getTitle());
+                    return -1;
+                }
+                else {
+                    Date date1 = o1.getDate();
+                    Date date2 = o2.getDate();
+                    int compare = date1.compareTo(date2);
+                    if (compare > 0)
+                        ret = -1; //date2<date1
+                    else if (compare == 0)
+                        ret = 0;
+                    else
+                        ret = 1;
+                    return ret;
+                }
             }
         };
         cmpDeadline = new Comparator<Post>() {
@@ -146,22 +166,26 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
             public int compare(Post o1, Post o2) {
                 int ret;
                 Date now = new Date();
-                if (now.after(o1.getDeadline()) || o1.isDone()) {
-                    return -1;
-                } else if (now.after(o2.getDeadline()) || o2.isDone()) {
+                if((now.after(o1.getDeadline()) || o1.isDone()) && (!(now.after(o2.getDeadline()) || o2.isDone()))){
+                    Log.d("comparing", ""+o1.getTitle() + o2.getTitle());
                     return 1;
+                }else if((!(now.after(o1.getDeadline()) || o1.isDone())) && (now.after(o2.getDeadline()) || o2.isDone())){
+                    Log.d("comparing2", ""+o1.getTitle() + o2.getTitle());
+                    return -1;
                 }
+                else {
 
-                Date date1 = o1.getDeadline();
-                Date date2 = o2.getDeadline();
-                int compare = date1.compareTo(date2);
-                if(compare<0)
-                    ret = -1; //date2>date1
-                else if(compare==0)
-                    ret = 0;
-                else
-                    ret = 1;
-                return ret;
+                    Date date1 = o1.getDeadline();
+                    Date date2 = o2.getDeadline();
+                    int compare = date1.compareTo(date2);
+                    if (compare < 0)
+                        ret = -1; //date2>date1
+                    else if (compare == 0)
+                        ret = 0;
+                    else
+                        ret = 1;
+                    return ret;
+                }
             }
         };
 

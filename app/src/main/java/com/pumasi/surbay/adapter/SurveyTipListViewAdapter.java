@@ -46,7 +46,7 @@ public class SurveyTipListViewAdapter extends BaseAdapter {
         // 화면에 표시될 View(Layout이 inflate된)으로부터 위젯에 대한 참조 획득
         TextView titleTextView = (TextView) convertView.findViewById(R.id.non_title);
         TextView dateTextView = (TextView) convertView.findViewById(R.id.non_date);
-        TextView authorLvlTextView = (TextView) convertView.findViewById(R.id.non_level);
+        TextView authorTextView = (TextView) convertView.findViewById(R.id.non_author);
         TextView likesTextView = (TextView) convertView.findViewById(R.id.non_recom);
         TextView categoryTextView = (TextView) convertView.findViewById(R.id.non_cate);
 
@@ -56,9 +56,10 @@ public class SurveyTipListViewAdapter extends BaseAdapter {
 
         dateTextView.setText(fm.format(post.getDate()));
         titleTextView.setText(post.getTitle());
-        authorLvlTextView.setText("LV " + post.getAuthor_lvl());
+        authorTextView.setText(post.getAuthor());
         likesTextView.setText(post.getLikes().toString());
         categoryTextView.setText(post.getCategory());
+        categoryTextView.setTextColor(context.getColor(R.color.teal_200));
 
         return convertView;
     }

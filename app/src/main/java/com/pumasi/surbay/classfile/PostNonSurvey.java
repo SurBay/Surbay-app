@@ -20,7 +20,7 @@ public class PostNonSurvey implements Parcelable{
     private ArrayList<Reply> comments;
 
 
-    private String dateformat = "yyyy-MM-dd'T'hh:mm:ss.SSS";
+    private String dateformat = "yyyy-MM-dd'T'kk:mm:ss.SSS";
 
     public String getID() {
         return id;

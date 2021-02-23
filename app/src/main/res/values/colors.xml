@@ -17,4 +17,5 @@
     <color name="nav_gray">#BDBDBD</color>
     <color name="text_black">#484747</color>
     <color name="comments_back">#E5E5E5</color>
+    <color name="text_black_70">#707070</color>
 </resources>

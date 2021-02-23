@@ -15,7 +15,7 @@ public class Notice implements Parcelable{
     private String content;
     private Date date;
 
-    private String dateformat = "yyyy-MM-dd'T'hh:mm:ss.SSS";
+    private String dateformat = "yyyy-MM-dd'T'kk:mm:ss.SSS";
 
     public Notice(String id,String title, String author, String content, Date date){
         this.id = id;

@@ -59,7 +59,7 @@ public class FeedbackReplyListViewAdapter extends BaseAdapter {
         ImageView replymenu = (ImageView)convertView.findViewById(R.id.reply_menu);
         replymenu.setVisibility(View.INVISIBLE);
 
-        SimpleDateFormat fm = new SimpleDateFormat("MM-dd hh:mm");
+        SimpleDateFormat fm = new SimpleDateFormat("MM-dd kk:mm");
         Reply reply = listViewItemList.get(position);
         String date = fm.format(reply.getDate());
 

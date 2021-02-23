@@ -74,6 +74,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TimeZone;
 
 public class WriteActivity extends AppCompatActivity {
     static final int NEWPOST = 1;
@@ -307,7 +308,7 @@ public class WriteActivity extends AppCompatActivity {
                 String year = new SimpleDateFormat("yyyy").format(date);
                 String month = new SimpleDateFormat("MM").format(date);
                 String day = new SimpleDateFormat("dd").format(date);
-                String hour = new SimpleDateFormat("hh").format(date);
+                String hour = new SimpleDateFormat("kk").format(date);
                 DatePickerDialog dialog = new DatePickerDialog(WriteActivity.this, callbackMethod, Integer.valueOf(year), Integer.valueOf(month)-1, Integer.valueOf(day));
                 timedialog = new TimePickerDialog(WriteActivity.this, tcallbackMethod, Integer.valueOf(hour), 00, false);
                 Calendar cal = Calendar.getInstance();
@@ -352,7 +353,7 @@ public class WriteActivity extends AppCompatActivity {
                     String year = new SimpleDateFormat("yyyy").format(date);
                     String month = new SimpleDateFormat("MM").format(date);
                     String day = new SimpleDateFormat("dd").format(date);
-                    String hour = new SimpleDateFormat("hh").format(date);
+                    String hour = new SimpleDateFormat("kk").format(date);
                     DatePickerDialog dialog = new DatePickerDialog(WriteActivity.this, callbackMethod, Integer.valueOf(year), Integer.valueOf(month)-1, Integer.valueOf(day));
                     timedialog = new TimePickerDialog(WriteActivity.this, tcallbackMethod, Integer.valueOf(hour), 00, false);
                     Calendar cal = Calendar.getInstance();
@@ -519,12 +520,11 @@ public class WriteActivity extends AppCompatActivity {
                     params.put("goal_participants", String.valueOf(goal_participants));
                 }
                 params.put("url", url);
-                SimpleDateFormat fm = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss.SSS");
-                Date gmt_date = date;
-                gmt_date.setTime(gmt_date.getTime()-(9*60*60*1000));
+                SimpleDateFormat fm = new SimpleDateFormat("yyyy-MM-dd'T'kk:mm:ss.SSS");
+                fm.setTimeZone(TimeZone.getTimeZone("UTC"));
+                Date gmt_date = new Date(fm.format(date));
                 params.put("date", fm.format(gmt_date));
-                Date gmt_deadline = deadline;
-                gmt_deadline.setTime(gmt_deadline.getTime()-(9*60*60*1000));
+                Date gmt_deadline = new Date(fm.format(deadline));;
                 params.put("deadline", fm.format(gmt_deadline));
                 params.put("with_prize", String.valueOf(with_prize));
                 if(with_prize) {
@@ -814,7 +814,7 @@ public class WriteActivity extends AppCompatActivity {
     }
 
     public void setDeadline(){
-        SimpleDateFormat fm = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss.SSS");
+        SimpleDateFormat fm = new SimpleDateFormat("yyyy-MM-dd'T'kk:mm:ss.SSS");
         try {
             deadline = fm.parse(datestr+"T"+ timestr+":00.000Z");
             Log.d("writedeadline", deadline.toString());

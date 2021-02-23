@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
@@ -48,6 +49,7 @@ public class TipdetailActivity extends AppCompatActivity {
     TextView title;
     TextView category;
     TextView content;
+    TextView date;
     LinearLayout likesbutton;
     TextView likescount;
 
@@ -57,7 +59,7 @@ public class TipdetailActivity extends AppCompatActivity {
 
     boolean likedselected;
     private int position;
-
+    ImageView back;
     private static final String TAG_TEXT = "text";
     private static final String TAG_IMAGE = "image";
     String[] text = {" 카카오톡으로 공유하기 "};
@@ -69,19 +71,47 @@ public class TipdetailActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tipdetail);
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
-//        getSupportActionBar().setDisplayShowCustomEnabled(true);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        this.getSupportActionBar().hide();
+
+        Intent resultIntent = new Intent(getApplicationContext(), BoardFragment2.class);
+        resultIntent.putExtra("position", position);
+        setResult(RESULT_OK, resultIntent);
+
+        back = findViewById(R.id.tip_detail_back);
+        back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(ORIGIN_LIKE==LIKED && LIKE_CHANGE==DISLIKED){
+                    dislikepost();
+                    surveytip.setLikes(surveytip.getLikes()-1);
+                    surveytip.getLiked_users().remove(UserPersonalInfo.userID);
+                }
+                else if(ORIGIN_LIKE==DISLIKED && LIKE_CHANGE==LIKED){
+                    likepost();
+                    surveytip.setLikes(surveytip.getLikes()+1);
+                    surveytip.getLiked_users().add(UserPersonalInfo.userID);
+                }
+                Intent intent = new Intent(TipdetailActivity.this, BoardFragment2.class);
+                intent.putExtra("position", position);
+                intent.putExtra("surveyTip", surveytip);
+
+                Log.d("surveytip date", "date is"+ surveytip.getDate());
+                setResult(0, intent);
+                finish();
+            }
+        });
+
+        author = findViewById(R.id.tip_detail_auther);
+        title = findViewById(R.id.tip_detail_title);
+        date = findViewById(R.id.tip_detail_date);
+        content = findViewById(R.id.tip_detail_content);
+        category = findViewById(R.id.tip_detail_category);
 
         Intent intent = getIntent();
         surveytip = intent.getParcelableExtra("post");
         position = intent.getIntExtra("position", 0);
 
-        author = findViewById(R.id.tipdetail_author);
-        level = findViewById(R.id.tipdetail_level);
-        title = findViewById(R.id.tipdetail_title);
-        category = findViewById(R.id.tipdetail_category);
-        content = findViewById(R.id.tipdetail_content);
         likesbutton = findViewById(R.id.tipdetail_likesbutton);
         likescount = findViewById(R.id.tipdetail_likes);
 
@@ -97,8 +127,7 @@ public class TipdetailActivity extends AppCompatActivity {
         }
 
         likedlist = new ArrayList<>(surveytip.getLiked_users());
-        author.setText(surveytip.getAuthor());
-        level.setText(surveytip.getAuthor_lvl().toString());
+        author.setText(surveytip.getAuthor() + " (Lv " + surveytip.getAuthor_lvl().toString() + ")");
         title.setText(surveytip.getTitle());
         category.setText(surveytip.getCategory());
         content.setText(surveytip.getContent());
@@ -127,9 +156,7 @@ public class TipdetailActivity extends AppCompatActivity {
             }
         });
 
-        Intent resultIntent = new Intent(getApplicationContext(), BoardFragment2.class);
-        resultIntent.putExtra("position", position);
-        setResult(RESULT_OK, resultIntent);
+
     }
 
     @Override
@@ -231,114 +258,114 @@ public class TipdetailActivity extends AppCompatActivity {
 
 
 
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()){
-            case android.R.id.home:
-                if(ORIGIN_LIKE==LIKED && LIKE_CHANGE==DISLIKED){
-                    dislikepost();
-                    surveytip.setLikes(surveytip.getLikes()-1);
-                    surveytip.getLiked_users().remove(UserPersonalInfo.userID);
-                }
-                else if(ORIGIN_LIKE==DISLIKED && LIKE_CHANGE==LIKED){
-                    likepost();
-                    surveytip.setLikes(surveytip.getLikes()+1);
-                    surveytip.getLiked_users().add(UserPersonalInfo.userID);
-                }
-                Intent intent = new Intent(TipdetailActivity.this, BoardFragment2.class);
-                intent.putExtra("position", position);
-                intent.putExtra("surveyTip", surveytip);
-
-                Log.d("surveytip date", "date is"+ surveytip.getDate());
-                setResult(0, intent);
-                finish();
-                break;
-            case R.id.share:
-                ShareDialog();
-                break;
-            case R.id.report:
-                //select back button
-                break;
-            case R.id.fix:
-                break;
-            case R.id.remove:
-                RemoveDialog();
-                break;
-            case R.id.note:
-                break;
-            case R.id.resultrequest:
-                break;
-
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    private void ShareDialog()
-    {
-        AlertDialog.Builder builder = new AlertDialog.Builder(TipdetailActivity.this);
-        LayoutInflater inflater = getLayoutInflater();
-        View view = inflater.inflate(R.layout.share_dialog, null);
-        builder.setView(view);
-
-        final ListView listview = (ListView)view.findViewById(R.id.listview_alterdialog_list);
-        final AlertDialog dialog = builder.create();
-
-        SimpleAdapter simpleAdapter = new SimpleAdapter(TipdetailActivity.this, dialogItemList,
-                R.layout.share_listitem,
-                new String[]{TAG_IMAGE, TAG_TEXT},
-                new int[]{R.id.share_item_image, R.id.share_item_name});
-
-        listview.setAdapter(simpleAdapter);
-        listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                switch (position){
-                    case 0:
-                        Intent Sharing_intent = new Intent(Intent.ACTION_SEND);
-                        Sharing_intent.setType("text/plain");
-
-                        Intent Sharing = Intent.createChooser(Sharing_intent, "공유하기");
-                        startActivity(Sharing);
-                        dialog.dismiss();
-                        break;
-                }
-            }
-        });
-
-        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
-        lp.copyFrom(dialog.getWindow().getAttributes());
-        lp.width = 800;
-        lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
-
-        dialog.show();
-        Window window = dialog.getWindow();
-        window.setAttributes(lp);
-    }
-
-    private void RemoveDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(TipdetailActivity.this);
-        dialog = builder.setMessage("설문을 삭제하겠습니까?")
-                .setPositiveButton("삭제", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which){
-
-                    }
-                }).setNegativeButton("취소", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                })
-                .create();
-        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-            @SuppressLint("ResourceAsColor")
-            @Override
-            public void onShow(DialogInterface arg0) {
-                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(R.color.teal_200);
-                dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(R.color.gray);
-            }
-        });
-        dialog.show();
-    }
+//    @Override
+//    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+//        switch (item.getItemId()){
+//            case android.R.id.home:
+//                if(ORIGIN_LIKE==LIKED && LIKE_CHANGE==DISLIKED){
+//                    dislikepost();
+//                    surveytip.setLikes(surveytip.getLikes()-1);
+//                    surveytip.getLiked_users().remove(UserPersonalInfo.userID);
+//                }
+//                else if(ORIGIN_LIKE==DISLIKED && LIKE_CHANGE==LIKED){
+//                    likepost();
+//                    surveytip.setLikes(surveytip.getLikes()+1);
+//                    surveytip.getLiked_users().add(UserPersonalInfo.userID);
+//                }
+//                Intent intent = new Intent(TipdetailActivity.this, BoardFragment2.class);
+//                intent.putExtra("position", position);
+//                intent.putExtra("surveyTip", surveytip);
+//
+//                Log.d("surveytip date", "date is"+ surveytip.getDate());
+//                setResult(0, intent);
+//                finish();
+//                break;
+//            case R.id.share:
+//                ShareDialog();
+//                break;
+//            case R.id.report:
+//                //select back button
+//                break;
+//            case R.id.fix:
+//                break;
+//            case R.id.remove:
+//                RemoveDialog();
+//                break;
+//            case R.id.note:
+//                break;
+//            case R.id.resultrequest:
+//                break;
+//
+//        }
+//        return super.onOptionsItemSelected(item);
+//    }
+//
+//    private void ShareDialog()
+//    {
+//        AlertDialog.Builder builder = new AlertDialog.Builder(TipdetailActivity.this);
+//        LayoutInflater inflater = getLayoutInflater();
+//        View view = inflater.inflate(R.layout.share_dialog, null);
+//        builder.setView(view);
+//
+//        final ListView listview = (ListView)view.findViewById(R.id.listview_alterdialog_list);
+//        final AlertDialog dialog = builder.create();
+//
+//        SimpleAdapter simpleAdapter = new SimpleAdapter(TipdetailActivity.this, dialogItemList,
+//                R.layout.share_listitem,
+//                new String[]{TAG_IMAGE, TAG_TEXT},
+//                new int[]{R.id.share_item_image, R.id.share_item_name});
+//
+//        listview.setAdapter(simpleAdapter);
+//        listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//                switch (position){
+//                    case 0:
+//                        Intent Sharing_intent = new Intent(Intent.ACTION_SEND);
+//                        Sharing_intent.setType("text/plain");
+//
+//                        Intent Sharing = Intent.createChooser(Sharing_intent, "공유하기");
+//                        startActivity(Sharing);
+//                        dialog.dismiss();
+//                        break;
+//                }
+//            }
+//        });
+//
+//        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+//        lp.copyFrom(dialog.getWindow().getAttributes());
+//        lp.width = 800;
+//        lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+//
+//        dialog.show();
+//        Window window = dialog.getWindow();
+//        window.setAttributes(lp);
+//    }
+//
+//    private void RemoveDialog() {
+//        AlertDialog.Builder builder = new AlertDialog.Builder(TipdetailActivity.this);
+//        dialog = builder.setMessage("설문을 삭제하겠습니까?")
+//                .setPositiveButton("삭제", new DialogInterface.OnClickListener() {
+//                    @Override
+//                    public void onClick(DialogInterface dialog, int which){
+//
+//                    }
+//                }).setNegativeButton("취소", new DialogInterface.OnClickListener() {
+//                    @Override
+//                    public void onClick(DialogInterface dialog, int which) {
+//                    }
+//                })
+//                .create();
+//        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+//            @SuppressLint("ResourceAsColor")
+//            @Override
+//            public void onShow(DialogInterface arg0) {
+//                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(R.color.teal_200);
+//                dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(R.color.gray);
+//            }
+//        });
+//        dialog.show();
+//    }
 
 
 

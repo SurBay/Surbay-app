@@ -47,6 +47,17 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:id="@+id/recyc_participated"
+                    android:gravity="left|top"
+                    android:visibility="invisible"
+                    android:layout_alignParentLeft="true"
+                    android:text="참여 완료"
+                    android:lines="1"
+                    android:textSize="14dp"
+                    android:textColor="@color/teal_200"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:id="@+id/recyc_participants"
                     android:gravity="right|top"
                     android:visibility="visible"

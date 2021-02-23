@@ -236,7 +236,7 @@ public class TipWriteActivity extends AppCompatActivity {
             params.put("author", author);
             params.put("author_lvl", author_lvl);
             params.put("content", content);
-            SimpleDateFormat fm = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss.SSS");
+            SimpleDateFormat fm = new SimpleDateFormat("yyyy-MM-dd'T'kk:mm:ss.SSS");
             params.put("date", fm.format(date));
             params.put("category", category);
             params.put("likes", likes);

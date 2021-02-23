@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.pumasi.surbay.R;
 import com.pumasi.surbay.classfile.Post;
+import com.pumasi.surbay.classfile.UserPersonalInfo;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -68,6 +69,12 @@ public class RecyclerViewDdayAdapter extends RecyclerView.Adapter<RecyclerViewDd
             holder.participate.setVisibility(View.INVISIBLE);
         }
 
+        if(UserPersonalInfo.participations.contains(imageModelArrayList.get(position).getID())&&!imageModelArrayList.get(position).getAuthor_userid().equals(UserPersonalInfo.userID)){
+            holder.participated.setVisibility(View.VISIBLE);
+        }else{
+            holder.participated.setVisibility(View.INVISIBLE);
+        }
+
         /*
         if ("D-day".equals(somber)) {
 
@@ -105,6 +112,7 @@ public class RecyclerViewDdayAdapter extends RecyclerView.Adapter<RecyclerViewDd
         TextView title;
         TextView content;
         TextView participate;
+        TextView participated;
 
         public MyViewDdayHolder(View itemView) {
             super(itemView);
@@ -112,6 +120,7 @@ public class RecyclerViewDdayAdapter extends RecyclerView.Adapter<RecyclerViewDd
             title = (TextView) itemView.findViewById(R.id.title);
             content = (TextView) itemView.findViewById(R.id.content);
             participate = (TextView) itemView.findViewById(R.id.recyc_participants);
+            participated = (TextView) itemView.findViewById(R.id.recyc_participated);
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override

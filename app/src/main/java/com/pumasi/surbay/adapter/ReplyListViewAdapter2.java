@@ -29,6 +29,7 @@ import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Locale;
 
 public class ReplyListViewAdapter2 extends RecyclerView.Adapter<ReplyListViewAdapter2.MyViewHolder> {
     private static ReplyListViewAdapter2.OnItemClickListener mListener = null ;
@@ -64,7 +65,7 @@ public class ReplyListViewAdapter2 extends RecyclerView.Adapter<ReplyListViewAda
     @Override
     public void onBindViewHolder(ReplyListViewAdapter2.MyViewHolder holder, int position) {
 
-        SimpleDateFormat fm = new SimpleDateFormat("MM.dd hh:mm");
+        SimpleDateFormat fm = new SimpleDateFormat("MM.dd kk:mm", Locale.KOREA);
         Reply reply = listViewItemList.get(position);
         String date = fm.format(reply.getDate());
 

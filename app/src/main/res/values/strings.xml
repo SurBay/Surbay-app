@@ -1,11 +1,11 @@
 <resources>
     <string name="app_name">SurBay</string>
     <string name="progress">50/100</string>
-    <string name="date_format">yyyy-MM-dd\'T\'hh:mm:ss.SSS</string>
-    <string name="signup"><u>회원가입</u>.</string>
-    <string name="infoagree"><u>개인정보 수집·이용</u>.</string>
+    <string name="date_format">yyyy-MM-dd\'T\'kk:mm:ss.SSS</string>
+    <string name="infoagree"><u>회원가입, 개인정보 수집·이용</u></string>
     <string name="server">http://ec2-3-35-152-40.ap-northeast-2.compute.amazonaws.com</string>
     <string name="min_count_msg">%d개 선택하셔야 합니다</string>
+    <string name="feedback_spinner_hint">선택해주세요</string>
     <string name="info">제 1장 총칙\n
 제 1 조 (목적)\n
 SurBay 서비스 이용약관은 회사가 서비스를 제공함에 있어, 회사와 이용자 간의 권리, 의무 및 책임 사항 등을 규정함을 목적으로 합니다.\n

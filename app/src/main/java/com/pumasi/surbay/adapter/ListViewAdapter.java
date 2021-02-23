@@ -109,7 +109,12 @@ public class ListViewAdapter extends BaseAdapter {
 
 
         authornameTextView.setText(post.getAuthor());
-        participantsTextView.setText(post.getParticipants().toString());
+        if(post.getGoal_participants()>999){
+            participantsTextView.setText("999+");
+        }else {
+            participantsTextView.setText(post.getParticipants().toString());
+        }
+
         if(post.getGoal_participants()>999){
             goalParticipantsTextView.setText("999+");
         }else {

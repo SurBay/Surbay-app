@@ -34,7 +34,7 @@ public class Post implements Parcelable{
 
 
 
-    private String dateformat = "yyyy-MM-dd'T'hh:mm:ss.SSS";
+    private String dateformat = "yyyy-MM-dd'T'kk:mm:ss.SSS";
     public String getID() {
         return id;
     }

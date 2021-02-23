@@ -244,7 +244,7 @@ public class FeedbackWrite extends AppCompatActivity {
             params.put("author", author);
             params.put("author_lvl", String.valueOf(author_lvl));
             params.put("content", content);
-            SimpleDateFormat fm = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss.SSS");
+            SimpleDateFormat fm = new SimpleDateFormat("yyyy-MM-dd'T'kk:mm:ss.SSS");
             params.put("date", fm.format(date));
             params.put("category", String.valueOf(category));
             params.put("comments", String.valueOf(new ArrayList<Reply>()));

@@ -9,30 +9,32 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="SurBay"
+        android:textStyle="bold"
         android:textSize="40dp"
         android:textColor="@color/black"
-        android:layout_marginTop="100dp"
+        android:layout_marginTop="120dp"
         android:gravity="center"/>
 
     <EditText
         android:id="@+id/username"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginHorizontal="60dp"
+        android:layout_marginTop="50dp"
+        android:background="@color/white"
         android:ems="10"
-        android:paddingVertical="10dp"
-        android:paddingHorizontal="12dp"
+        android:hint="아이디 (이메일 형식)"
+        android:textColorHint="@color/text_black_70"
         android:inputType="text"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="10dp"
         android:privateImeOptions="defaultInputmode=english"
-        android:background="@drawable/round_border_white"
-        android:backgroundTint="@color/gray"
-        android:hint="아이디"
-        android:textSize="15dp"
-        android:layout_marginHorizontal="40dp"
-        android:layout_marginTop="50dp"/>
+        android:textSize="15dp" />
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
         >
         <EditText
             android:id="@+id/password"
@@ -42,11 +44,11 @@
             android:paddingVertical="10dp"
             android:paddingHorizontal="12dp"
             android:inputType="textPassword"
-            android:background="@drawable/round_border_white"
-            android:backgroundTint="@color/gray"
+            android:background="@color/white"
             android:hint="비밀번호"
+            android:textColorHint="@color/text_black_70"
             android:textSize="15dp"
-            android:layout_marginHorizontal="40dp"
+            android:layout_marginHorizontal="60dp"
             android:layout_marginVertical="5dp"
             />
         <ImageButton
@@ -58,7 +60,7 @@
             android:layout_marginRight="10dp"
             android:src="@drawable/visibletoggle"
             android:scaleType="centerInside"
-            android:background="@color/gray"
+            android:background="@color/white"
             />
     </RelativeLayout>
     <LinearLayout
@@ -78,6 +80,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="아이디 저장"
+            android:textColor="@color/text_black_70"
             android:layout_marginLeft="10dp"
             />
         <CheckBox
@@ -92,6 +95,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="자동 로그인"
+            android:textColor="@color/text_black_70"
             android:layout_marginLeft="10dp"
             />
 
@@ -106,7 +110,7 @@
         android:textColor="@color/white"
         android:background="@drawable/round_border_white"
         android:backgroundTint="@color/teal_200"
-        android:layout_marginHorizontal="40dp"
+        android:layout_marginHorizontal="60dp"
         android:layout_marginTop="5dp"/>
 
     <Button
@@ -114,20 +118,19 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="회원가입"
-        android:textColor="@color/white"
+        android:textColor="@color/teal_200"
         android:background="@drawable/round_border_white"
-        android:backgroundTint="@color/gray2"
-        android:layout_marginHorizontal="40dp"
-        android:layout_marginTop="5dp"/>
+        android:layout_marginHorizontal="60dp"
+        android:layout_marginTop="10dp"/>
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="아이디/비밀번호 찾기"
+        android:text="아이디 찾기/비밀번호 재설정"
         android:gravity="center"
-        android:background="@color/white"
         android:layout_marginHorizontal="40dp"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="15dp"
         android:clickable="true"
+        android:textColor="@color/text_black_70"
         android:id="@+id/findidorpw"/>
 
 

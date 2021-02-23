@@ -55,6 +55,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -63,6 +64,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone;
 
 public class PostDetailActivity extends AppCompatActivity {
     static final int START_SURVEY = 1;
@@ -113,7 +115,7 @@ public class PostDetailActivity extends AppCompatActivity {
     private static final String TAG_IMAGE = "image";
     int[] image = {R.drawable.kakaotalk, R.drawable.googleform};
     String[] text = {" SNS로 공유하기 ", "구글폼 url 복사하기"};
-    final String[] spinner_esttime = {"선택해주세요", "1분 미만", "1~2분", "2~3분", "3~5분", "5~7분", "7~10분", "10분 초과"};
+    final String[] spinner_esttime = {"1분 미만", "1~2분", "2~3분", "3~5분", "5~7분", "7~10분", "10분 초과"};
 
     Date today;
     private LinearLayoutManager mLayoutManager;
@@ -233,7 +235,9 @@ public class PostDetailActivity extends AppCompatActivity {
             params.put("content",reply);
 
             Date date = new Date();
-            SimpleDateFormat fm = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss");
+            SimpleDateFormat fm = new SimpleDateFormat("yyyy-MM-dd'T'kk:mm:ss");
+            fm.setTimeZone(TimeZone.getTimeZone("UTC"));
+            Log.d("date is", ""+fm.format(date)+ "   "+ date);
             params.put("date", fm.format(date));
 
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
@@ -589,8 +593,10 @@ public class PostDetailActivity extends AppCompatActivity {
         author.setText(post.getAuthor());
         level.setText("Lv "+post.getAuthor_lvl());
         est_time.setText(spinner_esttime[post.getEst_time()]);
+        Log.d("deadline is", ""+post.getDeadline());
+        Log.d("formatted deadline is", ""+new SimpleDateFormat("MM.dd a K시", Locale.KOREA).format(post.getDeadline()));
 
-        deadline.setText(new SimpleDateFormat("MM.dd").format(post.getDate()) + " - " + new SimpleDateFormat("MM.dd a H시", Locale.KOREA).format(post.getDeadline()));
+        deadline.setText(new SimpleDateFormat("MM.dd").format(post.getDate()) + " - " + new SimpleDateFormat("MM.dd a K시", Locale.KOREA).format(post.getDeadline()));
         int dday_count = calc_dday(post.getDeadline());
         Date now = new Date();
         if(now.after(post.getDeadline()) || post.isDone()){
@@ -855,7 +861,8 @@ public class PostDetailActivity extends AppCompatActivity {
         try{
             RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
             JSONObject params = new JSONObject();
-            SimpleDateFormat fm = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss.SSS");
+            SimpleDateFormat fm = new SimpleDateFormat("yyyy-MM-dd'T'kk:mm:ss.SSS");
+            fm.setTimeZone(TimeZone.getTimeZone("UTC"));
             params.put("deadline", fm.format(deadline));
             Log.d("fix", UserPersonalInfo.name + params.toString());
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
@@ -973,7 +980,7 @@ public class PostDetailActivity extends AppCompatActivity {
     public void extendView(String dl){
 
         Log.d("todat",dl);
-        SimpleDateFormat fm = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss.SSS");
+        SimpleDateFormat fm = new SimpleDateFormat("yyyy-MM-dd'T'kk:mm:ss.SSS");
         Date new_deadline = null;
         try {
             new_deadline = fm.parse(dl);

@@ -15,7 +15,7 @@ public class Reply implements Parcelable {
     private String writer;
     private String content;
     private Date date;
-    private String dateformat = "yyyy-MM-dd'T'hh:mm:ss.SSS";
+    private String dateformat = "yyyy-MM-dd'T'kk:mm:ss.SSS";
     private ArrayList<String> reports;
     private boolean hide;
 

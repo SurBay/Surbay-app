@@ -141,61 +141,47 @@ public class LoginActivity extends AppCompatActivity {
                             Boolean success = resultObj.getBoolean("type");
                             AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
                             if(success) {
-                                dialog = builder.setMessage("로그인에 성공했습니다")
-                                        .setPositiveButton("확인", new DialogInterface.OnClickListener() {
-                                            @Override
-                                            public void onClick(DialogInterface dialog, int which) {
-                                                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                                                LoginActivity.this.startActivity(intent);
-                                                try {
+                                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                                LoginActivity.this.startActivity(intent);
+                                try {
 
-                                                    String token = resultObj.getString("token");
-                                                    UserPersonalInfo.token = token;
+                                    String token = resultObj.getString("token");
+                                    UserPersonalInfo.token = token;
 
-                                                    if (auto_login_check.isChecked()){
-                                                        SharedPreferences auto = getSharedPreferences("auto", Activity.MODE_PRIVATE);
-                                                        SharedPreferences.Editor autoLogin = auto.edit();
-                                                        autoLogin.putString("inputId", username);
-                                                        autoLogin.putString("inputPwd", password);
+                                    if (auto_login_check.isChecked()){
+                                        SharedPreferences auto = getSharedPreferences("auto", Activity.MODE_PRIVATE);
+                                        SharedPreferences.Editor autoLogin = auto.edit();
+                                        autoLogin.putString("inputId", username);
+                                        autoLogin.putString("inputPwd", password);
 
-                                                        autoLogin.putString("token", token);
-                                                        autoLogin.commit();
-                                                    } else {
-                                                        if (save_id_check.isChecked()){
-                                                            SharedPreferences auto = getSharedPreferences("auto", Activity.MODE_PRIVATE);
-                                                            SharedPreferences.Editor autoLogin = auto.edit();
+                                        autoLogin.putString("token", token);
+                                        autoLogin.commit();
+                                    } else {
+                                        if (save_id_check.isChecked()){
+                                            SharedPreferences auto = getSharedPreferences("auto", Activity.MODE_PRIVATE);
+                                            SharedPreferences.Editor autoLogin = auto.edit();
 
 
-                                                            autoLogin.putString("inputId", username);
-                                                            autoLogin.remove("inputPwd");
-                                                            autoLogin.remove("token");
-                                                            autoLogin.commit();
-                                                        } else {
-                                                            SharedPreferences auto = getSharedPreferences("auto", Activity.MODE_PRIVATE);
-                                                            SharedPreferences.Editor autoLogin = auto.edit();
+                                            autoLogin.putString("inputId", username);
+                                            autoLogin.remove("inputPwd");
+                                            autoLogin.remove("token");
+                                            autoLogin.commit();
+                                        } else {
+                                            SharedPreferences auto = getSharedPreferences("auto", Activity.MODE_PRIVATE);
+                                            SharedPreferences.Editor autoLogin = auto.edit();
 
 
-                                                            autoLogin.remove("inputId");
-                                                            autoLogin.remove("inputPwd");
-                                                            autoLogin.remove("token");
-                                                            autoLogin.commit();
-                                                        }
-                                                    }
-                                                } catch (JSONException e) {
-                                                    e.printStackTrace();
-                                                }
-                                                finish();
-                                            }///로그인 화면이 스택으로 남아있는지?
-                                        })
-                                        .create();
-                                dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-                                    @SuppressLint("ResourceAsColor")
-                                    @Override
-                                    public void onShow(DialogInterface arg0) {
-                                        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(R.color.black);
+                                            autoLogin.remove("inputId");
+                                            autoLogin.remove("inputPwd");
+                                            autoLogin.remove("token");
+                                            autoLogin.commit();
+                                        }
                                     }
-                                });
-                                dialog.show();
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                                finish();
+
                             }else {
                                 dialog = builder.setMessage("아이디나 비밀번호가 일치하지 않습니다.")
                                         .setNegativeButton("다시시도", new DialogInterface.OnClickListener() {
