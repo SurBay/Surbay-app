@@ -5,9 +5,11 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
@@ -78,69 +80,99 @@ public class ReplyListViewAdapter2 extends RecyclerView.Adapter<ReplyListViewAda
             holder.replymenu.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    customDialog = new CustomDialog(context, new View.OnClickListener() {
+                    PopupMenu popupMenu = new PopupMenu(context, v);
+                    popupMenu.getMenuInflater().inflate(R.menu.reply_popup_menu_writer, popupMenu.getMenu());
+                    popupMenu.show();
+                    popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                         @Override
-                        public void onClick(View v) {
-                            String requestURL = context.getString(R.string.server)+"/api/posts/deletecomment/"+post.getID();
-                            try{
-                                RequestQueue requestQueue = Volley.newRequestQueue(context);
-                                JSONObject params = new JSONObject();
-                                params.put("_id", reply.getID());
-                                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
-                                        (Request.Method.PUT, requestURL, params, response -> {
-                                            Log.d("response is", ""+response);
-                                            listViewItemList.remove(position);
-                                            notifyDataSetChanged();
-                                        }, error -> {
-                                            Log.d("exception", "volley error");
-                                            error.printStackTrace();
-                                        });
-                                jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-                                requestQueue.add(jsonObjectRequest);
-                            } catch (Exception e){
-                                Log.d("exception", "failed posting");
-                                e.printStackTrace();
-                            }
+                        public boolean onMenuItemClick(MenuItem item) {
+                            switch (item.getItemId()){
+                                case R.id.delete:
+                                    customDialog = new CustomDialog(context, new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            String requestURL = context.getString(R.string.server)+"/api/posts/deletecomment/"+post.getID();
+                                            try{
+                                                RequestQueue requestQueue = Volley.newRequestQueue(context);
+                                                JSONObject params = new JSONObject();
+                                                params.put("_id", reply.getID());
+                                                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                                                        (Request.Method.PUT, requestURL, params, response -> {
+                                                            Log.d("response is", ""+response);
+                                                            listViewItemList.remove(position);
+                                                            notifyDataSetChanged();
+                                                        }, error -> {
+                                                            Log.d("exception", "volley error");
+                                                            error.printStackTrace();
+                                                        });
+                                                jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+                                                requestQueue.add(jsonObjectRequest);
+                                            } catch (Exception e){
+                                                Log.d("exception", "failed posting");
+                                                e.printStackTrace();
+                                            }
 
-                            customDialog.dismiss();
+                                            customDialog.dismiss();
+                                        }
+                                    });
+                                    customDialog.show();
+                                    customDialog.setMessage("댓글을 삭제하겠습니까?");
+                                    customDialog.setPositiveButton("삭제");
+                                    customDialog.setNegativeButton("취소");
+                                    break;
+                            }
+                            return true;
                         }
                     });
-                    customDialog.show();
-                    customDialog.setMessage("댓글을 삭제하겠습니까?");
-                    customDialog.setPositiveButton("삭제");
-                    customDialog.setNegativeButton("취소");
+
+
                 }
             });
         } else {
+
             holder.replymenu.setVisibility(View.VISIBLE);
             holder.replymenu.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    customDialog = new CustomDialog(context, new View.OnClickListener() {
+                    PopupMenu popupMenu = new PopupMenu(context, v);
+                    popupMenu.getMenuInflater().inflate(R.menu.reply_popup_menu_notwriter, popupMenu.getMenu());
+                    popupMenu.show();
+                    popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                         @Override
-                        public void onClick(View v) {
-                            AlertDialog.Builder builder2 = new AlertDialog.Builder(context);
-                            builder2.setTitle("신고 사유");
-                            builder2.setItems(R.array.reportreason, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    try {
-                                        updateReplyReports(position, reply.getID());
-                                    } catch (Exception e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                            });
-                            Dialog dialog2 = builder2.create();
-                            dialog2.show();
+                        public boolean onMenuItemClick(MenuItem item) {
+                            switch (item.getItemId()) {
+                                case R.id.report:
+                                    customDialog = new CustomDialog(context, new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            AlertDialog.Builder builder2 = new AlertDialog.Builder(context);
+                                            builder2.setTitle("신고 사유");
+                                            builder2.setItems(R.array.reportreason, new DialogInterface.OnClickListener() {
+                                                @Override
+                                                public void onClick(DialogInterface dialog, int which) {
+                                                    try {
+                                                        updateReplyReports(position, reply.getID());
+                                                    } catch (Exception e) {
+                                                        e.printStackTrace();
+                                                    }
+                                                }
+                                            });
+                                            Dialog dialog2 = builder2.create();
+                                            dialog2.show();
 
-                            customDialog.dismiss();
+                                            customDialog.dismiss();
+                                        }
+                                    });
+                                    customDialog.show();
+                                    customDialog.setMessage("댓글을 신고하겠습니까?");
+                                    customDialog.setPositiveButton("신고");
+                                    customDialog.setNegativeButton("취소");
+                                    break;
+                            }
+                            return true;
                         }
                     });
-                    customDialog.show();
-                    customDialog.setMessage("댓글을 신고하겠습니까?");
-                    customDialog.setPositiveButton("신고");
-                    customDialog.setNegativeButton("취소");
+
                 }
             });
         }

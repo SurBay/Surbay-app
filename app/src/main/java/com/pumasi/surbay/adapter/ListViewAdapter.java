@@ -17,8 +17,13 @@ import com.pumasi.surbay.classfile.UserPersonalInfo;
 import com.pumasi.surbay.classfile.Post;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 public class ListViewAdapter extends BaseAdapter {
     // Adapter에 추가된 데이터를 저장하기 위한 ArrayList
@@ -109,7 +114,7 @@ public class ListViewAdapter extends BaseAdapter {
 
 
         authornameTextView.setText(post.getAuthor());
-        if(post.getGoal_participants()>999){
+        if(post.getParticipants()>999){
             participantsTextView.setText("999+");
         }else {
             participantsTextView.setText(post.getParticipants().toString());
@@ -157,12 +162,22 @@ public class ListViewAdapter extends BaseAdapter {
 
     public int calc_dday(Date goal){
         Date dt = new Date();
-        Log.d("today is", "dday  "+ dt +"\n"+goal);
 
-        long diff = goal.getDate()-dt.getDate();
-        Log.d("diff is", "diff" + diff);
-        int dday = (int)diff;
-
+        long diff = 0;
+        int dday = 0;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd MM yyyy");
+            SimpleDateFormat fm = new SimpleDateFormat("dd MM yyyy");
+            LocalDate date1 = LocalDate.parse(fm.format(goal), dtf);
+            LocalDate date2 = LocalDate.parse(fm.format(dt), dtf);
+            diff = ChronoUnit.DAYS.between(date2, date1);
+            dday = (int) diff;
+            Log.d("dday is", "diffff"+dday);
+        }
+        else{
+            diff = goal.getDate()-dt.getDate();
+            dday = (int) diff;
+        }
         return dday;
     }
 }

@@ -59,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
     public static ArrayList<PostNonSurvey> feedbackArrayList = new ArrayList<>();
     public static ArrayList<Notice> NoticeArrayList = new ArrayList<>();
     public static Context mContext;
-    private static Integer done = 0;
+    public static Integer done = 0;
 
     public static int SORT = 1;
 
@@ -78,6 +78,7 @@ public class MainActivity extends AppCompatActivity {
 
         if(postArrayList.size() == 0 || notreportedpostArrayList.size() == 0) {
             try {
+                Log.d("main", "gettingposts");
                 getPosts();
             } catch (Exception e) {
                 e.printStackTrace();
@@ -191,6 +192,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void getPersonalInfo() {
         if (UserPersonalInfo.token == null) {
+            Log.d("getting info failed", "token is null");
             return;
         }
         String token = UserPersonalInfo.token;
@@ -360,6 +362,7 @@ public class MainActivity extends AppCompatActivity {
                                 Post newPost = new Post(id, title, author, author_lvl, content, participants, goal_participants, url, date, deadline, with_prize, prize, est_time, target, count,comments,done, extended, participants_userids, reports, hide, author_userid);
                                 Log.d("start app", "newpost comments"+newPost.getComments().size()+"");
                                 Date now = new Date();
+                                Log.d(title+"reported by", ""+reports+"  "+UserPersonalInfo.userID+reports.contains(UserPersonalInfo.userID));
                                 if(reports.contains(UserPersonalInfo.userID) || hide) {
                                     reportpostArrayList.add(newPost);
                                 } else if (now.after(newPost.getDeadline()) || newPost.isDone()){
@@ -372,10 +375,10 @@ public class MainActivity extends AppCompatActivity {
                             }
                             Log.d("array size is",""+postArrayList.size());
                             Log.d("finisharray size is",""+ notreportedpostArrayList.size());
-                            if(done==0){
-                                HomeFragment.receivedPosts();
-                                done = 1;
-                            }
+//                            if(done==0){
+//                                HomeFragment.receivedPosts();
+//                                done = 1;
+//                            }
                         } catch (JSONException e) {
                             Log.d("exception", "JSON error");
                             e.printStackTrace();

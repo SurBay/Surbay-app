@@ -508,6 +508,7 @@ public class AccountFix extends AppCompatActivity {
         }
 
         if (!phone_check){
+            Toast.makeText(AccountFix.this, "번호 인증을 진행해주세요.", Toast.LENGTH_SHORT).show();
             return false;
         }
 

@@ -50,6 +50,9 @@ public class CustomDialog extends Dialog{
 
         getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
     }
+    public CustomDialog(@NonNull Context context) {
+        super(context);
+    }
 
     //생성자 생성
     public CustomDialog(@NonNull Context context, View.OnClickListener positiveListener) {
@@ -85,5 +88,12 @@ public class CustomDialog extends Dialog{
         this.mPositiveButton.setText(text);
         this.mNegativeButton.setTextColor(R.color.gray2);
 
+    }
+
+    public void setmPositiveListener(View.OnClickListener positiveListener){
+        this.mPositiveListener = positiveListener;
+    }
+    public void setmNegativeListener(View.OnClickListener negativeListener){
+        this.mNegativeButton.setOnClickListener(negativeListener);
     }
 }

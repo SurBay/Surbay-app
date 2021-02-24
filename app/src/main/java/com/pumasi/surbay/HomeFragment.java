@@ -43,17 +43,21 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.stream.Collectors;
 
 import static com.pumasi.surbay.BoardFragment1.frag1datesortbutton;
 import static com.pumasi.surbay.BoardFragment1.frag1goalsortbutton;
 import static com.pumasi.surbay.BoardFragment1.frag1newsortbutton;
+import static com.pumasi.surbay.BoardFragment1.list;
 import static com.pumasi.surbay.BoardFragment1.listView;
 import static com.pumasi.surbay.BoardFragment1.listViewAdapter;
 
@@ -95,6 +99,7 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
     private static BannerViewPagerAdapter adapter;
     private static final Integer[] IMAGES= {R.drawable.tutorialbanner1, R.drawable.tutorialbanner2};
     private ArrayList<Integer> ImagesArray = new ArrayList<>();
+    private int currentPage = 0;
 
     @Nullable
     @Override
@@ -305,31 +310,7 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
             }
         });
 
-        banner = view.findViewById(R.id.banner);
-        for(int i=0;i<IMAGES.length;i++){
-            ImagesArray.add(IMAGES[i]);
-        }
-        adapter = new BannerViewPagerAdapter(mContext, ImagesArray);
-        banner.setAdapter(adapter);
-        final int[] currentPage = {0};
-        int NUM_PAGES = 0;
-
-        final Handler handler = new Handler();
-        final Runnable Update = new Runnable() {
-            public void run() {
-                if (currentPage[0] == NUM_PAGES) {
-                    currentPage[0] = 0;
-                }
-                banner.setCurrentItem(currentPage[0]++, true);
-            }
-        };
-        Timer swipeTimer = new Timer();
-        swipeTimer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                handler.post(Update);
-            }
-        }, 3000, 3000);
+        setBanner();
 
         if (MainActivity.NoticeArrayList.size() != 0){
             main_notice.setText(MainActivity.NoticeArrayList.get(0).getContent());
@@ -578,5 +559,53 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
             Log.d("exception", "failed getting response");
             e.printStackTrace();
         }
+    }
+
+    private void setBanner(){
+        banner = view.findViewById(R.id.banner);
+        for(int i=0;i<IMAGES.length;i++){
+            ImagesArray.add(IMAGES[i]);
+        }
+        adapter = new BannerViewPagerAdapter(mContext, ImagesArray);
+        banner.setAdapter(adapter);
+
+
+
+        banner.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                currentPage = position;
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
+
+
+        int NUM_PAGES = IMAGES.length;
+
+        final Handler handler = new Handler();
+        final Runnable Update = new Runnable() {
+            public void run() {
+                if (currentPage == NUM_PAGES) {
+                    currentPage = 0;
+                }
+                banner.setCurrentItem(currentPage++, true);
+            }
+        };
+        Timer swipeTimer = new Timer();
+        swipeTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                handler.post(Update);
+            }
+        }, 30000, 30000);
     }
 }

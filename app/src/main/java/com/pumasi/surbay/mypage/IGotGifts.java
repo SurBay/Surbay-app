@@ -11,7 +11,6 @@ import android.os.Message;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
@@ -19,18 +18,19 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.pumasi.surbay.PostDetailActivity;
 import com.pumasi.surbay.R;
 import com.pumasi.surbay.adapter.GridAdapter;
-import com.pumasi.surbay.classfile.Post;
 import com.pumasi.surbay.classfile.UserPersonalInfo;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Random;
 
 public class IGotGifts extends AppCompatActivity {
     private GridAdapter gridAdapter;
@@ -71,8 +71,8 @@ public class IGotGifts extends AppCompatActivity {
                     public void onItemClick(View v, int position) {
                         Bitmap prize_img = gridAdapter.getItem(position);
                         Intent intent = new Intent(getApplicationContext(), GiftDetailActivity.class);
-                        Uri uri = getImageUri(IGotGifts.this, prize_img);
-                        intent.putExtra("uri", uri);
+//                        Uri uri = bitmapToUriConverter(prize_img);
+                        saveBitmaptoCache(prize_img);
                         startActivity(intent);
                     }
                 });
@@ -113,5 +113,19 @@ public class IGotGifts extends AppCompatActivity {
         inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
         String path = MediaStore.Images.Media.insertImage(context.getContentResolver(), inImage, "Title", null);
         return Uri.parse(path);
+    }
+
+    private void saveBitmaptoCache(Bitmap bm){
+        try {
+
+            File cachePath = new File(getCacheDir(), "images");
+            cachePath.mkdirs(); // don't forget to make the directory
+            FileOutputStream stream = new FileOutputStream(cachePath + "/image.png"); // overwrites this image every time
+            bm.compress(Bitmap.CompressFormat.PNG, 100, stream);
+            stream.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -25,8 +25,8 @@
             android:layout_toRightOf="@id/reply_name"
             />
         <ImageView
-            android:layout_width="20dp"
-            android:layout_height="20dp"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
             android:id="@+id/reply_menu"
             android:layout_alignParentRight="true"
             android:src="@drawable/menu"
@@ -50,6 +50,7 @@
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:layout_below="@id/reply_context"
+            android:layout_marginTop="5dp"
             android:background="@color/nav_gray"></ImageView>
     </RelativeLayout>
 </LinearLayout>

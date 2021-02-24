@@ -1,12 +1,12 @@
 package com.pumasi.surbay.mypage;
 
 import android.content.Context;
-import android.content.ContextWrapper;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -15,13 +15,13 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.FileProvider;
 
 import com.pumasi.surbay.R;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 
 public class GiftDetailActivity extends AppCompatActivity {
@@ -36,9 +36,21 @@ public class GiftDetailActivity extends AppCompatActivity {
         ImageView imageView = findViewById(R.id.imageview);
 
         Intent intent = getIntent();
-        uri = intent.getParcelableExtra("uri");
+        File imagePath = new File(getCacheDir(), "images");
+        File newFile = new File(imagePath, "image.png");
+        uri = FileProvider.getUriForFile(GiftDetailActivity.this, "com.pumasi.surbay.fileprovider", newFile);
 
-        imageView.setImageURI(uri);
+        if (uri != null) {
+            imageView.setImageURI(uri);
+//            Intent shareIntent = new Intent();
+//            shareIntent.setAction(Intent.ACTION_SEND);
+//            shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION); // temp permission for receiving app to read this file
+//            shareIntent.setDataAndType(uri, getContentResolver().getType(uri));
+//            shareIntent.putExtra(Intent.EXTRA_STREAM, uri);
+//            startActivity(Intent.createChooser(shareIntent, "Choose an app"));
+        }
+
+        
     }
 
     @Override
@@ -78,28 +90,31 @@ public class GiftDetailActivity extends AppCompatActivity {
 
     }
 
-    private String saveToInternalStorage(Bitmap bitmapImage){
-        ContextWrapper cw = new ContextWrapper(getApplicationContext());
-        // path to /data/data/yourapp/app_data/imageDir
-        File directory = cw.getDir("SurBay", Context.MODE_PRIVATE);
-        // Create imageDir
-        File mypath=new File(directory,System.currentTimeMillis()+"prize.jpg");
-
-        FileOutputStream fos = null;
-        try {
-            fos = new FileOutputStream(mypath);
-            // Use the compress method on the BitMap object to write image to the OutputStream
-            bitmapImage.compress(Bitmap.CompressFormat.PNG, 100, fos);
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                fos.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return directory.getAbsolutePath();
+    private void saveToInternalStorage(Bitmap bitmapImage){
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        bitmapImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+        String path = MediaStore.Images.Media.insertImage(getContentResolver(), bitmapImage, "Title", null);
+//        ContextWrapper cw = new ContextWrapper(getApplicationContext());
+//        // path to /data/data/yourapp/app_data/imageDir
+//        String root =  Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).toString()+ "/SurBay";
+////        String root = Environment.getExternalStorageDirectory().toString() + "/saved_images";
+////         Create imageDir
+//        File myDir = new File(root);
+//        Boolean made = myDir.mkdirs();
+//        Log.d("directory", "made"+ made);
+//        String fname = System.currentTimeMillis()+"prize.png";
+//        File file = new File(myDir, fname);
+//        if (file.exists()) file.delete();
+//        try {
+//            FileOutputStream out = new FileOutputStream(file);
+//            bitmapImage.compress(Bitmap.CompressFormat.PNG, 90, out);
+//            out.flush();
+//            out.close();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        MediaScannerConnection.scanFile(GiftDetailActivity.this, new String[]{file.getPath()}, new String[]{"image/jpeg"}, null);
+//        return file.getAbsolutePath();
     }
 
 }

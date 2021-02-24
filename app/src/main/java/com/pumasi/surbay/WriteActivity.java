@@ -190,7 +190,7 @@ public class WriteActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (((CheckBox)v).isChecked()){
-                    writePrize.setHint("기프트콘 상품");
+                    writePrize.setHint("기프티콘 상품");
                     writePrize.setEnabled(true);
                     prize_count.setVisibility(View.VISIBLE);
                     prize_layout.setVisibility(View.VISIBLE);
@@ -463,14 +463,42 @@ public class WriteActivity extends AppCompatActivity {
                     try {
                         Log.d("response is", ""+new String(response.data));
                         JSONObject resultObj = new JSONObject(new String(response.data));
-                        String id = resultObj.getString("id");
-                        Post item = new Post(id, title, author, author_lvl, content, participants, goal_participants, url, date, deadline, with_prize, prize, est_time, target, count, new ArrayList<Reply>(), false, 0, new ArrayList<String>(), new ArrayList<String>(), false, author_userid);
-                        MainActivity.postArrayList.add(item);
-                        Log.d("response id", id);
-                        Intent intent = new Intent(WriteActivity.this, BoardFragment1.class);
-                        setResult(NEWPOST, intent);
-                        finish();
-                    } catch (JSONException e) {
+                        int result = resultObj.getInt("result");
+                        if(result==1) {
+                            String id = resultObj.getString("id");
+                            SimpleDateFormat fm = new SimpleDateFormat("yyyy-MM-dd'T'kk:mm:ss");
+                            fm.setTimeZone(TimeZone.getTimeZone("UTC"));
+                            String utc_date = fm.format(date);
+                            fm.setTimeZone(TimeZone.getTimeZone("Asia/Seoul"));
+                            Date realdate = fm.parse(utc_date);
+                            fm.setTimeZone(TimeZone.getTimeZone("UTC"));
+                            String utc_deadline = fm.format(deadline);
+                            fm.setTimeZone(TimeZone.getTimeZone("Asia/Seoul"));
+                            Date realdeadline = fm.parse(utc_deadline);
+                            Post item = new Post(id, title, author, author_lvl, content, participants, goal_participants, url, realdate, realdeadline, with_prize, prize, est_time, target, count, new ArrayList<Reply>(), false, 0, new ArrayList<String>(), new ArrayList<String>(), false, author_userid);
+                            MainActivity.postArrayList.add(item);
+                            Log.d("response id", id);
+                            Intent intent = new Intent(WriteActivity.this, BoardFragment1.class);
+                            intent.putExtra("post", item);
+                            setResult(NEWPOST, intent);
+                            finish();
+                        }
+                        else{
+                            if(resultObj.getString("message").startsWith("not enough points")){
+                                String message = "크레딧이 부족합니다";
+                                CustomDialog customDialogFailPost = new CustomDialog(WriteActivity.this);
+                                customDialogFailPost.setmPositiveListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        customDialogFailPost.dismiss();
+                                    }
+                                });
+                                customDialogFailPost.show();
+                                customDialogFailPost.setMessage(message);
+                                customDialogFailPost.setPositiveButton("확인");
+                            }
+                        }
+                    } catch (JSONException | ParseException e) {
                         e.printStackTrace();
                     }
                 },
@@ -512,10 +540,8 @@ public class WriteActivity extends AppCompatActivity {
                 params.put("url", url);
                 SimpleDateFormat fm = new SimpleDateFormat("yyyy-MM-dd'T'kk:mm:ss.SSS");
                 fm.setTimeZone(TimeZone.getTimeZone("UTC"));
-                Date gmt_date = new Date(fm.format(date));
-                params.put("date", fm.format(gmt_date));
-                Date gmt_deadline = new Date(fm.format(deadline));;
-                params.put("deadline", fm.format(gmt_deadline));
+                params.put("date", fm.format(date));
+                params.put("deadline", fm.format(deadline));
                 params.put("with_prize", String.valueOf(with_prize));
                 if(with_prize) {
                     params.put("prize", prize);
@@ -706,6 +732,11 @@ public class WriteActivity extends AppCompatActivity {
                     CustomDialog customDialog = new CustomDialog(WriteActivity.this, null);
                     customDialog.show();
                     customDialog.setMessage("제공하지 않는 url입니다");
+                    customDialog.setNegativeButton("확인");
+                }else if(with_prize==true && (count!=image_uris.size())){
+                    CustomDialog customDialog = new CustomDialog(WriteActivity.this, null);
+                    customDialog.show();
+                    customDialog.setMessage("기프티콘 이미지 개수와 추첨 인원 수가 다릅니다");
                     customDialog.setNegativeButton("확인");
                 }
                 else {

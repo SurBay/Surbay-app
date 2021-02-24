@@ -21,6 +21,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.pumasi.surbay.LoginActivity;
+import com.pumasi.surbay.MainActivity;
 import com.pumasi.surbay.R;
 import com.pumasi.surbay.classfile.CustomDialog;
 import com.pumasi.surbay.classfile.UserPersonalInfo;
@@ -28,6 +29,7 @@ import com.pumasi.surbay.classfile.UserPersonalInfo;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -113,14 +115,23 @@ public class MypageSettingAccount extends AppCompatActivity {
                 CustomDialog customDialog = new CustomDialog(MypageSettingAccount.this, new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Intent intent = new Intent(MypageSettingAccount.this, LoginActivity.class);
-                        startActivity(intent);
+
                         SharedPreferences auto = getSharedPreferences("auto", Activity.MODE_PRIVATE);
                         SharedPreferences.Editor editor = auto.edit();
                         //editor.clear()는 auto에 들어있는 모든 정보를 기기에서 지웁니다.
                         editor.clear();
                         editor.commit();
+                        UserPersonalInfo.clearInfo();
+                        MainActivity.notreportedpostArrayList = new ArrayList<>();
+                        MainActivity.postArrayList = new ArrayList<>();
+                        MainActivity.reportpostArrayList = new ArrayList<>();
+                        MainActivity.surveytipArrayList = new ArrayList<>();
+                        MainActivity.feedbackArrayList = new ArrayList<>();
+                        MainActivity.NoticeArrayList = new ArrayList<>();
+                        MainActivity.done = 0;
                         Toast.makeText(MypageSettingAccount.this, "로그아웃 되었습니다", Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(MypageSettingAccount.this, LoginActivity.class);
+                        startActivity(intent);
                         finish();
                     }
                 });

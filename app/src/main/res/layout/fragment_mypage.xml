@@ -174,7 +174,7 @@
                         android:layout_height="wrap_content"
                         android:id="@+id/upload_3rd"
                         android:layout_toRightOf="@id/upload_2nd"
-                        android:text="업로드!"
+                        android:text=" 업로드!"
                         android:textSize="20dp"
                         android:layout_alignBottom="@id/mypage_i_make"
                         android:textColor="@color/black"/>

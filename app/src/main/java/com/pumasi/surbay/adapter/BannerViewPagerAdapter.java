@@ -1,6 +1,7 @@
 package com.pumasi.surbay.adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Parcelable;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,9 +10,14 @@ import android.widget.ImageView;
 
 import androidx.viewpager.widget.PagerAdapter;
 
+import com.pumasi.surbay.MainActivity;
+import com.pumasi.surbay.PostDetailActivity;
 import com.pumasi.surbay.R;
+import com.pumasi.surbay.classfile.Post;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class BannerViewPagerAdapter extends PagerAdapter {
 
@@ -50,6 +56,19 @@ public class BannerViewPagerAdapter extends PagerAdapter {
 
         view.addView(imageLayout, 0);
 
+        imageLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                List<Post> result = MainActivity.notreportedpostArrayList.stream() .filter(a -> a.getID().equals("60363e6bb25c6932d02dca5a")) .collect(Collectors.toList());
+
+                Post item = result.get(0);
+                Intent intent = new Intent(context, PostDetailActivity.class);
+                intent.putExtra("post", item);
+                intent.putParcelableArrayListExtra("reply", item.getComments());
+                intent.putExtra("position", position);
+                context.startActivity(intent);
+            }
+        });
         return imageLayout;
     }
 

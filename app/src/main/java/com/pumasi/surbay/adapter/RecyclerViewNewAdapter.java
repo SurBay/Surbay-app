@@ -13,8 +13,14 @@ import com.pumasi.surbay.R;
 import com.pumasi.surbay.classfile.Post;
 import com.pumasi.surbay.classfile.UserPersonalInfo;
 
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 public class RecyclerViewNewAdapter extends RecyclerView.Adapter<RecyclerViewNewAdapter.MyViewNewHolder> {
     private RecyclerViewNewAdapter.OnItemClickListener cListener = null ;
@@ -135,9 +141,20 @@ public class RecyclerViewNewAdapter extends RecyclerView.Adapter<RecyclerViewNew
     public int calc_dday(Date goal){
         Date dt = new Date();
 
-        long diff = (goal.getTime() - dt.getTime()) / (24*60*60*1000);
-        int dday = (int)diff;
-
+        long diff = 0;
+        int dday = 0;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd MM yyyy");
+            SimpleDateFormat fm = new SimpleDateFormat("dd MM yyyy");
+            LocalDate date1 = LocalDate.parse(fm.format(goal), dtf);
+            LocalDate date2 = LocalDate.parse(fm.format(dt), dtf);
+            diff = ChronoUnit.DAYS.between(date2, date1);
+            dday = (int) diff;
+        }
+        else{
+            diff = goal.getDate()-dt.getDate();
+            dday = (int) diff;
+        }
         return dday;
     }
 }

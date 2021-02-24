@@ -390,7 +390,8 @@ public class BoardFragment1 extends Fragment// Fragment 클래스를 상속받�
             case WRITE_NEWPOST:
                 switch (resultCode) {
                     case NEWPOST:
-                        list = MainActivity.notreportedpostArrayList;
+                        Post post = data.getParcelableExtra("post");
+                        list.add(post);
                         OnRefrech();
                         listViewAdapter.changeItem();
                         listView.setAdapter(listViewAdapter);

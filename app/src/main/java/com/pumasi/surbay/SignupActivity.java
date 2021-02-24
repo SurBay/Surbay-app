@@ -760,6 +760,28 @@ public class SignupActivity extends AppCompatActivity {
                             if (success) {
                                 String realphone = "+82"+phoneNumber.substring(1);
                                 Log.d("phone", "num is "+ realphone);
+
+                                AlertDialog.Builder builder = new AlertDialog.Builder(SignupActivity.this);
+                                AlertDialog dialog;
+                                dialog = builder.setMessage("인증번호를 발송했습니다")
+                                        .setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                phone_checkButton.setEnabled(false);
+                                                phonenumberEditText.setEnabled(false);
+
+                                                dialog.cancel();
+                                            }
+                                        })
+                                        .create();
+                                dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                                    @SuppressLint("ResourceAsColor")
+                                    @Override
+                                    public void onShow(DialogInterface arg0) {
+                                        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(R.color.black);
+                                    }
+                                });
+                                dialog.show();
                                 PhoneAuth(realphone);
                             } else {
                                 if(nameObj.getString("message").startsWith("number")) {

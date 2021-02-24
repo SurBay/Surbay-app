@@ -52,6 +52,7 @@
                     android:visibility="invisible"
                     android:layout_alignParentLeft="true"
                     android:text="참여 완료"
+                    android:textStyle="bold"
                     android:lines="1"
                     android:textSize="14dp"
                     android:textColor="@color/teal_200"/>
@@ -63,6 +64,7 @@
                     android:visibility="visible"
                     android:layout_alignParentRight="true"
                     android:text="작성자"
+                    android:textStyle="bold"
                     android:lines="1"
                     android:textSize="14dp"
                     android:textColor="@color/teal_200"/>

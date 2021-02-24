@@ -57,6 +57,11 @@ import org.json.JSONObject;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -64,6 +69,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
 
 public class PostDetailActivity extends AppCompatActivity {
     static final int START_SURVEY = 1;
@@ -248,13 +254,16 @@ public class PostDetailActivity extends AppCompatActivity {
                             Boolean success = resultObj.getBoolean("type");
                             if(success) {
                                 String id = resultObj.getString("id");
-                                Reply re = new Reply(id, UserPersonalInfo.userID, reply, date, new ArrayList<>(), false);
+                                String utc_date = fm.format(date);
+                                fm.setTimeZone(TimeZone.getTimeZone("Asia/Seoul"));
+                                Date realdate = fm.parse(utc_date);
+                                Reply re = new Reply(id, UserPersonalInfo.userID, reply, realdate, new ArrayList<>(), false);
                                 detail_reply_Adapter.addItem(re);
                             }
                             else{
                                 Toast.makeText(PostDetailActivity.this, "오류가 발생했습니다", Toast.LENGTH_SHORT).show();
                             }
-                        } catch (JSONException e) {
+                        } catch (JSONException | ParseException e) {
                             Toast.makeText(PostDetailActivity.this, "오류가 발생했습니다", Toast.LENGTH_SHORT).show();
                             e.printStackTrace();
                         }
@@ -432,12 +441,24 @@ public class PostDetailActivity extends AppCompatActivity {
             params.put("userID", UserPersonalInfo.userID);
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
                     (Request.Method.PUT, requestURL, params, response -> {
-                        Log.d("response is", "" + response);
-                        Intent intent = new Intent(PostDetailActivity.this, BoardFragment1.class);
-                        setResult(REPORTED, intent);
-                        intent.putExtra("position", position);
-                        Toast.makeText(PostDetailActivity.this, "설문이 신고되었습니다", Toast.LENGTH_SHORT).show();
-                        finish();
+                        try {
+                            Log.d("response is", "" + response);
+                            JSONObject res = new JSONObject(response.toString());
+                            int success = res.getInt("result");
+                            if (success == 1) {
+                                Intent intent = new Intent(PostDetailActivity.this, BoardFragment1.class);
+                                setResult(REPORTED, intent);
+                                intent.putExtra("position", position);
+                                Toast.makeText(PostDetailActivity.this, "설문이 신고되었습니다", Toast.LENGTH_SHORT).show();
+                                finish();
+                            } else {
+                                if(res.getString("message").startsWith("cannot report this post")){
+                                    Toast.makeText(PostDetailActivity.this, "이 게시물은 신고할 수 없습니다", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
                     }, error -> {
                         Log.d("exception", "volley error");
                         error.printStackTrace();
@@ -502,10 +523,15 @@ public class PostDetailActivity extends AppCompatActivity {
                 ReportDialog();
                 break;
             case R.id.fix:
-                Intent intent = new Intent(this, WriteActivity.class);
-                intent.putExtra("purpose", FIX);
-                intent.putExtra("post", post);
-                startActivityForResult(intent, FIX);
+                Date now = new Date();
+                if((!post.isDone()) || !(now.after(post.getDeadline()))) {
+                    Intent intent = new Intent(this, WriteActivity.class);
+                    intent.putExtra("purpose", FIX);
+                    intent.putExtra("post", post);
+                    startActivityForResult(intent, FIX);
+                }else{
+                    Toast.makeText(PostDetailActivity.this, "마감된 설문은 수정이 불가합니다", Toast.LENGTH_SHORT).show();
+                }
                 break;
             case R.id.remove:
                 RemoveDialog();
@@ -520,32 +546,45 @@ public class PostDetailActivity extends AppCompatActivity {
     }
 
     public void setbuttonunable(){
-        if (post.isDone()) {
+        Date now = new Date();
+        if (UserPersonalInfo.userID.equals(post.getAuthor_userid())){
+            partilayout.setVisibility(View.GONE);
+            authorlayout.setVisibility(View.VISIBLE);
+        }
+        else if (post.isDone()) {
             surveyButton.setClickable(false);
             surveyButton.setText("마감되었습니다");
             surveyButton.setBackgroundResource(R.drawable.not_round_gray_fill);
-        } else {
-                if (UserPersonalInfo.userID.equals(post.getAuthor_userid())){
-                    partilayout.setVisibility(View.GONE);
-                    authorlayout.setVisibility(View.VISIBLE);
-                } else if (UserPersonalInfo.participations.contains(post.getID())){
-                    surveyButton.setClickable(false);
-                    surveyButton.setText("이미 참여했습니다");
-                    surveyButton.setBackgroundResource(R.drawable.not_round_gray_fill);
-
-            }
+        } else if(now.after(post.getDeadline())){
+            surveyButton.setClickable(false);
+            surveyButton.setText("종료된 설문입니다");
+            surveyButton.setBackgroundResource(R.drawable.not_round_gray_fill);
+        }else if (UserPersonalInfo.participations.contains(post.getID())){
+            surveyButton.setClickable(false);
+            surveyButton.setText("이미 참여했습니다");
+            surveyButton.setBackgroundResource(R.drawable.not_round_gray_fill);
         }
     }
 
 
     public int calc_dday(Date goal){
         Date dt = new Date();
-        Log.d("today is", "dday  "+ dt +"\n"+goal);
 
-        long diff = goal.getDate()-dt.getDate();
-        Log.d("diff is", "diff" + diff);
-        int dday = (int)diff;
-
+        long diff = 0;
+        int dday = 0;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd MM yyyy");
+            SimpleDateFormat fm = new SimpleDateFormat("dd MM yyyy");
+            LocalDate date1 = LocalDate.parse(fm.format(goal), dtf);
+            LocalDate date2 = LocalDate.parse(fm.format(dt), dtf);
+            diff = ChronoUnit.DAYS.between(date2, date1);
+            dday = (int) diff;
+            Log.d("dday is", "diffff"+dday);
+        }
+        else{
+            diff = goal.getDate()-dt.getDate();
+            dday = (int) diff;
+        }
         return dday;
     }
 
@@ -752,6 +791,7 @@ public class PostDetailActivity extends AppCompatActivity {
                 surveyButton.setClickable(false);
                 surveyButton.setBackgroundResource(R.drawable.not_round_gray_fill);
                 surveyButton.setText("마감되었습니다");
+                post.setDone(true);
 
                 deadline.setText(new SimpleDateFormat("MM.dd").format(post.getDate()) + " - " + new SimpleDateFormat("MM.dd a H시", Locale.KOREA).format(post.getDeadline()));
                 try {
