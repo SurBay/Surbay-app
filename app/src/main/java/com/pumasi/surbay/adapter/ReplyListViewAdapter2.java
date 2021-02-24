@@ -1,6 +1,5 @@
 package com.pumasi.surbay.adapter;
 
-import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -21,6 +20,7 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.pumasi.surbay.MainActivity;
 import com.pumasi.surbay.R;
+import com.pumasi.surbay.classfile.CustomDialog;
 import com.pumasi.surbay.classfile.Post;
 import com.pumasi.surbay.classfile.Reply;
 import com.pumasi.surbay.classfile.UserPersonalInfo;
@@ -38,6 +38,7 @@ public class ReplyListViewAdapter2 extends RecyclerView.Adapter<ReplyListViewAda
     final private static String[] report = {"욕설","비하상업적 광고 및 판매낚시","놀람/도배/사기","게시판 성격에 부적절함기타"};
     private Context context;
     private LayoutInflater inflater;
+    private CustomDialog customDialog;
 
     public ReplyListViewAdapter2(Context ctx, ArrayList<Reply> listViewItemList) {
         Log.d("list size is", ""+listViewItemList.size());
@@ -77,47 +78,37 @@ public class ReplyListViewAdapter2 extends RecyclerView.Adapter<ReplyListViewAda
             holder.replymenu.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                    AlertDialog dialog = builder.setMessage("댓글을 삭제하겠습니까?")
-                            .setPositiveButton("삭제", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which){
-                                    String requestURL = context.getString(R.string.server)+"/api/posts/deletecomment/"+post.getID();
-                                    try{
-                                        RequestQueue requestQueue = Volley.newRequestQueue(context);
-                                        JSONObject params = new JSONObject();
-                                        params.put("_id", reply.getID());
-                                        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
-                                                (Request.Method.PUT, requestURL, params, response -> {
-                                                    Log.d("response is", ""+response);
-                                                    listViewItemList.remove(position);
-                                                    notifyDataSetChanged();
-                                                }, error -> {
-                                                    Log.d("exception", "volley error");
-                                                    error.printStackTrace();
-                                                });
-                                        jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-                                        requestQueue.add(jsonObjectRequest);
-                                    } catch (Exception e){
-                                        Log.d("exception", "failed posting");
-                                        e.printStackTrace();
-                                    }
-                                }
-                            }).setNegativeButton("취소", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                }
-                            })
-                            .create();
-                    dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-                        @SuppressLint("ResourceAsColor")
+                    customDialog = new CustomDialog(context, new View.OnClickListener() {
                         @Override
-                        public void onShow(DialogInterface arg0) {
-                            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(R.color.teal_200);
-                            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(R.color.gray);
+                        public void onClick(View v) {
+                            String requestURL = context.getString(R.string.server)+"/api/posts/deletecomment/"+post.getID();
+                            try{
+                                RequestQueue requestQueue = Volley.newRequestQueue(context);
+                                JSONObject params = new JSONObject();
+                                params.put("_id", reply.getID());
+                                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                                        (Request.Method.PUT, requestURL, params, response -> {
+                                            Log.d("response is", ""+response);
+                                            listViewItemList.remove(position);
+                                            notifyDataSetChanged();
+                                        }, error -> {
+                                            Log.d("exception", "volley error");
+                                            error.printStackTrace();
+                                        });
+                                jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+                                requestQueue.add(jsonObjectRequest);
+                            } catch (Exception e){
+                                Log.d("exception", "failed posting");
+                                e.printStackTrace();
+                            }
+
+                            customDialog.dismiss();
                         }
                     });
-                    dialog.show();
+                    customDialog.show();
+                    customDialog.setMessage("댓글을 삭제하겠습니까?");
+                    customDialog.setPositiveButton("삭제");
+                    customDialog.setNegativeButton("취소");
                 }
             });
         } else {
@@ -125,41 +116,31 @@ public class ReplyListViewAdapter2 extends RecyclerView.Adapter<ReplyListViewAda
             holder.replymenu.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                    AlertDialog dialog = builder.setMessage("댓글을 신고하겠습니까?")
-                            .setPositiveButton("신고", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which){
-                                    AlertDialog.Builder builder2 = new AlertDialog.Builder(context);
-                                    builder2.setTitle("신고 사유");
-                                    builder2.setItems(R.array.reportreason, new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            try {
-                                                updateReplyReports(position, reply.getID());
-                                            } catch (Exception e) {
-                                                e.printStackTrace();
-                                            }
-                                        }
-                                    });
-                                    Dialog dialog2 = builder2.create();
-                                    dialog2.show();
-                                }
-                            }).setNegativeButton("취소", new DialogInterface.OnClickListener() {
+                    customDialog = new CustomDialog(context, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            AlertDialog.Builder builder2 = new AlertDialog.Builder(context);
+                            builder2.setTitle("신고 사유");
+                            builder2.setItems(R.array.reportreason, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
+                                    try {
+                                        updateReplyReports(position, reply.getID());
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
                                 }
-                            })
-                            .create();
-                    dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-                        @SuppressLint("ResourceAsColor")
-                        @Override
-                        public void onShow(DialogInterface arg0) {
-                            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(R.color.teal_200);
-                            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(R.color.gray);
+                            });
+                            Dialog dialog2 = builder2.create();
+                            dialog2.show();
+
+                            customDialog.dismiss();
                         }
                     });
-                    dialog.show();
+                    customDialog.show();
+                    customDialog.setMessage("댓글을 신고하겠습니까?");
+                    customDialog.setPositiveButton("신고");
+                    customDialog.setNegativeButton("취소");
                 }
             });
         }

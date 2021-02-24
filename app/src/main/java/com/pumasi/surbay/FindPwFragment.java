@@ -28,6 +28,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthOptions;
 import com.google.firebase.auth.PhoneAuthProvider;
+import com.pumasi.surbay.classfile.CustomDialog;
 
 import java.util.concurrent.TimeUnit;
 
@@ -92,6 +93,11 @@ public class FindPwFragment extends Fragment {
                     String realphone = "+82"+phone.substring(1);
                     Log.d("phone", "num is "+ realphone);
                     PhoneAuth(realphone);
+
+                    CustomDialog customDialog = new CustomDialog(getActivity(), null);
+                    customDialog.show();
+                    customDialog.setMessage("인증번호가 발송되었습니다.");
+                    customDialog.setNegativeButton("확인");
                 }
                 else{
                     Toast.makeText(getActivity().getApplicationContext(), "휴대폰 번호를 확인해주세요", Toast.LENGTH_SHORT);

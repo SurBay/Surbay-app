@@ -1,8 +1,6 @@
 package com.pumasi.surbay;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -30,6 +28,7 @@ import com.android.volley.toolbox.Volley;
 import com.gun0912.tedpicker.Config;
 import com.gun0912.tedpicker.ImagePickerActivity;
 import com.pumasi.surbay.adapter.ImageAdapter;
+import com.pumasi.surbay.classfile.CustomDialog;
 import com.pumasi.surbay.classfile.Surveytip;
 import com.pumasi.surbay.classfile.UserPersonalInfo;
 
@@ -150,33 +149,23 @@ public class TipWriteActivity extends AppCompatActivity {
         }
     }
 
-
+    @Override
+    public void onBackPressed() {
+        Back_survey();
+    }
 
     public void Back_survey(){
         setResult(0);
-        String message;
-        AlertDialog.Builder builder = new AlertDialog.Builder(TipWriteActivity.this);
-        dialog = builder.setMessage("TIP 작성을 취소하겠습니까?")
-                .setPositiveButton("확인", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        finish();
-                    }
-                }).setNegativeButton("아니오", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                })
-                .create();
-        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-            @SuppressLint("ResourceAsColor")
+        CustomDialog customDialog = new CustomDialog(TipWriteActivity.this, new View.OnClickListener() {
             @Override
-            public void onShow(DialogInterface arg0) {
-                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(R.color.teal_200);
-                dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(R.color.black);
+            public void onClick(View v) {
+                finish();
             }
         });
-        dialog.show();
+        customDialog.show();
+        customDialog.setMessage("TIP 작성을 취소하겠습니까?");
+        customDialog.setPositiveButton("확인");
+        customDialog.setNegativeButton("아니오");
     }
 
 
@@ -194,22 +183,11 @@ public class TipWriteActivity extends AppCompatActivity {
 
 
         if (title.getBytes().length <= 0 || content.getBytes().length <= 0 || category.getBytes().length <= 0){
-            AlertDialog.Builder bu = new AlertDialog.Builder(TipWriteActivity.this);
-            dialog = bu.setMessage("입력되지 않은 정보가 있습니다")
-                    .setNegativeButton("확인", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                        }
-                    })
-                    .create();
-            dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-                @SuppressLint("ResourceAsColor")
-                @Override
-                public void onShow(DialogInterface arg0) {
-                    dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(R.color.black);
-                }
-            });
-            dialog.show();
+
+            CustomDialog customDialog = new CustomDialog(TipWriteActivity.this, null);
+            customDialog.show();
+            customDialog.setMessage("입력되지 않은 정보가 있습니다");
+            customDialog.setNegativeButton("확인");
         } else {
             Surveytip tip = new Surveytip(null, title, author, author_lvl, content, date, category, 0, new ArrayList<String>());
             MainActivity.surveytipArrayList.add(0, tip);

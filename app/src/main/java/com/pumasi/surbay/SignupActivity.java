@@ -43,6 +43,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthOptions;
 import com.google.firebase.auth.PhoneAuthProvider;
+import com.pumasi.surbay.classfile.CustomDialog;
 import com.pumasi.surbay.mypage.SettingInfo;
 
 import org.json.JSONException;
@@ -101,6 +102,7 @@ public class SignupActivity extends AppCompatActivity {
     private PhoneAuthProvider.ForceResendingToken mResendToken;
     private String mVerificationId;
 //    private ActivityPhoneAuthBinding mBinding;
+    private CustomDialog customDialog;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -195,13 +197,15 @@ public class SignupActivity extends AppCompatActivity {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 posadd = position;
                 if (useridEditText.getText().toString().length() > 0 ){
-                    check_id.setVisibility(View.VISIBLE);
-                    check_id.setText("중복 확인 중입니다.");
-                    check_id.setTextColor(getResources().getColor(R.color.red));
-                    try {
-                        idCheck(useridEditText);
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                    if (position != 0){
+                        check_id.setVisibility(View.VISIBLE);
+                        check_id.setText("중복 확인 중입니다.");
+                        check_id.setTextColor(getResources().getColor(R.color.red));
+                        try {
+                            idCheck(useridEditText);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
             }
@@ -326,6 +330,21 @@ public class SignupActivity extends AppCompatActivity {
                 if (phoneNumber.length() == 11){
                     try {
                         phoneCheck();
+
+                        customDialog = new CustomDialog(SignupActivity.this, new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                phone_checkButton.setEnabled(false);
+                                phonenumberEditText.setEnabled(false);
+
+                                customDialog.dismiss();
+                            }
+                        });
+                        customDialog.show();
+                        customDialog.setMessage("인증번호를 발송했습니다");
+                        customDialog.setPositiveButton("확인");
+                        customDialog.hideNegativeButton(true);
+                        /*
                         AlertDialog.Builder builder = new AlertDialog.Builder(SignupActivity.this);
                             AlertDialog dialog;
                             dialog = builder.setMessage("인증번호를 발송했습니다")
@@ -346,7 +365,7 @@ public class SignupActivity extends AppCompatActivity {
                                         dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(R.color.black);
                                     }
                                 });
-                                dialog.show();
+                                dialog.show();*/
 
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -416,30 +435,16 @@ public class SignupActivity extends AppCompatActivity {
                         try {
                             JSONObject resultObj = new JSONObject(response.toString());
                             Boolean success = resultObj.getBoolean("type");
-                            AlertDialog.Builder builder = new AlertDialog.Builder(SignupActivity.this);
-                            AlertDialog dialog;
                             if(success) {
                                 Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
                                 startActivity(intent);
                                 finish();
                                 Toast.makeText(SignupActivity.this, "회원가입이 완료되었습니다", Toast.LENGTH_SHORT);
                             }else {
-                                dialog = builder.setMessage("중복된 아이디입니다.")
-                                        .setNegativeButton("다시시도", new DialogInterface.OnClickListener() {
-                                            @Override
-                                            public void onClick(DialogInterface dialog, int which) {
-                                                dialog.cancel();
-                                            }
-                                        })
-                                        .create();
-                                dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-                                    @SuppressLint("ResourceAsColor")
-                                    @Override
-                                    public void onShow(DialogInterface arg0) {
-                                        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(R.color.black);
-                                    }
-                                });
-                                dialog.show();
+                                customDialog = new CustomDialog(SignupActivity.this, null);
+                                customDialog.show();
+                                customDialog.setMessage("중복된 아이디입니다");
+                                customDialog.setNegativeButton("확인");
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -663,14 +668,20 @@ public class SignupActivity extends AppCompatActivity {
 
 
 
-        if(posadd!=0) {
+        if(posadd != 0) {
             userid = useridEditText.getText().toString() + "@" + spinner_email[posadd];
             if (userid.length() == 0) {
-                Toast.makeText(getApplicationContext(), "아이디를 입력해주세요", Toast.LENGTH_SHORT).show();
+                customDialog = new CustomDialog(SignupActivity.this, null);
+                customDialog.show();
+                customDialog.setMessage("아이디를 선택해주세요");
+                customDialog.setNegativeButton("확인");
                 return false;
             }
-        }else if (posadd==0){
-            Toast.makeText(getApplicationContext(), "아이디를 입력해주세요", Toast.LENGTH_SHORT).show();
+        } else {
+            customDialog = new CustomDialog(SignupActivity.this, null);
+            customDialog.show();
+            customDialog.setMessage("이메일 주소를 선택해주세요");
+            customDialog.setNegativeButton("확인");
             return false;
         }
 
@@ -682,12 +693,18 @@ public class SignupActivity extends AppCompatActivity {
         }
 
         if(password.length()==0){
-            Toast.makeText(getApplicationContext(), "비밀번호를 입력해주세요", Toast.LENGTH_SHORT).show();
+            customDialog = new CustomDialog(SignupActivity.this, null);
+            customDialog.show();
+            customDialog.setMessage("비밀번호를 입력해주세요");
+            customDialog.setNegativeButton("확인");
             return false;
         }
 
         if(name.length()==0){
-            Toast.makeText(getApplicationContext(), "닉네임을 입력해주세요", Toast.LENGTH_SHORT).show();
+            customDialog = new CustomDialog(SignupActivity.this, null);
+            customDialog.show();
+            customDialog.setMessage("닉네임을 입력해주세요");
+            customDialog.setNegativeButton("확인");
             return false;
         }
         phoneNumber = phonenumberEditText.getText().toString();
@@ -709,7 +726,10 @@ public class SignupActivity extends AppCompatActivity {
         }
 
         if(phone_check==false){
-            Toast.makeText(getApplicationContext(), "번호 인증을 진행해주세요", Toast.LENGTH_SHORT).show();
+            customDialog = new CustomDialog(SignupActivity.this, null);
+            customDialog.show();
+            customDialog.setMessage("번호 인증을 진행해주세요");
+            customDialog.setNegativeButton("확인");
             return false;
         }
 

@@ -1,6 +1,5 @@
 package com.pumasi.surbay;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.ClipData;
@@ -47,6 +46,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.pumasi.surbay.adapter.ReplyListViewAdapter2;
+import com.pumasi.surbay.classfile.CustomDialog;
 import com.pumasi.surbay.classfile.Post;
 import com.pumasi.surbay.classfile.Reply;
 import com.pumasi.surbay.classfile.UserPersonalInfo;
@@ -55,7 +55,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -95,6 +94,7 @@ public class PostDetailActivity extends AppCompatActivity {
     Button surveyEnd;
 
     private AlertDialog dialog;
+    private CustomDialog customDialog;
     ImageButton reply_enter_button;
 
     private Post post;
@@ -478,28 +478,18 @@ public class PostDetailActivity extends AppCompatActivity {
         switch (item.getItemId()){
             case android.R.id.home:
                 if(reply_enter.getText().toString().length()>0){
-                    AlertDialog.Builder builder = new AlertDialog.Builder(PostDetailActivity.this);
-                    dialog = builder.setMessage("댓글 작성을 취소하겠습니까?")
-                            .setPositiveButton("확인", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    finish();
-                                }
-                            }).setNegativeButton("취소", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                }
-                            })
-                            .create();
-                    dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-                        @SuppressLint("ResourceAsColor")
+                    customDialog = new CustomDialog(PostDetailActivity.this, new View.OnClickListener() {
                         @Override
-                        public void onShow(DialogInterface arg0) {
-                            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(R.color.teal_200);
-                            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(R.color.gray);
+                        public void onClick(View v) {
+                            finish();
+
+                            customDialog.dismiss();
                         }
                     });
-                    dialog.show();
+                    customDialog.show();
+                    customDialog.setMessage("댓글 작성을 취소하겠습니까?");
+                    customDialog.setPositiveButton("확인");
+                    customDialog.setNegativeButton("취소");
                 }else{
                     finish();
                 }
@@ -630,45 +620,30 @@ public class PostDetailActivity extends AppCompatActivity {
         if (post.getReports().contains(UserPersonalInfo.userID)){
             Toast.makeText(PostDetailActivity.this, "이미 신고하셨습니다", Toast.LENGTH_SHORT).show();
         } else {
-
-            AlertDialog.Builder builder = new AlertDialog.Builder(PostDetailActivity.this);
-            dialog = builder.setMessage("신고는 반대의견을 나타내는 기능이 아닙니다.\n" +
-                    "신고 사유에 맞지 않는 신고의 경우,\n" +
-                    "해당 신고는 처리되지 않습니다.")
-                    .setPositiveButton("확인", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            AlertDialog.Builder builder2 = new AlertDialog.Builder(PostDetailActivity.this);
-                            builder2.setTitle("신고 사유");
-                            builder2.setItems(R.array.reportreason, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    try {
-                                        updateReports();
-                                    } catch (Exception e) {
-                                        e.printStackTrace();
-                                    }
-                                    Toast.makeText(PostDetailActivity.this, "신고 사유는 "+getResources().getStringArray(R.array.reportreason)[which], Toast.LENGTH_SHORT).show();
-                                }
-                            });
-                            Dialog dialog2 = builder2.create();
-                            dialog2.show();
-                        }
-                    }).setNegativeButton("취소", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                        }
-                    })
-                    .create();
-            dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-                @SuppressLint("ResourceAsColor")
+            customDialog = new CustomDialog(PostDetailActivity.this, new View.OnClickListener() {
                 @Override
-                public void onShow(DialogInterface arg0) {
-                    dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(R.color.teal_200);
-                    dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(R.color.gray);
+                public void onClick(View v) {AlertDialog.Builder builder2 = new AlertDialog.Builder(PostDetailActivity.this);
+                    builder2.setTitle("신고 사유");
+                    builder2.setItems(R.array.reportreason, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            try {
+                                updateReports();
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                            Toast.makeText(PostDetailActivity.this, "신고 사유는 "+getResources().getStringArray(R.array.reportreason)[which], Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                    Dialog dialog2 = builder2.create();
+                    dialog2.show();
+                    customDialog.dismiss();
                 }
             });
-            dialog.show();
+            customDialog.show();
+            customDialog.setMessage("신고는 반대의견을 나타내는 기능이 아닙니다. 신고 사유에 맞지 않는 신고의 경우, 해당 신고는 처리되지 않습니다.");
+            customDialog.setPositiveButton("확인");
+            customDialog.setNegativeButton("취소");
         }
     }
 
@@ -732,127 +707,81 @@ public class PostDetailActivity extends AppCompatActivity {
     }
 
     private void RemoveDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(PostDetailActivity.this);
-        dialog = builder.setMessage("설문을 삭제하더라도 설문 작성 가능 횟수는\n" +
-                "늘어나지 않습니다.\n" +
-                "설문을 삭제하겠습니까?")
-                .setPositiveButton("삭제", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which){
-                        today = new Date();
-                        long diff = (today.getTime() - post.getDate().getTime()) / (60*1000);
-                        int mindiff = (int)diff;
-                        Log.d("todat", mindiff+ "  "+ diff + "  " + today + post.getDate());
-                        if (mindiff<10){
-                            try {
-                                deletePost();
-                            } catch (Exception e) {
-                                setResult(0);
-                                Toast.makeText(PostDetailActivity.this, "삭제 오류", Toast.LENGTH_SHORT).show();
-                                finish();
-                                e.printStackTrace();
-                            }
+        customDialog = new CustomDialog(PostDetailActivity.this, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                today = new Date();
+                long diff = (today.getTime() - post.getDate().getTime()) / (60*1000);
+                int mindiff = (int)diff;
+                Log.d("todat", mindiff+ "  "+ diff + "  " + today + post.getDate());
+                if (mindiff<10){
+                    try {
+                        deletePost();
+                    } catch (Exception e) {
+                        setResult(0);
+                        Toast.makeText(PostDetailActivity.this, "삭제 오류", Toast.LENGTH_SHORT).show();
+                        finish();
+                        e.printStackTrace();
+                    }
 //                            setResult(4);
 //                            Toast.makeText(PostDetailActivity.this, "설문이 삭제되었습니다", Toast.LENGTH_SHORT).show();
 //                            finish();
 
-                        } else {
-                            AlertDialog.Builder builder2 = new AlertDialog.Builder(PostDetailActivity.this);
-                            builder2.setMessage("등록 후 10분이 경과하여 삭제할 수 없습니다").setNegativeButton("확인", new DialogInterface.OnClickListener(){
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                }
-                            });
-                            AlertDialog dialog2 = builder2.create();
-                            dialog2.setOnShowListener(new DialogInterface.OnShowListener() {
-                                @SuppressLint("ResourceAsColor")
-                                @Override
-                                public void onShow(DialogInterface arg0) {
-                                    dialog2.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(R.color.teal_200);
-                                }
-                            });
-                            dialog2.show();
-                        }
-                    }
-                }).setNegativeButton("취소", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                })
-                .create();
-        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-            @SuppressLint("ResourceAsColor")
-            @Override
-            public void onShow(DialogInterface arg0) {
-                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(R.color.teal_200);
-                dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(R.color.gray);
+                } else {
+
+                    CustomDialog customDialog2 = new CustomDialog(PostDetailActivity.this, null);
+                    customDialog2.show();
+                    customDialog2.setMessage("등록 후 10분이 경과하여 삭제할 수 없습니다");
+                    customDialog2.setNegativeButton("확인");
+                }
+                customDialog.dismiss();
             }
         });
-        dialog.show();
+        customDialog.show();
+        customDialog.setMessage("설문을 삭제하더라도 설문 작성 가능 횟수는\n늘어나지 않습니다.\n설문을 삭제하겠습니까?");
+        customDialog.setPositiveButton("삭제");
+        customDialog.setNegativeButton("취소");
     }
 
     public void SurveyEndDialog(){
-        AlertDialog.Builder builder = new AlertDialog.Builder(PostDetailActivity.this);
-        dialog = builder.setMessage("설문을 마감하면 더 이상 설문 참여를 받을 수 없으며, 참여 보상이 있는 경우 설문 참여자들에게 추첨을 통해 자동으로 지급됩니다.")
-                .setPositiveButton("설문 마감", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which){
-                        partilayout.setVisibility(View.VISIBLE);
-                        authorlayout.setVisibility(View.GONE);
-                        surveyButton.setClickable(false);
-                        surveyButton.setBackgroundResource(R.drawable.not_round_gray_fill);
-                        surveyButton.setText("마감되었습니다");
-
-                        deadline.setText(new SimpleDateFormat("MM.dd").format(post.getDate()) + " - " + new SimpleDateFormat("MM.dd a H시", Locale.KOREA).format(post.getDeadline()));
-                        try {
-                            updateDeadlinePost(today);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                        donepost();
-                    }
-                }).setNegativeButton("취소", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                })
-                .create();
-        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-            @SuppressLint("ResourceAsColor")
+        customDialog = new CustomDialog(PostDetailActivity.this, new View.OnClickListener() {
             @Override
-            public void onShow(DialogInterface arg0) {
-                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(R.color.teal_200);
-                dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(R.color.gray);
+            public void onClick(View v) {
+                partilayout.setVisibility(View.VISIBLE);
+                authorlayout.setVisibility(View.GONE);
+                surveyButton.setClickable(false);
+                surveyButton.setBackgroundResource(R.drawable.not_round_gray_fill);
+                surveyButton.setText("마감되었습니다");
+
+                deadline.setText(new SimpleDateFormat("MM.dd").format(post.getDate()) + " - " + new SimpleDateFormat("MM.dd a H시", Locale.KOREA).format(post.getDeadline()));
+                try {
+                    updateDeadlinePost(today);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                donepost();
+                customDialog.dismiss();
             }
         });
-        dialog.show();
+        customDialog.show();
+        customDialog.setMessage("설문을 마감하면 더 이상 설문 참여를 받을 수 없으며, 참여 보상이 있는 경우 설문 참여자들에게 추첨을 통해 자동으로 지급됩니다.");
+        customDialog.setPositiveButton("설문 마감");
+        customDialog.setNegativeButton("취소");
     }
 
     public void SurveyExDialog(){
-        AlertDialog.Builder builder = new AlertDialog.Builder(PostDetailActivity.this);
-        dialog = builder.setMessage("설문을 1회(24시간) 연장하면 1크레딧이\n" +
-                "차감됩니다.\n" +
-                "설문을 연장하겠습니까?")
-                .setPositiveButton("설문 연장", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which){
-                        extendPost();
-                    }
-                }).setNegativeButton("취소", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                })
-                .create();
-        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-            @SuppressLint("ResourceAsColor")
+
+        customDialog = new CustomDialog(PostDetailActivity.this, new View.OnClickListener() {
             @Override
-            public void onShow(DialogInterface arg0) {
-                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(R.color.teal_200);
-                dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(R.color.gray);
+            public void onClick(View v) {
+                extendPost();
+                customDialog.dismiss();
             }
         });
-        dialog.show();
+        customDialog.show();
+        customDialog.setMessage("설문을 1회(24시간) 연장하면 1크레딧이\n" +"차감됩니다.\n"+"설문을 연장하겠습니까?");
+        customDialog.setPositiveButton("설문 연장");
+        customDialog.setNegativeButton("취소");
     }
 
     private void updateDeadlinePost(Date deadline) throws Exception{
@@ -1029,28 +958,19 @@ public class PostDetailActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         if(reply_enter.getText().toString().length()>0){
-            AlertDialog.Builder builder = new AlertDialog.Builder(PostDetailActivity.this);
-            dialog = builder.setMessage("댓글 작성을 취소하겠습니까?")
-                    .setPositiveButton("확인", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            finish();
-                        }
-                    }).setNegativeButton("취소", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                        }
-                    })
-                    .create();
-            dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-                @SuppressLint("ResourceAsColor")
+
+            customDialog = new CustomDialog(PostDetailActivity.this, new View.OnClickListener() {
                 @Override
-                public void onShow(DialogInterface arg0) {
-                    dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(R.color.teal_200);
-                    dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(R.color.gray);
+                public void onClick(View v) {
+                    finish();
+
+                    customDialog.dismiss();
                 }
             });
-            dialog.show();
+            customDialog.show();
+            customDialog.setMessage("댓글 작성을 취소하겠습니까?");
+            customDialog.setPositiveButton("확인");
+            customDialog.setNegativeButton("취소");
         }
         else{
             finish();

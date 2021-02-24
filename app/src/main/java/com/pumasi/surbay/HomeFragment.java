@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -79,6 +80,7 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
     private static ImageButton goal_sort_button;
     private static ImageButton new_sort_button;
     private static ImageButton notice_sort_button;
+    private static TextView main_notice;
 
     public static ArrayList<Post> list1;
     public static ArrayList<Post> list2;
@@ -87,6 +89,7 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
     private static Comparator<Post> cmpDeadline;
     private static Comparator<Post> cmpNew;
     private static Comparator<Post> cmpGoal;
+    private static Comparator<Notice> cmpNoticeNew;
 
     private static ViewPager banner;
     private static BannerViewPagerAdapter adapter;
@@ -104,6 +107,7 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
         recyclerView2 = view.findViewById(R.id.recycler2);
         recyclerView3 = view.findViewById(R.id.recycler3);
         recyclerView4 = view.findViewById(R.id.recycler4);
+        main_notice = view.findViewById(R.id.home_notice);
 
         date_sort_button = view.findViewById(R.id.date_sort_button);
         goal_sort_button = view.findViewById(R.id.goal_sort_button);
@@ -196,6 +200,23 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
         Collections.sort(list1, cmpDeadline);
         Collections.sort(list2, cmpGoal);
         Collections.sort(list3, cmpNew);
+        cmpNoticeNew = new Comparator<Notice>() {
+            @Override
+            public int compare(Notice o1, Notice o2) {
+                int ret;
+                Date date1 = o1.getDate();
+                Date date2 = o2.getDate();
+                int compare = date1.compareTo(date2);
+                if (compare > 0)
+                    ret = -1; //date2<date1
+                else if (compare == 0)
+                    ret = 0;
+                else
+                    ret = 1;
+                return ret;
+            }
+        };
+        Collections.sort(MainActivity.NoticeArrayList, cmpNoticeNew);
         adapter4 = new RecyclerViewNoticeAdapter(mContext, list4);
         adapter1 = new RecyclerViewDdayAdapter(mContext, list1);
         adapter2 = new RecyclerViewGoalAdapter(mContext, list2);
@@ -310,6 +331,19 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
             }
         }, 3000, 3000);
 
+        if (MainActivity.NoticeArrayList.size() != 0){
+            main_notice.setText(MainActivity.NoticeArrayList.get(0).getContent());
+            main_notice.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Notice item = (Notice)MainActivity.NoticeArrayList.get(0);
+                    Intent intent = new Intent(mContext, NoticeDetailActivity.class);
+                    intent.putExtra("post", item);
+                    intent.putExtra("position", 0);
+                    ((Activity)mContext).startActivityForResult(intent, DO_SURVEY);
+                }
+            });
+        }
 
         return view;
     }
@@ -329,6 +363,7 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
         Collections.sort(list1, cmpDeadline);
         Collections.sort(list2, cmpGoal);
         Collections.sort(list3, cmpNew);
+        Collections.sort(MainActivity.NoticeArrayList, cmpNoticeNew);
         adapter4 = new RecyclerViewNoticeAdapter(mContext, list4);
         adapter1 = new RecyclerViewDdayAdapter(mContext, list1);
         adapter2 = new RecyclerViewGoalAdapter(mContext, list2);
@@ -382,6 +417,19 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
             }
         });
 
+        if (MainActivity.NoticeArrayList.size() != 0){
+            main_notice.setText(MainActivity.NoticeArrayList.get(0).getContent());
+            main_notice.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Notice item = (Notice)MainActivity.NoticeArrayList.get(0);
+                    Intent intent = new Intent(mContext, NoticeDetailActivity.class);
+                    intent.putExtra("post", item);
+                    intent.putExtra("position", 0);
+                    ((Activity)mContext).startActivityForResult(intent, DO_SURVEY);
+                }
+            });
+        }
         view.setVisibility(View.VISIBLE);
     }
 

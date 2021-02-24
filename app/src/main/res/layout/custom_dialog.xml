@@ -2,59 +2,63 @@
 <LinearLayout
     android:layout_gravity="center"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="280dp"
-    android:layout_height="120dp"
-    android:padding="10dp">
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@drawable/round_border_white_fill"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/round_border_white_fill">
+    <LinearLayout
+        android:layout_width="230dp"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
         android:layout_marginHorizontal="20dp">
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:gravity="center"
             android:layout_above="@id/button_layout"
+            android:layout_marginVertical="10dp"
+            android:id="@+id/customdialog_content"
             >
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@color/black"
                 android:layout_margin="5dp"
+                android:textSize="12dp"
                 android:id="@+id/customdialog_text"
                 android:text="내용을 입력해 주세요."/>
         </LinearLayout>
         <LinearLayout
             android:id="@+id/button_layout"
-            android:layout_alignParentBottom="true"
             android:layout_width="match_parent"
-            android:layout_height="30dp"
+            android:layout_height="match_parent"
+            android:layout_marginVertical="10dp"
             android:orientation="horizontal">
+
             <TextView
-                android:text="cancle"
-                android:textSize="15dp"
-                android:textStyle="bold"
-                android:textColor="@color/teal_200"
                 android:id="@+id/customdialog_btnnegative"
-                android:layout_weight="1"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:gravity="center"
+                android:layout_weight="1"
                 android:clickable="true"
-                android:visibility="gone"/>
-            <TextView
-                android:text="save"
+                android:gravity="center"
+                android:text="cancle"
+                android:textColor="@color/teal_200"
                 android:textSize="15dp"
                 android:textStyle="bold"
-                android:textColor="@color/teal_200"
+                android:visibility="gone" />
+
+            <TextView
                 android:id="@+id/customdialog_btnpositive"
-                android:layout_weight="1"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:gravity="center"
+                android:layout_weight="1"
                 android:clickable="true"
-                android:visibility="gone"/>
+                android:gravity="center"
+                android:text="save"
+                android:textColor="@color/teal_200"
+                android:textSize="15dp"
+                android:textStyle="bold"
+                android:visibility="gone" />
         </LinearLayout>
-    </RelativeLayout>
+    </LinearLayout>
 </LinearLayout>

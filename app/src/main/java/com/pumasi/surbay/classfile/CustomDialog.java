@@ -3,6 +3,8 @@ package com.pumasi.surbay.classfile;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
@@ -34,7 +36,7 @@ public class CustomDialog extends Dialog{
 
         //셋팅
         content=(TextView)findViewById(R.id.customdialog_text);
-        mPositiveButton=(TextView)findViewById(R.id.customdialog_btnpositive);
+         mPositiveButton=(TextView)findViewById(R.id.customdialog_btnpositive);
         mNegativeButton=(TextView)findViewById(R.id.customdialog_btnnegative);
 
         //클릭 리스너 셋팅 (클릭버튼이 동작하도록 만들어줌.)
@@ -45,12 +47,27 @@ public class CustomDialog extends Dialog{
                 cancel();
             }
         });
+
+        getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
     }
 
     //생성자 생성
     public CustomDialog(@NonNull Context context, View.OnClickListener positiveListener) {
         super(context);
         this.mPositiveListener = positiveListener;
+    }
+
+
+    public void hideNegativeButton(boolean hide){
+        if (hide){
+            this.mNegativeButton.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    public CustomDialog(@NonNull Context context, View.OnClickListener positiveListener, View.OnClickListener negetiveListener) {
+        super(context);
+        this.mPositiveListener = positiveListener;
+        mNegativeButton.setOnClickListener(negetiveListener);
     }
 
     public void setMessage(String message) {

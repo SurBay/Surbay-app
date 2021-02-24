@@ -1,9 +1,7 @@
 package com.pumasi.surbay.mypage;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -24,7 +22,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.android.volley.AuthFailureError;
@@ -33,8 +30,6 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-import com.pumasi.surbay.R;
-import com.pumasi.surbay.classfile.UserPersonalInfo;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseException;
@@ -46,6 +41,9 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthOptions;
 import com.google.firebase.auth.PhoneAuthProvider;
+import com.pumasi.surbay.R;
+import com.pumasi.surbay.classfile.CustomDialog;
+import com.pumasi.surbay.classfile.UserPersonalInfo;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -334,49 +332,29 @@ public class AccountFix extends AppCompatActivity {
                             JSONObject nameObj = new JSONObject(response.toString());
                             Boolean success = nameObj.getBoolean("type");
                             if (success) {
+
+                                CustomDialog customDialog = new CustomDialog(AccountFix.this, null);
+                                customDialog.show();
+                                customDialog.setMessage("인증번호가 발송되었습니다.");
+                                customDialog.setNegativeButton("확인");
                                 String realphone = "+82"+phoneNumber.substring(1);
                                 Log.d("phone", "num is "+ realphone);
                                 PhoneAuth(realphone);
                             } else {
                                 if (phoneNumber.equals(UserPersonalInfo.phoneNumber)){
-                                    AlertDialog.Builder builder = new AlertDialog.Builder(AccountFix.this);
-                                    AlertDialog dialog = builder.setMessage("본인 휴대폰 번호입니다")
-                                            .setNegativeButton("확인", new DialogInterface.OnClickListener() {
-                                                @Override
-                                                public void onClick(DialogInterface dialog, int which) {
-                                                    dialog.cancel();
-                                                }
-                                            })
-                                            .create();
-                                    dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-                                        @SuppressLint("ResourceAsColor")
-                                        @Override
-                                        public void onShow(DialogInterface arg0) {
-                                            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(R.color.black);
-                                        }
-                                    });
-                                    dialog.show();
+                                    CustomDialog customDialog = new CustomDialog(AccountFix.this, null);
+                                    customDialog.show();
+                                    customDialog.setMessage("인증번호가 발송되었습니다.");
+                                    customDialog.setNegativeButton("확인");
                                     String realphone = "+82"+phoneNumber.substring(1);
                                     Log.d("phone", "num is "+ realphone);
                                     PhoneAuth(realphone);
                                 } else {
-                                    AlertDialog.Builder builder = new AlertDialog.Builder(AccountFix.this);
-                                    AlertDialog dialog = builder.setMessage("이미 가입된 전화번호입니다")
-                                            .setNegativeButton("확인", new DialogInterface.OnClickListener() {
-                                                @Override
-                                                public void onClick(DialogInterface dialog, int which) {
-                                                    dialog.cancel();
-                                                }
-                                            })
-                                            .create();
-                                    dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-                                        @SuppressLint("ResourceAsColor")
-                                        @Override
-                                        public void onShow(DialogInterface arg0) {
-                                            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(R.color.black);
-                                        }
-                                    });
-                                    dialog.show();
+
+                                    CustomDialog customDialog = new CustomDialog(AccountFix.this, null);
+                                    customDialog.show();
+                                    customDialog.setMessage("이미 가입된 전화번호입니다");
+                                    customDialog.setNegativeButton("확인");
                                 }
                             }
                         } catch (JSONException e) {

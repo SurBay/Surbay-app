@@ -1,7 +1,5 @@
 package com.pumasi.surbay;
 
-import android.annotation.SuppressLint;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.util.Log;
@@ -16,7 +14,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
@@ -36,6 +33,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthOptions;
 import com.google.firebase.auth.PhoneAuthProvider;
+import com.pumasi.surbay.classfile.CustomDialog;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -88,6 +86,12 @@ public class FindIdFragment extends Fragment {
                 if (phone.length() == 11){
                     String realphone = "+82"+phone.substring(1);
                     Log.d("phone", "num is "+ realphone);
+
+                    CustomDialog customDialog = new CustomDialog(getActivity(), null);
+                    customDialog.show();
+                    customDialog.setMessage("인증번호가 발송되었습니다.");
+                    customDialog.setNegativeButton("확인");
+
                     PhoneAuth(realphone);
                 }
                 else{
@@ -242,39 +246,17 @@ public class FindIdFragment extends Fragment {
                             Log.d("response is", ""+response);
                             id = res.getString("userID");
                             if (id != null){
-                                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                                AlertDialog dialog = builder.setMessage("아이디: "+ idchange(id))
-                                        .setPositiveButton("확인", new DialogInterface.OnClickListener() {
-                                            @Override
-                                            public void onClick(DialogInterface dialog, int which) {
-                                            }
-                                        })
-                                        .create();
-                                dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-                                    @SuppressLint("ResourceAsColor")
-                                    @Override
-                                    public void onShow(DialogInterface arg0) {
-                                        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(R.color.teal_200);
-                                    }
-                                });
-                                dialog.show();
+
+                                CustomDialog customDialog = new CustomDialog(getActivity(), null);
+                                customDialog.show();
+                                customDialog.setMessage("아이디: "+ idchange(id));
+                                customDialog.setNegativeButton("확인");
                             } else {
-                                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                                AlertDialog dialog = builder.setMessage("아이디가 존재하지 않습니다")
-                                        .setPositiveButton("확인", new DialogInterface.OnClickListener() {
-                                            @Override
-                                            public void onClick(DialogInterface dialog, int which) {
-                                            }
-                                        })
-                                        .create();
-                                dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-                                    @SuppressLint("ResourceAsColor")
-                                    @Override
-                                    public void onShow(DialogInterface arg0) {
-                                        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(R.color.teal_200);
-                                    }
-                                });
-                                dialog.show();
+
+                                CustomDialog customDialog = new CustomDialog(getActivity(), null);
+                                customDialog.show();
+                                customDialog.setMessage("아이디가 존재하지 않습니다");
+                                customDialog.setNegativeButton("확인");
                             }
                         } catch (JSONException e) {
                             Log.d("exception", "JSON error");

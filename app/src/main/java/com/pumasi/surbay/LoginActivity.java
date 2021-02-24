@@ -1,11 +1,10 @@
 package com.pumasi.surbay;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
@@ -27,6 +26,7 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.pumasi.surbay.classfile.CustomDialog;
 import com.pumasi.surbay.classfile.UserPersonalInfo;
 
 import org.json.JSONException;
@@ -126,6 +126,32 @@ public class LoginActivity extends AppCompatActivity {
         return true;
     }
 
+    @Override
+    public void onBackPressed() {
+        CustomDialog customDialog = new CustomDialog(LoginActivity.this, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                exitProgram();
+            }
+        });
+        customDialog.show();
+        customDialog.setMessage("앱을 종료하겠습니까?");
+        customDialog.setPositiveButton("종료");
+        customDialog.setNegativeButton("취소");
+    }
+    private void exitProgram() {
+        moveTaskToBack(true);
+        if (Build.VERSION.SDK_INT >= 21) {
+            // 액티비티 종료 + 태스크 리스트에서 지우기
+            finishAndRemoveTask();
+        } else {
+            // 액티비티 종료
+            finish();
+        }
+
+        System.exit(0);
+    }
+
     private void makeLoginRequest(String username, String password) throws Exception{
         try{
             String requestURL = getString(R.string.server)+"/login";
@@ -183,22 +209,10 @@ public class LoginActivity extends AppCompatActivity {
                                 finish();
 
                             }else {
-                                dialog = builder.setMessage("아이디나 비밀번호가 일치하지 않습니다.")
-                                        .setNegativeButton("다시시도", new DialogInterface.OnClickListener() {
-                                            @Override
-                                            public void onClick(DialogInterface dialog, int which) {
-                                                dialog.cancel();
-                                            }
-                                        })
-                                        .create();
-                                dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-                                    @SuppressLint("ResourceAsColor")
-                                    @Override
-                                    public void onShow(DialogInterface arg0) {
-                                        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(R.color.black);
-                                    }
-                                });
-                                dialog.show();
+                                CustomDialog customDialog = new CustomDialog(LoginActivity.this, null);
+                                customDialog.show();
+                                customDialog.setMessage("아이디나 비밀번호가 일치하지 않습니다");
+                                customDialog.setNegativeButton("다시시도");
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();

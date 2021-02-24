@@ -54,6 +54,7 @@ import com.android.volley.toolbox.Volley;
 import com.gun0912.tedpicker.Config;
 import com.gun0912.tedpicker.ImagePickerActivity;
 import com.pumasi.surbay.adapter.GiftImageAdapter;
+import com.pumasi.surbay.classfile.CustomDialog;
 import com.pumasi.surbay.classfile.Post;
 import com.pumasi.surbay.classfile.Reply;
 import com.pumasi.surbay.classfile.UserPersonalInfo;
@@ -124,6 +125,7 @@ public class WriteActivity extends AppCompatActivity {
     int purpose;
     private static Post post;
 
+    CustomDialog customDialog;
     TimePickerDialog timedialog;
     private TimePickerDialog.OnTimeSetListener tcallbackMethod;
     private DatePickerDialog.OnDateSetListener callbackMethod;
@@ -255,23 +257,11 @@ public class WriteActivity extends AppCompatActivity {
                     startActivity(newIntent);
                     startActivityForResult(newIntent, CHECK);
                 } else {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(WriteActivity.this);
-                    dialog = builder.setMessage("제공하지 않는 url입니다")
-                            .setNegativeButton("확인", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                }
-                            })
-                            .create();
-                    dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-                        @SuppressLint("ResourceAsColor")
-                        @Override
-                        public void onShow(DialogInterface arg0) {
-                            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(R.color.teal_200);
-                            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(R.color.gray);
-                        }
-                    });
-                    dialog.show();
+
+                    CustomDialog customDialog = new CustomDialog(WriteActivity.this, null);
+                    customDialog.show();
+                    customDialog.setMessage("제공하지 않는 url입니다");
+                    customDialog.setNegativeButton("확인");
                 }
             }
         });
@@ -627,28 +617,17 @@ public class WriteActivity extends AppCompatActivity {
         setResult(0);
         String message;
         if(purpose==1){message = "'보관함'에서 작성중인 글을 임시저장 할 수 있습니다. 임시저장 없이 작성중인 글을 취소하겠습니까";} else {message = "게시글 수정을 취소하시겠습니까";}
-        AlertDialog.Builder builder = new AlertDialog.Builder(WriteActivity.this);
-        dialog = builder.setMessage(message)
-                .setPositiveButton("작성취소", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        finish();
-                    }
-                }).setNegativeButton("아니오", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                })
-                .create();
-        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-            @SuppressLint("ResourceAsColor")
+
+        CustomDialog customDialog = new CustomDialog(WriteActivity.this, new View.OnClickListener() {
             @Override
-            public void onShow(DialogInterface arg0) {
-                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(R.color.black);
-                dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(R.color.black);
+            public void onClick(View v) {
+                finish();
             }
         });
-        dialog.show();
+        customDialog.show();
+        customDialog.setMessage(message);
+        customDialog.setPositiveButton("작성취소");
+        customDialog.setNegativeButton("아니오");
     }
 
     public void Done_survey(){
@@ -703,75 +682,31 @@ public class WriteActivity extends AppCompatActivity {
 
 
         if (title.getBytes().length <= 0 || content.getBytes().length <= 0 || target.getBytes().length <= 0 || est_time <= 0 || deadline==null){
-            AlertDialog.Builder bu = new AlertDialog.Builder(WriteActivity.this);
-            dialog = bu.setMessage("입력되지 않은 정보가 있습니다")
-                    .setNegativeButton("확인", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                        }
-                    })
-                    .create();
-            dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-                @SuppressLint("ResourceAsColor")
-                @Override
-                public void onShow(DialogInterface arg0) {
-                    dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(R.color.black);
-                }
-            });
-            dialog.show();
+
+            CustomDialog customDialog = new CustomDialog(WriteActivity.this, null);
+            customDialog.show();
+            customDialog.setMessage("입력되지 않은 정보가 있습니다");
+            customDialog.setNegativeButton("확인");
         } else {
             if (deadline.before(date)){
-                AlertDialog.Builder bu = new AlertDialog.Builder(WriteActivity.this);
-                dialog = bu.setMessage("날짜를 제대로 입력해주세요")
-                        .setNegativeButton("확인", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                            }
-                        })
-                        .create();
-                dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-                    @SuppressLint("ResourceAsColor")
-                    @Override
-                    public void onShow(DialogInterface arg0) {
-                        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(R.color.black);
-                    }
-                });
-                dialog.show();
+
+                CustomDialog customDialog = new CustomDialog(WriteActivity.this, null);
+                customDialog.show();
+                customDialog.setMessage("날짜를 제대로 입력해주세요");
+                customDialog.setNegativeButton("확인");
             } else{
                 if(url.length()<=0){
+
+                    CustomDialog customDialog = new CustomDialog(WriteActivity.this, null);
+                    customDialog.show();
+                    customDialog.setMessage("입력되지 않은 정보가 있습니다");
+                    customDialog.setNegativeButton("확인");
                     AlertDialog.Builder bu = new AlertDialog.Builder(WriteActivity.this);
-                    dialog = bu.setMessage("입력되지 않은 정보가 있습니다")
-                            .setNegativeButton("확인", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                }
-                            })
-                            .create();
-                    dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-                        @SuppressLint("ResourceAsColor")
-                        @Override
-                        public void onShow(DialogInterface arg0) {
-                            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(R.color.black);
-                        }
-                    });
-                    dialog.show();
                 }else if(!(url.contains("docs.google.com") || url.contains("forms.gle"))){
-                    AlertDialog.Builder bu = new AlertDialog.Builder(WriteActivity.this);
-                    dialog = bu.setMessage("제공하지 않는 url입니다")
-                            .setNegativeButton("확인", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                }
-                            })
-                            .create();
-                    dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-                        @SuppressLint("ResourceAsColor")
-                        @Override
-                        public void onShow(DialogInterface arg0) {
-                            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(R.color.black);
-                        }
-                    });
-                    dialog.show();
+                    CustomDialog customDialog = new CustomDialog(WriteActivity.this, null);
+                    customDialog.show();
+                    customDialog.setMessage("제공하지 않는 url입니다");
+                    customDialog.setNegativeButton("확인");
                 }
                 else {
                     if (purpose == 1) {
@@ -825,22 +760,11 @@ public class WriteActivity extends AppCompatActivity {
         long diff = deadline.getTime() - date.getTime();
         Log.d("writedeadline", String.valueOf(diff));
         if (Integer.valueOf((int) diff) > 72*60*60*1000){
-            AlertDialog.Builder bu = new AlertDialog.Builder(WriteActivity.this);
-            dialog = bu.setMessage("설문 기간이 72시간을 초과했습니다")
-                    .setNegativeButton("확인", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                        }
-                    })
-                    .create();
-            dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-                @SuppressLint("ResourceAsColor")
-                @Override
-                public void onShow(DialogInterface arg0) {
-                    dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(R.color.teal_200);
-                }
-            });
-            dialog.show();
+
+            CustomDialog customDialog = new CustomDialog(WriteActivity.this, null);
+            customDialog.show();
+            customDialog.setMessage("설문 기간이 72시간을 초과했습니다");
+            customDialog.setNegativeButton("확인");
             writeDeadline.clearFocus();
         } else {
             SimpleDateFormat transFormat = new SimpleDateFormat("yyyy-MM-dd a KK시");
@@ -866,33 +790,20 @@ public class WriteActivity extends AppCompatActivity {
                             public void onClick(DialogInterface dialog, int which) {
                                 switch (which){
                                     case 0:
-                                        AlertDialog.Builder builder_save = new AlertDialog.Builder(WriteActivity.this);
-                                        AlertDialog dialog_save = builder_save.setMessage("임시저장은 최대 1개까지 가능하여 임시저장할 경우 기존에 임시저장한 글이 사라집니다.\n" +
-                                                "임시저장하겠습니까?")
-                                                .setPositiveButton("임시저장", new DialogInterface.OnClickListener() {
-                                                    @Override
-                                                    public void onClick(DialogInterface dialog, int which) {
-                                                        tempSave();
-                                                    }
-                                                }).setNegativeButton("취소", new DialogInterface.OnClickListener() {
-                                                    @Override
-                                                    public void onClick(DialogInterface dialog, int which) {
-                                                    }
-                                                })
-                                                .create();
-                                        dialog_save.setOnShowListener(new DialogInterface.OnShowListener() {
-                                            @SuppressLint("ResourceAsColor")
+                                        customDialog = new CustomDialog(WriteActivity.this, new View.OnClickListener() {
                                             @Override
-                                            public void onShow(DialogInterface arg0) {
-                                                dialog_save.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(R.color.teal_200);
-                                                dialog_save.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(R.color.gray);
+                                            public void onClick(View v) {
+                                                tempSave();
+
+                                                customDialog.dismiss();
                                             }
                                         });
-                                        dialog_save.show();
+                                        customDialog.show();
+                                        customDialog.setMessage("임시저장은 최대 1개까지 가능하여 임시저장할 경우 기존에 임시저장한 글이 사라집니다. " +"임시저장하겠습니까?");
+                                        customDialog.setPositiveButton("임시저장");
+                                        customDialog.setNegativeButton("취소");
                                         break;
                                     case 1:
-
-                                        AlertDialog.Builder builder_load = new AlertDialog.Builder(WriteActivity.this);
                                         String message;
                                         if (writeTitle.getText().toString().length()==0 && writeTarget.getText().toString().length()==0 && writeDeadline.getText().toString().length()==0 && writePrize.getText().toString().length()==0 && writeUrl.getText().toString().length()==0 && writeContent.getText().toString().length()==0){
                                             message = "임시저장된 글을 불러오겠습니까?";
@@ -901,28 +812,18 @@ public class WriteActivity extends AppCompatActivity {
                                                     "작성중인 글은 사라지게 됩니다.\n" +
                                                     "불러오겠습니까?";
                                         }
-                                        AlertDialog dialog_load = builder_load.setMessage(message)
-                                                .setPositiveButton("불러오기", new DialogInterface.OnClickListener() {
-                                                    @Override
-                                                    public void onClick(DialogInterface dialog, int which) {
-                                                        loadSave();
-                                                    }
-                                                }).setNegativeButton("아니오", new DialogInterface.OnClickListener() {
-                                                    @Override
-                                                    public void onClick(DialogInterface dialog, int which) {
-                                                    }
-                                                })
-                                                .create();
-                                        dialog_load.setOnShowListener(new DialogInterface.OnShowListener() {
-                                            @SuppressLint("ResourceAsColor")
+                                        customDialog = new CustomDialog(WriteActivity.this, new View.OnClickListener() {
                                             @Override
-                                            public void onShow(DialogInterface arg0) {
-                                                dialog_load.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(R.color.teal_200);
-                                                dialog_load.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(R.color.gray);
+                                            public void onClick(View v) {
+                                                loadSave();
+
+                                                customDialog.dismiss();
                                             }
                                         });
-                                        dialog_load.show();
-
+                                        customDialog.show();
+                                        customDialog.setMessage(message);
+                                        customDialog.setPositiveButton("불러오기");
+                                        customDialog.setNegativeButton("아니오");
                                         break;
                                     default:
                                         return;
@@ -948,7 +849,11 @@ public class WriteActivity extends AppCompatActivity {
         String target = writeTarget.getText().toString();
         boolean with_prize = withPrize.isChecked();
         est_time = writeEstTime.getSelectedItemPosition();
-        goalParticipants = Integer.valueOf(writeGoalParticipants.getText().toString());
+        if (writeGoalParticipants.getText().toString().length() > 0 ){
+            goalParticipants = Integer.valueOf(writeGoalParticipants.getText().toString());
+        } else {
+            goalParticipants = 0;
+        }
         url = writeUrl.getText().toString();
 
         if (with_prize){
