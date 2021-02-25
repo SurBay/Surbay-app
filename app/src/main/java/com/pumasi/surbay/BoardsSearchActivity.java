@@ -37,7 +37,7 @@ public class BoardsSearchActivity extends AppCompatActivity {
     static final int DONE = 1;
     static final int LIKE_SURVEY = 3;
 
-    final String[] spinner_context = {"서베이", "설문 Tip", "건의사항"};
+    final String[] spinner_context = {"SurBay", "설문 Tip", "건의사항"};
     ListView search_listview;
     EditText search_editview;
     ImageButton search_enter;

@@ -116,6 +116,15 @@ public class AccountFix extends AppCompatActivity {
 
         check_name = findViewById(R.id.account_fix_check_name);
 
+        nameEditText.setText(UserPersonalInfo.name);
+        phonenumberEditText.setText(UserPersonalInfo.phoneNumber);
+        if(UserPersonalInfo.gender==0){
+            usersex_M.setPressed(true);
+        }else if(UserPersonalInfo.gender==1){
+            usersex_F.setPressed(true);
+        }
+
+
 
         spinner_age = new ArrayList<>();
         spinner_age.add("출생연도");
@@ -125,6 +134,9 @@ public class AccountFix extends AppCompatActivity {
         ArrayAdapter ageadapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, spinner_age);
         ageadapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         userage.setAdapter(ageadapter);
+        if(UserPersonalInfo.yearBirth!=0){
+            userage.setSelection(spinner_age.indexOf(UserPersonalInfo.yearBirth.toString()));
+        }
 
         Button signupButton = findViewById(R.id.account_fix_button);
         signupButton.setOnClickListener(new View.OnClickListener() {
@@ -561,6 +573,7 @@ public class AccountFix extends AppCompatActivity {
                 @Override
                 public Map<String, String> getHeaders() throws AuthFailureError {
                     HashMap<String, String> headers = new HashMap<String, String>();
+                    Log.d("tokenistokenis", ""+token);
                     headers.put("Authorization", "Bearer " + token);
                     return headers;
                 }

@@ -136,4 +136,5 @@ SurBay는 회원가입시 해당 대학교의 이메일 주소를 선택함으�
 3.전항에도 불구하고 해외에 주소나 거소가 있는 회사와 회원사이에 발생한 소송의 경우에는 대한민국 서울중앙지방법원을 관할법원으로 합니다.\n
 \n본 약관은 2021년 2월 19일에 수정되었습니다.
 </string>
+<string name="error_gif">x or y bound size should be at least %1$dpx and file size should be no more than %2$sM</string>
 </resources>

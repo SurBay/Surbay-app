@@ -109,7 +109,6 @@ public class ListViewAdapter extends BaseAdapter {
             DoneView.setVisibility(View.GONE);
         }else{
             background.setBackgroundResource(R.drawable.round_border_teal_list);
-            DoneView.setVisibility(View.GONE);
         }
 
 

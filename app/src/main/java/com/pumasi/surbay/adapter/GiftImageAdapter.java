@@ -1,7 +1,9 @@
 package com.pumasi.surbay.adapter;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.net.Uri;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,10 +21,18 @@ public class GiftImageAdapter extends RecyclerView.Adapter<GiftImageAdapter.MyVi
 
     private LayoutInflater inflater;
     private ArrayList<Uri> imageModelArrayList;
+    private ArrayList<Bitmap> imageBitmapList;
 
     public GiftImageAdapter(Context ctx, ArrayList<Uri> imageModelArrayList){
         inflater = LayoutInflater.from(ctx);
         this.imageModelArrayList = imageModelArrayList;
+    }
+
+    public void setBitmapList(ArrayList<Bitmap> bmList){
+        this.imageBitmapList = bmList;
+    }
+    public ArrayList<Bitmap> getBitmapList(){
+        return imageBitmapList;
     }
 
     public interface OnItemClickListener {
@@ -35,6 +45,11 @@ public class GiftImageAdapter extends RecyclerView.Adapter<GiftImageAdapter.MyVi
     public void removeItem(int position){
         imageModelArrayList.remove(position);
         notifyItemRemoved(position);
+    }
+
+    public void addItem(Uri uri){
+        imageModelArrayList.add(uri);
+        notifyDataSetChanged();
     }
 
 
@@ -52,6 +67,7 @@ public class GiftImageAdapter extends RecyclerView.Adapter<GiftImageAdapter.MyVi
 
     @Override
     public void onBindViewHolder(@NonNull GiftImageAdapter.MyViewHolder holder, int position) {
+//        Log.d("bmlistis", imageBitmapList+"");
         holder.image.setImageURI(imageModelArrayList.get(position));
     }
 

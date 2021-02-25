@@ -13,10 +13,14 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.provider.MediaStore;
 import android.text.InputType;
 import android.util.Log;
 import android.view.MenuItem;
@@ -51,23 +55,32 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-import com.gun0912.tedpicker.Config;
-import com.gun0912.tedpicker.ImagePickerActivity;
+import com.google.android.material.resources.MaterialAttributes;
 import com.pumasi.surbay.adapter.GiftImageAdapter;
+import com.pumasi.surbay.adapter.GiftImageAdapter2;
 import com.pumasi.surbay.classfile.CustomDialog;
+import com.pumasi.surbay.classfile.GifSizeFilter;
 import com.pumasi.surbay.classfile.Post;
 import com.pumasi.surbay.classfile.Reply;
 import com.pumasi.surbay.classfile.UserPersonalInfo;
 import com.pumasi.surbay.classfile.VolleyMultipartRequest;
+import com.zhihu.matisse.Matisse;
+import com.zhihu.matisse.MimeType;
+import com.zhihu.matisse.engine.impl.GlideEngine;
+import com.zhihu.matisse.filter.Filter;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -121,6 +134,9 @@ public class WriteActivity extends AppCompatActivity {
     Integer count;
 
     ArrayList<Uri> image_uris = new ArrayList<>();
+
+    GiftImageAdapter2 giftImageAdapter2;
+    ArrayList<Bitmap> image_bitmaps = new ArrayList<>();
 
     int purpose;
     private static Post post;
@@ -228,9 +244,16 @@ public class WriteActivity extends AppCompatActivity {
 
             writeDeadline.setText(fm.format(date));
             writeGoalParticipants.setText(post.getGoal_participants().toString());
-            if (post.getPrize() != null){
+            Log.d("postiswithprize",""+post.getPrize_urls()+post.isWith_prize());
+            if (post.isWith_prize()){
                 withPrize.setChecked(true);
+                prize_layout.setVisibility(View.VISIBLE);
                 writePrize.setText(post.getPrize());
+                writePrize.setEnabled(true);
+                prize_count.setText(post.getNum_prize().toString());
+                prize_count.setVisibility(View.VISIBLE);
+
+                getPrizeImages();
             }
             writeUrl.setText(post.getUrl());
             writeEstTime.setSelection(post.getEst_time());
@@ -238,8 +261,7 @@ public class WriteActivity extends AppCompatActivity {
             editUnable(writeDeadline);
             editUnable(writeUrl);
             withPrize.setClickable(false);
-            writePrize.setClickable(false);
-            prize_count.setText(post.getNum_prize().toString());
+//            writePrize.setClickable(false);
             writeEstTime.setSelection(post.getEst_time());
         }
 
@@ -568,69 +590,139 @@ public class WriteActivity extends AppCompatActivity {
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         Volley.newRequestQueue(this).add(volleyMultipartRequest);
     }
-
-    private void updatePost(String title, String author, String content, Integer goal_participants, Integer est_time, String target) throws Exception{
+    public void updatePost(String title, String author, String content, Integer goal_participants, Integer est_time, String target, ArrayList<Uri> images, Integer num_prize, String prize) {
         String requestURL = getString(R.string.server)+"/api/posts/updatepost/" + post.getID();
         Log.d("fix", UserPersonalInfo.name);
-        try{
-            RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
-            JSONObject params = new JSONObject();
-            params.put("title", title);
-            params.put("author", author);
-            params.put("content", content);
-            if(goal_participants!=0) {
-                params.put("goal_participants", goal_participants);
-            }
-            params.put("est_time", est_time);
-            params.put("target", target);
-            Log.d("fix", UserPersonalInfo.name + params.toString());
-            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
-                    (Request.Method.PUT, requestURL, params, response -> {
-                        Log.d("fix is", ""+response);
-                    }, error -> {
+        VolleyMultipartRequest volleyMultipartRequest = new VolleyMultipartRequest(Request.Method.PUT, requestURL,
+                response -> {
+                    try {Log.d("fix is", ""+response);
+
+                    } catch (Exception e) {
                         Log.d("exception", "volley error");
-                        error.printStackTrace();
-                    });
-            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-            requestQueue.add(jsonObjectRequest);
-            Log.d("fix", UserPersonalInfo.name);
-        } catch (Exception e){
-            Log.d("exception", "failed posting");
-            e.printStackTrace();
-        }
+                        e.printStackTrace();
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.e("GotError",""+error);
+                    }
+                }) {
+
+
+            @Override
+            protected Map<String, DataPart> getByteData() { //이미지 추가하는곳
+                Map<String, DataPart> params = new HashMap<>();
+                for(int i=0; i<images.size(); i++){
+                    long imagename = System.currentTimeMillis();
+                    try {
+                        params.put("image"+i, new DataPart(imagename + ".png", getBytes(WriteActivity.this, images.get(i))));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                return params;
+            }
+
+            @Override
+            protected Map<String, String> getParams() { //이미지 외 param은 여기서 추가해주세요. 단 전부 string이어야 해서 .toString()을 붙여주세요
+                Map<String, String> params = new HashMap<>();
+
+                params.put("title", title);
+                params.put("author", author);
+                params.put("content", content);
+                if(goal_participants!=0) {
+                    params.put("goal_participants", String.valueOf(goal_participants));
+                }
+                params.put("est_time", String.valueOf(est_time));
+                params.put("target", target);
+                params.put("num_prize", String.valueOf(num_prize));
+                params.put("prize", prize);
+
+                return params;
+            }
+
+        };
+
+        //adding the request to volley
+        volleyMultipartRequest.setRetryPolicy(new DefaultRetryPolicy(
+                0,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        Volley.newRequestQueue(this).add(volleyMultipartRequest);
     }
 
     public void goToAlbum(){
-        Config config = new Config();
-        config.setSelectionMin(count);
-        config.setSelectionLimit(count);
-        ImagePickerActivity.setConfig(config);
-        Intent intent  = new Intent(this, ImagePickerActivity.class);
-        startActivityForResult(intent,13);
+//        Config config = new Config();
+//        config.setSelectionMin(count);
+//        config.setSelectionLimit(count);
+//        ImagePickerActivity.setConfig(config);
+//        Intent intent  = new Intent(this, ImagePickerActivity.class);
+//        startActivityForResult(intent,13);
+        Matisse.from(WriteActivity.this)
+                .choose(MimeType.ofImage())
+                .theme(R.style.Matisse_White)
+                .countable(false)
+                .addFilter(new GifSizeFilter(320, 320, 5 * Filter.K * Filter.K))
+                .maxSelectable(Math.max(count-image_bitmaps.size(),1))
+                .originalEnable(true)
+                .maxOriginalSize(10)
+                .imageEngine(new GlideEngine())
+                .setOnSelectedListener((uriList, pathList) -> {
+                    Log.e("onSelected", "onSelected: pathList=" + pathList);
+                })
+                .showSingleMediaType(true)
+                .autoHideToolbarOnSingleTap(true)
+                .setOnCheckedListener(isChecked -> {
+                    Log.e("isChecked", "onCheck: isChecked=" + isChecked);
+                })
+                .forResult(13);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 13 && resultCode == RESULT_OK){
-            image_uris = data.getParcelableArrayListExtra(ImagePickerActivity.EXTRA_IMAGE_URIS);
-
-            giftImageAdapter = new GiftImageAdapter(WriteActivity.this, image_uris);
-            gift_image_list.setAdapter(giftImageAdapter);
-            gift_image_list.setLayoutManager(new LinearLayoutManager(WriteActivity.this, LinearLayoutManager.HORIZONTAL, false));
-            gift_image_list.setVisibility(View.VISIBLE);
-
-            giftImageAdapter.setOnItemClickListener(new GiftImageAdapter.OnItemClickListener() {
-                @Override
-                public void onItemClick(View v, int position) {
-                    Intent intent = new Intent(WriteActivity.this, TipImageDetail.class);
-                    intent.putExtra("uri", image_uris.get(position));
-                    intent.putExtra("position", position);
-                    startActivityForResult(intent, 20);
+            if(purpose==2){
+                ArrayList<Bitmap> arrayList = (ArrayList<Bitmap>) image_bitmaps.clone();
+                ArrayList<Uri> result_uris = (ArrayList<Uri>) Matisse.obtainResult(data);
+                for(int i=0;i<result_uris.size();i++){
+                    try {
+                        arrayList.add(MediaStore.Images.Media.getBitmap(getApplicationContext().getContentResolver(), result_uris.get(i)));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
-            });
-            gift_image_list.setVisibility(View.VISIBLE);
-            prize_list.setVisibility(View.GONE);
+                giftImageAdapter2 = new GiftImageAdapter2(WriteActivity.this, arrayList);
+                gift_image_list.setAdapter(giftImageAdapter2);
+                gift_image_list.setLayoutManager(new LinearLayoutManager(WriteActivity.this, LinearLayoutManager.HORIZONTAL, false));
+                gift_image_list.setVisibility(View.VISIBLE);
+                gift_image_list.setVisibility(View.VISIBLE);
+                prize_list.setVisibility(View.GONE);
+                image_uris = (ArrayList<Uri>) Matisse.obtainResult(data);
+            }
+            else {
+                image_uris = (ArrayList<Uri>) Matisse.obtainResult(data);
+                //            image_uris = data.getParcelableArrayListExtra(ImagePickerActivity.EXTRA_IMAGE_URIS);
+
+                giftImageAdapter = new GiftImageAdapter(WriteActivity.this, image_uris);
+                gift_image_list.setAdapter(giftImageAdapter);
+                gift_image_list.setLayoutManager(new LinearLayoutManager(WriteActivity.this, LinearLayoutManager.HORIZONTAL, false));
+                gift_image_list.setVisibility(View.VISIBLE);
+
+                giftImageAdapter.setOnItemClickListener(new GiftImageAdapter.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(View v, int position) {
+                        Intent intent = new Intent(WriteActivity.this, TipImageDetail.class);
+                        intent.putExtra("uri", image_uris.get(position));
+                        intent.putExtra("position", position);
+                        startActivityForResult(intent, 20);
+                    }
+                });
+                gift_image_list.setVisibility(View.VISIBLE);
+                prize_list.setVisibility(View.GONE);
+            }
         }
     }
 
@@ -701,8 +793,10 @@ public class WriteActivity extends AppCompatActivity {
             author_lvl = post.getAuthor_lvl();
             date = post.getDate();
             deadline = post.getDeadline();
-            prize = post.getPrize();
-            count = post.getNum_prize();
+//            prize = post.getPrize();
+            count = Integer.valueOf(prize_count.getText().toString());
+            prize = writePrize.getText().toString();
+//            count = post.getNum_prize();
         }
         SimpleDateFormat formatter = new SimpleDateFormat(getString(R.string.date_format));
 
@@ -733,7 +827,8 @@ public class WriteActivity extends AppCompatActivity {
                     customDialog.show();
                     customDialog.setMessage("제공하지 않는 url입니다");
                     customDialog.setNegativeButton("확인");
-                }else if(with_prize==true && (count!=image_uris.size())){
+                }else if(with_prize==true && (count!=(image_uris.size()+image_bitmaps.size()))){
+                    Log.d("countimageis", ""+count+"  "+image_bitmaps.size()+"  "+image_uris.size());
                     CustomDialog customDialog = new CustomDialog(WriteActivity.this, null);
                     customDialog.show();
                     customDialog.setMessage("기프티콘 이미지 개수와 추첨 인원 수가 다릅니다");
@@ -741,8 +836,6 @@ public class WriteActivity extends AppCompatActivity {
                 }
                 else {
                     if (purpose == 1) {
-                        Post addedpost = new Post(null, title, author, author_lvl, content, participants, goalParticipants, url, date, deadline, with_prize, prize, est_time, target, count, new ArrayList<Reply>(), false, 0, new ArrayList<String>(), new ArrayList<String>(), false, UserPersonalInfo.userID);
-
                         Log.d("date formatted", formatter.format(deadline));
                         try {
                             Log.d("author is ", "author" + author);
@@ -760,12 +853,14 @@ public class WriteActivity extends AppCompatActivity {
                         post.setGoal_participants(goalParticipants);
                         post.setEst_time(est_time);
                         post.setContent(content);
+                        post.setPrize(prize);
+                        post.setNum_prize(count);
 
                         Intent intent = new Intent(WriteActivity.this, PostDetailActivity.class);
                         intent.putExtra("post", post);
                         Log.d("date formatted", formatter.format(deadline));
                         try {
-                            updatePost(title, author, content, goalParticipants, est_time, target);
+                            updatePost(title, author, content, goalParticipants, est_time, target, image_uris, count, prize);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -811,7 +906,7 @@ public class WriteActivity extends AppCompatActivity {
         e.setFocusable(false);
         e.setEnabled(false);
         e.setFocusableInTouchMode(false);
-        e.setTextColor(R.color.gray2);
+        e.setTextColor(R.color.text_gray);
     }
 
     public void saveDialog(){
@@ -932,11 +1027,6 @@ public class WriteActivity extends AppCompatActivity {
         writeEstTime.setSelection(tempWrite.getInt("est_time",0));
         writeContent.setText(tempWrite.getString("content",""));
     }
-    public byte[] getFileDataFromDrawable(Bitmap bitmap) {
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.PNG, 80, byteArrayOutputStream);
-        return byteArrayOutputStream.toByteArray();
-    }
     /**
      * get bytes array from Uri.
      *
@@ -946,7 +1036,9 @@ public class WriteActivity extends AppCompatActivity {
      * @throws IOException
      */
     public static byte[] getBytes(Context context, Uri uri) throws IOException {
-        InputStream iStream = context.getContentResolver().openInputStream(Uri.fromFile(new File(uri.getPath())));
+//        InputStream iStream = context.getContentResolver().openInputStream(Uri.fromFile(new File(uri.getPath())));
+//        InputStream iStream = new FileInputStream(new File(uri.getPath()));
+        InputStream iStream = context.getContentResolver().openInputStream(uri);
         try {
             return getBytes(iStream);
         } finally {
@@ -1000,5 +1092,64 @@ public class WriteActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         return inputData;
+    }
+    private void getPrizeImages() {
+        final Handler handler = new Handler() {
+            @Override
+            public void handleMessage(@NonNull Message msg) {
+                super.handleMessage(msg);
+                Log.d("got messagemessage", "here");
+                giftImageAdapter2 = new GiftImageAdapter2(WriteActivity.this, image_bitmaps);
+                gift_image_list.setAdapter(giftImageAdapter2);
+                gift_image_list.setLayoutManager(new LinearLayoutManager(WriteActivity.this, LinearLayoutManager.HORIZONTAL, false));
+                gift_image_list.setVisibility(View.VISIBLE);
+                gift_image_list.setVisibility(View.VISIBLE);
+                prize_list.setVisibility(View.GONE);
+
+            }
+        };
+        if(post.getPrize_urls()!=null){
+            for (int i = 0; i < post.getPrize_urls().size(); i++) {
+                int finalI = i;
+                new Thread() {
+                    Message msg;
+
+                    public void run() {
+                        try {
+
+                            Log.d("start", "bitmap no." + finalI);
+                            String uri = post.getPrize_urls().get(finalI);
+                            URL url = new
+                                    URL(uri);
+                            URLConnection conn = url.openConnection();
+                            conn.connect();
+                            BufferedInputStream bis = new
+                                    BufferedInputStream(conn.getInputStream());
+
+                            Bitmap bm = BitmapFactory.decodeStream(bis);
+                            Log.d("got bitmap", "bitmap no." + finalI + "    " + bm);
+                            image_bitmaps.add(bm);
+                            bis.close();
+                            msg = handler.obtainMessage();
+                            handler.sendMessage(msg);
+                        } catch (IOException e) {
+                        }
+                    }
+                }.start();
+            }
+        }
+    }
+    private void saveBitmaptoCache(Bitmap bm){
+        try {
+
+            File cachePath = new File(getCacheDir(), "images");
+            cachePath.mkdirs(); // don't forget to make the directory
+            FileOutputStream stream = new FileOutputStream(cachePath + "/image.png"); // overwrites this image every time
+            bm.compress(Bitmap.CompressFormat.PNG, 100, stream);
+            stream.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

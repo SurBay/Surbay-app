@@ -6,10 +6,13 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -31,9 +34,14 @@ import com.gun0912.tedpicker.Config;
 import com.gun0912.tedpicker.ImagePickerActivity;
 import com.pumasi.surbay.adapter.ImageAdapter;
 import com.pumasi.surbay.classfile.CustomDialog;
+import com.pumasi.surbay.classfile.GifSizeFilter;
 import com.pumasi.surbay.classfile.PostNonSurvey;
 import com.pumasi.surbay.classfile.Reply;
 import com.pumasi.surbay.classfile.UserPersonalInfo;
+import com.zhihu.matisse.Matisse;
+import com.zhihu.matisse.MimeType;
+import com.zhihu.matisse.engine.impl.GlideEngine;
+import com.zhihu.matisse.filter.Filter;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -93,6 +101,48 @@ public class FeedbackWrite extends AppCompatActivity {
         ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, spinner_category);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         categoryedit.setAdapter(adapter);
+        categoryedit.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                category = position-1;
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+//        categoryedit.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                PopupMenu popupMenu = new PopupMenu(FeedbackWrite.this, v);
+//                popupMenu.getMenuInflater().inflate(R.menu.feedback_write_category_menu, popupMenu.getMenu());
+//                popupMenu.show();
+//                popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+//                    @Override
+//                    public boolean onMenuItemClick(MenuItem item) {
+//                        switch (item.getItemId()){
+//                            case R.id.category1:
+//                                category = 0;
+//                                break;
+//                            case R.id.category2:
+//                                category = 1;
+//                                break;
+//                            case R.id.category3:
+//                                category = 2;
+//                                break;
+//                            case R.id.category4:
+//                                category = 3;
+//                                break;
+//                            default:
+//                                break;
+//                        }
+//                        return true;
+//                    }
+//                });
+//            }
+//        });
+
 
         writeBack.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -117,11 +167,24 @@ public class FeedbackWrite extends AppCompatActivity {
     }
 
     private void goToAlbum() {
-        Config config = new Config();
-        config.setSelectionLimit(10);
-        ImagePickerActivity.setConfig(config);
-        Intent intent  = new Intent(this, ImagePickerActivity.class);
-        startActivityForResult(intent,13);
+        Matisse.from(FeedbackWrite.this)
+                .choose(MimeType.ofImage())
+                .theme(R.style.Matisse_White)
+                .countable(false)
+                .addFilter(new GifSizeFilter(320, 320, 5 * Filter.K * Filter.K))
+                .maxSelectable(10)
+                .originalEnable(true)
+                .maxOriginalSize(10)
+                .imageEngine(new GlideEngine())
+                .setOnSelectedListener((uriList, pathList) -> {
+                    Log.e("onSelected", "onSelected: pathList=" + pathList);
+                })
+                .showSingleMediaType(true)
+                .autoHideToolbarOnSingleTap(true)
+                .setOnCheckedListener(isChecked -> {
+                    Log.e("isChecked", "onCheck: isChecked=" + isChecked);
+                })
+                .forResult(13);
     }
 
 
@@ -129,7 +192,7 @@ public class FeedbackWrite extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 13 && resultCode == RESULT_OK){
-            image_uris = data.getParcelableArrayListExtra(ImagePickerActivity.EXTRA_IMAGE_URIS);
+            image_uris = (ArrayList<Uri>) Matisse.obtainResult(data);
             if (image_uris.size() > 0 ){
                 imageAdapter = new ImageAdapter(FeedbackWrite.this, image_uris);
                 imagelistview.setAdapter(imageAdapter);
@@ -182,7 +245,7 @@ public class FeedbackWrite extends AppCompatActivity {
     public void Done_survey(){
         String title = titleedit.getText().toString(); ///게시글 작성 당시 글쓴이의 레벨이 반영?
         String content = contentedit.getText().toString();
-        category = categoryedit.getSelectedItemPosition();
+//        category = categoryedit.getSelectedItemPosition();
 
         SimpleDateFormat fm = new SimpleDateFormat("yyyy-MM-dd a KK시");
         Date date = new Date();
@@ -192,7 +255,7 @@ public class FeedbackWrite extends AppCompatActivity {
         SimpleDateFormat formatter = new SimpleDateFormat(getString(R.string.date_format));
 
 
-        if (title.getBytes().length <= 0 || content.getBytes().length <= 0 || category == 0){
+        if (title.getBytes().length <= 0 || content.getBytes().length <= 0 || category == -1){
 
             CustomDialog customDialog = new CustomDialog(FeedbackWrite.this, null);
             customDialog.show();

@@ -101,10 +101,8 @@ public class BoardFragment1 extends Fragment// Fragment 클래스를 상속받�
             public int compare(Post o1, Post o2) {
                 Date now = new Date();
                 if((now.after(o1.getDeadline()) || o1.isDone()) && (!(now.after(o2.getDeadline()) || o2.isDone()))){
-                    Log.d("comparing", ""+o1.getTitle() + o2.getTitle());
                     return 1;
                 }else if((!(now.after(o1.getDeadline()) || o1.isDone())) && (now.after(o2.getDeadline()) || o2.isDone())){
-                    Log.d("comparing2", ""+o1.getTitle() + o2.getTitle());
                     return -1;
                 }
                 int ret;
@@ -124,10 +122,8 @@ public class BoardFragment1 extends Fragment// Fragment 클래스를 상속받�
             public int compare(Post o1, Post o2) {
                 Date now = new Date();
                 if((now.after(o1.getDeadline()) || o1.isDone()) && (!(now.after(o2.getDeadline()) || o2.isDone()))){
-                    Log.d("comparing", ""+o1.getTitle() + o2.getTitle());
                     return 1;
                 }else if((!(now.after(o1.getDeadline()) || o1.isDone())) && (now.after(o2.getDeadline()) || o2.isDone())){
-                    Log.d("comparing2", ""+o1.getTitle() + o2.getTitle());
                     return -1;
                 }
                 int ret;
@@ -149,14 +145,11 @@ public class BoardFragment1 extends Fragment// Fragment 클래스를 상속받�
                 int ret;
                 Date now = new Date();
                 if((now.after(o1.getDeadline()) || o1.isDone()) && (!(now.after(o2.getDeadline()) || o2.isDone()))){
-                    Log.d("comparing", ""+o1.getTitle() + o2.getTitle());
                     return 1;
                 }else if((!(now.after(o1.getDeadline()) || o1.isDone())) && (now.after(o2.getDeadline()) || o2.isDone())){
-                    Log.d("comparing2", ""+o1.getTitle() + o2.getTitle());
                     return -1;
                 }
                 else {
-                    Log.d("comparing3", ""+o1.getTitle() + o2.getTitle());
                     Date date1 = o1.getDeadline();
                     Date date2 = o2.getDeadline();
                     int compare = date1.compareTo(date2);
@@ -293,10 +286,8 @@ public class BoardFragment1 extends Fragment// Fragment 클래스를 상속받�
             public int compare(Post o1, Post o2) {
                 Date now = new Date();
                 if((now.after(o1.getDeadline()) || o1.isDone()) && (!(now.after(o2.getDeadline()) || o2.isDone()))){
-                    Log.d("comparing", ""+o1.getTitle() + o2.getTitle());
                     return 1;
                 }else if((!(now.after(o1.getDeadline()) || o1.isDone())) && (now.after(o2.getDeadline()) || o2.isDone())){
-                    Log.d("comparing2", ""+o1.getTitle() + o2.getTitle());
                     return -1;
                 }
                 int ret;
@@ -316,10 +307,8 @@ public class BoardFragment1 extends Fragment// Fragment 클래스를 상속받�
             public int compare(Post o1, Post o2) {
                 Date now = new Date();
                 if((now.after(o1.getDeadline()) || o1.isDone()) && (!(now.after(o2.getDeadline()) || o2.isDone()))){
-                    Log.d("comparing", ""+o1.getTitle() + o2.getTitle());
                     return 1;
                 }else if((!(now.after(o1.getDeadline()) || o1.isDone())) && (now.after(o2.getDeadline()) || o2.isDone())){
-                    Log.d("comparing2", ""+o1.getTitle() + o2.getTitle());
                     return -1;
                 }
                 int ret;
@@ -340,10 +329,8 @@ public class BoardFragment1 extends Fragment// Fragment 클래스를 상속받�
             public int compare(Post o1, Post o2) {
                 Date now = new Date();
                 if((now.after(o1.getDeadline()) || o1.isDone()) && (!(now.after(o2.getDeadline()) || o2.isDone()))){
-                    Log.d("comparing", ""+o1.getTitle() + o2.getTitle());
                     return 1;
                 }else if((!(now.after(o1.getDeadline()) || o1.isDone())) && (now.after(o2.getDeadline()) || o2.isDone())){
-                    Log.d("comparing2", ""+o1.getTitle() + o2.getTitle());
                     return -1;
                 }
                 else {
@@ -611,9 +598,15 @@ public class BoardFragment1 extends Fragment// Fragment 클래스를 상속받�
                             Boolean hide = res.getBoolean("hide");
                             Integer extended = res.getInt("extended");
                             String author_userid = res.getString("author_userid");
+                            ArrayList<String> prize_urls = null;
                             if(with_prize) {
                                 prize = res.getString("prize");
                                 count = res.getInt("num_prize");
+                                JSONArray pa = (JSONArray) res.get("prize_urls");
+                                prize_urls = new ArrayList<String>();
+                                for (int j = 0; j<pa.length(); j++){
+                                    prize_urls.add(pa.getString(j));
+                                }
                             }
                             JSONArray ia = (JSONArray)res.get("participants_userids");
 
@@ -652,25 +645,22 @@ public class BoardFragment1 extends Fragment// Fragment 클래스를 상속받�
                                             replyreports.add(ua.getString(u));
                                             Log.d("reported by", "him"+ua.getString(u));
                                         }
-                                        Log.d("start app comment", ""+datereply.toString());
                                         Reply re = new Reply(reid, writer, contetn, datereply,replyreports,replyhide);
-                                        Log.d("start app reply", ""+re.getDate().toString()+replyreports);
                                         Log.d("report ", "replry report" + !replyhide + !replyreports.contains(UserPersonalInfo.userID));
                                         if (!replyhide && !replyreports.contains(UserPersonalInfo.userID)){
                                             comments.add(re);
                                         }
                                     }
                                 }
-                                Log.d("start app", "getpost comment"+comments.size()+"");
                             } catch (Exception e){
                                 e.printStackTrace();
                                 Log.d("parsing date", "non reply");
                             }
                             Post post = new Post(post_id, title, author, author_lvl, content, participants, goal_participants, url, date, deadline, with_prize, prize, est_time, target, count,comments,done, extended, participants_userids, reports, hide, author_userid);
+                            if(with_prize) post.setPrize_urls(prize_urls);
                             Intent intent = new Intent(((AppCompatActivity) getActivity()).getApplicationContext(), PostDetailActivity.class);
                             intent.putExtra("post", post);
                             intent.putParcelableArrayListExtra("reply", post.getComments());
-                            Log.d("adapter click", "prize:"+post.getComments().toString());
                             intent.putExtra("position", position);
                             startActivityForResult(intent, DO_SURVEY);
 

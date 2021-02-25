@@ -171,13 +171,8 @@
                 android:layout_alignParentRight="true"
                 android:layout_marginLeft="20dp"
                 >
-                <TextView
-                    android:layout_width="150dp"
-                    android:layout_height="35dp"
-                    android:layout_alignLeft="@id/account_fix_age"
-                    android:background="@drawable/box_notfill"
-                    />
                 <Spinner
+                    android:background="@drawable/box_notfill"
                     android:layout_width="150dp"
                     android:layout_height="35dp"
                     android:id="@+id/account_fix_age"

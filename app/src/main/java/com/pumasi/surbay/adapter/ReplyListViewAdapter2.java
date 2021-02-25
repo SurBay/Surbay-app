@@ -9,6 +9,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
@@ -68,13 +69,18 @@ public class ReplyListViewAdapter2 extends RecyclerView.Adapter<ReplyListViewAda
     @Override
     public void onBindViewHolder(ReplyListViewAdapter2.MyViewHolder holder, int position) {
 
+
         SimpleDateFormat fm = new SimpleDateFormat("MM.dd kk:mm", Locale.KOREA);
         Reply reply = listViewItemList.get(position);
         String date = fm.format(reply.getDate());
 
+//        if(reply.getReports().contains(UserPersonalInfo.userID)){
+//            holder.comment.setVisibility(View.GONE);
+//            return;
+//        }
+
         holder.replydateview.setText(date);
         holder.replycontentview.setText(reply.getContent());
-        Log.d("on listview", "ading "+reply.getContent());
 
         if (reply.getWriter().equals(UserPersonalInfo.userID)){
             holder.replymenu.setOnClickListener(new View.OnClickListener() {
@@ -193,6 +199,7 @@ public class ReplyListViewAdapter2 extends RecyclerView.Adapter<ReplyListViewAda
         TextView replydateview;
         TextView replycontentview;
         ImageView replymenu;
+        LinearLayout comment;
 
         public MyViewHolder(View itemView) {
             super(itemView);
@@ -200,6 +207,7 @@ public class ReplyListViewAdapter2 extends RecyclerView.Adapter<ReplyListViewAda
             replydateview = (TextView)itemView.findViewById(R.id.reply_date);
             replycontentview = (TextView)itemView.findViewById(R.id.reply_context);
             replymenu = (ImageView)itemView.findViewById(R.id.reply_menu);
+            comment = (LinearLayout)itemView.findViewById(R.id.comment_holder);
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override

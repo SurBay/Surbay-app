@@ -15,6 +15,7 @@ import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -64,7 +65,8 @@ public class IGotGifts extends AppCompatActivity {
                 super.handleMessage(msg);
                 Log.d("prizes", "prize length" + prizes);
                 gridAdapter = new GridAdapter(IGotGifts.this, prizes);
-                gridview.setLayoutManager(new LinearLayoutManager(IGotGifts.this, LinearLayoutManager.HORIZONTAL, false));
+                int numOfColums = 2;
+                gridview.setLayoutManager(new GridLayoutManager(IGotGifts.this, numOfColums));
                 gridview.setAdapter(gridAdapter);
                 gridAdapter.setOnItemClickListener(new GridAdapter.OnItemClickListener() {
                     @Override

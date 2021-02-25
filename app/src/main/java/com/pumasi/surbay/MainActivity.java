@@ -362,6 +362,7 @@ public class MainActivity extends AppCompatActivity {
                                             Boolean replyhide = reply.getBoolean("hide");
                                             JSONArray ua = (JSONArray)reply.get("reports");
 
+
                                             ArrayList<String> replyreports = new ArrayList<String>();
                                             for (int u = 0; u<ua.length(); u++){
                                                 replyreports.add(ua.getString(u));
@@ -369,7 +370,7 @@ public class MainActivity extends AppCompatActivity {
                                             Log.d("start app comment", ""+datereply.toString());
                                             Reply re = new Reply(reid, writer, contetn, datereply,replyreports,replyhide);
                                             Log.d("start app reply", ""+re.getDate().toString());
-                                            if (!replyhide && !replyreports.contains(UserPersonalInfo.userID)){
+                                            if ((!replyhide )&& (!replyreports.contains(UserPersonalInfo.userID))){
                                                 comments.add(re);
                                             }
                                         }

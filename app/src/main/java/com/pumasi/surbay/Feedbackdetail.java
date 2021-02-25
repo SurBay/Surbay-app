@@ -31,7 +31,7 @@ import java.util.ArrayList;
 import java.util.Date;
 
 public class Feedbackdetail extends AppCompatActivity {
-    final String[] spinner_category = {"선택해주세요", "운영정책", "앱 구동 불편사항", "기능 추가/개선", "기타"};
+    final String[] spinner_category = {"운영정책", "앱 구동 불편사항", "기능 추가/개선", "기타"};
     TextView author;
     TextView date;
     TextView title;

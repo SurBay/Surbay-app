@@ -23,6 +23,7 @@ import com.android.volley.toolbox.Volley;
 import com.pumasi.surbay.R;
 import com.pumasi.surbay.classfile.UserPersonalInfo;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.regex.Matcher;
@@ -94,14 +95,10 @@ public class PwChange extends AppCompatActivity {
             @Override
             public void afterTextChanged(Editable s) {
                 if (oripasswordcheckEditText.getText().toString().length() > 0){
-                    if (oripasswordEditText.getText().toString().equals(UserPersonalInfo.userPassword)){
-                        oripasswordcheckEditText.setVisibility(View.GONE);
-                        oripasswordcheckEditText.setTextColor(getResources().getColor(R.color.red));
-                        oripwcheck = true;
-                    } else {
-                        oripasswordcheckEditText.setText("일치하지 않습니다");
-                        oripasswordcheckEditText.setTextColor(getResources().getColor(R.color.red));
-                        oripasswordcheckEditText.setVisibility(View.VISIBLE);
+                    try {
+                        checkPassword(oripasswordEditText.getText().toString());
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
                 }
             }
@@ -190,6 +187,44 @@ public class PwChange extends AppCompatActivity {
                         Toast.makeText(getApplicationContext(), "비밀번호가 변경되었습니다.", Toast.LENGTH_SHORT).show();
                         UserPersonalInfo.userPassword = newpassword;
                         finish();
+                    }, error -> {
+                        Log.d("exception", "volley error");
+                        error.printStackTrace();
+                    });
+            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            requestQueue.add(jsonObjectRequest);
+        } catch (Exception e){
+            Log.d("exception", "failed posting");
+            e.printStackTrace();
+        }
+    }
+
+    private void checkPassword(String password) throws Exception{
+        String requestURL = getString(R.string.server)+"/login";
+        try{
+            RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
+            JSONObject params = new JSONObject();
+            Log.d("id pass", ""+UserPersonalInfo.userID+password);
+            params.put("userID", UserPersonalInfo.userID);
+            params.put("userPassword", password);
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                    (Request.Method.POST, requestURL, params, response -> {
+                        Log.d("response is", ""+response);
+                        try {
+                            Boolean success = Boolean.valueOf(response.getString("type"));
+                            if(success) {
+                                oripasswordcheckEditText.setVisibility(View.GONE);
+                                oripasswordcheckEditText.setTextColor(getResources().getColor(R.color.red));
+                                oripwcheck = true;
+                            }else{
+                                oripasswordcheckEditText.setText("일치하지 않습니다");
+                                oripasswordcheckEditText.setTextColor(getResources().getColor(R.color.red));
+                                oripasswordcheckEditText.setVisibility(View.VISIBLE);
+                            }
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
                     }, error -> {
                         Log.d("exception", "volley error");
                         error.printStackTrace();

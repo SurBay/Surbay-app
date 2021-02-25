@@ -544,15 +544,15 @@ public class PostDetailActivity extends AppCompatActivity {
 
     public void setbuttonunable(){
         Date now = new Date();
-        if (UserPersonalInfo.userID.equals(post.getAuthor_userid())){
-            partilayout.setVisibility(View.GONE);
-            authorlayout.setVisibility(View.VISIBLE);
-        }
-        else if (post.isDone()) {
+        if (post.isDone()) {
             surveyButton.setClickable(false);
             surveyButton.setText("마감되었습니다");
             surveyButton.setBackgroundResource(R.drawable.not_round_gray_fill);
-        } else if(now.after(post.getDeadline())){
+        }
+        else if (UserPersonalInfo.userID.equals(post.getAuthor_userid())){
+            partilayout.setVisibility(View.GONE);
+            authorlayout.setVisibility(View.VISIBLE);
+        }else if(now.after(post.getDeadline())){
             surveyButton.setClickable(false);
             surveyButton.setText("종료된 설문입니다");
             surveyButton.setBackgroundResource(R.drawable.not_round_gray_fill);

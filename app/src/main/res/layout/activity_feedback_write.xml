@@ -90,7 +90,7 @@
                 android:textSize="15dp"
                 android:inputType="text"
                 android:backgroundTint="@color/gray2"
-                android:spinnerMode="dialog"
+                android:spinnerMode="dropdown"
                 android:prompt="@string/feedback_spinner_hint"
                 ></Spinner>
         </RelativeLayout>
@@ -169,6 +169,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="15dp"
+        android:visibility="gone"
         android:layout_alignParentBottom="true"
         android:id="@+id/feedback_writebottom"
         >

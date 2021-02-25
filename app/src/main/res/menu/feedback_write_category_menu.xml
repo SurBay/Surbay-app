@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item
+        android:id="@+id/category1"
+        android:title="운영정책" />
+    <item
+        android:id="@+id/category2"
+        android:title="앱 구동 불편사항" />
+    <item
+        android:id="@+id/category3"
+        android:title="기능 추가/개선" />
+    <item
+        android:id="@+id/category4"
+        android:title="기타" />
+</menu>
