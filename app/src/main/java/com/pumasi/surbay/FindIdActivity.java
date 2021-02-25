@@ -52,7 +52,7 @@ public class FindIdActivity extends AppCompatActivity {
     }
 
     public class FindIdAdapter extends FragmentPagerAdapter {
-        private List<Fragment> fragments = new ArrayList<Fragment>();
+        public List<Fragment> fragments = new ArrayList<Fragment>();
         private String titles[] = new String[]{"아이디 찾기", "비밀번호 재설정"};
 
         public FindIdAdapter(@NonNull FragmentManager fm) {

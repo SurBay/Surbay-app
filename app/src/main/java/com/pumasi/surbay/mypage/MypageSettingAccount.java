@@ -121,6 +121,11 @@ public class MypageSettingAccount extends AppCompatActivity {
                         //editor.clear()는 auto에 들어있는 모든 정보를 기기에서 지웁니다.
                         editor.clear();
                         editor.commit();
+                        SharedPreferences tempWrite = getSharedPreferences("tempWrite", Activity.MODE_PRIVATE);
+                        SharedPreferences.Editor tempWriteedit = tempWrite.edit();
+                        tempWriteedit.clear();
+                        tempWriteedit.commit();
+
                         UserPersonalInfo.clearInfo();
                         MainActivity.notreportedpostArrayList = new ArrayList<>();
                         MainActivity.postArrayList = new ArrayList<>();

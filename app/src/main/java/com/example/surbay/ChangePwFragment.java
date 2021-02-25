@@ -1,4 +1,4 @@
-package com.pumasi.surbay.mypage;
+package com.example.surbay;
 
 import android.os.Bundle;
 import android.text.Editable;

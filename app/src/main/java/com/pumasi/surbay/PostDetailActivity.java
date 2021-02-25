@@ -57,9 +57,7 @@ import org.json.JSONObject;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.Duration;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -69,7 +67,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
-import java.util.concurrent.TimeUnit;
 
 public class PostDetailActivity extends AppCompatActivity {
     static final int START_SURVEY = 1;
@@ -168,7 +165,7 @@ public class PostDetailActivity extends AppCompatActivity {
         position = intent.getIntExtra("position", -1);
         loading_detail(post);
         replyArrayList = post.getComments();
-        Log.d("comments size", post.getComments().size()+"");
+        Log.d("comments size", post.getDate()+"");
         detail_reply_Adapter = new ReplyListViewAdapter2(PostDetailActivity.this, replyArrayList);
         detail_reply_Adapter.setPost(post);
         mLayoutManager = new LinearLayoutManager(this);

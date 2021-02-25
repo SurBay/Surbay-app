@@ -28,6 +28,7 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.pumasi.surbay.adapter.BannerViewPagerAdapter;
 import com.pumasi.surbay.adapter.RecyclerViewDdayAdapter;
 import com.pumasi.surbay.adapter.RecyclerViewGoalAdapter;
@@ -35,7 +36,6 @@ import com.pumasi.surbay.adapter.RecyclerViewNewAdapter;
 import com.pumasi.surbay.adapter.RecyclerViewNoticeAdapter;
 import com.pumasi.surbay.classfile.Notice;
 import com.pumasi.surbay.classfile.Post;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.pumasi.surbay.classfile.UserPersonalInfo;
 
 import org.json.JSONArray;
@@ -43,21 +43,17 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.stream.Collectors;
 
 import static com.pumasi.surbay.BoardFragment1.frag1datesortbutton;
 import static com.pumasi.surbay.BoardFragment1.frag1goalsortbutton;
 import static com.pumasi.surbay.BoardFragment1.frag1newsortbutton;
-import static com.pumasi.surbay.BoardFragment1.list;
 import static com.pumasi.surbay.BoardFragment1.listView;
 import static com.pumasi.surbay.BoardFragment1.listViewAdapter;
 
@@ -93,7 +89,6 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
     private static Comparator<Post> cmpDeadline;
     private static Comparator<Post> cmpNew;
     private static Comparator<Post> cmpGoal;
-    private static Comparator<Notice> cmpNoticeNew;
 
     private static ViewPager banner;
     private static BannerViewPagerAdapter adapter;
@@ -205,23 +200,7 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
         Collections.sort(list1, cmpDeadline);
         Collections.sort(list2, cmpGoal);
         Collections.sort(list3, cmpNew);
-        cmpNoticeNew = new Comparator<Notice>() {
-            @Override
-            public int compare(Notice o1, Notice o2) {
-                int ret;
-                Date date1 = o1.getDate();
-                Date date2 = o2.getDate();
-                int compare = date1.compareTo(date2);
-                if (compare > 0)
-                    ret = -1; //date2<date1
-                else if (compare == 0)
-                    ret = 0;
-                else
-                    ret = 1;
-                return ret;
-            }
-        };
-        Collections.sort(MainActivity.NoticeArrayList, cmpNoticeNew);
+
         adapter4 = new RecyclerViewNoticeAdapter(mContext, list4);
         adapter1 = new RecyclerViewDdayAdapter(mContext, list1);
         adapter2 = new RecyclerViewGoalAdapter(mContext, list2);
@@ -344,7 +323,6 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
         Collections.sort(list1, cmpDeadline);
         Collections.sort(list2, cmpGoal);
         Collections.sort(list3, cmpNew);
-        Collections.sort(MainActivity.NoticeArrayList, cmpNoticeNew);
         adapter4 = new RecyclerViewNoticeAdapter(mContext, list4);
         adapter1 = new RecyclerViewDdayAdapter(mContext, list1);
         adapter2 = new RecyclerViewGoalAdapter(mContext, list2);

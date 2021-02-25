@@ -41,6 +41,8 @@ import org.json.JSONObject;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -60,6 +62,8 @@ public class MainActivity extends AppCompatActivity {
     public static ArrayList<Notice> NoticeArrayList = new ArrayList<>();
     public static Context mContext;
     public static Integer done = 0;
+
+    private static Comparator<Notice> cmpNoticeNew;
 
     public static int SORT = 1;
 
@@ -107,7 +111,23 @@ public class MainActivity extends AppCompatActivity {
         }
 
         getPersonalInfo();
-
+        cmpNoticeNew = new Comparator<Notice>() {
+            @Override
+            public int compare(Notice o1, Notice o2) {
+                int ret;
+                Date date1 = o1.getDate();
+                Date date2 = o2.getDate();
+                int compare = date1.compareTo(date2);
+                if (compare > 0)
+                    ret = -1; //date2<date1
+                else if (compare == 0)
+                    ret = 0;
+                else
+                    ret = 1;
+                return ret;
+            }
+        };
+        Collections.sort(MainActivity.NoticeArrayList, cmpNoticeNew);
         setContentView(R.layout.activity_main);
         bottomNavigationView = findViewById(R.id.bottomNavi);
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener()

@@ -2,6 +2,8 @@ package com.pumasi.surbay;
 
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,7 +18,14 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
+import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+import com.example.surbay.ChangePwFragment;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseException;
@@ -29,6 +38,9 @@ import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthOptions;
 import com.google.firebase.auth.PhoneAuthProvider;
 import com.pumasi.surbay.classfile.CustomDialog;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.concurrent.TimeUnit;
 
@@ -55,7 +67,7 @@ public class FindPwFragment extends Fragment {
     String typesmsCode;
     private PhoneAuthProvider.ForceResendingToken mResendToken;
     private Boolean phone_check = false;
-
+    private CustomDialog customDialog;
     String id;
     String phone;
     String email;
@@ -90,21 +102,52 @@ public class FindPwFragment extends Fragment {
                 phone = findpw_PNedit.getText().toString();
 
                 if (phone.length() == 11){
-                    String realphone = "+82"+phone.substring(1);
-                    Log.d("phone", "num is "+ realphone);
-                    PhoneAuth(realphone);
-
-                    CustomDialog customDialog = new CustomDialog(getActivity(), null);
-                    customDialog.show();
-                    customDialog.setMessage("인증번호가 발송되었습니다.");
-                    customDialog.setNegativeButton("확인");
+                    try {
+                        phoneCheck();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
                 else{
                     Toast.makeText(getActivity().getApplicationContext(), "휴대폰 번호를 확인해주세요", Toast.LENGTH_SHORT);
                 }
             }
         });
-        findpw_PNCedit.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        findpw_PNCedit.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {            }
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {            }
+            @Override
+            public void afterTextChanged(Editable s) {
+                typesmsCode = findpw_PNCedit.getText().toString();
+                Log.d("code is", "sms code" + typesmsCode);
+                if (typesmsCode.length() == 6){
+                    PhoneAuthCredential credential = PhoneAuthProvider.getCredential(getverificationId, typesmsCode);
+                    Task<AuthResult> result = auth.signInWithCredential(credential)
+                            .addOnCompleteListener((AppCompatActivity) getActivity(), new OnCompleteListener<AuthResult>() {
+                                @Override
+                                public void onComplete(@NonNull Task<AuthResult> task) {
+                                    if (task.isSuccessful()) {
+                                        // Sign in success, update UI with the signed-in user's information
+                                        FirebaseUser user = task.getResult().getUser();
+                                        Log.d("signupauth", "signInWithCredential:success");
+                                        CDT.cancel();
+                                        findpw_PNCtext.setText("인증이 완료되었습니다");
+                                        phone_check = true;
+                                    } else {
+                                        // If sign in fails, display a message to the user.
+                                        Log.d("signupauth", "signInWithCredential:failefail");
+
+                                        findpw_PNCtext.setText("인증번호가 일치하지 않습니다");
+                                        // ...
+                                    }
+                                }
+                            });
+                }
+            }
+        });
+                /*setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (!hasFocus){
@@ -136,11 +179,16 @@ public class FindPwFragment extends Fragment {
                     }
                 }
             }
-        });
+        });*/
         findpw_PB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (phone_check){
+                    FragmentTransaction trans = getFragmentManager().beginTransaction();
+                    trans.replace(R.id.fragment_root, ChangePwFragment.newInstance());
+                    trans.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+                    trans.addToBackStack(null);
+                    trans.commit();
                 }
             }
         });
@@ -246,5 +294,58 @@ public class FindPwFragment extends Fragment {
                 })
                 .build();
         PhoneAuthProvider.verifyPhoneNumber(options);
+    }
+
+    private void phoneCheck() throws Exception{
+        try {
+            RequestQueue requestQueue = Volley.newRequestQueue(getActivity());
+            String requestURL = getString(R.string.server)+"/phonenumbers/duplicate?phoneNumber=" + phone;
+            JSONObject params = new JSONObject();
+            params.put("phoneNumber", phone);
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                    (Request.Method.GET, requestURL, params, response -> {
+                        Log.d("response is", "" + response);
+                        try {
+                            JSONObject nameObj = new JSONObject(response.toString());
+                            Boolean success = nameObj.getBoolean("type");
+                            if (!success) {
+                                String realphone = "+82"+phone.substring(1);
+                                Log.d("phone", "num is "+ realphone);
+
+                                customDialog = new CustomDialog(getActivity(), new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        customDialog.dismiss();
+                                    }
+                                });
+                                customDialog.show();
+                                customDialog.setMessage("인증번호를 발송했습니다");
+                                customDialog.setPositiveButton("확인");
+                                customDialog.hideNegativeButton(true);
+                                PhoneAuth(realphone);
+                            } else {
+                                customDialog = new CustomDialog(getActivity(), new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        customDialog.dismiss();
+                                    }
+                                });
+                                customDialog.show();
+                                customDialog.setMessage("가입하지 않은 번호입니다.");
+                                customDialog.setPositiveButton("확인");
+                                customDialog.hideNegativeButton(true);
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }, error -> {
+                        Log.d("exception", "volley error");
+                        error.printStackTrace();
+                    });
+            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            requestQueue.add(jsonObjectRequest);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

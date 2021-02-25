@@ -326,24 +326,9 @@ public class SignupActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 phoneNumber = phonenumberEditText.getText().toString();
-
                 if (phoneNumber.length() == 11){
                     try {
                         phoneCheck();
-
-                        customDialog = new CustomDialog(SignupActivity.this, new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                phone_checkButton.setEnabled(false);
-                                phonenumberEditText.setEnabled(false);
-
-                                customDialog.dismiss();
-                            }
-                        });
-                        customDialog.show();
-                        customDialog.setMessage("인증번호를 발송했습니다");
-                        customDialog.setPositiveButton("확인");
-                        customDialog.hideNegativeButton(true);
                         /*
                         AlertDialog.Builder builder = new AlertDialog.Builder(SignupActivity.this);
                             AlertDialog dialog;
@@ -436,10 +421,10 @@ public class SignupActivity extends AppCompatActivity {
                             JSONObject resultObj = new JSONObject(response.toString());
                             Boolean success = resultObj.getBoolean("type");
                             if(success) {
+                                Toast.makeText(SignupActivity.this, "회원가입이 완료되었습니다", Toast.LENGTH_SHORT);
                                 Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
                                 startActivity(intent);
                                 finish();
-                                Toast.makeText(SignupActivity.this, "회원가입이 완료되었습니다", Toast.LENGTH_SHORT);
                             }else {
                                 customDialog = new CustomDialog(SignupActivity.this, null);
                                 customDialog.show();
@@ -761,27 +746,19 @@ public class SignupActivity extends AppCompatActivity {
                                 String realphone = "+82"+phoneNumber.substring(1);
                                 Log.d("phone", "num is "+ realphone);
 
-                                AlertDialog.Builder builder = new AlertDialog.Builder(SignupActivity.this);
-                                AlertDialog dialog;
-                                dialog = builder.setMessage("인증번호를 발송했습니다")
-                                        .setPositiveButton("확인", new DialogInterface.OnClickListener() {
-                                            @Override
-                                            public void onClick(DialogInterface dialog, int which) {
-                                                phone_checkButton.setEnabled(false);
-                                                phonenumberEditText.setEnabled(false);
-
-                                                dialog.cancel();
-                                            }
-                                        })
-                                        .create();
-                                dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-                                    @SuppressLint("ResourceAsColor")
+                                customDialog = new CustomDialog(SignupActivity.this, new View.OnClickListener() {
                                     @Override
-                                    public void onShow(DialogInterface arg0) {
-                                        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(R.color.black);
+                                    public void onClick(View v) {
+                                        phone_checkButton.setEnabled(false);
+                                        phonenumberEditText.setEnabled(false);
+
+                                        customDialog.dismiss();
                                     }
                                 });
-                                dialog.show();
+                                customDialog.show();
+                                customDialog.setMessage("인증번호를 발송했습니다");
+                                customDialog.setPositiveButton("확인");
+                                customDialog.hideNegativeButton(true);
                                 PhoneAuth(realphone);
                             } else {
                                 if(nameObj.getString("message").startsWith("number")) {
