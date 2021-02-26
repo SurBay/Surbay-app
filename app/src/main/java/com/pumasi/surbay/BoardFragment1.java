@@ -130,6 +130,7 @@ public class BoardFragment1 extends Fragment// Fragment 클래스를 상속받�
                 Date date1 = o1.getDate();
                 Date date2 = o2.getDate();
                 int compare = date1.compareTo(date2);
+                Log.d("datecomparing", date1+"   "+date2+"  "+compare);
                 if(compare>0)
                     ret = -1; //date2<date1
                 else if(compare==0)

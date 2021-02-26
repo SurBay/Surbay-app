@@ -71,6 +71,7 @@ public class FindPwFragment extends Fragment {
     String id;
     String phone;
     String email;
+    private String mVerificationId;
 
     public static FindPwFragment newInstance() {
         return new FindPwFragment();
@@ -237,14 +238,15 @@ public class FindPwFragment extends Fragment {
         CDT.start();
     }
 
+
     public void PhoneAuth(String phoneNumber){
 //        phoneNumber = "+1 1231231234";
         auth = FirebaseAuth.getInstance();
 //        FirebaseAuth.getInstance().getFirebaseAuthSettings().forceRecaptchaFlowForTesting(true);
-        PhoneAuthOptions options = PhoneAuthOptions.newBuilder(auth)
+        PhoneAuthOptions.Builder optionsBuilder = PhoneAuthOptions.newBuilder(auth)
                 .setPhoneNumber(phoneNumber)
                 .setTimeout(120L, TimeUnit.SECONDS)
-                .setActivity((AppCompatActivity)getActivity())
+                .setActivity(getActivity())
                 .setCallbacks(new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
                     @Override
                     public void onCodeSent(@NonNull String verificationId,
@@ -255,8 +257,12 @@ public class FindPwFragment extends Fragment {
                         // The corresponding whitelisted code above should be used to complete sign-in.
                         Log.d("signupauth", forceResendingToken.toString() + verificationId);
                         Log.d("signupauth", "onCodeSent:" + verificationId);
+                        mVerificationId = verificationId;
+                        Toast.makeText(getActivity().getApplicationContext(), "인증번호를 발송했습니다", Toast.LENGTH_SHORT);
                         PTimerStart();
                         findpw_PNCedit.setEnabled(true);
+                        findpw_PAB.setEnabled(false);
+                        findpw_PNedit.setEnabled(false);
                         getverificationId = verificationId;
                         mResendToken = forceResendingToken;
 
@@ -271,6 +277,18 @@ public class FindPwFragment extends Fragment {
                         //     detect the incoming verification SMS and perform verification without
                         //     user action.
                         Log.d("phone auth", "onVerificationCompleted:" + credential);
+                        String code = credential.getSmsCode();
+                        findpw_PAB.setEnabled(true);
+                        findpw_PNedit.setEnabled(true);
+
+                        //sometime the code is not detected automatically
+                        //in this case the code will be null
+                        //so user has to manually enter the code
+                        if (code != null) {
+                            findpw_PNCedit.setText(code);
+                            //verifying the code
+                            verifyVerificationCode(code);
+                        }
 
                     }
 
@@ -279,6 +297,8 @@ public class FindPwFragment extends Fragment {
                         // This callback is invoked in an invalid request for verification is made,
                         // for instance if the the phone number format is not valid.
                         Log.w("phone auth", "onVerificationFailed", e);
+                        findpw_PAB.setEnabled(true);
+                        findpw_PNedit.setEnabled(true);
 
                         if (e instanceof FirebaseAuthInvalidCredentialsException) {
                             // Invalid request
@@ -291,10 +311,23 @@ public class FindPwFragment extends Fragment {
                         // Show a message and update the UI
                         // ...
                     }
-                })
-                .build();
+                });
+
+        if(mResendToken!=null) optionsBuilder.setForceResendingToken(mResendToken);
+        PhoneAuthOptions options = optionsBuilder.build();
         PhoneAuthProvider.verifyPhoneNumber(options);
     }
+    private void verifyVerificationCode(String otp) {
+        //creating the credential
+        PhoneAuthCredential credential = PhoneAuthProvider.getCredential(mVerificationId, otp);
+
+        //signing the user
+        signInWithPhoneAuthCredential(credential);
+    }
+    private void signInWithPhoneAuthCredential(PhoneAuthCredential credential) {
+        auth.signInWithCredential(credential);
+    }
+
 
     private void phoneCheck() throws Exception{
         try {

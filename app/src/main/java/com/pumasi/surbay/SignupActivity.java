@@ -577,7 +577,7 @@ public class SignupActivity extends AppCompatActivity {
 //        phoneNumber = "+1 1231231234";
         auth = FirebaseAuth.getInstance();
 //        FirebaseAuth.getInstance().getFirebaseAuthSettings().forceRecaptchaFlowForTesting(true);
-        PhoneAuthOptions options = PhoneAuthOptions.newBuilder(auth)
+        PhoneAuthOptions.Builder optionsBuilder = PhoneAuthOptions.newBuilder(auth)
                 .setPhoneNumber(phoneNumber)
                 .setTimeout(120L, TimeUnit.SECONDS)
                 .setActivity(this)
@@ -595,6 +595,8 @@ public class SignupActivity extends AppCompatActivity {
                         Toast.makeText(SignupActivity.this, "인증번호를 발송했습니다", Toast.LENGTH_SHORT);
                         TimerStart();
                         phonecheckEditText.setEnabled(true);
+                        phone_checkButton.setEnabled(false);
+                        phonenumberEditText.setEnabled(false);
                         getverificationId = verificationId;
                         mResendToken = forceResendingToken;
 
@@ -643,8 +645,10 @@ public class SignupActivity extends AppCompatActivity {
                         // Show a message and update the UI
                         // ...
                     }
-                })
-                .build();
+                });
+
+        if(mResendToken!=null) optionsBuilder.setForceResendingToken(mResendToken);
+        PhoneAuthOptions options = optionsBuilder.build();
         PhoneAuthProvider.verifyPhoneNumber(options);
     }
 
@@ -743,6 +747,7 @@ public class SignupActivity extends AppCompatActivity {
                             JSONObject nameObj = new JSONObject(response.toString());
                             Boolean success = nameObj.getBoolean("type");
                             if (success) {
+
                                 String realphone = "+82"+phoneNumber.substring(1);
                                 Log.d("phone", "num is "+ realphone);
 

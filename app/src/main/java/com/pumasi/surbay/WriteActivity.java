@@ -55,6 +55,10 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.esafirm.imagepicker.features.ImagePicker;
+import com.esafirm.imagepicker.features.ImagePickerComponentHolder;
+import com.esafirm.imagepicker.features.ReturnMode;
+import com.esafirm.imagepicker.model.Image;
 import com.google.android.material.resources.MaterialAttributes;
 import com.pumasi.surbay.adapter.GiftImageAdapter;
 import com.pumasi.surbay.adapter.GiftImageAdapter2;
@@ -87,6 +91,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
@@ -146,6 +151,8 @@ public class WriteActivity extends AppCompatActivity {
     private TimePickerDialog.OnTimeSetListener tcallbackMethod;
     private DatePickerDialog.OnDateSetListener callbackMethod;
     final String[] spinner_esttime = {"선택해주세요", "1분 미만", "1~2분", "2~3분", "3~5분", "5~7분", "7~10분", "10분 초과"};
+    private List<Image> images;
+
     @SuppressLint("ResourceAsColor")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -247,6 +254,7 @@ public class WriteActivity extends AppCompatActivity {
             Log.d("postiswithprize",""+post.getPrize_urls()+post.isWith_prize());
             if (post.isWith_prize()){
                 withPrize.setChecked(true);
+                withPrize.setClickable(false);
                 prize_layout.setVisibility(View.VISIBLE);
                 writePrize.setText(post.getPrize());
                 writePrize.setEnabled(true);
@@ -254,15 +262,16 @@ public class WriteActivity extends AppCompatActivity {
                 prize_count.setVisibility(View.VISIBLE);
 
                 getPrizeImages();
+            }else{
+                withPrize.setChecked(false);
+                withPrize.setClickable(true);
             }
             writeUrl.setText(post.getUrl());
-            writeEstTime.setSelection(post.getEst_time());
             writeContent.setText(post.getContent());
             editUnable(writeDeadline);
             editUnable(writeUrl);
-            withPrize.setClickable(false);
 //            writePrize.setClickable(false);
-            writeEstTime.setSelection(post.getEst_time());
+            writeEstTime.setSelection(post.getEst_time()+1);
         }
 
         urlCheck.setOnClickListener(new View.OnClickListener() {
@@ -590,7 +599,9 @@ public class WriteActivity extends AppCompatActivity {
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         Volley.newRequestQueue(this).add(volleyMultipartRequest);
     }
-    public void updatePost(String title, String author, String content, Integer goal_participants, Integer est_time, String target, ArrayList<Uri> images, Integer num_prize, String prize) {
+    public void updatePost(String title, String author, String content, Integer goal_participants,
+                           Integer est_time, String target, ArrayList<Uri> images, Integer num_prize,
+                           String prize, Boolean with_prize) {
         String requestURL = getString(R.string.server)+"/api/posts/updatepost/" + post.getID();
         Log.d("fix", UserPersonalInfo.name);
         VolleyMultipartRequest volleyMultipartRequest = new VolleyMultipartRequest(Request.Method.PUT, requestURL,
@@ -637,8 +648,11 @@ public class WriteActivity extends AppCompatActivity {
                 }
                 params.put("est_time", String.valueOf(est_time));
                 params.put("target", target);
-                params.put("num_prize", String.valueOf(num_prize));
-                params.put("prize", prize);
+                if(with_prize) {
+                    params.put("with_prize", String.valueOf(true));
+                    params.put("num_prize", String.valueOf(num_prize));
+                    params.put("prize", prize);
+                }
 
                 return params;
             }
@@ -661,7 +675,7 @@ public class WriteActivity extends AppCompatActivity {
 //        Intent intent  = new Intent(this, ImagePickerActivity.class);
 //        startActivityForResult(intent,13);
         Matisse.from(WriteActivity.this)
-                .choose(MimeType.ofImage())
+                .choose(MimeType.of(MimeType.JPEG, MimeType.PNG, MimeType.WEBP))
                 .theme(R.style.Matisse_White)
                 .countable(false)
                 .addFilter(new GifSizeFilter(320, 320, 5 * Filter.K * Filter.K))
@@ -678,11 +692,31 @@ public class WriteActivity extends AppCompatActivity {
                     Log.e("isChecked", "onCheck: isChecked=" + isChecked);
                 })
                 .forResult(13);
+//        ImagePicker.create(this)
+//                .returnMode(ReturnMode.NONE)
+//                .folderMode(true) // folder mode (false by default)
+////                .toolbarFolderTitle("폴더") // folder selection title
+////                .toolbarImageTitle("") // image selection title
+//                .toolbarArrowColor(Color.WHITE) // Toolbar 'up' arrow color
+//                .multi() // multi mode (default mode)
+//                .limit(Math.max(count-image_bitmaps.size(),1)) // max images can be selected (99 by default)
+//                .showCamera(false) // show camera or not (true by default)
+//                .imageDirectory("Camera") // directory name for captured image  ("Camera" folder by default)
+//                .origin((ArrayList<Image>) images) // original selected images, used in multi mode
+////                .exclude((ArrayList<Image>) images) // exclude anything that in image.getPath()
+//                .theme(R.style.ImagePickerTheme) // must inherit ef_BaseTheme. please refer to sample
+//                .enableLog(false) // disabling log
+//                .language("ko")
+//                .start(); // start image picker activity with request code
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+//        if (ImagePicker.shouldHandle(requestCode, resultCode, data)) {
+//            // Get a list of picked images
+//            images = ImagePicker.getImages(data);
+//        }
         if (requestCode == 13 && resultCode == RESULT_OK){
             if(purpose==2){
                 ArrayList<Bitmap> arrayList = (ArrayList<Bitmap>) image_bitmaps.clone();
@@ -753,7 +787,8 @@ public class WriteActivity extends AppCompatActivity {
         String content = writeContent.getText().toString();
         String target = writeTarget.getText().toString();
         boolean with_prize = withPrize.isChecked();
-        est_time = writeEstTime.getSelectedItemPosition();
+        est_time = writeEstTime.getSelectedItemPosition() - 1;
+        Log.d("est_timeis",""+est_time);
 
         if(writeGoalParticipants.getText().toString().length() > 0) {
             goalParticipants = Integer.valueOf(writeGoalParticipants.getText().toString());
@@ -780,7 +815,9 @@ public class WriteActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
             if (with_prize){
-                count = Integer.valueOf(prize_count.getText().toString());
+                if(prize_count.getText().toString().length()!=0)
+                    count = Integer.valueOf(prize_count.getText().toString());
+                else count = 0;
                 prize = writePrize.getText().toString();
             } else {
                 count = 0;
@@ -794,14 +831,22 @@ public class WriteActivity extends AppCompatActivity {
             date = post.getDate();
             deadline = post.getDeadline();
 //            prize = post.getPrize();
-            count = Integer.valueOf(prize_count.getText().toString());
-            prize = writePrize.getText().toString();
+            if(with_prize) {
+                if(prize_count.getText().toString().length()!=0)
+                    count = Integer.valueOf(prize_count.getText().toString());
+                else count = 0;
+                prize = writePrize.getText().toString();
+            }else {
+                count = 0;
+                prize = null;///상품 없을 때는 null 처리해야될듯
+            }
+
 //            count = post.getNum_prize();
         }
         SimpleDateFormat formatter = new SimpleDateFormat(getString(R.string.date_format));
 
 
-        if (title.getBytes().length <= 0 || content.getBytes().length <= 0 || target.getBytes().length <= 0 || est_time <= 0 || deadline==null){
+        if (title.getBytes().length <= 0 || content.getBytes().length <= 0 || target.getBytes().length <= 0 || est_time < 0 || deadline==null){
 
             CustomDialog customDialog = new CustomDialog(WriteActivity.this, null);
             customDialog.show();
@@ -822,7 +867,19 @@ public class WriteActivity extends AppCompatActivity {
                     customDialog.setMessage("입력되지 않은 정보가 있습니다");
                     customDialog.setNegativeButton("확인");
                     AlertDialog.Builder bu = new AlertDialog.Builder(WriteActivity.this);
-                }else if(!(url.contains("docs.google.com") || url.contains("forms.gle"))){
+                }else if(with_prize==true && prize.length()<=0){
+                    CustomDialog customDialog = new CustomDialog(WriteActivity.this, null);
+                    customDialog.show();
+                    customDialog.setMessage("입력되지 않은 정보가 있습니다");
+                    customDialog.setNegativeButton("확인");
+                }
+                else if(with_prize==true && count==0){
+                    CustomDialog customDialog = new CustomDialog(WriteActivity.this, null);
+                    customDialog.show();
+                    customDialog.setMessage("추첨 인원을 입력해주세요");
+                    customDialog.setNegativeButton("확인");
+                }
+                else if(!(url.contains("docs.google.com") || url.contains("forms.gle"))){
                     CustomDialog customDialog = new CustomDialog(WriteActivity.this, null);
                     customDialog.show();
                     customDialog.setMessage("제공하지 않는 url입니다");
@@ -853,6 +910,7 @@ public class WriteActivity extends AppCompatActivity {
                         post.setGoal_participants(goalParticipants);
                         post.setEst_time(est_time);
                         post.setContent(content);
+                        post.setWith_prize(with_prize);
                         post.setPrize(prize);
                         post.setNum_prize(count);
 
@@ -860,7 +918,7 @@ public class WriteActivity extends AppCompatActivity {
                         intent.putExtra("post", post);
                         Log.d("date formatted", formatter.format(deadline));
                         try {
-                            updatePost(title, author, content, goalParticipants, est_time, target, image_uris, count, prize);
+                            updatePost(title, author, content, goalParticipants, est_time, target, image_uris, count, prize, with_prize);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -974,7 +1032,7 @@ public class WriteActivity extends AppCompatActivity {
         String content = writeContent.getText().toString();
         String target = writeTarget.getText().toString();
         boolean with_prize = withPrize.isChecked();
-        est_time = writeEstTime.getSelectedItemPosition();
+        est_time = writeEstTime.getSelectedItemPosition()-1;
         if (writeGoalParticipants.getText().toString().length() > 0 ){
             goalParticipants = Integer.valueOf(writeGoalParticipants.getText().toString());
         } else {

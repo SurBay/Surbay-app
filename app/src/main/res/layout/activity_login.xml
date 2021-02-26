@@ -5,23 +5,22 @@
     android:orientation="vertical"
     android:background="@color/gray">
 
-    <TextView
+    <ImageView
         android:id="@+id/textView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="SurBay"
-        android:textStyle="bold"
-        android:textSize="40dp"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/surbay_logo_transparent"
+        android:background="@color/gray"
         android:textColor="@color/black"
         android:layout_marginTop="120dp"
-        android:gravity="center"/>
+        android:layout_gravity="center"/>
 
     <EditText
         android:id="@+id/username"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="60dp"
-        android:layout_marginTop="50dp"
         android:background="@color/white"
         android:ems="10"
         android:hint="아이디 (이메일 형식)"

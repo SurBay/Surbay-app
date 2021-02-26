@@ -107,10 +107,7 @@ public class ListViewAdapter extends BaseAdapter {
         if (UserPersonalInfo.userID.equals(post.getAuthor_userid())){
             background.setBackgroundResource(R.drawable.round_border_gray_list);
             DoneView.setVisibility(View.GONE);
-        }else{
-            background.setBackgroundResource(R.drawable.round_border_teal_list);
         }
-
 
         authornameTextView.setText(post.getAuthor());
         if(post.getParticipants()>999){

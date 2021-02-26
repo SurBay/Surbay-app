@@ -2,6 +2,8 @@ package com.pumasi.surbay;
 
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -59,6 +61,7 @@ public class FindIdFragment extends Fragment {
 
     String id;
     String phone;
+    private String mVerificationId;
 
     public static FindIdFragment newInstance() {
         return new FindIdFragment();
@@ -101,35 +104,43 @@ public class FindIdFragment extends Fragment {
 
             }
         });
-        findid_PNCedit.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        findid_PNCedit.addTextChangedListener(new TextWatcher() {
             @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (!hasFocus){
-                    typesmsCode = findid_PNCedit.getText().toString();
-                    Log.d("code is", "sms code" + typesmsCode);
-                    if (typesmsCode.length() == 6){
-                        PhoneAuthCredential credential = PhoneAuthProvider.getCredential(getverificationId, typesmsCode);
-                        Task<AuthResult> result = auth.signInWithCredential(credential)
-                                .addOnCompleteListener((AppCompatActivity) getActivity(), new OnCompleteListener<AuthResult>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<AuthResult> task) {
-                                        if (task.isSuccessful()) {
-                                            // Sign in success, update UI with the signed-in user's information
-                                            FirebaseUser user = task.getResult().getUser();
-                                            Log.d("signupauth", "signInWithCredential:success");
-                                            CDT.cancel();
-                                            findid_PNCtext.setText("인증이 완료되었습니다");
-                                            phone_check = true;
-                                        } else {
-                                            // If sign in fails, display a message to the user.
-                                            Log.d("signupauth", "signInWithCredential:failefail");
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
-                                            findid_PNCtext.setText("인증번호가 일치하지 않습니다.");
-                                            // ...
-                                        }
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                typesmsCode = findid_PNCedit.getText().toString();
+                Log.d("code is", "sms code" + typesmsCode);
+                if (typesmsCode.length() == 6){
+                    PhoneAuthCredential credential = PhoneAuthProvider.getCredential(getverificationId, typesmsCode);
+                    Task<AuthResult> result = auth.signInWithCredential(credential)
+                            .addOnCompleteListener((AppCompatActivity) getActivity(), new OnCompleteListener<AuthResult>() {
+                                @Override
+                                public void onComplete(@NonNull Task<AuthResult> task) {
+                                    if (task.isSuccessful()) {
+                                        // Sign in success, update UI with the signed-in user's information
+                                        FirebaseUser user = task.getResult().getUser();
+                                        Log.d("signupauth", "signInWithCredential:success");
+                                        CDT.cancel();
+                                        findid_PNCtext.setText("인증이 완료되었습니다");
+                                        phone_check = true;
+                                    } else {
+                                        // If sign in fails, display a message to the user.
+                                        Log.d("signupauth", "signInWithCredential:failefail");
+
+                                        findid_PNCtext.setText("인증번호가 일치하지 않습니다.");
+                                        // ...
                                     }
-                                });
-                    }
+                                }
+                            });
                 }
             }
         });
@@ -180,10 +191,10 @@ public class FindIdFragment extends Fragment {
 //        phoneNumber = "+1 1231231234";
         auth = FirebaseAuth.getInstance();
 //        FirebaseAuth.getInstance().getFirebaseAuthSettings().forceRecaptchaFlowForTesting(true);
-        PhoneAuthOptions options = PhoneAuthOptions.newBuilder(auth)
+        PhoneAuthOptions.Builder optionsBuilder = PhoneAuthOptions.newBuilder(auth)
                 .setPhoneNumber(phoneNumber)
                 .setTimeout(120L, TimeUnit.SECONDS)
-                .setActivity((AppCompatActivity)getActivity())
+                .setActivity(getActivity())
                 .setCallbacks(new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
                     @Override
                     public void onCodeSent(@NonNull String verificationId,
@@ -194,8 +205,12 @@ public class FindIdFragment extends Fragment {
                         // The corresponding whitelisted code above should be used to complete sign-in.
                         Log.d("signupauth", forceResendingToken.toString() + verificationId);
                         Log.d("signupauth", "onCodeSent:" + verificationId);
+                        mVerificationId = verificationId;
+                        Toast.makeText(getActivity().getApplicationContext(), "인증번호를 발송했습니다", Toast.LENGTH_SHORT);
                         TimerStart();
                         findid_PNCedit.setEnabled(true);
+                        findid_AB.setEnabled(false);
+                        findid_PNedit.setEnabled(false);
                         getverificationId = verificationId;
                         mResendToken = forceResendingToken;
 
@@ -210,6 +225,18 @@ public class FindIdFragment extends Fragment {
                         //     detect the incoming verification SMS and perform verification without
                         //     user action.
                         Log.d("phone auth", "onVerificationCompleted:" + credential);
+                        String code = credential.getSmsCode();
+                        findid_AB.setEnabled(true);
+                        findid_PNedit.setEnabled(true);
+
+                        //sometime the code is not detected automatically
+                        //in this case the code will be null
+                        //so user has to manually enter the code
+                        if (code != null) {
+                            findid_PNCedit.setText(code);
+                            //verifying the code
+                            verifyVerificationCode(code);
+                        }
 
                     }
 
@@ -218,6 +245,8 @@ public class FindIdFragment extends Fragment {
                         // This callback is invoked in an invalid request for verification is made,
                         // for instance if the the phone number format is not valid.
                         Log.w("phone auth", "onVerificationFailed", e);
+                        findid_AB.setEnabled(true);
+                        findid_PNedit.setEnabled(true);
 
                         if (e instanceof FirebaseAuthInvalidCredentialsException) {
                             // Invalid request
@@ -230,13 +259,25 @@ public class FindIdFragment extends Fragment {
                         // Show a message and update the UI
                         // ...
                     }
-                })
-                .build();
+                });
+
+        if(mResendToken!=null) optionsBuilder.setForceResendingToken(mResendToken);
+        PhoneAuthOptions options = optionsBuilder.build();
         PhoneAuthProvider.verifyPhoneNumber(options);
+    }
+    private void verifyVerificationCode(String otp) {
+        //creating the credential
+        PhoneAuthCredential credential = PhoneAuthProvider.getCredential(mVerificationId, otp);
+
+        //signing the user
+        signInWithPhoneAuthCredential(credential);
+    }
+    private void signInWithPhoneAuthCredential(PhoneAuthCredential credential) {
+        auth.signInWithCredential(credential);
     }
 
     private void getID(String phoneNumber) {
-        String requestURL = getString(R.string.server)+"/api/users/finduserid?phoneNumber="+phoneNumber;
+        String requestURL = getString(R.string.server)+"/api/users/finduserid?phonenumber="+phoneNumber;
         try{
             RequestQueue requestQueue = Volley.newRequestQueue((AppCompatActivity)getActivity());
             JsonObjectRequest jsonObjectRequest= new JsonObjectRequest
