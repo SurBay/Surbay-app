@@ -264,7 +264,7 @@
             android:id="@+id/usersex_M"
             android:textSize="15dp"
             android:clickable="true"
-            android:background="@drawable/sexselector"
+            android:background="@drawable/sexselector_m"
             />
 
         <Button
@@ -273,7 +273,7 @@
             android:layout_height="35dp"
             android:layout_marginLeft="5dp"
             android:layout_toRightOf="@id/usersex_M"
-            android:background="@drawable/sexselector"
+            android:background="@drawable/sexselector_m"
             android:clickable="true"
             android:gravity="center"
             android:text="여성"

@@ -3,7 +3,7 @@
     android:opacity="opaque">
     <item android:drawable="@color/surbay_logo_background" />
     <item
-        android:drawable="@drawable/surbay_logo"
+        android:drawable="@drawable/surbay_logo_transparent"
         android:gravity="center"
         android:width="250dp"
         android:height="250dp"/>

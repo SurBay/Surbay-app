@@ -4,9 +4,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -32,6 +36,9 @@ public class GiftDetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_mypage_gift_detail);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
+        getSupportActionBar().setElevation(0);
+        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getColor(R.color.gray_FB)));
+
 
         ImageView imageView = findViewById(R.id.imageview);
 
@@ -57,7 +64,12 @@ public class GiftDetailActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater menuInflater = getMenuInflater();
         menuInflater.inflate(R.menu.gift_download_bar, menu);
-        MenuItem download = findViewById(R.id.download_bar);
+        for(int i = 0; i < menu.size(); i++) {
+            MenuItem item = menu.getItem(i);
+            SpannableString spanString = new SpannableString(menu.getItem(i).getTitle().toString());
+            spanString.setSpan(new ForegroundColorSpan(getColor(R.color.teal_200)), 0, spanString.length(), 0); //fix the color to white
+            item.setTitle(spanString);
+        }
         return super.onCreateOptionsMenu(menu);
     }
     @Override

@@ -1,194 +1,233 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".mypage.MypageSettingMain"
-    android:padding="15dp"
     android:background="@color/gray"
-    android:orientation="vertical">
-    <RelativeLayout
+    android:orientation="vertical"
+    android:padding="15dp"
+    tools:context=".mypage.MypageSettingMain">
+
+    <ImageView
+        android:id="@+id/uifix_back"
+        style="@style/back_button"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="@style/titleText"
+        android:text="회원정보 수정"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/account_fix_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="51dp"
+        android:layout_marginTop="95dp"
+        android:background="@drawable/box_white"
+        android:ems="10"
+        android:hint="닉네임*"
+        style="@style/EdittextTheme"
+        android:inputType="textPersonName"
+        android:maxLength="10"
+        android:privateImeOptions="defaultInputmode=english"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/account_fix_check_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="53dp"
+        android:textSize="12.5dp"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/account_fix_name" />
+
+    <LinearLayout
+        android:id="@+id/constraintLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        >
-        <ImageView
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:src="@drawable/leftarrow2"
-            android:scaleType="centerInside"
-            android:id="@+id/uifix_back"
-            android:clickable="true"
-            />
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textStyle="bold"
-            android:text="회원정보 수정"
-            android:layout_centerHorizontal="true"
-            android:textSize="20dp"
-            />
-    </RelativeLayout>
-    <LinearLayout
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/account_fix_check_name"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginStart="51dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="51dp">
+
+
+    <EditText
+        android:id="@+id/account_fix_userphone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/box_white"
+        android:layout_weight="1"
+        android:layout_marginEnd="2dp"
+        android:hint="휴대폰 번호*"
+        android:inputType="number"
+        android:maxLength="12"
+        style="@style/EdittextTheme"
+         />
+
+    <TextView
+        android:id="@+id/account_fix_userphone_check"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/round_border_teal_list"
+        android:clickable="true"
+        style="@style/TextviewTheme"
+        android:text="인증하기"
+        android:textColor="@color/teal_200"
+        android:textSize="15sp"/>
+    </LinearLayout>
+
+    <EditText
+        android:id="@+id/account_fix_phone_checknumber"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_marginTop="50dp"
-        >
+        android:layout_marginHorizontal="51dp"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/box_white"
+        android:ems="10"
+        android:enabled="false"
+        android:hint="인증번호(변경 시 필수)"
+        android:inputType="number"
+        android:maxLength="10"
+        style="@style/EdittextTheme"
+        android:privateImeOptions="defaultInputmode=english"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/constraintLayout" />
 
-        <EditText
-            android:id="@+id/account_fix_name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:paddingVertical="10dp"
-            android:paddingHorizontal="12dp"
-            android:inputType="textPersonName"
-            android:privateImeOptions="defaultInputmode=english"
-            android:background="@drawable/box_white"
-            android:hint="닉네임"
-            android:textSize="15dp"
-            android:layout_marginHorizontal="40dp"
-            android:layout_marginTop="5dp"/>
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/account_fix_check_name"
-            android:layout_marginTop="3dp"
-            android:layout_marginHorizontal="50dp"
-            android:textSize="10dp"
-            android:visibility="gone"/>
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <EditText
-                android:id="@+id/account_fix_userphone"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="40dp"
-                android:layout_marginTop="5dp"
-                android:layout_marginRight="10dp"
-                android:layout_toLeftOf="@id/account_fix_userphone_check"
-                android:background="@drawable/box_white"
-                android:hint="휴대폰 번호"
-                android:inputType="number"
-                android:paddingHorizontal="12dp"
-                android:paddingVertical="10dp"
-                android:textSize="15dp"/>
-            <TextView
-                android:id="@+id/account_fix_userphone_check"
-                android:layout_width="80dp"
-                android:layout_height="40dp"
-                android:gravity="center"
-                android:text="인증하기"
-                android:textSize="16dp"
-                android:textColor="@color/teal_200"
-                android:background="@drawable/round_border_teal_list"
-                android:layout_alignBottom="@id/account_fix_userphone"
-                android:layout_alignParentRight="true"
-                android:layout_marginRight="40dp"
-                android:clickable="true"
-                />
-        </RelativeLayout>
+    <TextView
+        android:id="@+id/account_fix_timer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="14dp"
+        android:text="03:00"
+        android:textColor="@color/teal_200"
+        android:textSize="12.5dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="@id/account_fix_phone_checknumber"
+        app:layout_constraintTop_toTopOf="@id/account_fix_phone_checknumber"
+        app:layout_constraintBottom_toBottomOf="@+id/account_fix_phone_checknumber"/>
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            >
-            <EditText
-                android:id="@+id/account_fix_phone_checknumber"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:ems="10"
-                android:paddingVertical="10dp"
-                android:paddingHorizontal="12dp"
-                android:inputType="number"
-                android:privateImeOptions="defaultInputmode=english"
-                android:background="@drawable/box_white"
-                android:hint="인증번호"
-                android:textSize="15dp"
-                android:layout_marginHorizontal="40dp"
-                android:layout_marginVertical="5dp"
-                android:enabled="false"
-                />
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/account_fix_timer"
-                android:layout_alignRight="@id/account_fix_phone_checknumber"
-                android:text="03:00"
-                android:textSize="15dp"
-                android:textStyle="bold"
-                android:textColor="@color/teal_200"
-                android:layout_centerVertical="true"
-                android:layout_marginRight="10dp"
-                android:visibility="invisible"
-                />
-        </RelativeLayout>
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/account_fix_PCNtext"
-            android:text="3분 내에 입력해주세요"
-            android:textSize="10dp"
-            android:textStyle="bold"
-            android:textColor="@color/teal_200"
-            android:layout_marginHorizontal="45dp"
-            android:visibility="gone"
-            />
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingTop="5dp"
-            android:paddingHorizontal="40dp"
-            >
-            <Button
-                android:layout_width="60dp"
-                android:layout_height="35dp"
-                android:text="남성"
-                android:gravity="center"
-                android:id="@+id/account_fix_usersex_M"
-                android:textSize="15dp"
-                android:clickable="true"
-                android:background="@drawable/sexselector"
-                />
-            <Button
-                android:layout_width="60dp"
-                android:layout_height="35dp"
-                android:text="여성"
-                android:id="@+id/account_fix_usersex_F"
-                android:gravity="center"
-                android:layout_toRightOf="@id/account_fix_usersex_M"
-                android:textSize="15dp"
-                android:layout_marginLeft="5dp"
-                android:clickable="true"
-                android:background="@drawable/sexselector"
-                />
-            <RelativeLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_marginLeft="20dp"
-                >
-                <Spinner
-                    android:background="@drawable/box_notfill"
-                    android:layout_width="150dp"
-                    android:layout_height="35dp"
-                    android:id="@+id/account_fix_age"
-                    android:hint="출생연도"
-                    />
-            </RelativeLayout>
-        </RelativeLayout>
-        <Button
-            android:id="@+id/account_fix_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="회원정보 수정"
-            android:textColor="@color/white"
-            android:background="@drawable/round_border_teal_list"
-            android:backgroundTint="@color/teal_200"
-            android:layout_marginHorizontal="40dp"
-            android:layout_marginTop="10dp"/>
+    <TextView
+        android:id="@+id/account_fix_PCNtext"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="45dp"
+        android:layout_marginStart="53dp"
+        android:layout_marginEnd="14dp"
+        android:text="3분 내에 입력해주세요"
+        android:textColor="@color/teal_200"
+        android:textSize="12.5dp"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/account_fix_phone_checknumber" />
+
+
+    <Button
+        android:id="@+id/account_fix_usersex_M"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="51dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="256dp"
+        android:minHeight="0dp"
+        android:minWidth="0dp"
+        android:background="@drawable/sexselector_m"
+        android:clickable="true"
+        android:text="남성"
+        android:paddingHorizontal="16dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="7dp"
+        android:textColor="@drawable/text_selector"
+        android:textSize="15sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/account_fix_PCNtext" />
+
+    <Button
+        android:id="@+id/account_fix_usersex_F"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="196dp"
+        android:paddingHorizontal="16dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="7dp"
+        android:minHeight="0dp"
+        android:minWidth="0dp"
+        android:background="@drawable/sexselector_f"
+        android:clickable="true"
+        android:text="여성"
+        android:textColor="@drawable/text_selector"
+        android:textSize="15sp"
+        app:layout_constraintStart_toEndOf="@id/account_fix_usersex_M"
+        app:layout_constraintTop_toBottomOf="@id/account_fix_PCNtext" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/account_fix_PCNtext"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="51dp">
+    <Spinner
+        android:id="@+id/account_fix_age"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minWidth="0dp"
+        android:maxHeight="0dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="7dp"
+        android:hint="출생연도"
+        android:backgroundTint="@color/text_black_70"
+        />
     </LinearLayout>
-</LinearLayout>
+
+
+    <Button
+        android:id="@+id/account_fix_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="51dp"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/round_border_big_button_teal"
+        android:backgroundTint="@color/teal_200"
+        android:paddingHorizontal="71dp"
+        android:paddingTop="11dp"
+        android:paddingBottom="10dp"
+        android:minHeight="0dp"
+        android:minWidth="0dp"
+        android:text="회원정보 수정"
+        android:textColor="@color/white"
+        android:textSize="14sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/account_fix_usersex_M"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <TextView
+        android:id="@+id/textView3"
+        style="@style/TextviewTheme"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="*필수"
+        android:padding="0dp"
+        android:layout_marginBottom="10dp"
+        android:textColor="@color/nav_gray"
+        android:layout_marginEnd="51dp"
+        app:layout_constraintBottom_toTopOf="@+id/account_fix_name"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

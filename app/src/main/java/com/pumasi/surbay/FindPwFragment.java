@@ -1,14 +1,17 @@
 package com.pumasi.surbay;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -96,6 +99,19 @@ public class FindPwFragment extends Fragment {
         findpw_Etimer = view.findViewById(R.id.findpw_Etimer);
         findpw_ECtext = view.findViewById(R.id.findpw_ECtext);
         findpw_EB = view.findViewById(R.id.find_pw_EB);
+
+        view.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if(event.getAction()==MotionEvent.ACTION_MOVE) {
+                    InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    if (getActivity().getCurrentFocus() != null)
+                        imm.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(), 0);
+                    return true;
+                }
+                return true;
+            }
+        });
 
         findpw_PAB.setOnClickListener(new View.OnClickListener() {
             @Override

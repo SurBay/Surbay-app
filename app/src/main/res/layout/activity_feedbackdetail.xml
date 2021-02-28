@@ -4,30 +4,21 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:paddingVertical="20dp"
-        android:paddingHorizontal="35dp"
-        >
-        <ImageView
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:src="@drawable/leftarrow2"
-            android:scaleType="fitCenter"
-            android:id="@+id/feedbackdetail_back"
-            android:clickable="true"
-            />
-    </RelativeLayout>
+    <ImageView
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        style="@style/back_button"
+        android:id="@+id/feedbackdetail_back"
+        android:clickable="true"
+        />
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:orientation="vertical"
+        android:layout_marginTop="23.8dp"
         android:paddingHorizontal="40dp"
         >
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -38,21 +29,21 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="날짜"
-                android:textSize="14dp"
+                android:textSize="12.5dp"
                 android:textColor="@color/text_gray"/>
             <androidx.appcompat.widget.AppCompatTextView
 
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text=" / "
-                android:textSize="14dp"
+                android:textSize="12.5dp"
                 android:textColor="@color/text_gray"/>
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/feedback_detail_auther"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="익명"
-                android:textSize="14dp"
+                android:textSize="12.5dp"
                 android:textColor="@color/text_gray"/>
         </LinearLayout>
         <androidx.appcompat.widget.AppCompatTextView
@@ -60,29 +51,29 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="11dp"
             android:text="내용"
-            android:textSize="18dp"
+            android:textSize="15dp"
             android:textColor="@color/teal_200"/>
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/feedback_detail_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="12.5dp"
             android:text="제목"
             android:textStyle="bold"
-            android:textSize="24dp"
+            android:textSize="17.5dp"
             android:textColor="@color/black"/>
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/feedback_detail_content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_marginVertical="10dp"
+            android:layout_marginVertical="8dp"
             android:layout_centerVertical="true"
             android:text="내용"
-            android:textSize="18dp"
+            android:textSize="15dp"
             android:lineSpacingExtra="2dp"
             android:scrollHorizontally="false"
             android:textColor="@color/black"

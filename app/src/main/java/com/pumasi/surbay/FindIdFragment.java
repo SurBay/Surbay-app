@@ -1,14 +1,17 @@
 package com.pumasi.surbay;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -80,6 +83,19 @@ public class FindIdFragment extends Fragment {
         findid_button = view.findViewById(R.id.find_id_button);
         findid_timer = view.findViewById(R.id.findid_timer);
         findid_PNCtext = view.findViewById(R.id.findid_PCNtext);
+
+        view.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if(event.getAction()==MotionEvent.ACTION_MOVE) {
+                    InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    if (getActivity().getCurrentFocus() != null)
+                        imm.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(), 0);
+                    return true;
+                }
+                return true;
+            }
+        });
 
         findid_AB.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -160,6 +176,7 @@ public class FindIdFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
     }
+
 
     public void TimerStart(){
         findid_timer.setVisibility(View.VISIBLE);

@@ -48,6 +48,8 @@ public class IGotGifts extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_i_got_gifts);
 
+        getSupportActionBar().hide();
+
         back = findViewById(R.id.igotgifts_back);
         back.setOnClickListener(new View.OnClickListener() {
             @Override

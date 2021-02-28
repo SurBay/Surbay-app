@@ -1,162 +1,196 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="@color/white">
-    <RelativeLayout
+    android:background="@color/gray_FB">
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingHorizontal="10dp"
         android:id="@+id/feedback_writetop"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="16dp"
+        android:layout_marginHorizontal="16dp"
         >
         <TextView
             android:id="@+id/feedback_writeBack"
-            android:layout_width="60dp"
-            android:layout_height="56dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="취소"
-            android:textColor="@color/gray2"
+            android:textColor="@color/nav_gray"
             android:textStyle="bold"
-            android:background="@color/white"
-            android:gravity="center"
-            android:clickable="true"
-            android:lines ="1"/>
+            android:textSize="14dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginTop="11dp"
+            android:layout_marginBottom="10dp"
+            android:layout_marginStart="16dp"
+            android:clickable="true" />
         <TextView
             android:text="건의/의견 작성"
-            android:textSize="18dp"
-            android:textColor="@color/black"
+            android:textSize="17.5dp"
+            android:textColor="@color/text_black"
             android:textStyle="bold"
-            android:gravity="center"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_weight="1"/>
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginTop="11dp"
+            android:layout_marginBottom="10dp"
+            android:layout_marginHorizontal="114dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
         <TextView
             android:id="@+id/feedback_writeDone"
             android:text="등록"
             android:textColor="@color/teal_200"
             android:textStyle="bold"
-            android:background="@color/white"
-            android:layout_width="60dp"
-            android:layout_height="56dp"
-            android:gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginTop="11dp"
+            android:layout_marginBottom="10dp"
+            android:layout_marginEnd="16dp"
             android:clickable="true"
             android:layout_alignParentRight="true"/>
-    </RelativeLayout>
-    <LinearLayout
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="64dp"
+        android:layout_marginHorizontal="80dp"
+        android:textSize="12.5dp"
+        android:textColor="@color/text_black"
+        android:text="건의/의견은 등록 후 수정/삭제가 불가합니다.\n
+이점을 유의하여 신중히 작성 부탁드립니다."
+        />
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginHorizontal="32dp"
+        android:layout_marginTop="89dp"
         app:layout_constraintStart_toStartOf="parent"
-        android:orientation="vertical"
-        android:layout_below="@id/feedback_writetop">
-        <LinearLayout
-            android:layout_width="match_parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        >
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:padding="5dp"
-            >
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="건의/의견은 등록 후 수정/삭제가 불가합니다.\n
-이점을 유의하여 신중히 작성 부탁드립니다."
-                />
-        </LinearLayout>
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="20dp"
+            android:text="카테고리"
+            android:id="@+id/feedback_category_text"
+            android:textSize="15dp"
+            android:textColor="@color/text_black_70"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
             android:layout_marginTop="20dp"
-            >
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="카테고리 "
-                android:id="@+id/feedback_category_text"
-                android:textSize="18dp"
-                android:textColor="@color/black"
-                android:layout_marginRight="10dp"
-                ></TextView>
-            <Spinner
-                android:layout_marginLeft="5dp"
-                android:layout_toRightOf="@id/feedback_category_text"
-                android:id="@+id/feedback_category"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:focusable="true"
-                android:focusableInTouchMode="true"
-                android:textSize="15dp"
-                android:inputType="text"
-                android:backgroundTint="@color/gray2"
-                android:spinnerMode="dropdown"
-                android:prompt="@string/feedback_spinner_hint"
-                ></Spinner>
-        </RelativeLayout>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="20dp"
-            android:layout_marginHorizontal="20dp"
-            >
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="글 제목"
-                android:textSize="18dp"
-                android:textColor="@color/black"
-                android:layout_marginRight="10dp"
-                ></TextView>
-            <EditText
-                android:layout_marginLeft="5dp"
-                android:id="@+id/feedback_write_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:focusable="true"
-                android:focusableInTouchMode="true"
-                android:textSize="15dp"
-                android:lines="1"
-                android:inputType="text"
-                android:backgroundTint="@color/gray2"
-                ></EditText>
-        </LinearLayout>
-        <LinearLayout
+            android:layout_marginBottom="4dp"
+            ></TextView>
+        <Spinner
+            android:id="@+id/feedback_category"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:orientation="horizontal"
-            android:layout_marginBottom="30dp"
-            android:layout_marginHorizontal="19dp"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:textSize="15dp"
+            android:inputType="text"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginStart="66dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="4dp"
+            android:backgroundTint="@color/gray_FB"
+            android:spinnerMode="dropdown"
+            android:prompt="@string/feedback_spinner_hint"
+            ></Spinner>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/title_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="32dp"
+        android:layout_marginTop="124dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        >
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="글 제목"
+            android:textSize="15dp"
+            android:textColor="@color/text_black_70"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
             android:layout_marginTop="20dp"
-            >
-            <EditText
-                android:layout_marginLeft="5dp"
-                android:id="@+id/feedback_write_content"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:focusable="true"
-                android:focusableInTouchMode="true"
-                android:hint="내용을 입력해주세요"
-                android:inputType="textMultiLine"
-                android:scrollHorizontally="false"
-                android:textSize="15dp"
-                android:layout_gravity="top"
-                android:gravity="top"
-                android:background="@color/white"
-                ></EditText>
-        </LinearLayout>
-    </LinearLayout>
-    <LinearLayout
+            android:layout_marginBottom="5dp"
+            ></TextView>
+        <EditText
+            android:id="@+id/feedback_write_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:textSize="12.5dp"
+            android:lines="1"
+            android:inputType="text"
+            android:backgroundTint="@color/gray_FB"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:gravity="start|top"
+            android:layout_marginStart="66dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="5dp"
+            android:autofillHints=""></EditText>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/title_layout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginTop="20dp"
+        android:layout_marginHorizontal="32dp"
+        >
+        <EditText
+            android:layout_marginLeft="5dp"
+            android:id="@+id/feedback_write_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:hint="내용을 입력해주세요"
+            android:gravity="top"
+            android:textColorHint="@color/nav_gray"
+            android:inputType="textMultiLine"
+            android:scrollHorizontally="false"
+            android:textSize="10dp"
+            android:background="@color/gray_FB"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            ></EditText>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingHorizontal="15dp"
         android:layout_above="@id/feedback_writebottom"
         android:gravity="center"
-        >
+        android:visibility="gone"
+        tools:ignore="MissingConstraints">
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/feedback_imagerecycler"
             android:layout_width="match_parent"
@@ -164,7 +198,7 @@
             android:visibility="gone"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             />
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -172,7 +206,7 @@
         android:visibility="gone"
         android:layout_alignParentBottom="true"
         android:id="@+id/feedback_writebottom"
-        >
+        tools:ignore="MissingConstraints">
         <ImageView
             android:layout_width="35dp"
             android:layout_height="35dp"
@@ -185,10 +219,9 @@
             android:text="최대 10장까지 업로드 가능합니다"
             android:textColor="@color/gray2"
             android:textStyle="bold"
-            android:background="@color/white"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_toRightOf="@id/feedback_writeImageadd"/>
     </RelativeLayout>
-</RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

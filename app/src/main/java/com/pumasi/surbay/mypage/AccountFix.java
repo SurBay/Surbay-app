@@ -131,7 +131,7 @@ public class AccountFix extends AppCompatActivity {
         for (int i=1960;i<2020;i++){
             spinner_age.add(String.valueOf(i));
         }
-        ArrayAdapter ageadapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, spinner_age);
+        ArrayAdapter ageadapter = new ArrayAdapter(this, R.layout.simple_spinner_item, spinner_age);
         ageadapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         userage.setAdapter(ageadapter);
         if(UserPersonalInfo.yearBirth!=0){
@@ -154,8 +154,8 @@ public class AccountFix extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 Log.d("press", "pressed "+ usersex_M.isPressed() + usersex_F.isPressed() + MPressed + FPressed);
-                usersex_M.setBackground(getDrawable(R.drawable.sexselector));
-                usersex_F.setBackground(getDrawable(R.drawable.sexselector));
+                usersex_M.setBackground(getDrawable(R.drawable.sexselector_m));
+                usersex_F.setBackground(getDrawable(R.drawable.sexselector_m));
                 if(MPressed) usersex_M.setPressed(true);
                 else if(FPressed) usersex_F.setPressed(true);
                 posyear = position;
@@ -163,8 +163,8 @@ public class AccountFix extends AppCompatActivity {
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
                 Log.d("pres2", "pressed "+ usersex_M.isPressed() + usersex_F.isPressed()+ MPressed + FPressed);
-                usersex_M.setBackground(getDrawable(R.drawable.sexselector));
-                usersex_F.setBackground(getDrawable(R.drawable.sexselector));
+                usersex_M.setBackground(getDrawable(R.drawable.sexselector_m));
+                usersex_F.setBackground(getDrawable(R.drawable.sexselector_m));
                 if(MPressed) usersex_M.setPressed(true);
                 else if(FPressed) usersex_F.setPressed(true);
             }
@@ -191,8 +191,8 @@ public class AccountFix extends AppCompatActivity {
                 Log.d("new name is", "username"+nameEditText.getText().toString()+ "is equal?  "+b);
                 if(!nameEditText.getText().toString().equals(UserPersonalInfo.name)) {
                     check_name.setVisibility(View.VISIBLE);
-                    check_name.setText("중복 확인 중입니다.");
-                    check_name.setTextColor(getResources().getColor(R.color.red));
+                    check_name.setText("확인 중입니다");
+                    check_name.setTextColor(getResources().getColor(R.color.teal_200));
                     try {
                         nameCheck(nameEditText);
                     } catch (Exception e) {
@@ -304,7 +304,7 @@ public class AccountFix extends AppCompatActivity {
                                 if (success) {
                                     check_name.setText("사용할 수 있는 닉네임입니다.");
                                     name_checked = 2;
-                                    check_name.setTextColor(getResources().getColor(R.color.blue));
+                                    check_name.setTextColor(getResources().getColor(R.color.teal_200));
                                 } else {
                                     check_name.setText("중복된 닉네임입니다.");
                                     name_checked = 1;
@@ -328,6 +328,7 @@ public class AccountFix extends AppCompatActivity {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        if(getCurrentFocus()!=null)imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
         return true;
     }
 

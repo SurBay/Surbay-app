@@ -25,7 +25,7 @@
         <item name="backgroundColor">#FFFFFF</item>
     </style>
     <style name="search_back">
-        <item name="android:background">@drawable/round_border_white_fill</item>
+        <item name="android:background">@drawable/search_back</item>
         <item name="backgroundColor">#FFFFFF</item>
     </style>
     <style name="sex_box_nosel">
@@ -77,5 +77,42 @@
         <item name="colorPrimaryDark">#455A64</item>
         <item name="colorAccent">@color/ef_colorAccent</item>
     </style>
+    <style name="EdittextTheme" parent="Widget.AppCompat.EditText">
+        <item name="android:paddingHorizontal">12.5dp</item>
+        <item name="android:paddingTop">10dp</item>
+        <item name="android:paddingBottom">8.75dp</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textColorHint">@color/nav_gray</item>
+        <item name="android:textColor">@color/text_black</item>
+        <item name="android:lines">1</item>
+    </style>
+    <style name="TextviewTheme" parent="Widget.AppCompat.TextView">
+        <item name="android:paddingHorizontal">12.5dp</item>
+        <item name="android:paddingTop">10dp</item>
+        <item name="android:paddingBottom">8.75dp</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textColorHint">@color/nav_gray</item>
+        <item name="android:textColor">@color/text_black</item>
+        <item name="android:lines">1</item>
+    </style>
+    <style name="textsize" parent="Widget.AppCompat.TextView">
+        <item name="android:textSize">15sp</item>
+    </style>
+    <style name="titleText" parent="Widget.AppCompat.TextView">
+        <item name="android:textColor">@color/text_black</item>
+        <item name="android:textSize">17.5dp</item>
+        <item name="android:layout_marginTop">27dp</item>
+        <item name="android:layout_centerHorizontal">true</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="back_button">
+        <item name="android:src">@drawable/leftarrow2</item>
+        <item name="android:layout_marginStart">20dp</item>
+        <item name="android:layout_marginTop">28dp</item>
+        <item name="android:clickable">true</item>
+        <item name="android:scaleType">fitCenter</item>
+    </style>
+
 
 </resources>

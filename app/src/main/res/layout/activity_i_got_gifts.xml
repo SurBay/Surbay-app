@@ -5,7 +5,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".mypage.MypageSettingMain"
-    android:padding="15dp"
     android:background="@color/gray"
     android:orientation="vertical">
     <RelativeLayout
@@ -14,10 +13,9 @@
         android:orientation="horizontal"
         >
         <ImageView
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:src="@drawable/leftarrow2"
-            android:scaleType="centerInside"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            style="@style/back_button"
             android:id="@+id/igotgifts_back"
             android:clickable="true"
             />
@@ -27,25 +25,25 @@
             android:textStyle="bold"
             android:text="내가 받은 경품"
             android:layout_centerHorizontal="true"
-            android:textSize="20dp"
+            style="@style/titleText"
             android:id="@+id/igotgifts_title"
             />
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="11dp"
             android:textStyle="bold"
             android:text="이미지를 클릭하면 이미지를 다운로드 받을 수 있습니다\n
 다운로드 받으면 일주일 후에 경품함에서 사라집니다"
             android:layout_below="@id/igotgifts_title"
             android:layout_centerHorizontal="true"
-            android:textSize="10dp"
+            android:textSize="12.5dp"
             />
     </RelativeLayout>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="10dp">
+        android:padding="30dp">
         <androidx.recyclerview.widget.RecyclerView
             android:layout_width="match_parent"
             android:layout_height="match_parent"

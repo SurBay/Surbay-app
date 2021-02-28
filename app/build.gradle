@@ -17,7 +17,7 @@ android {
 
     defaultConfig {
         applicationId "com.pumasi.surbay"
-        minSdkVersion 24
+        minSdkVersion 26
         targetSdkVersion 30
         versionCode 5
         versionName '1.0.4'

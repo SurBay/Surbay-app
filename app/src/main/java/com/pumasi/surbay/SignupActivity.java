@@ -219,8 +219,8 @@ public class SignupActivity extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 Log.d("press", "pressed "+ usersex_M.isPressed() + usersex_F.isPressed() + MPressed + FPressed);
-                usersex_M.setBackground(getDrawable(R.drawable.sexselector));
-                usersex_F.setBackground(getDrawable(R.drawable.sexselector));
+                usersex_M.setBackground(getDrawable(R.drawable.sexselector_m));
+                usersex_F.setBackground(getDrawable(R.drawable.sexselector_m));
                 if(MPressed) usersex_M.setPressed(true);
                 else if(FPressed) usersex_F.setPressed(true);
                 posyear = position;
@@ -228,8 +228,8 @@ public class SignupActivity extends AppCompatActivity {
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
                 Log.d("pres2", "pressed "+ usersex_M.isPressed() + usersex_F.isPressed()+ MPressed + FPressed);
-                usersex_M.setBackground(getDrawable(R.drawable.sexselector));
-                usersex_F.setBackground(getDrawable(R.drawable.sexselector));
+                usersex_M.setBackground(getDrawable(R.drawable.sexselector_m));
+                usersex_F.setBackground(getDrawable(R.drawable.sexselector_m));
                 if(MPressed) usersex_M.setPressed(true);
                 else if(FPressed) usersex_F.setPressed(true);
             }

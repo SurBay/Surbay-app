@@ -67,7 +67,7 @@ public class BoardsSearchActivity extends AppCompatActivity {
         search_spinner = (Spinner)findViewById(R.id.search_spinner);
         search_listview = (ListView)findViewById(R.id.search_listview);
 
-        ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, spinner_context);
+        ArrayAdapter adapter = new ArrayAdapter(this, R.layout.simple_spinner_item_search, spinner_context);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         search_spinner.setAdapter(adapter);
 
