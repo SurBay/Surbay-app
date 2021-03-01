@@ -28,7 +28,9 @@ public class TipImageDetail extends AppCompatActivity {
         back = findViewById(R.id.tipimageback);
         imageView = findViewById(R.id.tipimagedetail);
 
-        imageView.setImageURI(uri);
+        if(uri!=null) {
+            imageView.setImageURI(uri);
+        }
         delect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

@@ -19,9 +19,13 @@ import androidx.fragment.app.Fragment;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.pumasi.surbay.adapter.NonSurveyListViewAdapter;
+import com.pumasi.surbay.classfile.Post;
 import com.pumasi.surbay.classfile.PostNonSurvey;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
 
 public class BoardFragment3 extends Fragment {
     static final int WRITE_NEWPOST = 1;
@@ -54,6 +58,24 @@ public class BoardFragment3 extends Fragment {
         listView = view.findViewById(R.id.list);
 
         list = MainActivity.feedbackArrayList;
+        Comparator<PostNonSurvey> cmpNew = new Comparator<PostNonSurvey>() {
+            @Override
+            public int compare(PostNonSurvey o1, PostNonSurvey o2) {
+                int ret;
+                Date date1 = o1.getDate();
+                Date date2 = o2.getDate();
+                int compare = date1.compareTo(date2);
+                Log.d("datecomparing", date1 + "   " + date2 + "  " + compare);
+                if (compare > 0)
+                    ret = -1; //date2<date1
+                else if (compare == 0)
+                    ret = 0;
+                else
+                    ret = 1;
+                return ret;
+            }
+        };
+        Collections.sort(list, cmpNew);
         listViewAdapter = new NonSurveyListViewAdapter(list);
         listView.setAdapter(listViewAdapter);
 

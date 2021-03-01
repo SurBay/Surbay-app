@@ -1,31 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:paddingVertical="20dp"
-        android:paddingHorizontal="35dp"
-        >
-        <ImageView
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:src="@drawable/leftarrow2"
-            android:scaleType="fitCenter"
-            android:id="@+id/tip_detail_back"
-            android:clickable="true"
-            />
-    </RelativeLayout>
+    <ImageView
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        style="@style/back_button"
+        android:src="@drawable/leftarrow2"
+        android:scaleType="fitCenter"
+        android:id="@+id/tip_detail_back"
+        android:clickable="true"
+        />
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:orientation="vertical"
-        android:paddingHorizontal="40dp"
+        android:layout_marginTop="23.8dp"
+        android:paddingHorizontal="26dp"
         >
         <LinearLayout
             android:layout_width="match_parent"
@@ -36,21 +30,21 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="날짜"
-                android:textSize="14dp"
+                android:textSize="12.5dp"
                 android:textColor="@color/text_gray"/>
             <androidx.appcompat.widget.AppCompatTextView
 
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text=" / "
-                android:textSize="14dp"
+                android:textSize="12.5dp"
                 android:textColor="@color/text_gray"/>
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/tip_detail_auther"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="작성자"
-                android:textSize="14dp"
+                android:textSize="12.5dp"
                 android:textColor="@color/text_gray"/>
         </LinearLayout>
         <androidx.appcompat.widget.AppCompatTextView
@@ -58,31 +52,39 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="11dp"
             android:text="내용"
-            android:textSize="18dp"
+            android:textSize="15dp"
             android:textColor="@color/teal_200"/>
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tip_detail_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="12.5dp"
             android:text="제목"
             android:textStyle="bold"
-            android:textSize="24dp"
+            android:textSize="17.5dp"
             android:textColor="@color/black"/>
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tip_detail_content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginVertical="10dp"
+            android:layout_marginVertical="8dp"
             android:layout_centerVertical="true"
             android:text="내용"
-            android:textSize="18dp"
+            android:textSize="15dp"
             android:lineSpacingExtra="2dp"
             android:scrollHorizontally="false"
             android:textColor="@color/black"
+            />
+        <androidx.recyclerview.widget.RecyclerView
+            android:layout_marginTop="20dp"
+            android:id="@+id/tip_images"
+            android:layout_width="match_parent"
+            android:layout_height="270dp"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            android:visibility="gone"
             />
         <LinearLayout
             android:layout_width="match_parent"
@@ -91,9 +93,8 @@
             android:gravity="center"
             >
             <LinearLayout
-                android:layout_width="105dp"
-                android:layout_height="45dp"
-                android:padding="10dp"
+                android:layout_width="87.5dp"
+                android:layout_height="37.5dp"
                 android:background="@drawable/round_border_gray_list"
                 android:gravity="center"
                 android:id="@+id/tipdetail_likesbutton"
@@ -102,13 +103,14 @@
                     android:layout_width="20dp"
                     android:layout_height="20dp"
                     android:src="@drawable/like"
+                    android:scaleType="fitCenter"
                     />
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:id="@+id/tipdetail_likes"
                     android:text="0"
-                    android:textSize="15dp"
+                    android:textSize="16sp"
                     android:layout_marginLeft="10dp"
                     />
             </LinearLayout>

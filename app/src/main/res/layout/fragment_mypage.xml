@@ -8,9 +8,8 @@
     android:background="@color/gray">
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="70dp"
+        android:layout_height="wrap_content"
         android:background="@drawable/box_white"
-        android:paddingHorizontal="20dp"
         >
         <TextView
             android:layout_width="match_parent"
@@ -19,25 +18,30 @@
             android:textStyle="bold"
             android:textSize="20dp"
             android:layout_centerVertical="true"
-            android:textColor="@color/black"
-            android:layout_marginVertical="8dp"
+            android:textColor="@color/text_black"
+            android:layout_marginTop="27dp"
+            android:layout_marginBottom="20dp"
             android:gravity="center"
             />
         <ImageView
-            android:layout_width="26dp"
-            android:layout_height="26dp"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
             android:id="@+id/mypage_setting"
             android:src="@drawable/settings"
             android:layout_centerVertical="true"
             android:clickable="true"
+            android:layout_marginTop="24dp"
+            android:layout_marginStart="26dp"
             />
         <ImageView
-            android:layout_width="26dp"
-            android:layout_height="26dp"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
             android:id="@+id/mypage_bell"
             android:src="@drawable/bell"
             android:layout_centerVertical="true"
             android:layout_alignParentRight="true"
+            android:layout_marginTop="24dp"
+            android:layout_marginEnd="26dp"
             />
     </RelativeLayout>
     <ScrollView
@@ -55,17 +59,19 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="10dp"
+                android:paddingTop="15dp"
+                android:paddingStart="16dp"
+                android:paddingBottom="15dp"
                 android:background="@color/gray"
                 >
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="10dp"
+                    android:paddingEnd="16dp"
                     >
                     <LinearLayout
-                        android:layout_width="85dp"
-                        android:layout_height="115dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="125dp"
                         android:orientation="vertical"
                         android:id="@+id/mypage_profile"
                         android:layout_alignParentLeft="true"
@@ -83,8 +89,8 @@
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:textSize="15dp"
-                            android:textColor="@color/black"
+                            android:textSize="15sp"
+                            android:textColor="@color/text_black"
                             android:text="레벨 2"
                             android:id="@+id/user_level"
                             android:gravity="center"/>
@@ -93,79 +99,75 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:id="@+id/mypage_myname"
-                        android:layout_toRightOf="@id/mypage_profile"
                         android:text="닉네임"
-                        android:textSize="20dp"
-                        android:textColor="@color/black"
+                        android:textSize="16dp"
+                        android:textColor="@color/text_black"
+                        android:textStyle="bold"
                         android:layout_alignParentLeft="true"/>
-                    <RelativeLayout
-                        android:layout_width="260dp"
-                        android:layout_height="115dp"
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="125dp"
                         android:layout_marginLeft="10dp"
-                        android:padding="15dp"
+                        android:paddingHorizontal="15dp"
+                        android:paddingVertical="15dp"
                         android:layout_alignTop="@id/mypage_profile"
                         android:layout_toRightOf="@id/mypage_profile"
                         android:layout_alignParentRight="true"
+                        android:layout_alignBaseline="@id/mypage_profile"
+
                         android:background="@drawable/round_border_white_mypage">
                         <TextView
+                            android:id="@+id/text1"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="설문 크레딧"
-                            android:textSize="12dp"/>
+                            android:textSize="12dp"
+                            android:textStyle="bold"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"/>
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="N크레딧"
+                            android:textSize="15sp"
                             android:textStyle="bold"
                             android:textColor="@color/teal_200"
                             android:id="@+id/mypage_can_sur"
-                            android:layout_alignParentRight="true"/>
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_alignBaseline="@id/mypage_willdo_sur"
-                            android:text="* 설문 1회 참여 시 1크레딧을 얻을 수 있어요"
-                            android:textSize="12dp"/>
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="N회/7회"
-                            android:textStyle="bold"
-                            android:textColor="@color/teal_200"
-                            android:id="@+id/mypage_willdo_sur"
-                            android:layout_marginTop="10dp"
-                            android:layout_below="@id/mypage_can_sur"
                             android:layout_alignParentRight="true"
-                            android:visibility="invisible"/>
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"/>
                         <TextView
+                            android:id="@+id/text2"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_below="@id/mypage_willdo_sur"
-                            android:layout_marginTop="5dp"
-                            android:id="@+id/mypage_willdo_sur_below"
-                            android:text="* 5크레딧으로 설문 게시글을 1회 업로드 할 수 있어요 (게시 기간은 3일입니다) "
-                            android:textSize="12dp"/>
-                    </RelativeLayout>
+                            android:text="* 설문 1회 참여 시 1크레딧을 얻을 수 있어요\n\n* 5크레딧으로 설문 게시글을 1회 업로드 할 수 있어요 (게시 기간은 3일입니다)"
+                            android:textSize="12dp"
+                            android:layout_marginTop="8dp"
+                            app:layout_constraintTop_toBottomOf="@id/text1"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintBottom_toBottomOf="parent"/>
+                    </androidx.constraintlayout.widget.ConstraintLayout>
                 </RelativeLayout>
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="50dp"
-                    android:padding="10dp">
+                    android:paddingRight="10dp"
+                    android:paddingTop="10dp">
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="짝짝짝 "
+                        android:text="👏짝짝짝 "
                         android:id="@+id/upload_1st"
-                        android:textSize="20dp"
+                        android:textSize="15sp"
                         android:layout_alignBottom="@id/mypage_i_make"
-                        android:textColor="@color/black"/>
+                        android:textColor="@color/text_black"/>
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:id="@+id/upload_2nd"
                         android:layout_toRightOf="@id/upload_1st"
                         android:text=" n개 "
-                        android:textSize="20dp"
+                        android:textSize="15sp"
                         android:textStyle="bold"
                         android:layout_alignBottom="@id/mypage_i_make"
                         android:textColor="@color/teal_200"/>
@@ -175,13 +177,13 @@
                         android:id="@+id/upload_3rd"
                         android:layout_toRightOf="@id/upload_2nd"
                         android:text=" 업로드!"
-                        android:textSize="20dp"
+                        android:textSize="15sp"
                         android:layout_alignBottom="@id/mypage_i_make"
-                        android:textColor="@color/black"/>
+                        android:textColor="@color/text_black"/>
                     <ImageButton
                         android:id="@+id/mypage_i_make"
-                        android:layout_width="30dp"
-                        android:layout_height="30dp"
+                        android:layout_width="18.75dp"
+                        android:layout_height="18.75dp"
                         android:src="@drawable/leftarrow"
                         android:layout_alignParentRight="true"
                         android:scaleType="centerInside"
@@ -201,22 +203,23 @@
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="50dp"
-                    android:padding="10dp">
+                    android:paddingRight="10dp"
+                    android:paddingTop="10dp">
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="벌써 "
+                        android:text="🎉벌써 "
                         android:id="@+id/parti_1st"
-                        android:textSize="20dp"
+                        android:textSize="15sp"
                         android:layout_alignBottom="@id/mypage_i_parti"
-                        android:textColor="@color/black"/>
+                        android:textColor="@color/text_black"/>
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:id="@+id/parti_2nd"
                         android:layout_toRightOf="@id/parti_1st"
                         android:text=" n개"
-                        android:textSize="20dp"
+                        android:textSize="15sp"
                         android:textStyle="bold"
                         android:layout_alignBottom="@id/mypage_i_parti"
                         android:textColor="@color/teal_200"/>
@@ -226,13 +229,13 @@
                         android:id="@+id/parti_3rd"
                         android:layout_toRightOf="@id/parti_2nd"
                         android:text="에 참여했어요 감사해요"
-                        android:textSize="20dp"
+                        android:textSize="15sp"
                         android:layout_alignBottom="@id/mypage_i_parti"
-                        android:textColor="@color/black"/>
+                        android:textColor="@color/text_black"/>
                     <ImageButton
                         android:id="@+id/mypage_i_parti"
-                        android:layout_width="30dp"
-                        android:layout_height="30dp"
+                        android:layout_width="18.75dp"
+                        android:layout_height="18.75dp"
                         android:src="@drawable/leftarrow"
                         android:layout_alignParentRight="true"
                         android:scaleType="centerInside"
@@ -252,15 +255,16 @@
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="50dp"
-                    android:padding="10dp">
+                    android:paddingRight="10dp"
+                    android:paddingTop="10dp">
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="내가 받은 경품"
+                        android:text="🎁내가 받은 경품"
                         android:id="@+id/get_1st"
-                        android:textSize="20dp"
+                        android:textSize="15sp"
                         android:layout_alignBottom="@id/mypage_i_get"
-                        android:textColor="@color/black"/>
+                        android:textColor="@color/text_black"/>
                     <TextView
                         android:visibility="gone"
                         android:layout_width="wrap_content"
@@ -268,14 +272,14 @@
                         android:id="@+id/get_2nd"
                         android:layout_toRightOf="@id/get_1st"
                         android:text=" n개"
-                        android:textSize="20dp"
+                        android:textSize="15sp"
                         android:textStyle="bold"
                         android:layout_alignBottom="@id/mypage_i_get"
                         android:textColor="@color/teal_200"/>
                     <ImageButton
                         android:id="@+id/mypage_i_get"
-                        android:layout_width="30dp"
-                        android:layout_height="30dp"
+                        android:layout_width="18.75dp"
+                        android:layout_height="18.75dp"
                         android:src="@drawable/leftarrow"
                         android:layout_alignParentRight="true"
                         android:scaleType="centerInside"

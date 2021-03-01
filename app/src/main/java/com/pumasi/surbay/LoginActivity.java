@@ -268,7 +268,7 @@ public class LoginActivity extends AppCompatActivity {
                         Log.d("exception", "volley error");
                         error.printStackTrace();
                     });
-            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
             requestQueue.add(jsonObjectRequest);
         } catch(Exception e){
             e.printStackTrace();
@@ -386,8 +386,9 @@ public class LoginActivity extends AppCompatActivity {
                                     e.printStackTrace();
                                     Log.d("parsing date", "non reply");
                                 }
+                                Integer pinned = post.getInt("pinned");
                                 Post newPost = new Post(id, title, author, author_lvl, content, participants, goal_participants, url, date, deadline, with_prize, prize, est_time, target, count,comments,done, extended, participants_userids, reports, hide, author_userid);
-                                Log.d("start app", "newpost comments"+newPost.getComments().size()+"");
+                                newPost.setPinned(pinned);
                                 Date now = new Date();
                                 Log.d(title+"reported by", ""+reports+"  "+UserPersonalInfo.userID+reports.contains(UserPersonalInfo.userID));
                                 if(reports.contains(UserPersonalInfo.userID) || hide) {
@@ -412,7 +413,7 @@ public class LoginActivity extends AppCompatActivity {
                         Log.d("exception", "volley error");
                         error.printStackTrace();
                     });
-            jsonArrayRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            jsonArrayRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
             requestQueue.add(jsonArrayRequest);
         } catch (Exception e){
             Log.d("exception", "failed getting response");

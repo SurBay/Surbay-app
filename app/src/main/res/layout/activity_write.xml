@@ -13,10 +13,13 @@
         >
         <TextView
             android:id="@+id/writeBack"
-            android:layout_width="60dp"
-            android:layout_height="56dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="취소"
-            android:textColor="@color/gray2"
+            android:layout_marginTop="21dp"
+            android:layout_marginStart="26dp"
+            android:textColor="@color/nav_gray"
+            android:textSize="17.5sp"
             android:textStyle="bold"
             android:background="@color/white"
             android:gravity="center"
@@ -25,21 +28,26 @@
         <TextView
             android:text="설문 작성"
             android:id="@+id/writetitle"
-            android:textSize="18dp"
-            android:textColor="@color/black"
+            android:textSize="17.5sp"
+            android:textColor="@color/text_black"
             android:textStyle="bold"
             android:gravity="center"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="21dp"
+            android:layout_centerHorizontal="true"
             android:layout_weight="1"/>
         <TextView
             android:id="@+id/writesave"
             android:text="보관함"
-            android:textColor="@color/gray2"
+            android:textColor="@color/nav_gray"
             android:textStyle="bold"
+            android:textSize="17.5sp"
             android:background="@color/white"
-            android:layout_width="60dp"
-            android:layout_height="56dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="21dp"
+            android:layout_marginRight="18.75dp"
             android:gravity="center"
             android:clickable="true"
             android:layout_toLeftOf="@id/writeDone"/>
@@ -49,30 +57,38 @@
             android:textColor="@color/teal_200"
             android:textStyle="bold"
             android:background="@color/white"
-            android:layout_width="60dp"
-            android:layout_height="56dp"
+            android:layout_width="wrap_content"
+            android:textSize="17.5sp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="21dp"
+            android:layout_marginEnd="26dp"
             android:gravity="center"
             android:clickable="true"
             android:layout_alignParentRight="true"/>
     </RelativeLayout>
+    <ScrollView
+        android:layout_marginTop="20dp"
+        android:layout_weight="1"
+        android:fillViewport="true"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+
         android:orientation="vertical">
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginHorizontal="20dp"
+            android:layout_marginHorizontal="26dp"
             >
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="설문 제목"
-                android:textSize="18dp"
-                android:textColor="@color/black"
+                android:textSize="15sp"
+                android:textColor="@color/text_black_70"
                 android:layout_marginRight="10dp"
                 ></TextView>
             <EditText
@@ -83,7 +99,8 @@
                 android:layout_weight="1"
                 android:focusable="true"
                 android:focusableInTouchMode="true"
-                android:textSize="15dp"
+                android:textColor="@color/text_black"
+                android:textSize="15sp"
                 android:lines="1"
                 android:inputType="text"
                 android:backgroundTint="@color/gray2"
@@ -93,14 +110,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginHorizontal="20dp"
+            android:layout_marginHorizontal="26dp"
             >
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="설문 대상"
-                android:textSize="18dp"
-                android:textColor="@color/black"
+                android:textSize="15sp"
+                android:textColor="@color/text_black_70"
                 android:layout_marginRight="10dp"
                 ></TextView>
             <EditText
@@ -111,7 +128,8 @@
                 android:layout_weight="1"
                 android:focusable="true"
                 android:focusableInTouchMode="true"
-                android:textSize="15dp"
+                android:textColor="@color/text_black"
+                android:textSize="15sp"
                 android:lines="1"
                 android:inputType="text"
                 android:backgroundTint="@color/gray2"
@@ -121,16 +139,16 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginHorizontal="20dp"
+            android:layout_marginHorizontal="26dp"
             >
-
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="설문 마감"
-                android:textColor="@color/black"
+                android:textSize="15sp"
+                android:textColor="@color/text_black_70"
                 android:layout_marginRight="10dp"
-                android:textSize="18dp"></TextView>
+                ></TextView>
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -141,11 +159,12 @@
                     android:layout_height="wrap_content"
                     android:backgroundTint="@color/gray2"
                     android:layout_weight="1"
-                    android:textSize="15dp"
                     android:gravity="left"
-                    android:textColor="@color/black"
+                    android:textColor="@color/text_black"
+                    android:textSize="15sp"
                     android:onClick="OnClickHandler"
-                    android:hint="수정불가, YYYYMMDD"
+                    android:textColorHint="@color/nav_gray"
+                    android:hint="수정불가, 72시간 내로 설정할 수 있습니다"
                     android:singleLine="true"
                     android:nextFocusDown="@id/write_goal_participants"
                     />
@@ -155,15 +174,15 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginHorizontal="20dp"
+            android:layout_marginHorizontal="26dp"
             >
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="목표 인원"
                 android:layout_marginRight="10dp"
-                android:textSize="18dp"
-                android:textColor="@color/black"
+                android:textSize="15sp"
+                android:textColor="@color/text_black_70"
                 ></TextView>
             <EditText
                 android:layout_marginLeft="5dp"
@@ -174,7 +193,9 @@
                 android:focusable="true"
                 android:focusableInTouchMode="true"
                 android:hint="미입력 시 30(명)으로 설정됩니다"
-                android:textSize="15dp"
+                android:textColor="@color/text_black"
+                android:textSize="15sp"
+                android:textColorHint="@color/nav_gray"
                 android:lines="1"
                 android:inputType="numberDecimal"
                 android:backgroundTint="@color/gray2"
@@ -184,15 +205,15 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginHorizontal="20dp"
+            android:layout_marginHorizontal="26dp"
             >
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="참여 보상"
-                android:textSize="18dp"
+                android:textSize="15sp"
+                android:textColor="@color/text_black_70"
                 android:layout_marginRight="10dp"
-                android:textColor="@color/black"
                 ></TextView>
             <CheckBox
                 android:id="@+id/with_prize"
@@ -201,7 +222,7 @@
                 android:buttonTint="@color/gray2"
                 ></CheckBox>
             <EditText
-                android:layout_marginLeft="5dp"
+                android:layout_marginLeft="0dp"
                 android:id="@+id/write_prize"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -209,9 +230,11 @@
                 android:focusable="true"
                 android:focusableInTouchMode="true"
                 android:hint="체크하면 내용을 입력할 수 있습니다"
-                android:textSize="15dp"
                 android:lines="1"
                 android:inputType="text"
+                android:textColor="@color/text_black"
+                android:textSize="15sp"
+                android:textColorHint="@color/nav_gray"
                 android:backgroundTint="@color/gray2"
                 android:enabled="false"
                 android:layout_marginRight="0dp"
@@ -221,7 +244,9 @@
                 android:layout_height="wrap_content"
                 android:lines="1"
                 android:hint="추첨 인원"
-                android:textSize="15dp"
+                android:textColor="@color/text_black"
+                android:textSize="15sp"
+                android:textColorHint="@color/nav_gray"
                 android:layout_weight="1"
                 android:id="@+id/prize_count"
                 android:inputType="number"
@@ -234,7 +259,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:id="@+id/prize_image_layout"
-            android:layout_marginHorizontal="20dp"
+            android:layout_marginHorizontal="26dp"
             android:layout_marginTop="5dp"
             android:visibility="gone"
             >
@@ -243,7 +268,7 @@
                 android:layout_height="wrap_content"
                 android:background="@drawable/round_border_teal_list"
                 android:text="사진 첨부"
-                android:textSize="15dp"
+                android:textSize="15sp"
                 android:textColor="@color/teal_200"
                 android:textStyle="bold"
                 android:padding="10dp"
@@ -256,10 +281,11 @@
                 android:id="@+id/gift_list"
                 android:layout_toRightOf="@id/prize_image_plus"
                 android:text="기프티콘 바코드 이미지를 업로드하면 설문조사 참여자들에게 추첨을 통해 자동으로 지급됩니다. 설문 글 등록 후 이미지 삭제 불가. 추가만 가능"
-                android:textSize="11dp"
+                android:textSize="12.5sp"
+                android:textColor="@color/nav_gray"
+                android:backgroundTint="@color/gray2"
                 android:layout_centerVertical="true"
                 android:layout_marginLeft="5dp"
-                android:textColor="@android:color/darker_gray"
                 />
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/gith_image_list"
@@ -274,14 +300,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginHorizontal="20dp"
+            android:layout_marginHorizontal="26dp"
             >
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="설문 링크"
-                android:textSize="18dp"
-                android:textColor="@color/black"
+                android:textSize="15sp"
+                android:textColor="@color/text_black_70"
                 android:layout_marginRight="10dp"
                 ></TextView>
             <EditText
@@ -292,8 +318,10 @@
                 android:layout_weight="1"
                 android:focusable="true"
                 android:focusableInTouchMode="true"
-                android:hint="수정불가. 구글폼만 제공하고 있습니다"
-                android:textSize="15dp"
+                android:hint="현재 구글폼만 제공하고 있습니다"
+                android:textColor="@color/text_black"
+                android:textSize="15sp"
+                android:textColorHint="@color/nav_gray"
                 android:lines="1"
                 android:inputType="text"
                 android:backgroundTint="@color/gray2"
@@ -303,7 +331,7 @@
                 android:layout_width="60dp"
                 android:layout_height="30dp"
                 android:text="확인"
-                android:textSize="15dp"
+                android:textSize="15sp"
                 android:textStyle="bold"
                 android:background="@drawable/round_border_teal_list"
                 android:textColor="@color/teal_200"
@@ -313,28 +341,42 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="20dp"
-            android:layout_marginTop="15dp"
+            android:layout_marginHorizontal="26dp"
             >
             <TextView
                 android:id="@+id/est_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="소요 시간"
-                android:textSize="18dp"
-                android:textColor="@color/black"
+                android:layout_centerVertical="true"
+                android:textSize="15sp"
+                android:textColor="@color/text_black_70"
                 android:layout_marginRight="10dp"
                 />
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@id/est_time"
+                android:layout_alignParentRight="true"
+                android:background="@color/white">
+                <EditText
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textSize="15sp"
+                    android:enabled="false"
+                    tools:ignore="Suspicious0dp"></EditText>
             <Spinner
                 android:id="@+id/write_est_time"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_toRightOf="@id/est_time"
-                android:layout_alignParentRight="true"
-                android:textSize="15dp"
+
+                android:textColor="@color/text_black"
+                android:textSize="15sp"
+                android:textColorHint="@color/nav_gray"
                 android:backgroundTint="@color/gray2"
                 android:gravity="center"
                 ></Spinner>
+            </LinearLayout>
         </RelativeLayout>
         <LinearLayout
             android:layout_width="match_parent"
@@ -342,7 +384,7 @@
             android:layout_weight="1"
             android:orientation="horizontal"
             android:layout_marginBottom="30dp"
-            android:layout_marginHorizontal="19dp"
+            android:layout_marginHorizontal="26dp"
             android:layout_marginTop="15dp"
             >
             <EditText
@@ -356,11 +398,14 @@
                 android:hint="내용을 입력해주세요"
                 android:inputType="textMultiLine"
                 android:scrollHorizontally="false"
-                android:textSize="15dp"
+                android:textColor="@color/text_black"
+                android:textSize="13sp"
+                android:textColorHint="@color/nav_gray"
                 android:layout_gravity="top"
                 android:gravity="top"
                 android:background="@color/white"
                 ></EditText>
         </LinearLayout>
     </LinearLayout>
+    </ScrollView>
 </LinearLayout>

@@ -1,6 +1,8 @@
 package com.pumasi.surbay.adapter;
 
 import android.content.Context;
+import android.media.Image;
+import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -66,15 +68,40 @@ public class ListViewAdapter extends BaseAdapter {
         TextView DoneView = (TextView) convertView.findViewById(R.id.done);
         TextView ddayView = (TextView) convertView.findViewById(R.id.dday);
         LinearLayout background = (LinearLayout)convertView.findViewById(R.id.list_item_background);
+        ImageView profileView = (ImageView) convertView.findViewById(R.id.list_profile);
+
 
         // Data Set(listViewItemList)에서 position에 위치한 데이터 참조 획득
         SimpleDateFormat fm = new SimpleDateFormat("MM.dd");
         Post post = listViewItemList.get(position);
+
+        switch (post.getAuthor_lvl()){
+            case 1:
+                profileView.setImageResource(R.drawable.lv1tiger);
+                break;
+            case 2:
+                profileView.setImageResource(R.drawable.lv2tiger);
+                break;
+            case 3:
+                profileView.setImageResource(R.drawable.lv3tiger);
+                break;
+            case 4:
+                profileView.setImageResource(R.drawable.lv4tiger);
+                break;
+            case 5:
+                profileView.setImageResource(R.drawable.lv5tiger);
+                break;
+            default:
+                profileView.setImageResource(R.drawable.lv1tiger);
+                break;
+        }
+
         String date = fm.format(post.getDate());
         String deadline = fm.format(post.getDeadline());
         int dday = calc_dday(post.getDeadline());
         Date now = new Date();
         if(now.after(post.getDeadline()) || post.isDone()){
+            background.setBackgroundResource(R.drawable.round_border_gray_list);
             ddayView.setVisibility(View.VISIBLE);
             ddayView.setText("종료");
         }else if (dday <= 3 && dday >= 0 ){
@@ -97,14 +124,14 @@ public class ListViewAdapter extends BaseAdapter {
         contentTextView.setText(post.getTarget());
         dateTextView.setText(date+" - "+deadline);
 
-        if (UserPersonalInfo.participations.contains(post.getID()) && !UserPersonalInfo.userID.equals(post.getAuthor_userid())){
+        if (UserPersonalInfo.participations.contains(post.getID()) && !UserPersonalInfo.userID.equals(post.getAuthor_userid())){ //참여했으면 회색
             background.setBackgroundResource(R.drawable.round_border_gray_list);
             DoneView.setVisibility(View.VISIBLE);
-        }else{
-            background.setBackgroundResource(R.drawable.round_border_teal_list);
+        }else if(!(now.after(post.getDeadline()) || post.isDone())){
+            background.setBackgroundResource(R.drawable.participants_round_border); //참여 안했으면 민트색
             DoneView.setVisibility(View.GONE);
         }
-        if (UserPersonalInfo.userID.equals(post.getAuthor_userid())){
+        if (UserPersonalInfo.userID.equals(post.getAuthor_userid())){ //내거면 회색
             background.setBackgroundResource(R.drawable.round_border_gray_list);
             DoneView.setVisibility(View.GONE);
         }

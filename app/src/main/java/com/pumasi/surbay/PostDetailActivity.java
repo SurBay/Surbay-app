@@ -43,6 +43,7 @@ import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
+import com.android.volley.Response;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.pumasi.surbay.adapter.ReplyListViewAdapter2;
@@ -245,32 +246,46 @@ public class PostDetailActivity extends AppCompatActivity {
             params.put("date", fm.format(date));
 
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
-                    (Request.Method.PUT, requestURL, params, response -> {
-                        Log.d("response is", ""+response);
-                        try {
-                            JSONObject resultObj = new JSONObject(response.toString());
-                            Boolean success = resultObj.getBoolean("type");
-                            if(success) {
-                                String id = resultObj.getString("id");
-                                String utc_date = fm.format(date);
-                                fm.setTimeZone(TimeZone.getTimeZone("Asia/Seoul"));
-                                Date realdate = fm.parse(utc_date);
-                                Reply re = new Reply(id, UserPersonalInfo.userID, reply, realdate, new ArrayList<>(), false);
-                                detail_reply_Adapter.addItem(re);
-                            }
-                            else{
+                    (Request.Method.PUT, requestURL, params, new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            Log.d("response is", "" + response);
+                            try {
+                                JSONObject resultObj = new JSONObject(response.toString());
+                                Boolean success = resultObj.getBoolean("type");
+                                if (success) {
+                                    String id = resultObj.getString("id");
+                                    String utc_date = fm.format(date);
+                                    fm.setTimeZone(TimeZone.getTimeZone("Asia/Seoul"));
+                                    Date realdate = fm.parse(utc_date);
+                                    Reply re = new Reply(id, UserPersonalInfo.userID, reply, realdate, new ArrayList<>(), false);
+                                    detail_reply_Adapter.addItem(re);
+                                } else {
+                                    Toast.makeText(PostDetailActivity.this, "오류가 발생했습니다", Toast.LENGTH_SHORT).show();
+                                }
+                            } catch (JSONException | ParseException e) {
                                 Toast.makeText(PostDetailActivity.this, "오류가 발생했습니다", Toast.LENGTH_SHORT).show();
+                                e.printStackTrace();
                             }
-                        } catch (JSONException | ParseException e) {
-                            Toast.makeText(PostDetailActivity.this, "오류가 발생했습니다", Toast.LENGTH_SHORT).show();
-                            e.printStackTrace();
                         }
                     }, error -> {
                         Log.d("exception", "volley error");
                         Toast.makeText(PostDetailActivity.this, "오류가 발생했습니다", Toast.LENGTH_SHORT).show();
                         error.printStackTrace();
-                    });
-            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+                    }){
+
+                /**
+                 * Passing some request headers
+                 */
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    HashMap<String, String> headers = new HashMap<String, String>();
+                    headers.put("Content-Type", "application/json");
+                    headers.put("Connection", "close");
+                    return headers;
+                }
+            };
+            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, 2, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
             requestQueue.add(jsonObjectRequest);
         } catch (Exception e){
             Log.d("exception", "failed posting");
@@ -379,7 +394,7 @@ public class PostDetailActivity extends AppCompatActivity {
                     return headers;
                 }
             };
-            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
             requestQueue.add(jsonObjectRequest);
         } catch (Exception e){
             Log.d("exception", "failed getting response");
@@ -388,7 +403,19 @@ public class PostDetailActivity extends AppCompatActivity {
     }
 
     private void updateParticipants(int updatedParticipants) throws Exception{
-        participants.setText(""+updatedParticipants+"/"+post.getGoal_participants());
+        String goalpart, realpart;
+        if(post.getParticipants()>999){
+            goalpart = "999+";
+        }else {
+            goalpart = post.getParticipants().toString();
+        }
+
+        if(post.getGoal_participants()>999){
+            realpart = "999+";
+        }else {
+            realpart = post.getGoal_participants().toString();
+        }
+        participants.setText(""+goalpart+"/"+realpart);
         String requestURL = getString(R.string.server)+"/api/posts/updatepost/" + post.getID();
         try{
             RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
@@ -402,7 +429,7 @@ public class PostDetailActivity extends AppCompatActivity {
                         Log.d("exception", "volley error");
                         error.printStackTrace();
                     });
-            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
             requestQueue.add(jsonObjectRequest);
         } catch (Exception e){
             Log.d("exception", "failed posting");
@@ -421,7 +448,7 @@ public class PostDetailActivity extends AppCompatActivity {
                             Log.d("exception", "volley error");
                             error.printStackTrace();
                         });
-                jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+                jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
                 requestQueue.add(jsonObjectRequest);
             } catch (Exception e){
                 Log.d("exception", "failed posting");
@@ -461,7 +488,7 @@ public class PostDetailActivity extends AppCompatActivity {
                         Log.d("exception", "volley error");
                         error.printStackTrace();
                     });
-            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
             requestQueue.add(jsonObjectRequest);
         } catch (Exception e) {
             Log.d("exception", "failed posting");
@@ -608,7 +635,7 @@ public class PostDetailActivity extends AppCompatActivity {
                     return headers;
                 }
             };
-            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
             requestQueue.add(jsonObjectRequest);
         } catch (Exception e){
             Log.d("exception", "failed posting");
@@ -618,7 +645,7 @@ public class PostDetailActivity extends AppCompatActivity {
 
     public void loading_detail(Post post){
         author.setText(post.getAuthor());
-        level.setText("Lv "+post.getAuthor_lvl());
+        level.setText("(Lv "+post.getAuthor_lvl()+")");
         est_time.setText(spinner_esttime[post.getEst_time()]);
         Log.d("deadline is", ""+post.getDeadline());
         Log.d("formatted deadline is", ""+new SimpleDateFormat("MM.dd a K시", Locale.KOREA).format(post.getDeadline()));
@@ -638,7 +665,19 @@ public class PostDetailActivity extends AppCompatActivity {
                 dday.setText("D-"+dday_count);
             }
         }
-        participants.setText(""+post.getParticipants()+"/"+post.getGoal_participants());
+        String goalpart, realpart;
+        if(post.getParticipants()>999){
+            goalpart = "999+";
+        }else {
+            goalpart = post.getParticipants().toString();
+        }
+
+        if(post.getGoal_participants()>999){
+           realpart = "999+";
+        }else {
+            realpart = post.getGoal_participants().toString();
+        }
+        participants.setText(""+goalpart+"/"+realpart);
         participants_percent.setText((100*post.getParticipants()/post.getGoal_participants())+"%");
 
         title.setText(post.getTitle());
@@ -839,7 +878,7 @@ public class PostDetailActivity extends AppCompatActivity {
                         Log.d("exception", "volley error");
                         error.printStackTrace();
                     });
-            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
             requestQueue.add(jsonObjectRequest);
             Log.d("fix", UserPersonalInfo.name);
         } catch (Exception e){
@@ -861,7 +900,7 @@ public class PostDetailActivity extends AppCompatActivity {
                         Log.d("exception", "volley error");
                         error.printStackTrace();
                     });
-            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
             requestQueue.add(jsonObjectRequest);
         } catch (Exception e){
             Log.d("exception", "failed posting");
@@ -886,7 +925,7 @@ public class PostDetailActivity extends AppCompatActivity {
                         Log.d("exception", "volley error");
                         error.printStackTrace();
                     });
-            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
             requestQueue.add(jsonObjectRequest);
             Log.d("fix", UserPersonalInfo.name);
         } catch (Exception e){
@@ -936,7 +975,7 @@ public class PostDetailActivity extends AppCompatActivity {
                     return headers;
                 }
             };
-            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
             requestQueue.add(jsonObjectRequest);
         } catch (Exception e){
             Log.d("exception", "failed getting response");

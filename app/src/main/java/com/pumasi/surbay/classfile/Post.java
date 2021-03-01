@@ -32,6 +32,7 @@ public class Post implements Parcelable{
     private boolean hide;
     private String author_userid;
     private ArrayList<String> prize_urls;
+    private Integer pinned;
 
 
 
@@ -193,6 +194,7 @@ public class Post implements Parcelable{
         this.author_userid = in.readString();
         this.prize_urls = new ArrayList<>();
         in.readStringList(prize_urls);
+        this.pinned = in.readInt();
     }
     @Override
     public int describeContents() {
@@ -223,6 +225,7 @@ public class Post implements Parcelable{
         dest.writeString(String.valueOf(this.hide));
         dest.writeString(this.author_userid);
         dest.writeStringList(this.prize_urls);
+        dest.writeInt(this.pinned);
     }
     public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
         @Override
@@ -249,5 +252,13 @@ public class Post implements Parcelable{
 
     public void setPrize_urls(ArrayList<String> prize_urls) {
         this.prize_urls = prize_urls;
+    }
+
+    public Integer getPinned() {
+        return pinned;
+    }
+
+    public void setPinned(Integer pinned) {
+        this.pinned = pinned;
     }
 }

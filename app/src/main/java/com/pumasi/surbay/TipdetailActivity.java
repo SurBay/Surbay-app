@@ -3,7 +3,12 @@ package com.pumasi.surbay;
 import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -22,19 +27,29 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.pumasi.surbay.adapter.noticeImageAdapter;
+import com.pumasi.surbay.classfile.BitmapTransfer;
 import com.pumasi.surbay.classfile.Surveytip;
 import com.pumasi.surbay.classfile.UserPersonalInfo;
 
 import org.json.JSONObject;
 
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -65,6 +80,9 @@ public class TipdetailActivity extends AppCompatActivity {
     String[] text = {" 카카오톡으로 공유하기 "};
     int[] image = {R.drawable.kakaotalk};
     List<Map<String, Object>> dialogItemList;
+    private RecyclerView imagesrecyclerview;
+    private noticeImageAdapter imageAdapter;
+    private ArrayList<Bitmap> image_bitmaps = new ArrayList<>();
 
     @SuppressLint("ResourceAsColor")
     @Override
@@ -115,6 +133,8 @@ public class TipdetailActivity extends AppCompatActivity {
         likesbutton = findViewById(R.id.tipdetail_likesbutton);
         likescount = findViewById(R.id.tipdetail_likes);
 
+        imagesrecyclerview = findViewById(R.id.tip_images);
+
         dialogItemList = new ArrayList<>();
 
         for(int i=0;i<image.length;i++)
@@ -131,6 +151,7 @@ public class TipdetailActivity extends AppCompatActivity {
         title.setText(surveytip.getTitle());
         category.setText(surveytip.getCategory());
         content.setText(surveytip.getContent());
+        date.setText(new SimpleDateFormat("MM.dd").format(surveytip.getDate()));
         likescount.setText(surveytip.getLikes().toString());
         if (likedlist.contains(UserPersonalInfo.userID)){
             likedselected = true;
@@ -155,6 +176,59 @@ public class TipdetailActivity extends AppCompatActivity {
                 setLikesbutton();
             }
         });
+
+        imagesrecyclerview.setVisibility(View.GONE);
+        ArrayList<String> notice_images = surveytip.getImage_uris();
+
+        if(notice_images.size()>0) {
+            final Handler handler = new Handler(){
+                @Override
+                public void handleMessage(@NonNull Message msg) {
+                    super.handleMessage(msg);
+                    imageAdapter = new noticeImageAdapter(TipdetailActivity.this, image_bitmaps);
+                    imagesrecyclerview.setAdapter(imageAdapter);
+                    imagesrecyclerview.setLayoutManager(new LinearLayoutManager(TipdetailActivity.this, LinearLayoutManager.HORIZONTAL, false));
+                    imagesrecyclerview.setVisibility(View.VISIBLE);
+                    imageAdapter.setOnItemClickListener(new noticeImageAdapter.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(View v, int position) {
+                            Intent intent = new Intent(TipdetailActivity.this, NoticeImageDeatil.class);
+                            BitmapTransfer.setBitmap(image_bitmaps.get(position));
+                            startActivityForResult(intent, 20);
+                        }
+                    });
+
+
+                }
+            };
+            for (int i = 0; i < notice_images.size(); i++) {
+                int finalI = i;
+                new Thread() {
+                    Message msg;
+                    public void run() {
+                        try {
+
+                            Log.d("start", "bitmap no." + finalI);
+                            String uri = notice_images.get(finalI);
+                            URL url = new
+                                    URL(uri);
+                            URLConnection conn = url.openConnection();
+                            conn.connect();
+                            BufferedInputStream bis = new
+                                    BufferedInputStream(conn.getInputStream());
+
+                            Bitmap bm = BitmapFactory.decodeStream(bis);
+                            image_bitmaps.add(bm);
+                            bis.close();
+                            msg = handler.obtainMessage();
+                            handler.sendMessage(msg);
+                        } catch (IOException e) {
+                        }
+                    }
+                }.start();
+            }
+
+        }
 
 
     }

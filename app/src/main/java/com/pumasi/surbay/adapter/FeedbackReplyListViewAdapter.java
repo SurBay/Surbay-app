@@ -10,10 +10,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
@@ -31,148 +33,87 @@ import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Locale;
 
-public class FeedbackReplyListViewAdapter extends BaseAdapter {
+public class FeedbackReplyListViewAdapter  extends RecyclerView.Adapter<FeedbackReplyListViewAdapter.MyViewHolder> {
+    private static ReplyListViewAdapter2.OnItemClickListener mListener = null ;
     private ArrayList<Reply> listViewItemList = new ArrayList<Reply>();
+    private LayoutInflater inflater;
     private PostNonSurvey post;
     final private static String[] report = {"욕설","비하상업적 광고 및 판매낚시","놀람/도배/사기","게시판 성격에 부적절함기타"};
     private Context context;
 
-    public FeedbackReplyListViewAdapter(ArrayList<Reply> listViewItemList, PostNonSurvey post) {
+    public FeedbackReplyListViewAdapter(Context ctx,ArrayList<Reply> listViewItemList, PostNonSurvey post) {
+        inflater = LayoutInflater.from(ctx);
+        context = ctx;
         this.listViewItemList = listViewItemList;
         this.post = post;
+        Log.d("made", "feedbbackreplyadapterismade"+this.listViewItemList.size());
     }
-
-
+    public interface OnItemClickListener {
+        void onItemClick(View v, int position) ;
+    }
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        context = parent.getContext();
+    public FeedbackReplyListViewAdapter.MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
-        // "listview_item" Layout을 inflate하여 convertView 참조 획득.
-        if (convertView == null) {
-            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            convertView = inflater.inflate(R.layout.detail_reply_list_item, parent, false);
-        }
+        View view = inflater.inflate(R.layout.detail_reply_list_item, parent, false);
+        FeedbackReplyListViewAdapter.MyViewHolder holder = new FeedbackReplyListViewAdapter.MyViewHolder(view);
+        return holder;
+    }
+    @Override
+    public void onBindViewHolder(FeedbackReplyListViewAdapter.MyViewHolder holder, int position) {
 
-        TextView replydateview = (TextView)convertView.findViewById(R.id.reply_date);
-        TextView replycontentview = (TextView)convertView.findViewById(R.id.reply_context);
-        ImageView replymenu = (ImageView)convertView.findViewById(R.id.reply_menu);
-        replymenu.setVisibility(View.INVISIBLE);
-
-        SimpleDateFormat fm = new SimpleDateFormat("MM-dd kk:mm");
+        SimpleDateFormat fm = new SimpleDateFormat("MM.dd kk:mm", Locale.KOREA);
         Reply reply = listViewItemList.get(position);
         String date = fm.format(reply.getDate());
 
-        replydateview.setText(date);
-        replycontentview.setText(reply.getContent());
-//
-//        if (reply.getWriter().equals(UserPersonalInfo.userID)){
-//            replymenu.setVisibility(View.VISIBLE);
-//            replymenu.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
-//                    AlertDialog dialog = builder.setMessage("댓글을 삭제하겠습니까?")
-//                            .setPositiveButton("삭제", new DialogInterface.OnClickListener() {
-//                                @Override
-//                                public void onClick(DialogInterface dialog, int which){
-//                                    String requestURL = context.getString(R.string.server)+"api/feedbacks/deletecomment/"+post.getID();
-//                                    try{
-//                                        RequestQueue requestQueue = Volley.newRequestQueue(context);
-//                                        JSONObject params = new JSONObject();
-//                                        params.put("_id", reply.getID());
-//                                        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
-//                                                (Request.Method.PUT, requestURL, params, response -> {
-//                                                    Log.d("response is", ""+response);
-//                                                    listViewItemList.remove(position);
-//                                                    notifyDataSetChanged();
-//                                                }, error -> {
-//                                                    Log.d("exception", "volley error");
-//                                                    error.printStackTrace();
-//                                                });
-//                                        jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-//                                        requestQueue.add(jsonObjectRequest);
-//                                    } catch (Exception e){
-//                                        Log.d("exception", "failed posting");
-//                                        e.printStackTrace();
-//                                    }
-//                                }
-//                            }).setNegativeButton("취소", new DialogInterface.OnClickListener() {
-//                                @Override
-//                                public void onClick(DialogInterface dialog, int which) {
-//                                }
-//                            })
-//                            .create();
-//                    dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-//                        @SuppressLint("ResourceAsColor")
-//                        @Override
-//                        public void onShow(DialogInterface arg0) {
-//                            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(R.color.teal_200);
-//                            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(R.color.gray);
-//                        }
-//                    });
-//                    dialog.show();
-//                }
-//            });
-//        } else {
-//            replymenu.setVisibility(View.VISIBLE);
-//            replymenu.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
-//                    AlertDialog dialog = builder.setMessage("댓글을 신고하겠습니까?")
-//                            .setPositiveButton("신고", new DialogInterface.OnClickListener() {
-//                                @Override
-//                                public void onClick(DialogInterface dialog, int which){
-//                                    AlertDialog.Builder builder2 = new AlertDialog.Builder(context);
-//                                    builder2.setTitle("신고 사유");
-//                                    builder2.setItems(R.array.reportreason, new DialogInterface.OnClickListener() {
-//                                        @Override
-//                                        public void onClick(DialogInterface dialog, int which) {
-//                                            try {
-//                                                updateReplyReports(position);
-//                                            } catch (Exception e) {
-//                                                e.printStackTrace();
-//                                            }
-//                                            Toast.makeText(context, "신고 사유는 "+report[which], Toast.LENGTH_SHORT).show();
-//                                        }
-//                                    });
-//                                    Dialog dialog2 = builder2.create();
-//                                    dialog2.show();
-//                                }
-//                            }).setNegativeButton("취소", new DialogInterface.OnClickListener() {
-//                                @Override
-//                                public void onClick(DialogInterface dialog, int which) {
-//                                }
-//                            })
-//                            .create();
-//                    dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-//                        @SuppressLint("ResourceAsColor")
-//                        @Override
-//                        public void onShow(DialogInterface arg0) {
-//                            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(R.color.teal_200);
-//                            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(R.color.gray);
-//                        }
-//                    });
-//                    dialog.show();
-//                }
-//            });
-//        }
-
-        return convertView;
+        holder.replymenu.setVisibility(View.GONE);
+        holder.replydateview.setText(date);
+        holder.replycontentview.setText(reply.getContent());
+        holder.replyauthorview.setText("관리자");
+        Log.d("replycontentis", ""+reply.getContent());
+        return;
+    }
+    @Override
+    public int getItemCount() {
+        return listViewItemList.size();
     }
 
-    public void addItem(Reply item){
-        listViewItemList.add(item);
-        notifyDataSetChanged();
+    public Object getItem(int position) {
+        return listViewItemList.get(position);
     }
 
-    @Override
-    public int getCount() {return listViewItemList.size();    }
+    class MyViewHolder extends RecyclerView.ViewHolder{
 
-    @Override
-    public Object getItem(int position) {return listViewItemList.get(position);    }
+        TextView replydateview;
+        TextView replycontentview;
+        TextView replyauthorview;
+        ImageView replymenu;
 
+
+        public MyViewHolder(View itemView) {
+            super(itemView);
+
+            replydateview = (TextView)itemView.findViewById(R.id.reply_date);
+            replycontentview = (TextView)itemView.findViewById(R.id.reply_context);
+            replyauthorview = (TextView)itemView.findViewById(R.id.reply_name);
+            replymenu = (ImageView)itemView.findViewById(R.id.reply_menu);
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int pos = getAdapterPosition() ;
+                    if (pos != RecyclerView.NO_POSITION) {
+                        // 리스너 객체의 메서드 호출.
+                        if (mListener != null) {
+                            mListener.onItemClick(v, pos) ;
+                        }
+                    }
+                }
+            });
+        }
+
+    }
     @Override
     public long getItemId(int position) {return position;    }
 

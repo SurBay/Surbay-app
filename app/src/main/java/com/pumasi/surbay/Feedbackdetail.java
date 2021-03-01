@@ -12,6 +12,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
@@ -45,7 +47,7 @@ public class Feedbackdetail extends AppCompatActivity {
     private PostNonSurvey post;
 
     private static FeedbackReplyListViewAdapter detail_reply_Adapter;
-    private static ListView detail_reply_listView;
+    private static RecyclerView detail_reply_listView;
     private static ArrayList<Reply> replyArrayList;
     Date today;
     int position;
@@ -72,7 +74,7 @@ public class Feedbackdetail extends AppCompatActivity {
         category = findViewById(R.id.feedback_detail_category);
 //        reply_enter = findViewById(R.id.feedback_reply_enter);
 //        reply_enter_button = findViewById(R.id.feedback_reply_enter_button);
-//        detail_reply_listView = findViewById(R.id.feedback_detail_reply_list);
+        detail_reply_listView = findViewById(R.id.feedback_detail_reply_list);
 //        line = findViewById(R.id.feedback_detail_line);
 
         Intent intent = getIntent();
@@ -86,19 +88,12 @@ public class Feedbackdetail extends AppCompatActivity {
         content.setText(post.getContent());
         category.setText(spinner_category[post.getCategory()]);
 
-//        replyArrayList = post.getComments();
-//        detail_reply_Adapter = new FeedbackReplyListViewAdapter(replyArrayList, post);
-//        detail_reply_listView.setAdapter(detail_reply_Adapter);
-//
-//        reply_enter_button.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                String reply = reply_enter.getText().toString();
-//                if (reply.length() > 0 ){
-//                    postReply(reply);
-//                }
-//            }
-//        });
+        replyArrayList = post.getComments();
+        Log.d("commentlen", ""+replyArrayList.size());
+        detail_reply_Adapter = new FeedbackReplyListViewAdapter(Feedbackdetail.this, replyArrayList, post);
+        detail_reply_listView.setLayoutManager(new LinearLayoutManager(this));
+        detail_reply_listView.setAdapter(detail_reply_Adapter);
+
 
         Intent resultIntent = new Intent(getApplicationContext(), BoardFragment3.class);
         resultIntent.putExtra("position", position);

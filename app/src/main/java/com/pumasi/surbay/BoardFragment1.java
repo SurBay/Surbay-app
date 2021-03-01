@@ -99,6 +99,12 @@ public class BoardFragment1 extends Fragment// Fragment 클래스를 상속받�
         cmpGoal = new Comparator<Post>() {
             @Override
             public int compare(Post o1, Post o2) {
+                if(o1.getPinned()==1 && o2.getPinned()==0){
+                    return -1;
+                }
+                else if(o2.getPinned()==1&& o1.getPinned()==0){
+                    return 1;
+                }
                 Date now = new Date();
                 if((now.after(o1.getDeadline()) || o1.isDone()) && (!(now.after(o2.getDeadline()) || o2.isDone()))){
                     return 1;
@@ -120,6 +126,12 @@ public class BoardFragment1 extends Fragment// Fragment 클래스를 상속받�
         cmpNew = new Comparator<Post>() {
             @Override
             public int compare(Post o1, Post o2) {
+                if(o1.getPinned()==1 && o2.getPinned()==0){
+                    return -1;
+                }
+                else if(o2.getPinned()==1&& o1.getPinned()==0){
+                    return 1;
+                }
                 Date now = new Date();
                 if((now.after(o1.getDeadline()) || o1.isDone()) && (!(now.after(o2.getDeadline()) || o2.isDone()))){
                     return 1;
@@ -143,6 +155,12 @@ public class BoardFragment1 extends Fragment// Fragment 클래스를 상속받�
         cmpDeadline = new Comparator<Post>() {
             @Override
             public int compare(Post o1, Post o2) {
+                if(o1.getPinned()==1 && o2.getPinned()==0){
+                    return -1;
+                }
+                else if(o2.getPinned()==1&& o1.getPinned()==0){
+                    return 1;
+                }
                 int ret;
                 Date now = new Date();
                 if((now.after(o1.getDeadline()) || o1.isDone()) && (!(now.after(o2.getDeadline()) || o2.isDone()))){
@@ -282,73 +300,73 @@ public class BoardFragment1 extends Fragment// Fragment 클래스를 상속받�
     public void onViewCreated (View view, Bundle savedInstanceState){
         listView = view.findViewById(R.id.list);
         SORT = MainActivity.SORT;
-        cmpGoal = new Comparator<Post>() {
-            @Override
-            public int compare(Post o1, Post o2) {
-                Date now = new Date();
-                if((now.after(o1.getDeadline()) || o1.isDone()) && (!(now.after(o2.getDeadline()) || o2.isDone()))){
-                    return 1;
-                }else if((!(now.after(o1.getDeadline()) || o1.isDone())) && (now.after(o2.getDeadline()) || o2.isDone())){
-                    return -1;
-                }
-                int ret;
-                float goal1 = ((float)o1.getParticipants()/o1.getGoal_participants());
-                float goal2 = ((float)o2.getParticipants()/o2.getGoal_participants());
-                if(goal1>goal2)
-                    ret = -1;
-                else if(goal1==goal2)
-                    ret = 0;
-                else
-                    ret = 1;
-                return ret;
-            }
-        };
-        cmpNew = new Comparator<Post>() {
-            @Override
-            public int compare(Post o1, Post o2) {
-                Date now = new Date();
-                if((now.after(o1.getDeadline()) || o1.isDone()) && (!(now.after(o2.getDeadline()) || o2.isDone()))){
-                    return 1;
-                }else if((!(now.after(o1.getDeadline()) || o1.isDone())) && (now.after(o2.getDeadline()) || o2.isDone())){
-                    return -1;
-                }
-                int ret;
-                Date date1 = o1.getDate();
-                Date date2 = o2.getDate();
-                int compare = date1.compareTo(date2);
-                if(compare>0)
-                    ret = -1; //date2<date1
-                else if(compare==0)
-                    ret = 0;
-                else
-                    ret = 1;
-                return ret;
-            }
-        };
-        cmpDeadline = new Comparator<Post>() {
-            @Override
-            public int compare(Post o1, Post o2) {
-                Date now = new Date();
-                if((now.after(o1.getDeadline()) || o1.isDone()) && (!(now.after(o2.getDeadline()) || o2.isDone()))){
-                    return 1;
-                }else if((!(now.after(o1.getDeadline()) || o1.isDone())) && (now.after(o2.getDeadline()) || o2.isDone())){
-                    return -1;
-                }
-                else {
-                    int ret;
-                    Date date1 = o1.getDeadline();
-                    Date date2 = o2.getDeadline();
-                    int compare = date1.compareTo(date2);
-                    if (compare < 0)
-                        ret = -1; //date2>date1
-                    else if (compare == 0)
-                        ret = 0;
-                    else
-                        ret = 1;
-                    return ret;
-                }
-            }
-        };
+//        cmpGoal = new Comparator<Post>() {
+//            @Override
+//            public int compare(Post o1, Post o2) {
+//                Date now = new Date();
+//                if((now.after(o1.getDeadline()) || o1.isDone()) && (!(now.after(o2.getDeadline()) || o2.isDone()))){
+//                    return 1;
+//                }else if((!(now.after(o1.getDeadline()) || o1.isDone())) && (now.after(o2.getDeadline()) || o2.isDone())){
+//                    return -1;
+//                }
+//                int ret;
+//                float goal1 = ((float)o1.getParticipants()/o1.getGoal_participants());
+//                float goal2 = ((float)o2.getParticipants()/o2.getGoal_participants());
+//                if(goal1>goal2)
+//                    ret = -1;
+//                else if(goal1==goal2)
+//                    ret = 0;
+//                else
+//                    ret = 1;
+//                return ret;
+//            }
+//        };
+//        cmpNew = new Comparator<Post>() {
+//            @Override
+//            public int compare(Post o1, Post o2) {
+//                Date now = new Date();
+//                if((now.after(o1.getDeadline()) || o1.isDone()) && (!(now.after(o2.getDeadline()) || o2.isDone()))){
+//                    return 1;
+//                }else if((!(now.after(o1.getDeadline()) || o1.isDone())) && (now.after(o2.getDeadline()) || o2.isDone())){
+//                    return -1;
+//                }
+//                int ret;
+//                Date date1 = o1.getDate();
+//                Date date2 = o2.getDate();
+//                int compare = date1.compareTo(date2);
+//                if(compare>0)
+//                    ret = -1; //date2<date1
+//                else if(compare==0)
+//                    ret = 0;
+//                else
+//                    ret = 1;
+//                return ret;
+//            }
+//        };
+//        cmpDeadline = new Comparator<Post>() {
+//            @Override
+//            public int compare(Post o1, Post o2) {
+//                Date now = new Date();
+//                if((now.after(o1.getDeadline()) || o1.isDone()) && (!(now.after(o2.getDeadline()) || o2.isDone()))){
+//                    return 1;
+//                }else if((!(now.after(o1.getDeadline()) || o1.isDone())) && (now.after(o2.getDeadline()) || o2.isDone())){
+//                    return -1;
+//                }
+//                else {
+//                    int ret;
+//                    Date date1 = o1.getDeadline();
+//                    Date date2 = o2.getDeadline();
+//                    int compare = date1.compareTo(date2);
+//                    if (compare < 0)
+//                        ret = -1; //date2>date1
+//                    else if (compare == 0)
+//                        ret = 0;
+//                    else
+//                        ret = 1;
+//                    return ret;
+//                }
+//            }
+//        };
         list = MainActivity.notreportedpostArrayList;
         switch (SORT){
             case NEW:
@@ -497,7 +515,7 @@ public class BoardFragment1 extends Fragment// Fragment 클래스를 상속받�
                     return headers;
                 }
             };
-            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
             requestQueue.add(jsonObjectRequest);
         } catch (Exception e){
             Log.d("exception", "failed getting response");
@@ -657,7 +675,10 @@ public class BoardFragment1 extends Fragment// Fragment 클래스를 상속받�
                                 e.printStackTrace();
                                 Log.d("parsing date", "non reply");
                             }
+                            Integer pinned = res.getInt("pinned");
+
                             Post post = new Post(post_id, title, author, author_lvl, content, participants, goal_participants, url, date, deadline, with_prize, prize, est_time, target, count,comments,done, extended, participants_userids, reports, hide, author_userid);
+                            post.setPinned(pinned);
                             if(with_prize) post.setPrize_urls(prize_urls);
                             Intent intent = new Intent(((AppCompatActivity) getActivity()).getApplicationContext(), PostDetailActivity.class);
                             intent.putExtra("post", post);
@@ -674,7 +695,7 @@ public class BoardFragment1 extends Fragment// Fragment 클래스를 상속받�
                         Log.d("exception", "volley error");
                         error.printStackTrace();
                     });
-            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
             requestQueue.add(jsonObjectRequest);
         } catch (Exception e){
             Log.d("exception", "failed getting response");

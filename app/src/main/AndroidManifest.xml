@@ -30,8 +30,12 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/filepaths" />
         </provider>
-        <activity android:name=".mypage.SettingInfo"></activity>
-        <activity android:name=".mypage.SettingReport" />
+        <activity android:name=".NoticeImageDeatil"
+            android:screenOrientation="portrait"></activity>
+        <activity android:name=".mypage.SettingInfo"
+            android:screenOrientation="portrait"></activity>
+        <activity android:name=".mypage.SettingReport"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".mypage.NotificationsActivity"
             android:screenOrientation="portrait" />

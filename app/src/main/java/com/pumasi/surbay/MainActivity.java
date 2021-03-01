@@ -79,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
         SimpleDateFormat fm = new SimpleDateFormat(mContext.getString(R.string.date_format));
 
         loadingProgress loadingProgress = new loadingProgress();
-
+        Log.d("onmainactivitystartted", "sizeis"+postArrayList.size());
         if(postArrayList.size() == 0 || notreportedpostArrayList.size() == 0) {
             try {
                 Log.d("main", "gettingposts");
@@ -272,7 +272,7 @@ public class MainActivity extends AppCompatActivity {
                     return headers;
                 }
             };
-            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
             requestQueue.add(jsonObjectRequest);
         } catch (Exception e){
             Log.d("exception", "failed getting response");
@@ -375,12 +375,15 @@ public class MainActivity extends AppCompatActivity {
                                             }
                                         }
                                     }
+
                                     Log.d("start app", "getpost comment"+comments.size()+"");
                                 } catch (Exception e){
                                     e.printStackTrace();
                                     Log.d("parsing date", "non reply");
                                 }
+                                Integer pinned = post.getInt("pinned");
                                 Post newPost = new Post(id, title, author, author_lvl, content, participants, goal_participants, url, date, deadline, with_prize, prize, est_time, target, count,comments,done, extended, participants_userids, reports, hide, author_userid);
+                                newPost.setPinned(pinned);
                                 Log.d("start app", "newpost comments"+newPost.getComments().size()+"");
                                 Date now = new Date();
                                 Log.d(title+"reported by", ""+reports+"  "+UserPersonalInfo.userID+reports.contains(UserPersonalInfo.userID));
@@ -408,7 +411,7 @@ public class MainActivity extends AppCompatActivity {
                         Log.d("exception", "volley error");
                         error.printStackTrace();
                     });
-            jsonArrayRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            jsonArrayRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
             requestQueue.add(jsonArrayRequest);
         } catch (Exception e){
             Log.d("exception", "failed getting response");
@@ -451,9 +454,26 @@ public class MainActivity extends AppCompatActivity {
                                 for (int j = 0; j<ja.length(); j++){
                                     liked_users.add(ja.getString(j));
                                 }
+                                JSONArray images = (JSONArray)post.get("image_urls");
+                                ArrayList<String> imagearray = new ArrayList<>();
+                                if(images!=null) {
+                                    imagearray = new ArrayList<String>();
+                                    for (int j = 0; j < images.length(); j++) {
+                                        imagearray.add(images.getString(j));
+                                    }
+                                }
+
+
+
+
+
 
                                 Surveytip newSurveytip = new Surveytip(id, title, author, author_lvl, content,  date, category, likes, liked_users);
+                                if(images!=null){
+                                    newSurveytip.setImage_uris(imagearray);
+                                }
                                 surveytipArrayList.add(newSurveytip);
+
                             }
 //                            if(done==0){
 //                                HomeFragment.receivedPosts();
@@ -468,7 +488,7 @@ public class MainActivity extends AppCompatActivity {
                         Log.d("exception", "volley error");
                         error.printStackTrace();
                     });
-            jsonArrayRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            jsonArrayRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
             requestQueue.add(jsonArrayRequest);
         } catch (Exception e){
             Log.d("exception", "failed getting response");
@@ -550,7 +570,7 @@ public class MainActivity extends AppCompatActivity {
                         Log.d("exception", "volley error");
                         error.printStackTrace();
                     });
-            jsonArrayRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            jsonArrayRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
             requestQueue.add(jsonArrayRequest);
         } catch (Exception e){
             Log.d("exception", "failed getting response");
@@ -585,8 +605,21 @@ public class MainActivity extends AppCompatActivity {
                                 } catch (ParseException e) {
                                     e.printStackTrace();
                                 }
+                                JSONArray images = (JSONArray)post.get("image_urls");
+                                ArrayList<String> imagearray = new ArrayList<>();
+                                if(images!=null) {
+                                    imagearray = new ArrayList<String>();
+                                    for (int j = 0; j < images.length(); j++) {
+                                        imagearray.add(images.getString(j));
+                                    }
+                                }
+
 
                                 Notice newNotice = new Notice(id, title, author, content, date);
+
+                                if(images!=null){
+                                    newNotice.setImages(imagearray);
+                                }
                                 NoticeArrayList.add(newNotice);
                             }
 //                            if(done==0){
@@ -602,7 +635,7 @@ public class MainActivity extends AppCompatActivity {
                         Log.d("exception", "volley error");
                         error.printStackTrace();
                     });
-            jsonArrayRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            jsonArrayRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
             requestQueue.add(jsonArrayRequest);
         } catch (Exception e){
             Log.d("exception", "failed getting response");

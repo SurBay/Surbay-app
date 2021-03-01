@@ -71,7 +71,6 @@ public class MypageFragment extends Fragment // Fragment 클래스를 상속받�
     TextView parti_2nd;
     TextView can_sur;
     TextView willdo_sur;
-    TextView willdo_sur_below;
 
     TextView get_2nd;
 
@@ -176,8 +175,6 @@ public class MypageFragment extends Fragment // Fragment 클래스를 상속받�
         upload_2nd = view.findViewById(R.id.upload_2nd);
         parti_2nd = view.findViewById(R.id.parti_2nd);
         can_sur = view.findViewById(R.id.mypage_can_sur);
-        willdo_sur = view.findViewById(R.id.mypage_willdo_sur);
-        willdo_sur_below = view.findViewById(R.id.mypage_willdo_sur_below);
 
         get_2nd = view.findViewById(R.id.get_2nd);
 
@@ -187,18 +184,32 @@ public class MypageFragment extends Fragment // Fragment 클래스를 상속받�
         levelview.setText("레벨 " + UserPersonalInfo.level.toString());
         upload_2nd.setText(list_make.size() + "개");
         parti_2nd.setText(list_parti.size() + "개");
-        parti_3rd.setText("에 참여했어요 감사해요 <3");
+        parti_3rd.setText("에 참여했네요");
 //        get_2nd.setText(UserPersonalInfo.prizes.size() + "개");
+
+        switch (UserPersonalInfo.level){
+            case 1:
+                profileview.setImageResource(R.drawable.lv1tiger);
+                break;
+            case 2:
+                profileview.setImageResource(R.drawable.lv2tiger);
+                break;
+            case 3:
+                profileview.setImageResource(R.drawable.lv3tiger);
+                break;
+            case 4:
+                profileview.setImageResource(R.drawable.lv4tiger);
+                break;
+            case 5:
+                profileview.setImageResource(R.drawable.lv5tiger);
+                break;
+            default:
+                profileview.setImageResource(R.drawable.lv1tiger);
+                break;
+        }
 
         can_sur.setText(UserPersonalInfo.points+"크레딧");
 
-//        if (list_parti.size()!=0){
-//            can_sur.setText(list_make.size()/(list_parti.size()*7)+"회");
-//        } else {
-//            can_sur.setText("0크레딧");
-//        }
-//        willdo_sur.setText((list_parti.size()%7)+"회/7회");
-//        willdo_sur.setText(UserPersonalInfo.po);
 
         return view;
     }
@@ -226,7 +237,6 @@ public class MypageFragment extends Fragment // Fragment 클래스를 상속받�
             public void onItemClick(View v, int position) {
 
                 Post item = (Post) adapter_make.getItem(position);
-                Log.d("on click2", "title is "+item.getTitle());
                 Intent intent = new Intent(mContext, PostDetailActivity.class);
                 intent.putExtra("post", item);
                 intent.putExtra("position", position);
@@ -237,7 +247,6 @@ public class MypageFragment extends Fragment // Fragment 클래스를 상속받�
             @Override
             public void onItemClick(View v, int position) {
                 Post item = (Post) adapter_parti.getItem(position);
-                Log.d("on click2 parti", "title is "+item.getTitle());
                 Intent intent = new Intent(mContext, PostDetailActivity.class);
                 intent.putExtra("post", item);
                 intent.putExtra("position", position);
@@ -279,7 +288,6 @@ public class MypageFragment extends Fragment // Fragment 클래스를 상속받�
                     (Request.Method.GET, requestURL, null, response -> {
                         try {
                             JSONObject res = new JSONObject(response.toString());
-                            Log.d("response is", "post"+response);
                             String post_id = res.getString("_id");
                             String title = res.getString("title");
                             String author = res.getString("author");
@@ -356,23 +364,21 @@ public class MypageFragment extends Fragment // Fragment 클래스를 상속받�
                                         ArrayList<String> replyreports = new ArrayList<String>();
                                         for (int u = 0; u<ua.length(); u++){
                                             replyreports.add(ua.getString(u));
-                                            Log.d("reported by", "him"+ua.getString(u));
                                         }
-                                        Log.d("start app comment", ""+datereply.toString());
                                         Reply re = new Reply(reid, writer, contetn, datereply,replyreports,replyhide);
-                                        Log.d("start app reply", ""+re.getDate().toString()+replyreports);
-                                        Log.d("report ", "replry report" + !replyhide + !replyreports.contains(UserPersonalInfo.userID));
                                         if (!replyhide && !replyreports.contains(UserPersonalInfo.userID)){
                                             comments.add(re);
                                         }
                                     }
                                 }
-                                Log.d("start app", "getpost comment"+comments.size()+"");
                             } catch (Exception e){
                                 e.printStackTrace();
                                 Log.d("parsing date", "non reply");
                             }
+                            Integer pinned = res.getInt("pinned");
+
                             Post post = new Post(post_id, title, author, author_lvl, content, participants, goal_participants, url, date, deadline, with_prize, prize, est_time, target, count,comments,done, extended, participants_userids, reports, hide, author_userid);
+                            post.setPinned(pinned);
                             if(with_prize) post.setPrize_urls(prize_urls);
                             Intent intent = new Intent(mContext, PostDetailActivity.class);
                             intent.putExtra("post", post);

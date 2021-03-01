@@ -44,7 +44,6 @@ public class ReplyListViewAdapter2 extends RecyclerView.Adapter<ReplyListViewAda
     private CustomDialog customDialog;
 
     public ReplyListViewAdapter2(Context ctx, ArrayList<Reply> listViewItemList) {
-        Log.d("list size is", ""+listViewItemList.size());
         inflater = LayoutInflater.from(ctx);
         context = ctx;
         this.listViewItemList = listViewItemList;

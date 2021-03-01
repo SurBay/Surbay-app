@@ -27,4 +27,5 @@
     android:ellipsize="marquee"
     android:textSize="15sp"
     android:paddingStart="10dp"
+    android:paddingEnd="30dp"
     android:textAlignment="inherit"/>

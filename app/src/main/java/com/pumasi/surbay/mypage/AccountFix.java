@@ -153,6 +153,9 @@ public class AccountFix extends AppCompatActivity {
         userage.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                TextView text = view.findViewById(android.R.id.text1);
+                if(position==0) text.setTextColor(getColor(R.color.nav_gray));
+                else text.setTextColor(getColor(R.color.text_black));
                 Log.d("press", "pressed "+ usersex_M.isPressed() + usersex_F.isPressed() + MPressed + FPressed);
                 usersex_M.setBackground(getDrawable(R.drawable.sexselector_m));
                 usersex_F.setBackground(getDrawable(R.drawable.sexselector_m));

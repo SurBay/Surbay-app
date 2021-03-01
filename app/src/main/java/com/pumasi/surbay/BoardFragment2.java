@@ -24,6 +24,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.pumasi.surbay.adapter.SurveyTipListViewAdapter;
+import com.pumasi.surbay.classfile.PostNonSurvey;
 import com.pumasi.surbay.classfile.Surveytip;
 
 import org.json.JSONArray;
@@ -33,6 +34,8 @@ import org.json.JSONObject;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 
 public class BoardFragment2 extends Fragment {
@@ -68,6 +71,24 @@ public class BoardFragment2 extends Fragment {
             }
         });
         list = MainActivity.surveytipArrayList;
+        Comparator<Surveytip> cmpNew = new Comparator<Surveytip>() {
+            @Override
+            public int compare(Surveytip o1, Surveytip o2) {
+                int ret;
+                Date date1 = o1.getDate();
+                Date date2 = o2.getDate();
+                int compare = date1.compareTo(date2);
+                Log.d("datecomparing", date1 + "   " + date2 + "  " + compare);
+                if (compare > 0)
+                    ret = -1; //date2<date1
+                else if (compare == 0)
+                    ret = 0;
+                else
+                    ret = 1;
+                return ret;
+            }
+        };
+        Collections.sort(list, cmpNew);
         listViewAdapter = new SurveyTipListViewAdapter(list);
         listView.setAdapter(listViewAdapter);
 
@@ -178,7 +199,20 @@ public class BoardFragment2 extends Fragment {
                                 liked_users.add(ja.getString(j));
                             }
 
+                            JSONArray images = (JSONArray)res.get("image_urls");
+                            ArrayList<String> imagearray = new ArrayList<>();
+                            if(images!=null) {
+                                imagearray = new ArrayList<String>();
+                                for (int j = 0; j < images.length(); j++) {
+                                    imagearray.add(images.getString(j));
+                                }
+                            }
+
+
                             Surveytip surveytip = new Surveytip(tip_id, title, author, author_lvl, content,  date, category, likes, liked_users);
+                            if(images!=null){
+                                surveytip.setImage_uris(imagearray);
+                            }
                             Intent intent = new Intent(((AppCompatActivity) getActivity()).getApplicationContext(), TipdetailActivity.class);
                             intent.putExtra("post", surveytip);
                             intent.putExtra("position", position);
@@ -193,7 +227,7 @@ public class BoardFragment2 extends Fragment {
                         Log.d("exception", "volley error");
                         error.printStackTrace();
                     });
-            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
             requestQueue.add(jsonObjectRequest);
         } catch (Exception e){
             Log.d("exception", "failed getting response");

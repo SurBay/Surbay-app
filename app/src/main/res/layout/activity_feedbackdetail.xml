@@ -3,7 +3,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="@color/gray">
     <ImageView
         android:layout_width="24dp"
         android:layout_height="24dp"
@@ -14,10 +15,9 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
         android:orientation="vertical"
         android:layout_marginTop="23.8dp"
-        android:paddingHorizontal="40dp"
+        android:paddingHorizontal="26dp"
         >
         <LinearLayout
             android:layout_width="match_parent"
@@ -69,7 +69,6 @@
             android:id="@+id/feedback_detail_content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:layout_marginVertical="8dp"
             android:layout_centerVertical="true"
             android:text="내용"
@@ -77,6 +76,24 @@
             android:lineSpacingExtra="2dp"
             android:scrollHorizontally="false"
             android:textColor="@color/black"
+            />
+    </LinearLayout>
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:layout_marginVertical="10dp"
+        android:src="@color/gray2"></ImageView>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:background="@color/gray"
+        android:paddingHorizontal="26dp"
+        android:orientation="vertical">
+        <androidx.recyclerview.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/feedback_detail_reply_list"
             />
     </LinearLayout>
 </LinearLayout>

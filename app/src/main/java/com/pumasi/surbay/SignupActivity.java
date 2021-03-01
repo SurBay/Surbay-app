@@ -59,7 +59,7 @@ public class SignupActivity extends AppCompatActivity {
     TextView check_name;
 
     String p2 = "^(?=.*[A-Za-z])(?=.*[0-9]).{6,20}$";
-    final String[] spinner_email = {"이메일 선택","korea.ac.kr"};
+    final String[] spinner_email = {"이메일 선택","korea.ac.kr", "ewhain.net", "yonsei.ac.kr"};
     ArrayList<String> spinner_age;
 
     EditText nameEditText;
@@ -139,16 +139,15 @@ public class SignupActivity extends AppCompatActivity {
             }
         });
 
-        ArrayAdapter emailadapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, spinner_email);
+        ArrayAdapter emailadapter = new ArrayAdapter(this, R.layout.simple_spinner_item, spinner_email);
         emailadapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         useremailSpinner.setAdapter(emailadapter);
-
         spinner_age = new ArrayList<>();
         spinner_age.add("출생연도");
         for (int i=1960;i<2020;i++){
             spinner_age.add(String.valueOf(i));
         }
-        ArrayAdapter ageadapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, spinner_age);
+        ArrayAdapter ageadapter = new ArrayAdapter(this, R.layout.simple_spinner_item, spinner_age);
         ageadapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         userage.setAdapter(ageadapter);
 
@@ -195,6 +194,9 @@ public class SignupActivity extends AppCompatActivity {
         useremailSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                TextView text = view.findViewById(android.R.id.text1);
+                if(position==0) text.setTextColor(getColor(R.color.nav_gray));
+                else text.setTextColor(getColor(R.color.text_black));
                 posadd = position;
                 if (useridEditText.getText().toString().length() > 0 ){
                     if (position != 0){
@@ -218,6 +220,10 @@ public class SignupActivity extends AppCompatActivity {
         userage.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                TextView text = view.findViewById(android.R.id.text1);
+                if(position==0) text.setTextColor(getColor(R.color.nav_gray));
+                else text.setTextColor(getColor(R.color.text_black));
+
                 Log.d("press", "pressed "+ usersex_M.isPressed() + usersex_F.isPressed() + MPressed + FPressed);
                 usersex_M.setBackground(getDrawable(R.drawable.sexselector_m));
                 usersex_F.setBackground(getDrawable(R.drawable.sexselector_m));
@@ -438,7 +444,7 @@ public class SignupActivity extends AppCompatActivity {
                         Log.d("exception", "volley error");
                         error.printStackTrace();
                     });
-            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
             requestQueue.add(jsonObjectRequest);
         } catch(Exception e){
             e.printStackTrace();
@@ -475,7 +481,7 @@ public class SignupActivity extends AppCompatActivity {
                             Log.d("exception", "volley error");
                             error.printStackTrace();
                         });
-                jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+                jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
                 requestQueue.add(jsonObjectRequest);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -513,7 +519,7 @@ public class SignupActivity extends AppCompatActivity {
                             Log.d("exception", "volley error");
                             error.printStackTrace();
                         });
-                jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+                jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
                 requestQueue.add(jsonObjectRequest);
             } catch(Exception e){
                 e.printStackTrace();
@@ -793,7 +799,7 @@ public class SignupActivity extends AppCompatActivity {
                         Log.d("exception", "volley error");
                         error.printStackTrace();
                     });
-            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
             requestQueue.add(jsonObjectRequest);
         } catch (Exception e) {
             e.printStackTrace();

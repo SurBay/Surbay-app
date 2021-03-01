@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/gray"
-    android:paddingTop="10dp"
+    android:paddingBottom="15dp"
     android:paddingHorizontal="15dp">
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
@@ -14,20 +14,21 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="5dp">
+            android:orientation="vertical">
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingTop="5dp"
-                android:paddingLeft="10dp"
+                android:layout_marginTop="15dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
                 android:orientation="vertical">
                 <TextView
                     android:id="@+id/non_cate"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="앱 구동 불편 사항"
-                    android:textColor="@color/black"
+                    android:textColor="@color/text_black"
+                    android:textSize="13sp"
                     />
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/non_title"
@@ -39,22 +40,23 @@
                     android:layout_weight="1"
                     android:text="제목"
                     android:textStyle="bold"
-                    android:textSize="18dp"
-                    android:textColor="@color/black"
+                    android:textSize="15sp"
+                    android:textColor="@color/text_black"
                     android:maxLines="1"/>
             </LinearLayout>
             <RelativeLayout
-                android:paddingLeft="10dp"
-                android:paddingVertical="5dp"
-                android:paddingRight="10dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
+                android:layout_marginTop="6dp"
+                android:layout_marginBottom="16.25dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
                 <ImageView
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
+                    android:layout_width="37.5dp"
+                    android:layout_height="37.5dp"
                     android:id="@+id/non_profile"
                     android:background="@drawable/rectangle_rounded"
-                    android:backgroundTint="@color/nav_gray"
+                    android:backgroundTint="@color/gray"
                     android:layout_marginRight="10dp"
                     />
                 <androidx.appcompat.widget.AppCompatTextView
@@ -64,8 +66,8 @@
                     android:layout_toRightOf="@id/non_profile"
                     android:layout_below="@id/non_date"
                     android:text="익명"
-                    android:textSize="13dp"
-                    android:textColor="@color/text_gray"/>
+                    android:textSize="12.5sp"
+                    android:textColor="@color/text_black_70"/>
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/non_date"
                     android:layout_width="wrap_content"
@@ -73,8 +75,8 @@
                     android:layout_toRightOf="@id/non_profile"
                     android:layout_alignTop="@id/non_profile"
                     android:text="날짜"
-                    android:textSize="13dp"
-                    android:textColor="@color/text_gray"/>
+                    android:textSize="12.5sp"
+                    android:textColor="@color/text_black_70"/>
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -82,8 +84,8 @@
                     android:layout_alignParentRight="true"
                     >
                     <ImageView
-                        android:layout_width="15dp"
-                        android:layout_height="15dp"
+                        android:layout_width="12.5dp"
+                        android:layout_height="12.5dp"
                         android:src="@drawable/like"
                         android:scaleType="fitCenter"
                         android:layout_gravity="center"

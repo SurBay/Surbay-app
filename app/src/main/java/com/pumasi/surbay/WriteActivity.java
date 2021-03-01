@@ -27,6 +27,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -50,16 +51,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
-import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-import com.esafirm.imagepicker.features.ImagePicker;
-import com.esafirm.imagepicker.features.ImagePickerComponentHolder;
-import com.esafirm.imagepicker.features.ReturnMode;
 import com.esafirm.imagepicker.model.Image;
-import com.google.android.material.resources.MaterialAttributes;
 import com.pumasi.surbay.adapter.GiftImageAdapter;
 import com.pumasi.surbay.adapter.GiftImageAdapter2;
 import com.pumasi.surbay.classfile.CustomDialog;
@@ -196,9 +191,24 @@ public class WriteActivity extends AppCompatActivity {
         writeDone = findViewById(R.id.writeDone);
 
 
-        ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, spinner_esttime);
+        ArrayAdapter adapter = new ArrayAdapter(this, R.layout.simple_spinner_item, spinner_esttime);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         writeEstTime.setAdapter(adapter);
+        writeEstTime.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                TextView text = view.findViewById(android.R.id.text1);
+                if(position==0) text.setTextColor(getColor(R.color.nav_gray));
+                else text.setTextColor(getColor(R.color.text_black));
+                est_time = writeEstTime.getSelectedItemPosition() - 1;
+                return;
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
 
         this.InitializeListener();
         if(writeTitle.getText().length()!=0){writeTitle.setTextColor(Color.parseColor("#000000"));}

@@ -51,6 +51,7 @@ public class NonSurveyListViewAdapter extends BaseAdapter {
         TextView likesTextView = (TextView) convertView.findViewById(R.id.non_recom);
         ImageView likesimgae = (ImageView) convertView.findViewById(R.id.non_recomimage);
         TextView categoryTextView = (TextView) convertView.findViewById(R.id.non_cate);
+        ImageView profileView = (ImageView) convertView.findViewById(R.id.non_profile);
 
         // Data Set(listViewItemList)에서 position에 위치한 데이터 참조 획득
         SimpleDateFormat fm = new SimpleDateFormat("MM.dd");
@@ -64,6 +65,27 @@ public class NonSurveyListViewAdapter extends BaseAdapter {
 
         likesimgae.setVisibility(View.GONE);
         likesTextView.setVisibility(View.GONE);
+
+        switch (post.getAuthor_lvl()){
+            case 1:
+                profileView.setImageResource(R.drawable.lv1tiger);
+                break;
+            case 2:
+                profileView.setImageResource(R.drawable.lv2tiger);
+                break;
+            case 3:
+                profileView.setImageResource(R.drawable.lv3tiger);
+                break;
+            case 4:
+                profileView.setImageResource(R.drawable.lv4tiger);
+                break;
+            case 5:
+                profileView.setImageResource(R.drawable.lv5tiger);
+                break;
+            default:
+                profileView.setImageResource(R.drawable.lv1tiger);
+                break;
+        }
 
         return convertView;
     }

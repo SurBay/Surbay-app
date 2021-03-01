@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -50,6 +51,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -85,6 +87,10 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
     private static ImageButton notice_sort_button;
     private static TextView main_notice;
 
+    private ImageView tiger1;
+    private ImageView tiger2;
+    private ImageView tiger3;
+
     public static ArrayList<Post> list1;
     public static ArrayList<Post> list2;
     public static ArrayList<Post> list3;
@@ -117,6 +123,21 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
         new_sort_button = view.findViewById(R.id.new_sort_button);
         notice_sort_button = view.findViewById(R.id.notice_sort_button);
 
+        tiger1 = view.findViewById(R.id.none_tiger_1);
+        tiger2 = view.findViewById(R.id.none_tiger_2);
+        tiger3 = view.findViewById(R.id.none_tiger_3);
+
+        setRecyclerView();
+        setBanner();
+
+
+        return view;
+    }
+
+    private void setRecyclerView(){
+        tiger1.setVisibility(View.GONE);
+        tiger2.setVisibility(View.GONE);
+        tiger3.setVisibility(View.GONE);
         cmpGoal = new Comparator<Post>() {
             @Override
             public int compare(Post o1, Post o2) {
@@ -196,13 +217,37 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
             }
         };
 
-        list1 = new ArrayList<>(MainActivity.postArrayList);
-        list2 = new ArrayList<>(MainActivity.postArrayList);
-        list3 = new ArrayList<>(MainActivity.postArrayList);
+        list1 = new ArrayList<>(MainActivity.postArrayList); //dday
+        Iterator<Post> iter = list1.iterator();
+        while (iter.hasNext()) {
+            Post p = iter.next();
+            Date now = new Date();
+            Log.d("nowdeadline", ""+p.getDeadline()+" "+now);
+            if (p.getDeadline().getTime()-now.getTime()>24*60*60*1000 || now.after(p.getDeadline())) iter.remove();
+        }
+
+        list2 = new ArrayList<>(MainActivity.postArrayList); //goal
+        iter = list2.iterator();
+        while (iter.hasNext()) {
+            Post p = iter.next();
+            if (((float) p.getParticipants() / p.getGoal_participants())<0.7) iter.remove();
+        }
+
+        list3 = new ArrayList<>(MainActivity.postArrayList); //new
+        iter = list3.iterator();
+        while (iter.hasNext()) {
+            Post p = iter.next();
+            Date now = new Date();
+            if (now.getTime()-p.getDate().getTime()>(24 * 60 * 60 * 1000)) iter.remove();
+        }
+
         list4 = new ArrayList<>(MainActivity.NoticeArrayList);
         Collections.sort(list1, cmpDeadline);
         Collections.sort(list2, cmpGoal);
         Collections.sort(list3, cmpNew);
+        if(list1.size()>5) list1 = new ArrayList<>(list1.subList(0, 5));
+        if(list2.size()>5) list2 = new ArrayList<>(list2.subList(0, 5));
+        if(list3.size()>5) list3 = new ArrayList<>(list3.subList(0, 5));
 
         adapter4 = new RecyclerViewNoticeAdapter(mContext, list4);
         adapter1 = new RecyclerViewDdayAdapter(mContext, list1);
@@ -252,7 +297,7 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
         date_sort_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                OnRefrech(DEADLINE);
+                OnRefresh(DEADLINE);
                 BottomNavigationView bottomNavigationView = (BottomNavigationView) getActivity().findViewById(R.id.bottomNavi);
                 bottomNavigationView.setSelectedItemId(R.id.action_boards);
             }
@@ -260,7 +305,7 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
         goal_sort_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                OnRefrech(GOAL);
+                OnRefresh(GOAL);
                 BottomNavigationView bottomNavigationView = (BottomNavigationView) getActivity().findViewById(R.id.bottomNavi);
                 bottomNavigationView.setSelectedItemId(R.id.action_boards);
             }
@@ -268,10 +313,10 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
         new_sort_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                OnRefrech(NEW);
+                OnRefresh(NEW);
                 BottomNavigationView bottomNavigationView = (BottomNavigationView) getActivity().findViewById(R.id.bottomNavi);
                 bottomNavigationView.setSelectedItemId(R.id.action_boards);
-            } 
+            }
         });
         notice_sort_button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -281,7 +326,7 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
             }
         });
 
-        setBanner();
+
 
         if (MainActivity.NoticeArrayList.size() != 0){
             main_notice.setText(MainActivity.NoticeArrayList.get(0).getContent());
@@ -297,92 +342,99 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
             });
         }
 
-        return view;
-    }
-
-    @Override
-    public void onViewCreated (View view, Bundle savedInstanceState){
-
-    }
-    public static void receivedPosts(){
-        makeView();
-    }
-    private static void makeView(){
-        list1 = new ArrayList<>(MainActivity.postArrayList);
-        list2 = new ArrayList<>(MainActivity.postArrayList);
-        list3 = new ArrayList<>(MainActivity.postArrayList);
-        list4 = new ArrayList<>(MainActivity.NoticeArrayList);
-        Collections.sort(list1, cmpDeadline);
-        Collections.sort(list2, cmpGoal);
-        Collections.sort(list3, cmpNew);
-        adapter4 = new RecyclerViewNoticeAdapter(mContext, list4);
-        adapter1 = new RecyclerViewDdayAdapter(mContext, list1);
-        adapter2 = new RecyclerViewGoalAdapter(mContext, list2);
-        adapter3 = new RecyclerViewNewAdapter(mContext, list3);
-        recyclerView.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
-        recyclerView.setAdapter(adapter1);
-        recyclerView2.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
-        recyclerView2.setAdapter(adapter2);
-        recyclerView3.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
-        recyclerView3.setAdapter(adapter3);
-        recyclerView4.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
-        recyclerView4.setAdapter(adapter4);
-        adapter1.setOnItemClickListener(new RecyclerViewDdayAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(View v, int position) {
-                Post item = (Post) adapter1.getItem(position);
-                Intent intent = new Intent(mContext, PostDetailActivity.class);
-                intent.putExtra("post", item);
-                intent.putExtra("position", position);
-                ((Activity)mContext).startActivityForResult(intent, DO_SURVEY);
-            }
-        });
-        adapter2.setOnItemClickListener(new RecyclerViewGoalAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(View v, int position) {
-                Post item = (Post) adapter2.getItem(position);
-                Intent intent = new Intent(mContext, PostDetailActivity.class);
-                intent.putExtra("post", item);
-                intent.putExtra("position", position);
-                ((Activity)mContext).startActivityForResult(intent, DO_SURVEY);
-            }
-        });
-        adapter3.setOnItemClickListener(new RecyclerViewNewAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(View v, int position) {
-                Post item = (Post) adapter3.getItem(position);
-                Intent intent = new Intent(mContext, PostDetailActivity.class);
-                intent.putExtra("post", item);
-                intent.putExtra("position", position);
-                ((Activity)mContext).startActivityForResult(intent, DO_SURVEY);
-            }
-        });
-        adapter4.setOnItemClickListener(new RecyclerViewNoticeAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(View v, int position) {
-                Notice item = (Notice) adapter4.getItem(position);
-                Intent intent = new Intent(mContext, NoticeDetailActivity.class);
-                intent.putExtra("post", item);
-                intent.putExtra("position", position);
-                ((Activity)mContext).startActivityForResult(intent, DO_SURVEY);
-            }
-        });
-
-        if (MainActivity.NoticeArrayList.size() != 0){
-            main_notice.setText(MainActivity.NoticeArrayList.get(0).getContent());
-            main_notice.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Notice item = (Notice)MainActivity.NoticeArrayList.get(0);
-                    Intent intent = new Intent(mContext, NoticeDetailActivity.class);
-                    intent.putExtra("post", item);
-                    intent.putExtra("position", 0);
-                    ((Activity)mContext).startActivityForResult(intent, DO_SURVEY);
-                }
-            });
+        if(list1.size()==0){
+            recyclerView.setVisibility(View.GONE);
+            tiger1.setVisibility(View.VISIBLE);
         }
-        view.setVisibility(View.VISIBLE);
+        if(list2.size()==0){
+            recyclerView2.setVisibility(View.GONE);
+            tiger2.setVisibility(View.VISIBLE);
+        }
+        if(list3.size()==0){
+            recyclerView3.setVisibility(View.GONE);
+            tiger3.setVisibility(View.VISIBLE);
+        }
     }
+
+//    public static void receivedPosts(){
+//        makeView();
+//    }
+//    private static void makeView(){
+//        list1 = new ArrayList<>(MainActivity.postArrayList);
+//        list2 = new ArrayList<>(MainActivity.postArrayList);
+//        list3 = new ArrayList<>(MainActivity.postArrayList);
+//        list4 = new ArrayList<>(MainActivity.NoticeArrayList);
+//        Collections.sort(list1, cmpDeadline);
+//        Collections.sort(list2, cmpGoal);
+//        Collections.sort(list3, cmpNew);
+//        adapter4 = new RecyclerViewNoticeAdapter(mContext, list4);
+//        adapter1 = new RecyclerViewDdayAdapter(mContext, list1);
+//        adapter2 = new RecyclerViewGoalAdapter(mContext, list2);
+//        adapter3 = new RecyclerViewNewAdapter(mContext, list3);
+//        recyclerView.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
+//        recyclerView.setAdapter(adapter1);
+//        recyclerView2.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
+//        recyclerView2.setAdapter(adapter2);
+//        recyclerView3.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
+//        recyclerView3.setAdapter(adapter3);
+//        recyclerView4.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
+//        recyclerView4.setAdapter(adapter4);
+//        adapter1.setOnItemClickListener(new RecyclerViewDdayAdapter.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(View v, int position) {
+//                Post item = (Post) adapter1.getItem(position);
+//                Intent intent = new Intent(mContext, PostDetailActivity.class);
+//                intent.putExtra("post", item);
+//                intent.putExtra("position", position);
+//                ((Activity)mContext).startActivityForResult(intent, DO_SURVEY);
+//            }
+//        });
+//        adapter2.setOnItemClickListener(new RecyclerViewGoalAdapter.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(View v, int position) {
+//                Post item = (Post) adapter2.getItem(position);
+//                Intent intent = new Intent(mContext, PostDetailActivity.class);
+//                intent.putExtra("post", item);
+//                intent.putExtra("position", position);
+//                ((Activity)mContext).startActivityForResult(intent, DO_SURVEY);
+//            }
+//        });
+//        adapter3.setOnItemClickListener(new RecyclerViewNewAdapter.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(View v, int position) {
+//                Post item = (Post) adapter3.getItem(position);
+//                Intent intent = new Intent(mContext, PostDetailActivity.class);
+//                intent.putExtra("post", item);
+//                intent.putExtra("position", position);
+//                ((Activity)mContext).startActivityForResult(intent, DO_SURVEY);
+//            }
+//        });
+//        adapter4.setOnItemClickListener(new RecyclerViewNoticeAdapter.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(View v, int position) {
+//                Notice item = (Notice) adapter4.getItem(position);
+//                Intent intent = new Intent(mContext, NoticeDetailActivity.class);
+//                intent.putExtra("post", item);
+//                intent.putExtra("position", position);
+//                ((Activity)mContext).startActivityForResult(intent, DO_SURVEY);
+//            }
+//        });
+//
+//        if (MainActivity.NoticeArrayList.size() != 0){
+//            main_notice.setText(MainActivity.NoticeArrayList.get(0).getContent());
+//            main_notice.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    Notice item = (Notice)MainActivity.NoticeArrayList.get(0);
+//                    Intent intent = new Intent(mContext, NoticeDetailActivity.class);
+//                    intent.putExtra("post", item);
+//                    intent.putExtra("position", 0);
+//                    ((Activity)mContext).startActivityForResult(intent, DO_SURVEY);
+//                }
+//            });
+//        }
+//        view.setVisibility(View.VISIBLE);
+//    }
 
 
     @Override
@@ -397,21 +449,103 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
         mContext = null;
     }
 
-    public void OnRefrech(int sort){
+    public void OnRefresh(int sort){
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
+                Comparator<Post> cmpGoalBoard = new Comparator<Post>() {
+                    @Override
+                    public int compare(Post o1, Post o2) {
+                        if (o1.getPinned() == 1 && o2.getPinned() == 0) {
+                            return -1;
+                        } else if (o2.getPinned() == 1 && o1.getPinned() == 0) {
+                            return 1;
+                        }
+                        Date now = new Date();
+                        if ((now.after(o1.getDeadline()) || o1.isDone()) && (!(now.after(o2.getDeadline()) || o2.isDone()))) {
+                            return 1;
+                        } else if ((!(now.after(o1.getDeadline()) || o1.isDone())) && (now.after(o2.getDeadline()) || o2.isDone())) {
+                            return -1;
+                        }
+                        int ret;
+                        float goal1 = ((float) o1.getParticipants() / o1.getGoal_participants());
+                        float goal2 = ((float) o2.getParticipants() / o2.getGoal_participants());
+                        if (goal1 > goal2)
+                            ret = -1;
+                        else if (goal1 == goal2)
+                            ret = 0;
+                        else
+                            ret = 1;
+                        return ret;
+                    }
+                };
+                Comparator<Post> cmpNewBoard = new Comparator<Post>() {
+                    @Override
+                    public int compare(Post o1, Post o2) {
+                        if (o1.getPinned() == 1 && o2.getPinned() == 0) {
+                            return -1;
+                        } else if (o2.getPinned() == 1 && o1.getPinned() == 0) {
+                            return 1;
+                        }
+                        Date now = new Date();
+                        if ((now.after(o1.getDeadline()) || o1.isDone()) && (!(now.after(o2.getDeadline()) || o2.isDone()))) {
+                            return 1;
+                        } else if ((!(now.after(o1.getDeadline()) || o1.isDone())) && (now.after(o2.getDeadline()) || o2.isDone())) {
+                            return -1;
+                        }
+                        int ret;
+                        Date date1 = o1.getDate();
+                        Date date2 = o2.getDate();
+                        int compare = date1.compareTo(date2);
+                        Log.d("datecomparing", date1 + "   " + date2 + "  " + compare);
+                        if (compare > 0)
+                            ret = -1; //date2<date1
+                        else if (compare == 0)
+                            ret = 0;
+                        else
+                            ret = 1;
+                        return ret;
+                    }
+                };
+                Comparator<Post> cmpDeadlineBoard = new Comparator<Post>() {
+                    @Override
+                    public int compare(Post o1, Post o2) {
+                        if (o1.getPinned() == 1 && o2.getPinned() == 0) {
+                            return -1;
+                        } else if (o2.getPinned() == 1 && o1.getPinned() == 0) {
+                            return 1;
+                        }
+                        int ret;
+                        Date now = new Date();
+                        if ((now.after(o1.getDeadline()) || o1.isDone()) && (!(now.after(o2.getDeadline()) || o2.isDone()))) {
+                            return 1;
+                        } else if ((!(now.after(o1.getDeadline()) || o1.isDone())) && (now.after(o2.getDeadline()) || o2.isDone())) {
+                            return -1;
+                        } else {
+                            Date date1 = o1.getDeadline();
+                            Date date2 = o2.getDeadline();
+                            int compare = date1.compareTo(date2);
+                            if (compare < 0)
+                                ret = -1; //date2>date1
+                            else if (compare == 0)
+                                ret = 0;
+                            else
+                                ret = 1;
+                            return ret;
+                        }
+                    }
+                };
                 switch (sort){
                     case NEW:
-                        Collections.sort(BoardFragment1.list, cmpNew);
+                        Collections.sort(BoardFragment1.list, cmpNewBoard);
                         frag1newselect();
                         break;
                     case GOAL:
-                        Collections.sort(BoardFragment1.list, cmpGoal);
+                        Collections.sort(BoardFragment1.list, cmpGoalBoard);
                         frag1goalselect();
                         break;
                     case DEADLINE:
-                        Collections.sort(BoardFragment1.list, cmpDeadline);
+                        Collections.sort(BoardFragment1.list, cmpDeadlineBoard);
                         frag1dateselect();
                         break;
                     default:
@@ -680,7 +814,10 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
                                 e.printStackTrace();
                                 Log.d("parsing date", "non reply");
                             }
+                            Integer pinned = res.getInt("pinned");
+
                             Post post = new Post(post_id, title, author, author_lvl, content, participants, goal_participants, url, date, deadline, with_prize, prize, est_time, target, count,comments,done, extended, participants_userids, reports, hide, author_userid);
+                            post.setPinned(pinned);
                             if(with_prize) post.setPrize_urls(prize_urls);
                             Intent intent = new Intent(((AppCompatActivity) getActivity()).getApplicationContext(), PostDetailActivity.class);
                             intent.putExtra("post", post);

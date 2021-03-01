@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.pumasi.surbay.R;
@@ -49,6 +50,7 @@ public class SurveyTipListViewAdapter extends BaseAdapter {
         TextView authorTextView = (TextView) convertView.findViewById(R.id.non_author);
         TextView likesTextView = (TextView) convertView.findViewById(R.id.non_recom);
         TextView categoryTextView = (TextView) convertView.findViewById(R.id.non_cate);
+        ImageView profileView = (ImageView) convertView.findViewById(R.id.non_profile);
 
         // Data Set(listViewItemList)에서 position에 위치한 데이터 참조 획득
         SimpleDateFormat fm = new SimpleDateFormat("MM.dd");
@@ -60,6 +62,27 @@ public class SurveyTipListViewAdapter extends BaseAdapter {
         likesTextView.setText(post.getLikes().toString());
         categoryTextView.setText(post.getCategory());
         categoryTextView.setTextColor(context.getColor(R.color.teal_200));
+
+        switch (post.getAuthor_lvl()){
+            case 1:
+                profileView.setImageResource(R.drawable.lv1tiger);
+                break;
+            case 2:
+                profileView.setImageResource(R.drawable.lv2tiger);
+                break;
+            case 3:
+                profileView.setImageResource(R.drawable.lv3tiger);
+                break;
+            case 4:
+                profileView.setImageResource(R.drawable.lv4tiger);
+                break;
+            case 5:
+                profileView.setImageResource(R.drawable.lv5tiger);
+                break;
+            default:
+                profileView.setImageResource(R.drawable.lv1tiger);
+                break;
+        }
 
         return convertView;
     }

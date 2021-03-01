@@ -59,11 +59,14 @@
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
         <TextView
             android:id="@+id/writeButton"
-            android:layout_width="100dp"
-            android:layout_height="50dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingVertical="10dp"
+            android:paddingHorizontal="12.5dp"
             android:gravity="center"
             android:text="설문 작성"
-            android:textSize="16dp"
+            android:textSize="15sp"
+            android:textStyle="bold"
             android:textColor="@color/teal_200"
             android:background="@drawable/round_border_teal_list"
             android:layout_alignParentBottom="true"

@@ -32,7 +32,7 @@ import java.util.ArrayList;
 import java.util.Date;
 
 public class SplashActivity extends AppCompatActivity {
-    private static int SPLASH_TIME_OUT = 1000;
+    private static int SPLASH_TIME_OUT = 300;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -148,7 +148,6 @@ public class SplashActivity extends AppCompatActivity {
 
     private void getPosts() throws Exception{
         try{
-            Log.d("starting request", "get posts");
             String requestURL = "http://ec2-3-35-152-40.ap-northeast-2.compute.amazonaws.com/api/posts";
             RequestQueue requestQueue = Volley.newRequestQueue(SplashActivity.this);
             JsonArrayRequest jsonArrayRequest = new JsonArrayRequest
@@ -158,7 +157,6 @@ public class SplashActivity extends AppCompatActivity {
                             MainActivity.notreportedpostArrayList = new ArrayList<Post>();
                             MainActivity.reportpostArrayList = new ArrayList<Post>();
                             JSONArray resultArr = new JSONArray(response.toString());
-                            Log.d("getpost", ""+response+"\n");
                             for (int i = 0; i < resultArr.length(); i++) {
                                 JSONObject post = resultArr.getJSONObject(i);
                                 String id = post.getString("_id");
@@ -232,24 +230,20 @@ public class SplashActivity extends AppCompatActivity {
                                             for (int u = 0; u<ua.length(); u++){
                                                 replyreports.add(ua.getString(u));
                                             }
-                                            Log.d("start app comment", ""+datereply.toString());
                                             Reply re = new Reply(reid, writer, contetn, datereply,replyreports,replyhide);
-                                            Log.d("start app reply", ""+re.getDate().toString());
                                             if (!replyhide && !replyreports.contains(UserPersonalInfo.userID)){
                                                 comments.add(re);
                                             }
                                         }
                                     }
-                                    Log.d("start app", "getpost comment"+comments.size()+"");
 
                                 } catch (Exception e){
                                     e.printStackTrace();
-                                    Log.d("parsing date", "non reply");
                                 }
+                                Integer pinned = post.getInt("pinned");
                                 Post newPost = new Post(id, title, author, author_lvl, content, participants, goal_participants, url, date, deadline, with_prize, prize, est_time, target, count,comments,done, extended, participants_userids, reports, hide, author_userid);
-                                Log.d("start app", "newpost comments"+newPost.getComments().size()+"");
+                                newPost.setPinned(pinned);
                                 Date now = new Date();
-                                Log.d(title+"reported by", ""+reports+"  "+UserPersonalInfo.userID+reports.contains(UserPersonalInfo.userID));
                                 if(reports.contains(UserPersonalInfo.userID) || hide) {
                                     MainActivity.reportpostArrayList.add(newPost);
                                 } else if (now.after(newPost.getDeadline()) || newPost.isDone()){
@@ -260,8 +254,8 @@ public class SplashActivity extends AppCompatActivity {
                                     MainActivity.notreportedpostArrayList.add(newPost);
                                 }
                             }
-                            Log.d("array size is",""+MainActivity.postArrayList.size());
-                            Log.d("finisharray size is",""+ MainActivity.notreportedpostArrayList.size());
+                            Log.d("startmainactivity", "posts are"+MainActivity.postArrayList.size()+" "+MainActivity.notreportedpostArrayList.size());
+
                             Intent intent = new Intent(SplashActivity.this, MainActivity.class);
                             startActivity(intent);
                         } catch (JSONException e) {
@@ -271,8 +265,13 @@ public class SplashActivity extends AppCompatActivity {
                     }, error -> {
                         Log.d("exception", "volley error");
                         error.printStackTrace();
+                        try {
+                            throw new Exception();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     });
-            jsonArrayRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            jsonArrayRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, 2, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
             requestQueue.add(jsonArrayRequest);
         } catch (Exception e){
             Log.d("exception", "failed getting response");

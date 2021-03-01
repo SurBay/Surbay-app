@@ -6,6 +6,7 @@ import android.os.Parcelable;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 public class Notice implements Parcelable{
@@ -14,6 +15,7 @@ public class Notice implements Parcelable{
     private String author;
     private String content;
     private Date date;
+    private ArrayList<String> images = new ArrayList<>();
 
     private String dateformat = "yyyy-MM-dd'T'kk:mm:ss.SSS";
 
@@ -62,6 +64,7 @@ public class Notice implements Parcelable{
         dest.writeString(this.content);
         dest.writeString(this.title);
         dest.writeString(new SimpleDateFormat(dateformat).format(this.date));
+        dest.writeStringList(this.images);
     }
 
     @SuppressLint("NewApi")
@@ -75,6 +78,8 @@ public class Notice implements Parcelable{
         } catch (ParseException e) {
             e.printStackTrace();
         }
+        this.images = new ArrayList<>();
+        in.readStringList(images);
     }
 
     public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
@@ -87,4 +92,12 @@ public class Notice implements Parcelable{
             return new Notice[size];
         }
     };
+
+    public ArrayList<String> getImages() {
+        return images;
+    }
+
+    public void setImages(ArrayList<String> images) {
+        this.images = images;
+    }
 }
