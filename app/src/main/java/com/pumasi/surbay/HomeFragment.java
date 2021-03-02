@@ -329,7 +329,7 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
 
 
         if (MainActivity.NoticeArrayList.size() != 0){
-            main_notice.setText(MainActivity.NoticeArrayList.get(0).getContent());
+            main_notice.setText(MainActivity.NoticeArrayList.get(0).getTitle());
             main_notice.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -461,6 +461,20 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
                         } else if (o2.getPinned() == 1 && o1.getPinned() == 0) {
                             return 1;
                         }
+                        else if(o1.getPinned()==1 && o1.getPinned()==1){
+                            int ret;
+                            Date date1 = o1.getDate();
+                            Date date2 = o2.getDate();
+                            int compare = date1.compareTo(date2);
+                            Log.d("datecomparing", date1+"   "+date2+"  "+compare);
+                            if(compare>0)
+                                ret = -1; //date2<date1
+                            else if(compare==0)
+                                ret = 0;
+                            else
+                                ret = 1;
+                            return ret;
+                        }
                         Date now = new Date();
                         if ((now.after(o1.getDeadline()) || o1.isDone()) && (!(now.after(o2.getDeadline()) || o2.isDone()))) {
                             return 1;
@@ -486,6 +500,20 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
                             return -1;
                         } else if (o2.getPinned() == 1 && o1.getPinned() == 0) {
                             return 1;
+                        }
+                        else if(o1.getPinned()==1 && o1.getPinned()==1){
+                            int ret;
+                            Date date1 = o1.getDate();
+                            Date date2 = o2.getDate();
+                            int compare = date1.compareTo(date2);
+                            Log.d("datecomparing", date1+"   "+date2+"  "+compare);
+                            if(compare>0)
+                                ret = -1; //date2<date1
+                            else if(compare==0)
+                                ret = 0;
+                            else
+                                ret = 1;
+                            return ret;
                         }
                         Date now = new Date();
                         if ((now.after(o1.getDeadline()) || o1.isDone()) && (!(now.after(o2.getDeadline()) || o2.isDone()))) {
@@ -514,6 +542,20 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
                             return -1;
                         } else if (o2.getPinned() == 1 && o1.getPinned() == 0) {
                             return 1;
+                        }
+                        else if(o1.getPinned()==1 && o1.getPinned()==1){
+                            int ret;
+                            Date date1 = o1.getDate();
+                            Date date2 = o2.getDate();
+                            int compare = date1.compareTo(date2);
+                            Log.d("datecomparing", date1+"   "+date2+"  "+compare);
+                            if(compare>0)
+                                ret = -1; //date2<date1
+                            else if(compare==0)
+                                ret = 0;
+                            else
+                                ret = 1;
+                            return ret;
                         }
                         int ret;
                         Date now = new Date();

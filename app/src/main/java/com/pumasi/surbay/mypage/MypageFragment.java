@@ -67,6 +67,9 @@ public class MypageFragment extends Fragment // Fragment 클래스를 상속받�
     ImageView setting;
     ImageView bell;
 
+    ImageView none_tiger_make;
+    ImageView none_tiger_parti;
+
     TextView upload_2nd;
     TextView parti_2nd;
     TextView can_sur;
@@ -93,6 +96,9 @@ public class MypageFragment extends Fragment // Fragment 클래스를 상속받�
 
         setting = view.findViewById(R.id.mypage_setting);
         bell = view.findViewById(R.id.mypage_bell);
+
+        none_tiger_make = view.findViewById(R.id.none_tiger_make);
+        none_tiger_parti = view.findViewById(R.id.none_tiger_parti);
 
         bell.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -124,6 +130,23 @@ public class MypageFragment extends Fragment // Fragment 클래스를 상속받�
             recyclerView_parti.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
             recyclerView_parti.setAdapter(adapter_parti);
 
+        }
+        if(list_make.size()==0){
+            recyclerView_make.setVisibility(View.GONE);
+            none_tiger_make.setVisibility(View.VISIBLE);
+        }
+        else{
+            Log.d("havemake", ""+list_make.size());
+            recyclerView_make.setVisibility(View.VISIBLE);
+            none_tiger_make.setVisibility(View.GONE);
+        }
+        if(list_parti.size()==0){
+            recyclerView_parti.setVisibility(View.GONE);
+            none_tiger_parti.setVisibility(View.VISIBLE);
+        }else{
+            Log.d("haveparti", ""+list_parti.size());
+            recyclerView_parti.setVisibility(View.VISIBLE);
+            none_tiger_parti.setVisibility(View.GONE);
         }
         adapter_make.setOnItemClickListener(new RecyclerViewMakeAdapter.OnItemClickListener() {
             @Override

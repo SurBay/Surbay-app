@@ -3,6 +3,7 @@ package com.pumasi.surbay.adapter;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -27,6 +28,7 @@ import com.pumasi.surbay.classfile.CustomDialog;
 import com.pumasi.surbay.classfile.Post;
 import com.pumasi.surbay.classfile.Reply;
 import com.pumasi.surbay.classfile.UserPersonalInfo;
+import com.skyhope.showmoretextview.ShowMoreTextView;
 
 import org.json.JSONObject;
 
@@ -196,7 +198,7 @@ public class ReplyListViewAdapter2 extends RecyclerView.Adapter<ReplyListViewAda
     class MyViewHolder extends RecyclerView.ViewHolder{
 
         TextView replydateview;
-        TextView replycontentview;
+        ShowMoreTextView replycontentview;
         ImageView replymenu;
         LinearLayout comment;
 
@@ -204,9 +206,15 @@ public class ReplyListViewAdapter2 extends RecyclerView.Adapter<ReplyListViewAda
             super(itemView);
 
             replydateview = (TextView)itemView.findViewById(R.id.reply_date);
-            replycontentview = (TextView)itemView.findViewById(R.id.reply_context);
+            replycontentview = (ShowMoreTextView) itemView.findViewById(R.id.reply_context);
             replymenu = (ImageView)itemView.findViewById(R.id.reply_menu);
             comment = (LinearLayout)itemView.findViewById(R.id.comment_holder);
+
+            replycontentview.setShowingLine(3);
+            replycontentview.addShowMoreText("더보기");
+            replycontentview.addShowLessText("접기");
+            replycontentview.setShowMoreColor(Color.GRAY);
+            replycontentview.setShowLessTextColor(Color.GRAY);
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override

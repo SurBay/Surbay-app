@@ -88,8 +88,10 @@ public class NoticeDetailActivity extends AppCompatActivity {
                         @Override
                         public void onItemClick(View v, int position) {
                             Intent intent = new Intent(NoticeDetailActivity.this, NoticeImageDeatil.class);
-                            BitmapTransfer.setBitmap(image_bitmaps.get(position));
-                            startActivityForResult(intent, 20);
+//                            BitmapTransfer.setBitmap(image_bitmaps.get(position));
+                            BitmapTransfer.setBitmap_list(image_bitmaps);
+                            intent.putExtra("position", position);
+                            startActivity(intent);
                         }
                     });
 

@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,6 +29,7 @@ import com.pumasi.surbay.classfile.Post;
 import com.pumasi.surbay.classfile.PostNonSurvey;
 import com.pumasi.surbay.classfile.Reply;
 import com.pumasi.surbay.classfile.UserPersonalInfo;
+import com.skyhope.showmoretextview.ShowMoreTextView;
 
 import org.json.JSONObject;
 
@@ -70,7 +72,7 @@ public class FeedbackReplyListViewAdapter  extends RecyclerView.Adapter<Feedback
         holder.replymenu.setVisibility(View.GONE);
         holder.replydateview.setText(date);
         holder.replycontentview.setText(reply.getContent());
-        holder.replyauthorview.setText("관리자");
+        holder.replyauthorview.setText("관리자 / ");
         Log.d("replycontentis", ""+reply.getContent());
         return;
     }
@@ -86,7 +88,7 @@ public class FeedbackReplyListViewAdapter  extends RecyclerView.Adapter<Feedback
     class MyViewHolder extends RecyclerView.ViewHolder{
 
         TextView replydateview;
-        TextView replycontentview;
+        ShowMoreTextView replycontentview;
         TextView replyauthorview;
         ImageView replymenu;
 
@@ -95,9 +97,15 @@ public class FeedbackReplyListViewAdapter  extends RecyclerView.Adapter<Feedback
             super(itemView);
 
             replydateview = (TextView)itemView.findViewById(R.id.reply_date);
-            replycontentview = (TextView)itemView.findViewById(R.id.reply_context);
+            replycontentview = (ShowMoreTextView) itemView.findViewById(R.id.reply_context);
             replyauthorview = (TextView)itemView.findViewById(R.id.reply_name);
             replymenu = (ImageView)itemView.findViewById(R.id.reply_menu);
+
+            replycontentview.setShowingLine(3);
+            replycontentview.addShowMoreText("더보기");
+            replycontentview.addShowLessText("접기");
+            replycontentview.setShowMoreColor(Color.GRAY);
+            replycontentview.setShowLessTextColor(Color.GRAY);
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override

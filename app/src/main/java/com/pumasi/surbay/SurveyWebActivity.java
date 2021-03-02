@@ -25,6 +25,7 @@ public class SurveyWebActivity extends AppCompatActivity {
     private WebView mWebView;
     static final int DONE = 1;
     static final int NOT_DONE = 0;
+    int result = 0;
     int requestCode;
     private CustomDialog customDialog;
     private class WebViewInterface
@@ -42,7 +43,7 @@ public class SurveyWebActivity extends AppCompatActivity {
             // Do what you need
             if(requestCode!=2) {
                 Log.d("survey", "survey done");
-
+                result = DONE;
                 customDialog = new CustomDialog(SurveyWebActivity.this, new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -56,6 +57,7 @@ public class SurveyWebActivity extends AppCompatActivity {
                 customDialog.setMessage("응답 완료");
                 customDialog.setPositiveButton("확인");
                 customDialog.hideNegativeButton(true);
+                customDialog.setCanceledOnTouchOutside(false);
             }
         }
     }
@@ -203,7 +205,7 @@ public class SurveyWebActivity extends AppCompatActivity {
                     customDialog = new CustomDialog(SurveyWebActivity.this, new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            setResult(NOT_DONE);
+                            setResult(result);
                             finish();
 
                             customDialog.dismiss();
@@ -227,7 +229,7 @@ public class SurveyWebActivity extends AppCompatActivity {
             customDialog = new CustomDialog(SurveyWebActivity.this, new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    setResult(NOT_DONE);
+                    setResult(result);
                     finish();
 
                     customDialog.dismiss();

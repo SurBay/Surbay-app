@@ -24,6 +24,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.pumasi.surbay.adapter.SurveyTipListViewAdapter;
+import com.pumasi.surbay.classfile.Post;
 import com.pumasi.surbay.classfile.PostNonSurvey;
 import com.pumasi.surbay.classfile.Surveytip;
 
@@ -112,6 +113,23 @@ public class BoardFragment2 extends Fragment {
                     MainActivity.getSurveytips();
 
                     list = MainActivity.surveytipArrayList;
+                    Comparator<Surveytip> cmpNew = new Comparator<Surveytip>() {
+                        @Override
+                        public int compare(Surveytip o1, Surveytip o2) {
+                            int ret;
+                            Date date1 = o1.getDate();
+                            Date date2 = o2.getDate();
+                            int compare = date1.compareTo(date2);
+                            if (compare > 0)
+                                ret = -1; //date2<date1
+                            else if (compare == 0)
+                                ret = 0;
+                            else
+                                ret = 1;
+                            return ret;
+                        }
+                    };
+                    Collections.sort(list, cmpNew);
 
                     listViewAdapter = new SurveyTipListViewAdapter(list);
                     listView.setAdapter(listViewAdapter);

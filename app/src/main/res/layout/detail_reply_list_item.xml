@@ -39,14 +39,12 @@
             android:layout_marginRight="10dp"
 
             />
-        <TextView
+        <com.skyhope.showmoretextview.ShowMoreTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="댓글"
             android:textSize="15sp"
             android:textColor="@color/text_black"
-            android:maxLines="3"
-            android:ellipsize="end"
             android:id="@+id/reply_context"
             android:layout_below="@id/reply_name"
             android:layout_toLeftOf="@id/reply_menu"

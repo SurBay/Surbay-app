@@ -193,7 +193,8 @@ public class TipdetailActivity extends AppCompatActivity {
                         @Override
                         public void onItemClick(View v, int position) {
                             Intent intent = new Intent(TipdetailActivity.this, NoticeImageDeatil.class);
-                            BitmapTransfer.setBitmap(image_bitmaps.get(position));
+//                            BitmapTransfer.setBitmap(image_bitmaps.get(position));
+                            BitmapTransfer.setBitmap_list(image_bitmaps);
                             startActivityForResult(intent, 20);
                         }
                     });
