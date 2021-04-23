@@ -18,6 +18,7 @@ public class Reply implements Parcelable {
     private String dateformat = "yyyy-MM-dd'T'kk:mm:ss.SSS";
     private ArrayList<String> reports;
     private boolean hide;
+    private String writer_name;
 
     public Reply(String id, String writer, String content, Date date, ArrayList<String> reports, Boolean hide){
         this.id = id;
@@ -69,6 +70,7 @@ public class Reply implements Parcelable {
         this.reports = new ArrayList<>();
         in.readStringList(reports);
         this.hide=Boolean.parseBoolean(in.readString());
+        this.writer_name = in.readString();
     }
     public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
         @Override
@@ -89,5 +91,14 @@ public class Reply implements Parcelable {
         Log.d("in reply3", ""+this.id+this.writer+this.content+this.date);
         dest.writeStringList(this.reports);
         dest.writeString(String.valueOf(this.hide));
+        dest.writeString(this.writer_name);
+    }
+
+    public String getWriter_name() {
+        return writer_name;
+    }
+
+    public void setWriter_name(String writer_name) {
+        this.writer_name = writer_name;
     }
 }

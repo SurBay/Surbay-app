@@ -15,9 +15,18 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/reply_name"
-            android:text="익명 / "
+            android:text="익명"
             android:textSize="12.5sp"
             android:textColor="@color/text_black_70"
+            />
+        <TextView
+            android:id="@+id/reply_slash"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=" / "
+            android:textSize="12.5sp"
+            android:textColor="@color/text_black_70"
+            android:layout_toRightOf="@id/reply_name"
             />
         <TextView
             android:layout_width="wrap_content"
@@ -26,7 +35,7 @@
             android:text="01.18 00:48"
             android:textSize="12.5sp"
             android:textColor="@color/text_black_70"
-            android:layout_toRightOf="@id/reply_name"
+            android:layout_toRightOf="@id/reply_slash"
             />
         <ImageView
             android:layout_width="20dp"

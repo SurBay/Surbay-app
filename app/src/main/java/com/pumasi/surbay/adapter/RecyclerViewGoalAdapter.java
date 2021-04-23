@@ -39,7 +39,7 @@ public class RecyclerViewGoalAdapter extends RecyclerView.Adapter<RecyclerViewGo
     @Override
     public RecyclerViewGoalAdapter.MyViewGoalHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
-        View view = inflater.inflate(R.layout.recycler_item, parent, false);
+        View view = inflater.inflate(R.layout.home_recycler_item, parent, false);
         RecyclerViewGoalAdapter.MyViewGoalHolder holder = new RecyclerViewGoalAdapter.MyViewGoalHolder(view);
 
 

@@ -5,9 +5,9 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
 
-import com.pumasi.surbay.BoardFragment1;
-import com.pumasi.surbay.BoardFragment2;
-import com.pumasi.surbay.BoardFragment3;
+import com.pumasi.surbay.BoardPost;
+import com.pumasi.surbay.BoardSurveyTip;
+import com.pumasi.surbay.BoardFeedback;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,9 +18,9 @@ public class BoardsPagerAdapter extends FragmentStatePagerAdapter {
 
     public BoardsPagerAdapter(@NonNull FragmentManager fm) {
         super(fm);
-        fragments.add(new BoardFragment1());
-        fragments.add(new BoardFragment2());
-        fragments.add(new BoardFragment3());
+        fragments.add(new BoardPost());
+        fragments.add(new BoardSurveyTip());
+        fragments.add(new BoardFeedback());
     }
 
     @Override

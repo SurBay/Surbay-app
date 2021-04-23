@@ -9,27 +9,27 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="휴대폰 번호로 본인 인증"
+        android:text="이메일로 재설정 링크 받기"
         android:textSize="18dp"
         android:textStyle="bold"
-        android:layout_marginLeft="40dp"
-        android:layout_marginTop="5dp"
+        android:layout_marginLeft="64dp"
+        android:layout_marginTop="20dp"
         />
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <EditText
-            android:id="@+id/find_pw_phonenumber"
+            android:id="@+id/find_pw_email"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="40dp"
+            android:layout_marginLeft="64dp"
             android:layout_marginTop="5dp"
             android:layout_marginRight="10dp"
             android:layout_toLeftOf="@id/find_pw_PAB"
             android:background="@drawable/box_white"
             android:ems="10"
-            android:hint="휴대폰 번호"
-            android:inputType="number"
+            android:hint="이메일 주소"
+            android:inputType="textEmailAddress"
             android:paddingHorizontal="12dp"
             android:paddingVertical="10dp"
             android:textSize="15dp"
@@ -39,17 +39,18 @@
             android:layout_width="80dp"
             android:layout_height="40dp"
             android:gravity="center"
-            android:text="인증하기"
+            android:text="전송하기"
             android:textSize="16dp"
             android:textColor="@color/teal_200"
             android:background="@drawable/round_border_teal_list"
-            android:layout_alignBottom="@id/find_pw_phonenumber"
+            android:layout_alignBottom="@id/find_pw_email"
             android:layout_alignParentRight="true"
-            android:layout_marginRight="40dp"
+            android:layout_marginRight="64dp"
             android:clickable="true"
             />
     </RelativeLayout>
     <RelativeLayout
+        android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         >
@@ -94,6 +95,7 @@
         android:visibility="gone"
         />
     <Button
+        android:visibility="gone"
         android:id="@+id/find_pw_PB"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -105,6 +107,7 @@
         android:layout_marginTop="10dp"
         />
     <LinearLayout
+        android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="@color/gray2"

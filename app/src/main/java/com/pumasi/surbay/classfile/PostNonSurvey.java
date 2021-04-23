@@ -18,6 +18,7 @@ public class PostNonSurvey implements Parcelable{
     private Date date;
     private Integer category;
     private ArrayList<Reply> comments;
+    private String author_userid;
 
 
     private String dateformat = "yyyy-MM-dd'T'kk:mm:ss.SSS";
@@ -87,6 +88,7 @@ public class PostNonSurvey implements Parcelable{
         this.category = in.readInt();
         this.comments = new ArrayList();
         in.readTypedList(this.comments, Reply.CREATOR);
+        this.author_userid = in.readString();
     }
 
     @Override
@@ -105,6 +107,7 @@ public class PostNonSurvey implements Parcelable{
         dest.writeString(new SimpleDateFormat(dateformat).format(this.date));
         dest.writeInt(this.category);
         dest.writeTypedList(this.comments);
+        dest.writeString(this.author_userid);
     }
     public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
         @Override
@@ -118,5 +121,11 @@ public class PostNonSurvey implements Parcelable{
     };
 
 
+    public String getAuthor_userid() {
+        return author_userid;
+    }
 
+    public void setAuthor_userid(String author_userid) {
+        this.author_userid = author_userid;
+    }
 }

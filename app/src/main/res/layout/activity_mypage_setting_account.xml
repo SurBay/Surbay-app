@@ -30,6 +30,11 @@
             android:textSize="20dp"
             />
     </RelativeLayout>
+    <LinearLayout
+        android:id="@+id/memberView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -84,8 +89,9 @@
             android:layout_alignLeft="@id/account_UI_phone"
             />
         <TextView
+            android:visibility="invisible"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="0.1dp"
             android:text="휴대폰 번호"
             android:textSize="15dp"
             android:layout_below="@id/account_UI_name_for"
@@ -93,8 +99,9 @@
             android:layout_marginTop="10dp"
             />
         <TextView
+            android:visibility="invisible"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="0.1dp"
             android:text="01012345678"
             android:textSize="15dp"
             android:textStyle="bold"
@@ -110,12 +117,11 @@
             android:textSize="15dp"
             android:layout_below="@id/account_UI_phone_for"
             android:id="@+id/account_UI_sex_for"
-            android:layout_marginTop="10dp"
             />
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="여성"
+            android:text="선택안함"
             android:textSize="15dp"
             android:textStyle="bold"
             android:id="@+id/account_UI_sex"
@@ -134,7 +140,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="1999"
+            android:text="선택안함"
             android:textSize="15dp"
             android:textStyle="bold"
             android:id="@+id/account_UI_birth"
@@ -259,4 +265,24 @@
         android:paddingHorizontal="20dp"
         android:layout_marginTop="10dp"
         />
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/nonMemberView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone">
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/round_border_white_fill"
+            android:id="@+id/go_to_login"
+            android:text="로그인 페이지로 가기"
+            android:textSize="15dp"
+            android:textStyle="bold"
+            android:gravity="left|center_vertical"
+            android:paddingHorizontal="20dp"
+            android:layout_marginTop="10dp"
+            />
+    </LinearLayout>
 </LinearLayout>

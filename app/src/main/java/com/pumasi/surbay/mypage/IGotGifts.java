@@ -1,7 +1,9 @@
 package com.pumasi.surbay.mypage;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -19,9 +21,20 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.pumasi.surbay.R;
 import com.pumasi.surbay.adapter.GridAdapter;
+import com.pumasi.surbay.classfile.Notification;
 import com.pumasi.surbay.classfile.UserPersonalInfo;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
@@ -30,7 +43,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 public class IGotGifts extends AppCompatActivity {
@@ -58,6 +76,7 @@ public class IGotGifts extends AppCompatActivity {
             }
         });
         gridview = findViewById(R.id.igotgifts_grid);
+        updatePrizeCheck();
 
         uris = UserPersonalInfo.prizes;
         Log.d("i got prizes", ""+uris);
@@ -129,6 +148,33 @@ public class IGotGifts extends AppCompatActivity {
             stream.close();
 
         } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    private void updatePrizeCheck(){
+        try{
+            String requestURL = getString(R.string.server) + "/api/users/prizecheck";
+            RequestQueue requestQueue = Volley.newRequestQueue(IGotGifts.this);
+            JSONObject params = new JSONObject();
+            params.put("prize_check", UserPersonalInfo.prizes.size());
+            JsonObjectRequest jsonObjectRequest= new JsonObjectRequest
+                    (Request.Method.PUT, requestURL, params, response -> {
+                        UserPersonalInfo.prize_check = UserPersonalInfo.prizes.size();
+                    }, error -> {
+                        Log.d("exception", "volley error");
+                        error.printStackTrace();
+                    }){
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    HashMap<String, String> headers = new HashMap<String, String>();
+                    headers.put("Authorization", "Bearer " + UserPersonalInfo.token);
+                    return headers;
+                }
+            };
+            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            requestQueue.add(jsonObjectRequest);
+        } catch (Exception e){
+            Log.d("exception", "failed getting response");
             e.printStackTrace();
         }
     }

@@ -33,6 +33,9 @@ public class Post implements Parcelable{
     private String author_userid;
     private ArrayList<String> prize_urls;
     private Integer pinned;
+    private Boolean annonymous;
+    private String author_info;
+
 
 
 
@@ -129,7 +132,7 @@ public class Post implements Parcelable{
     public void setHide(boolean hide) {        this.hide = hide;    }
 
     public Post(String id, String title, String author, Integer author_lvl, String content, Integer participants, Integer goal_participants, String url, Date date, Date deadline, Boolean with_prize, String prize, Integer est_time, String target, Integer num_prize, ArrayList<Reply> comments, Boolean done, Integer extended, ArrayList<String> participants_userids,
-                ArrayList<String> reports, Boolean hide, String author_userid){
+                ArrayList<String> reports, Boolean hide, String author_userid, Integer pinned, Boolean annonymous, String author_info){
         this.id = id;
         this.title = title;
         this.author = author;
@@ -156,6 +159,9 @@ public class Post implements Parcelable{
         this.reports = new ArrayList<>(reports);
         this.hide = hide;
         this.author_userid = author_userid;
+        this.pinned = pinned;
+        this.annonymous = annonymous;
+        this.author_info = author_info;
     }
 
     public Post(Parcel in){
@@ -195,6 +201,8 @@ public class Post implements Parcelable{
         this.prize_urls = new ArrayList<>();
         in.readStringList(prize_urls);
         this.pinned = in.readInt();
+        this.annonymous = Boolean.parseBoolean(in.readString());
+        this.author_info = in.readString();
     }
     @Override
     public int describeContents() {
@@ -226,6 +234,9 @@ public class Post implements Parcelable{
         dest.writeString(this.author_userid);
         dest.writeStringList(this.prize_urls);
         dest.writeInt(this.pinned);
+        dest.writeString(String.valueOf(this.annonymous));
+        dest.writeString(this.author_info);
+
     }
     public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
         @Override
@@ -260,5 +271,21 @@ public class Post implements Parcelable{
 
     public void setPinned(Integer pinned) {
         this.pinned = pinned;
+    }
+
+    public Boolean getAnnonymous() {
+        return annonymous;
+    }
+
+    public void setAnnonymous(Boolean annonymous) {
+        this.annonymous = annonymous;
+    }
+
+    public String getAuthor_info() {
+        return author_info;
+    }
+
+    public void setAuthor_info(String author_info) {
+        this.author_info = author_info;
     }
 }

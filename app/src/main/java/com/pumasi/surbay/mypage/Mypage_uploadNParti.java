@@ -12,7 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.pumasi.surbay.PostDetailActivity;
 import com.pumasi.surbay.R;
-import com.pumasi.surbay.adapter.ListViewAdapter;
+import com.pumasi.surbay.adapter.PostListViewAdapter;
 import com.pumasi.surbay.classfile.Post;
 
 import java.util.ArrayList;
@@ -24,7 +24,7 @@ public class Mypage_uploadNParti extends AppCompatActivity {
     TextView upNpar_2nd;
     TextView upNpar_3rd;
     ListView upNpar_listview;
-    ListViewAdapter upNpar_listAdapter;
+    PostListViewAdapter upNpar_listAdapter;
 
     int what;
     ArrayList upNpar_list;
@@ -70,7 +70,7 @@ public class Mypage_uploadNParti extends AppCompatActivity {
                 upNpar_3rd.setText("있어요");
                 break;
         }
-        upNpar_listAdapter = new ListViewAdapter(upNpar_list);
+        upNpar_listAdapter = new PostListViewAdapter(upNpar_list);
         upNpar_listview.setAdapter(upNpar_listAdapter);
 
         upNpar_listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {

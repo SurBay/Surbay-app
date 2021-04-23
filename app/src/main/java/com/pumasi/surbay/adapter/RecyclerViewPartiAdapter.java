@@ -37,7 +37,7 @@ public class RecyclerViewPartiAdapter extends RecyclerView.Adapter<RecyclerViewP
     @Override
     public RecyclerViewPartiAdapter.MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
-        View view = inflater.inflate(R.layout.recycler_item, parent, false);
+        View view = inflater.inflate(R.layout.home_recycler_item, parent, false);
         RecyclerViewPartiAdapter.MyViewHolder holder = new RecyclerViewPartiAdapter.MyViewHolder(view);
 
 

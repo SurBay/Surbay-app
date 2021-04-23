@@ -78,4 +78,16 @@
         android:paddingHorizontal="20dp"
         android:layout_marginTop="10dp"
         />
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/round_border_white_fill"
+        android:id="@+id/setting_feedbacks"
+        android:text="건의 / 의견"
+        android:textSize="15dp"
+        android:textStyle="bold"
+        android:gravity="left|center_vertical"
+        android:paddingHorizontal="20dp"
+        android:layout_marginTop="10dp"
+        />
 </LinearLayout>

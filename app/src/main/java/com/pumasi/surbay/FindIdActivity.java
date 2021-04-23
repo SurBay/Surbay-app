@@ -1,6 +1,7 @@
 package com.pumasi.surbay;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.inputmethod.InputMethodManager;
@@ -24,14 +25,17 @@ public class FindIdActivity extends AppCompatActivity {
     ViewPager findidview;
     public static FindIdAdapter adapter;
     public static String phone;
+    public static String email;
     private FragmentTransaction fragmentTransaction;
+    Boolean confirmed = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_find_id);
 
         this.getSupportActionBar().hide();
-
+        Intent intent = getIntent();
+        confirmed = intent.getBooleanExtra("confirmed", false);
         findidtab = findViewById(R.id.findidtablayout);
         findidview = findViewById(R.id.findidviewpager);
         adapter = new FindIdAdapter(getSupportFragmentManager());
@@ -39,6 +43,9 @@ public class FindIdActivity extends AppCompatActivity {
         adapter.notifyDataSetChanged();
 
         findidtab.setupWithViewPager(findidview);
+
+
+
 
 
 
@@ -53,12 +60,13 @@ public class FindIdActivity extends AppCompatActivity {
 
     public class FindIdAdapter extends FragmentPagerAdapter {
         public List<Fragment> fragments = new ArrayList<Fragment>();
-        private String titles[] = new String[]{"아이디 찾기", "비밀번호 재설정"};
+        private String titles[] = new String[]{"비밀번호 재설정"};
 
         public FindIdAdapter(@NonNull FragmentManager fm) {
             super(fm);
-            fragments.add(new FindIdFragment());
-            fragments.add(new FindPwFragment());
+//            fragments.add(new FindIdFragment());
+//                fragments.add(new ChangePwFragment());
+                fragments.add(new FindPwFragment());
         }
 
         @NonNull
@@ -69,7 +77,7 @@ public class FindIdActivity extends AppCompatActivity {
 
         @Override
         public int getCount() {
-            return 2;
+            return 1;
         }
 
         @Nullable

@@ -13,6 +13,7 @@ import com.pumasi.surbay.classfile.Surveytip;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class SurveyTipListViewAdapter extends BaseAdapter {
     // Adapter에 추가된 데이터를 저장하기 위한 ArrayList
@@ -63,25 +64,12 @@ public class SurveyTipListViewAdapter extends BaseAdapter {
         categoryTextView.setText(post.getCategory());
         categoryTextView.setTextColor(context.getColor(R.color.teal_200));
 
-        switch (post.getAuthor_lvl()){
-            case 1:
-                profileView.setImageResource(R.drawable.lv1tiger);
-                break;
-            case 2:
-                profileView.setImageResource(R.drawable.lv2tiger);
-                break;
-            case 3:
-                profileView.setImageResource(R.drawable.lv3tiger);
-                break;
-            case 4:
-                profileView.setImageResource(R.drawable.lv4tiger);
-                break;
-            case 5:
-                profileView.setImageResource(R.drawable.lv5tiger);
-                break;
-            default:
-                profileView.setImageResource(R.drawable.lv1tiger);
-                break;
+        String[] adminsList = {"SurBay_Admin", "SurBay_dev", "SurBay_dev2", "SurBay_des", "djrobort", "surbaying"};
+        ArrayList<String> admins = new ArrayList<>(Arrays.asList(adminsList));
+        if(admins.contains(post.getAuthor_userid())){
+            profileView.setImageResource(R.drawable.surbay_profile);
+        }else{
+            profileView.setImageResource(R.drawable.surbay_character_lv1);
         }
 
         return convertView;

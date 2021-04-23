@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/transparent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@color/teal_200">
+        <TextView
+            android:layout_marginStart="15dp"
+            android:layout_marginVertical="13dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="학교명 검색하기"
+            android:textColor="@color/white"
+            android:textSize="20sp"></TextView>
+        <ImageButton
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_gravity="center_vertical"
+            android:id="@+id/dialog_close"
+            android:scaleType="fitCenter"
+            android:layout_margin="13dp"
+            android:src="@drawable/close_dialog"
+            android:background="@color/teal_200"></ImageButton>
+    </LinearLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/signup_university_search_layout"
+        android:background="@color/white"
+        android:paddingHorizontal="3dp">
+        <EditText
+            android:id="@+id/dialog_university"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/box_white"
+            android:hint="예) 고려대"
+            android:textSize="17.5sp"
+            android:imeOptions="actionSearch"
+            style="@style/EdittextTheme"
+            android:tag="0"/>
+        <ImageButton
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:id="@+id/dialog_search"
+            android:layout_alignRight="@id/dialog_university"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="10dp"
+            android:src="@drawable/search_icon"
+            android:scaleType="centerInside"
+            android:background="@color/white"
+            />
+    </RelativeLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="500dp"
+        android:weightSum="3"
+        android:orientation="vertical"
+        android:background="@color/white">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.1"
+            android:orientation="horizontal">
+
+            <ListView
+                android:id="@+id/dialog_search_listview"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:divider="@color/gray2"
+                android:dividerHeight="1dp"></ListView>
+        </LinearLayout>
+        <TextView
+            android:id="@+id/find_email_text"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:paddingBottom="30dp"
+            android:layout_marginHorizontal="25dp"
+            android:text="현재 서울 소재 대학을 대상으로 서비스를 제공하고 있습니다. 대학교 추가를 원하시면 인스타그램 @surbay_official 계정 DM을 통해 연락 바랍니다."
+            android:textSize="15sp"
+            ></TextView>
+    </LinearLayout>
+</LinearLayout>

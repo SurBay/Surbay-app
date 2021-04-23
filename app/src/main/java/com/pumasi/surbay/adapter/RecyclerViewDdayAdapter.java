@@ -1,7 +1,6 @@
 package com.pumasi.surbay.adapter;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,12 +14,10 @@ import com.pumasi.surbay.classfile.UserPersonalInfo;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.concurrent.TimeUnit;
 
 public class RecyclerViewDdayAdapter extends RecyclerView.Adapter<RecyclerViewDdayAdapter.MyViewDdayHolder> {
     private RecyclerViewDdayAdapter.OnItemClickListener aListener = null ;
@@ -46,7 +43,7 @@ public class RecyclerViewDdayAdapter extends RecyclerView.Adapter<RecyclerViewDd
     @Override
     public RecyclerViewDdayAdapter.MyViewDdayHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
-        View view = inflater.inflate(R.layout.recycler_item, parent, false);
+        View view = inflater.inflate(R.layout.home_recycler_item, parent, false);
         RecyclerViewDdayAdapter.MyViewDdayHolder holder = new RecyclerViewDdayAdapter.MyViewDdayHolder(view);
 
 

@@ -21,6 +21,7 @@ public class Surveytip implements Parcelable {
     private ArrayList<String> liked_users;
     private ArrayList<String> image_uris;
     private String dateformat = "yyyy-MM-dd'T'kk:mm:ss.SSS";
+    private String author_userid;
 
     public String getID() {
         return id;
@@ -99,6 +100,7 @@ public class Surveytip implements Parcelable {
         in.readStringList(liked_users);
         this.image_uris = new ArrayList<>();
         in.readStringList(image_uris);
+        this.author_userid = in.readString();
     }
 
     @Override
@@ -120,6 +122,7 @@ public class Surveytip implements Parcelable {
         dest.writeInt(this.likes);
         dest.writeStringList(this.liked_users);
         dest.writeStringList(this.image_uris);
+        dest.writeString(this.author_userid);
     }
     public static final Creator<Surveytip> CREATOR = new Creator<Surveytip>() {
         @Override
@@ -138,5 +141,13 @@ public class Surveytip implements Parcelable {
 
     public void setImage_uris(ArrayList<String> image_uris) {
         this.image_uris = image_uris;
+    }
+
+    public String getAuthor_userid() {
+        return author_userid;
+    }
+
+    public void setAuthor_userid(String author_userid) {
+        this.author_userid = author_userid;
     }
 }

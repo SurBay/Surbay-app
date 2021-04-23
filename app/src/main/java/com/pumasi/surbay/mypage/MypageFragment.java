@@ -1,8 +1,12 @@
 package com.pumasi.surbay.mypage;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,9 +19,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -28,6 +35,7 @@ import com.pumasi.surbay.PostDetailActivity;
 import com.pumasi.surbay.R;
 import com.pumasi.surbay.adapter.RecyclerViewMakeAdapter;
 import com.pumasi.surbay.adapter.RecyclerViewPartiAdapter;
+import com.pumasi.surbay.classfile.Notification;
 import com.pumasi.surbay.classfile.Reply;
 import com.pumasi.surbay.classfile.UserPersonalInfo;
 import com.pumasi.surbay.classfile.Post;
@@ -39,7 +47,10 @@ import org.json.JSONObject;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MypageFragment extends Fragment // Fragment 클래스를 상속받아야한다
 {
@@ -61,6 +72,9 @@ public class MypageFragment extends Fragment // Fragment 클래스를 상속받�
     private static ImageButton i_parti_button;
     private static ImageButton i_get_button;
 
+    private SwipeRefreshLayout mSwipeRefreshLayout;
+    mypageRefreshHandler handler = new mypageRefreshHandler();
+
     TextView nameview;
     ImageView profileview;
     TextView levelview;
@@ -78,11 +92,13 @@ public class MypageFragment extends Fragment // Fragment 클래스를 상속받�
     TextView get_2nd;
 
     TextView parti_3rd;
+    private boolean getPersonalInfoDone = false;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
     {
+        mContext = getActivity();
         view = inflater.inflate(R.layout.fragment_mypage,container,false);
 
         ((AppCompatActivity) getActivity()).getSupportActionBar().hide();
@@ -208,34 +224,61 @@ public class MypageFragment extends Fragment // Fragment 클래스를 상속받�
         upload_2nd.setText(list_make.size() + "개");
         parti_2nd.setText(list_parti.size() + "개");
         parti_3rd.setText("에 참여했네요");
-//        get_2nd.setText(UserPersonalInfo.prizes.size() + "개");
-
-        switch (UserPersonalInfo.level){
-            case 1:
-                profileview.setImageResource(R.drawable.lv1tiger);
-                break;
-            case 2:
-                profileview.setImageResource(R.drawable.lv2tiger);
-                break;
-            case 3:
-                profileview.setImageResource(R.drawable.lv3tiger);
-                break;
-            case 4:
-                profileview.setImageResource(R.drawable.lv4tiger);
-                break;
-            case 5:
-                profileview.setImageResource(R.drawable.lv5tiger);
-                break;
-            default:
-                profileview.setImageResource(R.drawable.lv1tiger);
-                break;
+        if(UserPersonalInfo.prize_check<UserPersonalInfo.prizes.size()){
+            get_2nd.setVisibility(View.VISIBLE);
+        }else{
+            get_2nd.setVisibility(View.GONE);
         }
+
+        String[] adminsList = {"SurBay_Admin", "SurBay_dev", "SurBay_dev2", "SurBay_des", "djrobort", "surbaying"};
+        ArrayList<String> admins = new ArrayList<>(Arrays.asList(adminsList));
+        if(admins.contains(UserPersonalInfo.userID)){
+            profileview.setImageResource(R.drawable.surbay_logo_transparent);
+            none_tiger_make.setImageResource(R.drawable.no_selection_surbay_lv1);
+            none_tiger_parti.setImageResource(R.drawable.no_selection_surbay_lv1);
+        }
+        else{
+            profileview.setImageResource(R.drawable.surbay_character_lv1);
+            none_tiger_make.setImageResource(R.drawable.no_selection_surbay_lv1);
+            none_tiger_parti.setImageResource(R.drawable.no_selection_surbay_lv1);
+        }
+
 
         can_sur.setText(UserPersonalInfo.points+"크레딧");
 
 
-        return view;
+        mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.mypage_swipe_contatiner);
+
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                BackgroundThread refreshThread = new BackgroundThread();
+                refreshThread.start();
+
+            }
+        });
+        
+
+        return view;                     
     }
+    class BackgroundThread extends Thread{
+        public void run() {
+            try {
+                getPersonalInfo();
+            } catch (Exception e) {
+                e.printStackTrace();
+                getPersonalInfoDone = true;
+            }
+            while(!(getPersonalInfoDone)) {
+                try {
+                    Thread.sleep(100);
+                } catch (Exception e) {}
+            }
+            Message message = handler.obtainMessage();
+            handler.sendMessage(message);
+        }
+    }
+
 
 
     @Override
@@ -243,65 +286,52 @@ public class MypageFragment extends Fragment // Fragment 클래스를 상속받�
 
     }
 
-    public static void receivedPosts(){
-        makeView();
-    }
-    private static void makeView(){
-        list_make = new ArrayList<>(MainActivity.notreportedpostArrayList);
-        list_parti = new ArrayList<>(MainActivity.notreportedpostArrayList);
-        adapter_make = new RecyclerViewMakeAdapter(mContext, list_make);
-        adapter_parti = new RecyclerViewPartiAdapter(mContext, list_parti);
-        recyclerView_make.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
-        recyclerView_make.setAdapter(adapter_make);
-        recyclerView_parti.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
-        recyclerView_parti.setAdapter(adapter_parti);
-        adapter_make.setOnItemClickListener(new RecyclerViewMakeAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(View v, int position) {
-
-                Post item = (Post) adapter_make.getItem(position);
-                Intent intent = new Intent(mContext, PostDetailActivity.class);
-                intent.putExtra("post", item);
-                intent.putExtra("position", position);
-                mContext.startActivity(intent);
-            }
-        });
-        adapter_parti.setOnItemClickListener(new RecyclerViewPartiAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(View v, int position) {
-                Post item = (Post) adapter_parti.getItem(position);
-                Intent intent = new Intent(mContext, PostDetailActivity.class);
-                intent.putExtra("post", item);
-                intent.putExtra("position", position);
-                mContext.startActivity(intent);
-            }
-        });
-        view.setVisibility(View.VISIBLE);
-    }
-
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        mContext = context;
+        if(mSwipeRefreshLayout!=null) {
+            mSwipeRefreshLayout.setRefreshing(false);
+            mSwipeRefreshLayout.destroyDrawingCache();
+            mSwipeRefreshLayout.clearAnimation();
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (mSwipeRefreshLayout!=null) {
+            mSwipeRefreshLayout.setRefreshing(false);
+            mSwipeRefreshLayout.destroyDrawingCache();
+            mSwipeRefreshLayout.clearAnimation();
+        }
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        mContext = null;
+        if (mSwipeRefreshLayout!=null) {
+            mSwipeRefreshLayout.setRefreshing(false);
+            mSwipeRefreshLayout.destroyDrawingCache();
+            mSwipeRefreshLayout.clearAnimation();
+        }
     }
 
     public void getlistofI(){
         String userid = UserPersonalInfo.userID;
         list_make = new ArrayList<Post>();
         list_parti = new ArrayList<Post>();
-        for (Post post : MainActivity.notreportedpostArrayList){
-            if (post.getAuthor_userid().equals(userid)){
-                list_make.add(post);
-            } else if (UserPersonalInfo.participations.contains(post.getID()) && !post.getAuthor_userid().equals(userid)) {
-                list_parti.add(post);
+        try {
+            for (Post post : MainActivity.notreportedpostArrayList){
+                if (post.getAuthor_userid().equals(userid)){
+                    list_make.add(post);
+                } else if (UserPersonalInfo.participations.contains(post.getID()) && !post.getAuthor_userid().equals(userid)) {
+                    list_parti.add(post);
+                }
             }
+        }catch (Exception e){
+            e.printStackTrace();
         }
+
     }
     private void getPost(String id, int position) {
         try{
@@ -398,10 +428,17 @@ public class MypageFragment extends Fragment // Fragment 클래스를 상속받�
                                 e.printStackTrace();
                                 Log.d("parsing date", "non reply");
                             }
-                            Integer pinned = res.getInt("pinned");
+                            Integer pinned = 0;
+                            Boolean annonymous = false;
+                            String author_info = "";
+                            try {
+                                pinned = res.getInt("pinned");
+                                annonymous = res.getBoolean("annonymous");
+                                author_info = res.getString("author_info");
+                            }catch (Exception e){
 
-                            Post post = new Post(post_id, title, author, author_lvl, content, participants, goal_participants, url, date, deadline, with_prize, prize, est_time, target, count,comments,done, extended, participants_userids, reports, hide, author_userid);
-                            post.setPinned(pinned);
+                            }
+                            Post post = new Post(id, title, author, author_lvl, content, participants, goal_participants, url, date, deadline, with_prize, prize, est_time, target, count,comments,done, extended, participants_userids, reports, hide, author_userid, pinned, annonymous, author_info);
                             if(with_prize) post.setPrize_urls(prize_urls);
                             Intent intent = new Intent(mContext, PostDetailActivity.class);
                             intent.putExtra("post", post);
@@ -424,4 +461,116 @@ public class MypageFragment extends Fragment // Fragment 클래스를 상속받�
             e.printStackTrace();
         }
     }
+
+    class mypageRefreshHandler extends Handler {
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            super.handleMessage(msg);
+            if(getFragmentManager()!=null) {
+                FragmentTransaction ft = getFragmentManager().beginTransaction();
+                ft.detach(MypageFragment.this).attach(MypageFragment.this).commit();
+            }
+            getPersonalInfoDone=false;
+            mSwipeRefreshLayout.setRefreshing(false);
+        }
+    }
+    private void getPersonalInfo() {
+        if (UserPersonalInfo.token == null) {
+            Log.d("getting info failed", "token is null");
+            return;
+        }
+        String token = UserPersonalInfo.token;
+        try{
+            String requestURL = getString(R.string.server) + "/personalinfo";
+            RequestQueue requestQueue = Volley.newRequestQueue(mContext);
+            JsonObjectRequest jsonObjectRequest= new JsonObjectRequest
+                    (Request.Method.GET, requestURL, null, response -> {
+                        try {
+                            JSONObject res = new JSONObject(response.toString());
+                            Log.d("response is", ""+response);
+                            JSONObject user = res.getJSONObject("data");
+                            UserPersonalInfo.name = user.getString("name");
+                            UserPersonalInfo.email = user.getString("email");
+                            UserPersonalInfo.points = user.getInt("points");
+                            UserPersonalInfo.level = user.getInt("level");
+                            UserPersonalInfo.userID = user.getString("userID");
+                            UserPersonalInfo.userPassword = user.getString("userPassword");
+                            UserPersonalInfo.gender = user.getInt("gender");
+                            UserPersonalInfo.yearBirth = user.getInt("yearBirth");
+                            JSONArray ja = (JSONArray)user.get("participations");
+
+                            ArrayList<String> partiarray = new ArrayList<String>();
+                            for (int j = 0; j<ja.length(); j++){
+                                partiarray.add(ja.getString(j));
+                            }
+
+                            UserPersonalInfo.participations = partiarray;
+                            Log.d("partiarray", ""+UserPersonalInfo.participations.toString());
+
+                            JSONArray ja2 = (JSONArray)user.get("prizes");
+                            ArrayList<String> prizearray = new ArrayList<String>();
+                            for (int j = 0; j<ja2.length(); j++){
+                                prizearray.add(ja2.getString(j));
+                            }
+                            UserPersonalInfo.prizes = prizearray;
+                            Log.d("prizearray", ""+UserPersonalInfo.prizes.toString());
+                            ArrayList<Notification> notifications = new ArrayList<>();
+                            try{
+                                SimpleDateFormat fm = new SimpleDateFormat(getString(R.string.date_format));
+                                JSONArray na = (JSONArray)user.get("notifications");
+                                if (na.length() != 0){
+                                    for (int j = 0; j<na.length(); j++){
+                                        JSONObject notification = na.getJSONObject(j);
+                                        String title = notification.getString("title");
+                                        String content = notification.getString("content");
+                                        String post_id = notification.getString("post_id");
+                                        Date date = null;
+                                        try {
+                                            date = fm.parse(notification.getString("date"));
+                                        } catch (ParseException e) {
+                                            e.printStackTrace();
+                                        }
+                                        Integer post_type = notification.getInt("post_type");
+                                        Notification newNotification = new Notification(title, content, post_id, date, post_type);
+                                        notifications.add(newNotification);
+                                    }
+                                }
+
+                            } catch (Exception e){
+                                e.printStackTrace();
+                            }
+                            UserPersonalInfo.notifications = notifications;
+                            UserPersonalInfo.notificationAllow = user.getBoolean("notification_allow");
+                            UserPersonalInfo.prize_check = user.getInt("prize_check");
+
+
+
+                            SharedPreferences auto = mContext.getSharedPreferences("auto", Activity.MODE_PRIVATE);
+                            SharedPreferences.Editor autoLogin = auto.edit();
+                            autoLogin.putString("name", user.getString("name"));
+                            autoLogin.commit();
+                            getPersonalInfoDone = true;
+                        } catch (JSONException e) {
+                            Log.d("exception", "JSON error");
+                            e.printStackTrace();
+                        }
+                    }, error -> {
+                        Log.d("exception", "volley error");
+                        error.printStackTrace();
+                    }){
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    HashMap<String, String> headers = new HashMap<String, String>();
+                    headers.put("Authorization", "Bearer " + token);
+                    return headers;
+                }
+            };
+            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            requestQueue.add(jsonObjectRequest);
+        } catch (Exception e){
+            Log.d("exception", "failed getting response");
+            e.printStackTrace();
+        }
+    }
+
 }

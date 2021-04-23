@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:orientation="vertical"
+        android:background="@color/gray">
+        <LinearLayout
+            android:layout_marginTop="120dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="51dp">
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="SurBay 회원가입"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_black"/>
+            <TextView
+                android:layout_marginTop="17.5sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="닉네임 설정"
+                android:textSize="15sp"
+                android:textColorHint="@color/text_black_70"></TextView>
+        </LinearLayout>
+        <EditText
+            android:id="@+id/name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            style="@style/EdittextTheme"
+            android:inputType="text"
+            android:maxLength="10"
+            android:privateImeOptions="defaultInputmode=korean"
+            android:background="@drawable/box_white"
+            android:hint="*닉네임"
+            android:layout_marginHorizontal="51dp"
+            android:layout_marginTop="10dp"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/signup_check_name"
+            android:layout_marginHorizontal="52dp"
+            android:textSize="12.5sp"
+            android:visibility="gone"/>
+        <TextView
+            android:layout_marginTop="17.5sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="회원정보 (선택)"
+            android:layout_marginHorizontal="51dp"
+            android:textSize="15sp"
+            android:textColorHint="@color/text_black_70"></TextView>
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="5dp"
+            android:paddingHorizontal="51dp"
+            >
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+                android:text="남성"
+                android:paddingHorizontal="16dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="7dp"
+                android:textColor="@drawable/text_selector"
+                android:textSize="15sp"
+                android:gravity="center"
+                android:id="@+id/usersex_M"
+                android:clickable="true"
+                android:background="@drawable/sexselector_m"
+                />
+
+            <Button
+                android:id="@+id/usersex_F"
+                android:layout_toRightOf="@id/usersex_M"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+                android:text="여성"
+                android:paddingHorizontal="16dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="7dp"
+                android:textColor="@drawable/text_selector"
+                android:textSize="15sp"
+                android:gravity="center"
+                android:clickable="true"
+                android:background="@drawable/sexselector_f"/>
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_marginLeft="10dp"
+                android:background="@color/white"
+                >
+                <Spinner
+                    android:id="@+id/signup_age"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:minWidth="0dp"
+                    android:maxHeight="0dp"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="7dp"
+                    android:hint="출생연도"
+                    android:backgroundTint="@color/text_black_70"
+                    />
+            </RelativeLayout>
+        </RelativeLayout>
+        <Button
+            android:id="@+id/signup_extra_next"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="다음"
+            android:textSize="14sp"
+            android:textColor="@color/teal_200"
+            android:background="@drawable/round_border_white"
+            android:paddingHorizontal="71dp"
+            android:paddingTop="11dp"
+            android:paddingBottom="10dp"
+            android:minHeight="0dp"
+            android:minWidth="0dp"
+            android:layout_marginHorizontal="51dp"
+            android:layout_marginTop="10dp"/>
+    </LinearLayout>
+
+
+    <RelativeLayout
+        android:id="@+id/loadingPanel"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:alpha="0.5"
+            android:background="@color/gray" />
+
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:indeterminate="true" />
+
+
+    </RelativeLayout>
+
+</FrameLayout>

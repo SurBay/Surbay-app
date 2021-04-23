@@ -158,7 +158,7 @@ public class VolleyMultipartRequest extends Request<NetworkResponse> {
         dataOutputStream.writeBytes("Content-Disposition: form-data; name=\"" + parameterName + "\"" + lineEnd);
         dataOutputStream.writeBytes(lineEnd);
         List<String> koreanPossible = new ArrayList<>(
-                Arrays.asList("title", "author", "content", "prize", "target", "author_userid"));
+                Arrays.asList("title", "author", "content", "prize", "target", "author_userid", "polls", "author_info"));
         if(koreanPossible.contains(parameterName)) {
             dataOutputStream.write(parameterValue.getBytes("utf-8"));
             dataOutputStream.writeBytes(lineEnd);

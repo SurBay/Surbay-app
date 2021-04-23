@@ -7,58 +7,6 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:144529683175:android:ea6a7207c80ffcc0e6a842",
-        "android_client_info": {
-          "package_name": "com.example.surbay"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "144529683175-fkp4lftsp520o4fdjlf8luct9i7nclqn.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.example.surbay",
-            "certificate_hash": "d5ee13be77cdf00add22eed40fe2d6aab2f7d305"
-          }
-        },
-        {
-          "client_id": "144529683175-s64tqdejngu2vt5lubju8r3bgqelgvbu.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.example.surbay",
-            "certificate_hash": "1a629ca72fa8987ea2255cad369152a1a6c1df10"
-          }
-        },
-        {
-          "client_id": "144529683175-a91c477v0s3ca1rl6p8jc2qrf259p9h8.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyC0YEwXN_7f-cBLZrTWJlcPU3nBReCfjtw"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "144529683175-a91c477v0s3ca1rl6p8jc2qrf259p9h8.apps.googleusercontent.com",
-              "client_type": 3
-            },
-            {
-              "client_id": "144529683175-21slsg51fmsjhtg727q3ee32umens8qk.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.Pumasi.SurBay"
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
         "mobilesdk_app_id": "1:144529683175:android:aa223117c1b92691e6a842",
         "android_client_info": {
           "package_name": "com.pumasi.surbay"
@@ -66,11 +14,35 @@
       },
       "oauth_client": [
         {
-          "client_id": "144529683175-mbtvllh9m6mvp4ndrsilgsdk8timn066.apps.googleusercontent.com",
+          "client_id": "144529683175-1c5vihh8co30pkb97vue047po62thrd5.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.pumasi.surbay",
-            "certificate_hash": "d5ee13be77cdf00add22eed40fe2d6aab2f7d305"
+            "certificate_hash": "8f3db46319b4e227b283da88954d6d8299aa5220"
+          }
+        },
+        {
+          "client_id": "144529683175-aj0uu83sp9in3qamtoel5ea2j0r9es6v.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.pumasi.surbay",
+            "certificate_hash": "1a629ca72fa8987ea2255cad369152a1a6c1df10"
+          }
+        },
+        {
+          "client_id": "144529683175-g9bg5estga9dobksutflsku8cbv5hb8e.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.pumasi.surbay",
+            "certificate_hash": "2f98bdfeb677e77e649d1e2e27ebbc88629a938f"
+          }
+        },
+        {
+          "client_id": "144529683175-n9kchfnu3k2onkv3vvldnmmahvtpojuq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.pumasi.surbay",
+            "certificate_hash": "2fef3d2378484b6465d46d8448f83d4f02241f68"
           }
         },
         {

@@ -1,7 +1,6 @@
 package com.pumasi.surbay.adapter;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,12 +14,10 @@ import com.pumasi.surbay.classfile.UserPersonalInfo;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.concurrent.TimeUnit;
 
 public class RecyclerViewNewAdapter extends RecyclerView.Adapter<RecyclerViewNewAdapter.MyViewNewHolder> {
     private RecyclerViewNewAdapter.OnItemClickListener cListener = null ;
@@ -46,7 +43,7 @@ public class RecyclerViewNewAdapter extends RecyclerView.Adapter<RecyclerViewNew
     @Override
     public RecyclerViewNewAdapter.MyViewNewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
-        View view = inflater.inflate(R.layout.recycler_item, parent, false);
+        View view = inflater.inflate(R.layout.home_recycler_item, parent, false);
         RecyclerViewNewAdapter.MyViewNewHolder holder = new RecyclerViewNewAdapter.MyViewNewHolder(view);
 
 
@@ -62,9 +59,6 @@ public class RecyclerViewNewAdapter extends RecyclerView.Adapter<RecyclerViewNew
         int diff = calc_dday(imageModelArrayList.get(position).getDate());
 
         if (diff <= 0 && diff >= -1) {
-
-            Log.d("recyc", diff + " ");
-
             holder.participate.setText("New");
         } else {
             holder.participate.setVisibility(View.INVISIBLE);

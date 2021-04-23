@@ -1,27 +1,16 @@
 package com.pumasi.surbay;
 
 import android.annotation.SuppressLint;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
-import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.SimpleAdapter;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -37,6 +26,7 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.pumasi.surbay.adapter.noticeImageAdapter;
 import com.pumasi.surbay.classfile.BitmapTransfer;
+import com.pumasi.surbay.classfile.CustomDialog;
 import com.pumasi.surbay.classfile.Surveytip;
 import com.pumasi.surbay.classfile.UserPersonalInfo;
 
@@ -49,7 +39,6 @@ import java.net.URLConnection;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -92,7 +81,7 @@ public class TipdetailActivity extends AppCompatActivity {
 
         this.getSupportActionBar().hide();
 
-        Intent resultIntent = new Intent(getApplicationContext(), BoardFragment2.class);
+        Intent resultIntent = new Intent(getApplicationContext(), BoardSurveyTip.class);
         resultIntent.putExtra("position", position);
         setResult(RESULT_OK, resultIntent);
 
@@ -110,7 +99,7 @@ public class TipdetailActivity extends AppCompatActivity {
                     surveytip.setLikes(surveytip.getLikes()+1);
                     surveytip.getLiked_users().add(UserPersonalInfo.userID);
                 }
-                Intent intent = new Intent(TipdetailActivity.this, BoardFragment2.class);
+                Intent intent = new Intent(TipdetailActivity.this, BoardSurveyTip.class);
                 intent.putExtra("position", position);
                 intent.putExtra("surveyTip", surveytip);
 
@@ -165,6 +154,13 @@ public class TipdetailActivity extends AppCompatActivity {
         likesbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(UserPersonalInfo.userID.equals("nonMember")){
+                    CustomDialog customDialog = new CustomDialog(TipdetailActivity.this, null);
+                    customDialog.show();
+                    customDialog.setMessage("비회원은 좋아요를 하실 수 없습니다");
+                    customDialog.setNegativeButton("확인");
+                    return;
+                }
                 if (likedselected){
                     LIKE_CHANGE = DISLIKED;
                     likescount.setText((Integer.valueOf(likescount.getText().toString())-1)+"");
@@ -322,7 +318,7 @@ public class TipdetailActivity extends AppCompatActivity {
             surveytip.setLikes(surveytip.getLikes()+1);
             surveytip.getLiked_users().add(UserPersonalInfo.userID);
         }
-        Intent intent = new Intent(TipdetailActivity.this, BoardFragment2.class);
+        Intent intent = new Intent(TipdetailActivity.this, BoardSurveyTip.class);
         intent.putExtra("position", position);
         intent.putExtra("surveyTip", surveytip);
 

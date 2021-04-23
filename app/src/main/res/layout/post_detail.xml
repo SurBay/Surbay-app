@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -20,13 +23,13 @@
             android:textSize="12.5sp"
             android:text="작성자" />
         <TextView
-            android:id="@+id/level"
+            android:id="@+id/author_info"
             android:layout_marginLeft="5dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/text_black_70"
             android:textSize="12.5sp"
-            android:text="Lv.3" />
+            android:text="(ㅇㅇ대 ㅇㅇ학과 ㅇㅇ강의 수강생)" />
     </LinearLayout>
     <TextView
         android:id="@+id/title"
@@ -78,7 +81,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/text_black"
-            android:maxLines="1"
+            android:scrollHorizontally="false"
             android:textSize="15sp"
             android:text="스타벅스 아메리카노 3명" />
     </LinearLayout>
@@ -190,6 +193,7 @@
                 android:layout_below="@id/participants"
                 android:layout_centerHorizontal="true"
                 android:textSize="12.5sp"
+                android:textStyle="bold"
                 android:text="90%"
                 />
         </RelativeLayout>
@@ -267,58 +271,64 @@
         android:layout_height="3dp"
         android:background="@color/gray_FB"
         ></LinearLayout>
-    <androidx.core.widget.NestedScrollView
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/post_detail_swipe_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/gray"
-        android:fillViewport="true"
         android:layout_weight="1">
-        <LinearLayout
+        <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:background="@color/gray"
-            android:orientation="vertical">
+            android:fillViewport="true"
+            >
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/white"
-                android:orientation="horizontal"
-                android:paddingHorizontal="26dp"
-                android:paddingVertical="10dp">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/text_black_70"
-                    android:textSize="12.5sp"
-                    android:text="내용"
-                    android:layout_marginRight="10dp"/>
-                <TextView
-                    android:id="@+id/content"
-                    android:layout_marginLeft="7dp"
-                    android:layout_weight="1"
-                    android:layout_width="wrap_content"
-                    android:scrollHorizontally="false"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/text_black"
-                    android:textSize="15sp"
-                    android:text="설문 부탁드립니다"
-                    />
-            </LinearLayout>
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_height="match_parent"
                 android:background="@color/gray"
-                android:paddingHorizontal="26dp"
                 android:orientation="vertical">
-                <androidx.recyclerview.widget.RecyclerView
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:id="@+id/detail_reply_list"
-                    />
+                    android:layout_height="wrap_content"
+                    android:background="@color/white"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="26dp"
+                    android:paddingVertical="10dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/text_black_70"
+                        android:textSize="12.5sp"
+                        android:text="내용"
+                        android:layout_marginRight="10dp"/>
+                    <TextView
+                        android:id="@+id/content"
+                        android:layout_marginLeft="7dp"
+                        android:layout_weight="1"
+                        android:layout_width="wrap_content"
+                        android:scrollHorizontally="false"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/text_black"
+                        android:textSize="15sp"
+                        android:text="설문 부탁드립니다"
+                        />
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@color/gray"
+                    android:paddingHorizontal="26dp"
+                    android:orientation="vertical">
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:id="@+id/detail_reply_list"
+                        />
+                </LinearLayout>
             </LinearLayout>
-        </LinearLayout>
-    </androidx.core.widget.NestedScrollView>
+        </androidx.core.widget.NestedScrollView>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -362,3 +372,26 @@
         </RelativeLayout>
     </LinearLayout>
 </LinearLayout>
+    <RelativeLayout
+        android:id="@+id/loadingPanel"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:alpha="0.5"
+            android:background="@color/gray" />
+
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:indeterminate="true" />
+
+
+    </RelativeLayout>
+
+</FrameLayout>

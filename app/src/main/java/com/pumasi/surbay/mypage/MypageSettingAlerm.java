@@ -1,15 +1,33 @@
 package com.pumasi.surbay.mypage;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.Switch;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+import com.pumasi.surbay.LoginActivity;
+import com.pumasi.surbay.MainActivity;
 import com.pumasi.surbay.R;
+import com.pumasi.surbay.classfile.UserPersonalInfo;
+
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MypageSettingAlerm extends AppCompatActivity {
 
@@ -42,9 +60,13 @@ public class MypageSettingAlerm extends AppCompatActivity {
         vibe = findViewById(R.id.alerm_vibe_switch);
 
         SharedPreferences alerm = getSharedPreferences("alerm", Activity.MODE_PRIVATE);
-        mainselect = alerm.getBoolean("mainselect", true);
-        soundselect = alerm.getBoolean("soundselect", true);
-        vibeselect = alerm.getBoolean("vibeselect", true);
+//        mainselect = alerm.getBoolean("mainselect", true);
+//        soundselect = alerm.getBoolean("soundselect", true);
+//        vibeselect = alerm.getBoolean("vibeselect", true);
+        mainselect = UserPersonalInfo.notificationAllow;
+        soundselect = UserPersonalInfo.notificationAllow;
+        vibeselect = UserPersonalInfo.notificationAllow;
+
 
         main.setChecked(mainselect);
         sound.setChecked(soundselect);
@@ -57,10 +79,12 @@ public class MypageSettingAlerm extends AppCompatActivity {
                     mainselect = false;
                     soundselect = false;
                     vibeselect = false;
+                    UserPersonalInfo.notificationAllow = false;
 
                     sound.setChecked(false);
                     vibe.setChecked(false);
 
+                    disallownotifications();
                     SharedPreferences alerm = getSharedPreferences("alerm", Activity.MODE_PRIVATE);
                     SharedPreferences.Editor alermedit = alerm.edit();
                     alermedit.putBoolean("mainselect", mainselect);
@@ -71,9 +95,12 @@ public class MypageSettingAlerm extends AppCompatActivity {
                     mainselect = true;
                     soundselect = true;
                     vibeselect = true;
+                    UserPersonalInfo.notificationAllow = true;
 
                     sound.setChecked(true);
                     vibe.setChecked(true);
+
+                    allownotifications();
 
                     SharedPreferences alerm = getSharedPreferences("alerm", Activity.MODE_PRIVATE);
                     SharedPreferences.Editor alermedit = alerm.edit();
@@ -110,5 +137,53 @@ public class MypageSettingAlerm extends AppCompatActivity {
                 alermedit.commit();
             }
         });
+    }
+    private void allownotifications(){
+        String token = UserPersonalInfo.token;
+        try{
+            String requestURL = getString(R.string.server)+"/api/users/allownotifications";
+            RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
+            JsonObjectRequest jsonObjectRequest= new JsonObjectRequest
+                    (Request.Method.PUT, requestURL, null, response -> {
+                    }, error -> {
+                        error.printStackTrace();
+                    }){
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    HashMap<String, String> headers = new HashMap<String, String>();
+                    headers.put("Authorization", "Bearer " + token);
+                    return headers;
+                }
+            };
+            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            requestQueue.add(jsonObjectRequest);
+        } catch (Exception e){
+            Log.d("exception", "failed getting response");
+            e.printStackTrace();
+        }
+    }
+    private void disallownotifications(){
+        String token = UserPersonalInfo.token;
+        try{
+            String requestURL = getString(R.string.server)+"/api/users/disallownotifications";
+            RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
+            JsonObjectRequest jsonObjectRequest= new JsonObjectRequest
+                    (Request.Method.PUT, requestURL, null, response -> {
+                    }, error -> {
+                        error.printStackTrace();
+                    }){
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    HashMap<String, String> headers = new HashMap<String, String>();
+                    headers.put("Authorization", "Bearer " + token);
+                    return headers;
+                }
+            };
+            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            requestQueue.add(jsonObjectRequest);
+        } catch (Exception e){
+            Log.d("exception", "failed getting response");
+            e.printStackTrace();
+        }
     }
 }

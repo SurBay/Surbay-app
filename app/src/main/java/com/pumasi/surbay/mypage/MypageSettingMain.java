@@ -16,6 +16,7 @@ public class MypageSettingMain extends AppCompatActivity {
     Button alerm;
     Button info;
     Button report;
+    Button feedback;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,6 +30,7 @@ public class MypageSettingMain extends AppCompatActivity {
         alerm = findViewById(R.id.setting_alerm);
         info = findViewById(R.id.setting_info);
         report = findViewById(R.id.setting_report);
+        feedback = findViewById(R.id.setting_feedbacks);
 
         back.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -61,6 +63,13 @@ public class MypageSettingMain extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MypageSettingMain.this, SettingReport.class);
+                startActivity(intent);
+            }
+        });
+        feedback.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MypageSettingMain.this, SettingFeedbacks.class);
                 startActivity(intent);
             }
         });

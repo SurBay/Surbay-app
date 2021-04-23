@@ -4,11 +4,11 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -23,9 +23,16 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.pumasi.surbay.classfile.CustomDialog;
+import com.pumasi.surbay.classfile.General;
 import com.pumasi.surbay.classfile.Notice;
+import com.pumasi.surbay.classfile.Notification;
+import com.pumasi.surbay.classfile.Poll;
 import com.pumasi.surbay.classfile.Post;
 import com.pumasi.surbay.classfile.PostNonSurvey;
 import com.pumasi.surbay.classfile.Reply;
@@ -33,6 +40,7 @@ import com.pumasi.surbay.classfile.Surveytip;
 import com.pumasi.surbay.classfile.UserPersonalInfo;
 import com.pumasi.surbay.classfile.loadingProgress;
 import com.pumasi.surbay.mypage.MypageFragment;
+import com.pumasi.surbay.mypage.NotificationsActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -60,6 +68,7 @@ public class MainActivity extends AppCompatActivity {
     public static ArrayList<Surveytip> surveytipArrayList = new ArrayList<>();
     public static ArrayList<PostNonSurvey> feedbackArrayList = new ArrayList<>();
     public static ArrayList<Notice> NoticeArrayList = new ArrayList<>();
+    public static ArrayList<General> generalArrayList = new ArrayList<>();
     public static Context mContext;
     public static Integer done = 0;
 
@@ -68,6 +77,8 @@ public class MainActivity extends AppCompatActivity {
     public static int SORT = 1;
 
     public static Date today;
+    private CustomDialog endDialog;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,33 +92,19 @@ public class MainActivity extends AppCompatActivity {
         loadingProgress loadingProgress = new loadingProgress();
         Log.d("onmainactivitystartted", "sizeis"+postArrayList.size());
         if(postArrayList.size() == 0 || notreportedpostArrayList.size() == 0) {
-            try {
-                Log.d("main", "gettingposts");
-                getPosts();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            getPosts();
         }
         if(surveytipArrayList.size()==0) {
-            try {
-                getSurveytips();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            getSurveytips();
         }
         if(feedbackArrayList.size()==0) {
-            try {
-                getFeedbacks();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            getFeedbacks();
         }
         if(NoticeArrayList.size()==0) {
-            try {
-                getNotices();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            getNotices();
+        }
+        if(generalArrayList.size()==0){
+            getGenerals();
         }
 
         getPersonalInfo();
@@ -155,6 +152,50 @@ public class MainActivity extends AppCompatActivity {
         boardsFragment = new BoardsFragment();
         mypageFragment = new MypageFragment();
         setFrag(0); // 첫 프래그먼트 화면 지정
+
+        if(SplashActivity.notification_type==2){
+            Intent intent = new Intent(MainActivity.this, NotificationsActivity.class);
+            startActivity(intent);
+        }else if(SplashActivity.notification_type==1){
+            Intent intent = new Intent(MainActivity.this, NoticeActivity.class);
+            startActivity(intent);
+        }
+
+
+//        FirebaseMessaging.getInstance().getToken()
+//                .addOnCompleteListener(new OnCompleteListener<String>() {
+//                    @Override
+//                    public void onComplete(@NonNull Task<String> task) {
+//                        if (!task.isSuccessful()) {
+//                            Log.w("FIREBASEMESSAGING", "Fetching FCM registration token failed", task.getException());
+//                            return;
+//                        }
+//
+//                        // Get new FCM registration token
+//                        String token = task.getResult();
+//
+//                        // Log and toast
+////                        String msg = getString(R.string.msg_token_fmt, token);
+//                        Log.d("tokenis", token);
+////                        Toast.makeText(MainActivity.this, token, Toast.LENGTH_SHORT).show();
+//                    }
+//                });
+//        FirebaseMessaging.getInstance().setAutoInitEnabled(true);
+//        FirebaseAnalytics.getInstance(MainActivity.this).setAnalyticsCollectionEnabled(true);
+//        FirebaseMessaging.getInstance().subscribeToTopic("weather")
+//                .addOnCompleteListener(new OnCompleteListener<Void>() {
+//                    @Override
+//                    public void onComplete(@NonNull Task<Void> task) {
+////                        String msg = getString(R.string.msg_subscribed);
+//                        String msg = "Subscirbed to weather topic";
+//                        if (!task.isSuccessful()) {
+////                            msg = getString(R.string.msg_subscribe_failed);
+//                            msg = "Failed to subscribe to weather topic";
+//                        }
+//                        Log.d("FIREBASE MESSAGING", msg);
+//                        Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
+//                    }
+//                });
     }
 
     // 프레그먼트 교체
@@ -185,28 +226,33 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        CustomDialog customDialog = new CustomDialog(MainActivity.this, new View.OnClickListener() {
+        endDialog = new CustomDialog(MainActivity.this, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 exitProgram();
+
             }
         });
-        customDialog.show();
-        customDialog.setMessage("앱을 종료하겠습니까?");
-        customDialog.setPositiveButton("종료");
-        customDialog.setNegativeButton("취소");
+        endDialog.show();
+        endDialog.setCanceledOnTouchOutside(true);
+        endDialog.setMessage("앱을 종료하겠습니까?");
+        endDialog.setPositiveButton("종료");
+        endDialog.setNegativeButton("취소");
     }
     private void exitProgram() {
-        moveTaskToBack(true);
-        if (Build.VERSION.SDK_INT >= 21) {
-            // 액티비티 종료 + 태스크 리스트에서 지우기
-            finishAndRemoveTask();
-        } else {
-            // 액티비티 종료
-            finish();
+        if(endDialog!=null){
+            endDialog.dismiss();
+            endDialog = null;
         }
-
-        System.exit(0);
+        moveTaskToBack(true);
+//        if (Build.VERSION.SDK_INT >= 21) {
+//            // 액티비티 종료 + 태스크 리스트에서 지우기
+//            finishAndRemoveTask();
+//        } else {
+//            // 액티비티 종료
+//            this.finishAffinity();
+//        }
+        this.finishAffinity();
     }
 
 
@@ -223,7 +269,6 @@ public class MainActivity extends AppCompatActivity {
                     (Request.Method.GET, requestURL, null, response -> {
                         try {
                             JSONObject res = new JSONObject(response.toString());
-                            Log.d("response is", ""+response);
                             JSONObject user = res.getJSONObject("data");
                             UserPersonalInfo.name = user.getString("name");
                             UserPersonalInfo.email = user.getString("email");
@@ -233,7 +278,6 @@ public class MainActivity extends AppCompatActivity {
                             UserPersonalInfo.userPassword = user.getString("userPassword");
                             UserPersonalInfo.gender = user.getInt("gender");
                             UserPersonalInfo.yearBirth = user.getInt("yearBirth");
-                            UserPersonalInfo.phoneNumber = user.getString("phoneNumber");
                             JSONArray ja = (JSONArray)user.get("participations");
 
                             ArrayList<String> partiarray = new ArrayList<String>();
@@ -242,15 +286,41 @@ public class MainActivity extends AppCompatActivity {
                             }
 
                             UserPersonalInfo.participations = partiarray;
-                            Log.d("partiarray", ""+UserPersonalInfo.participations.toString());
-
                             JSONArray ja2 = (JSONArray)user.get("prizes");
                             ArrayList<String> prizearray = new ArrayList<String>();
                             for (int j = 0; j<ja2.length(); j++){
                                 prizearray.add(ja2.getString(j));
                             }
                             UserPersonalInfo.prizes = prizearray;
-                            Log.d("prizearray", ""+UserPersonalInfo.prizes.toString());
+                            ArrayList<Notification> notifications = new ArrayList<>();
+                            try{
+                                SimpleDateFormat fm = new SimpleDateFormat(getString(R.string.date_format));
+                                JSONArray na = (JSONArray)user.get("notifications");
+                                if (na.length() != 0){
+                                    for (int j = 0; j<na.length(); j++){
+                                        JSONObject notification = na.getJSONObject(j);
+                                        String title = notification.getString("title");
+                                        String content = notification.getString("content");
+                                        String post_id = notification.getString("post_id");
+                                        Date date = null;
+                                        try {
+                                            date = fm.parse(notification.getString("date"));
+                                        } catch (ParseException e) {
+                                            e.printStackTrace();
+                                        }
+                                        Integer post_type = notification.getInt("post_type");
+                                        Notification newNotification = new Notification(title, content, post_id, date, post_type);
+                                        notifications.add(newNotification);
+                                    }
+                                }
+
+                            } catch (Exception e){
+                                e.printStackTrace();
+                            }
+                            UserPersonalInfo.notifications = notifications;
+                            UserPersonalInfo.notificationAllow = user.getBoolean("notification_allow");
+                            UserPersonalInfo.prize_check = user.getInt("prize_check");
+
 
 
                             SharedPreferences auto = getSharedPreferences("auto", Activity.MODE_PRIVATE);
@@ -280,9 +350,8 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public static void getPosts() throws Exception{
+    public static void getPosts(){
         try{
-            Log.d("starting request", "get posts");
             String requestURL = "http://ec2-3-35-152-40.ap-northeast-2.compute.amazonaws.com/api/posts";
             RequestQueue requestQueue = Volley.newRequestQueue(mContext);
             JsonArrayRequest jsonArrayRequest = new JsonArrayRequest
@@ -292,7 +361,6 @@ public class MainActivity extends AppCompatActivity {
                             notreportedpostArrayList = new ArrayList<Post>();
                             reportpostArrayList = new ArrayList<Post>();
                             JSONArray resultArr = new JSONArray(response.toString());
-                            Log.d("getpost", ""+response+"\n");
                             for (int i = 0; i < resultArr.length(); i++) {
                                 JSONObject post = resultArr.getJSONObject(i);
                                 String id = post.getString("_id");
@@ -307,7 +375,6 @@ public class MainActivity extends AppCompatActivity {
                                 Date date = null;
                                 try {
                                     date = fm.parse(post.getString("date"));
-                                    Log.d("parsing date", "success");
                                 } catch (ParseException e) {
                                     e.printStackTrace();
                                 }
@@ -367,26 +434,36 @@ public class MainActivity extends AppCompatActivity {
                                             for (int u = 0; u<ua.length(); u++){
                                                 replyreports.add(ua.getString(u));
                                             }
-                                            Log.d("start app comment", ""+datereply.toString());
+                                            String writer_name = null;
+                                            try {
+                                                writer_name = reply.getString("writer_name");
+                                            }catch (Exception e){
+                                                writer_name = null;
+                                            }
                                             Reply re = new Reply(reid, writer, contetn, datereply,replyreports,replyhide);
-                                            Log.d("start app reply", ""+re.getDate().toString());
+                                            re.setWriter_name(writer_name);
                                             if ((!replyhide )&& (!replyreports.contains(UserPersonalInfo.userID))){
                                                 comments.add(re);
                                             }
                                         }
                                     }
 
-                                    Log.d("start app", "getpost comment"+comments.size()+"");
                                 } catch (Exception e){
                                     e.printStackTrace();
-                                    Log.d("parsing date", "non reply");
                                 }
-                                Integer pinned = post.getInt("pinned");
-                                Post newPost = new Post(id, title, author, author_lvl, content, participants, goal_participants, url, date, deadline, with_prize, prize, est_time, target, count,comments,done, extended, participants_userids, reports, hide, author_userid);
-                                newPost.setPinned(pinned);
-                                Log.d("start app", "newpost comments"+newPost.getComments().size()+"");
+                                Integer pinned = 0;
+                                Boolean annonymous = false;
+                                String author_info = "";
+                                try {
+                                    pinned = post.getInt("pinned");
+                                    annonymous = post.getBoolean("annonymous");
+                                    author_info = post.getString("author_info");
+                                }catch (Exception e){
+
+                                }
+                                Post newPost = new Post(id, title, author, author_lvl, content, participants, goal_participants, url, date, deadline, with_prize, prize, est_time, target, count,comments,done, extended, participants_userids, reports, hide, author_userid, pinned, annonymous, author_info);
+
                                 Date now = new Date();
-                                Log.d(title+"reported by", ""+reports+"  "+UserPersonalInfo.userID+reports.contains(UserPersonalInfo.userID));
                                 if(reports.contains(UserPersonalInfo.userID) || hide) {
                                     reportpostArrayList.add(newPost);
                                 } else if (now.after(newPost.getDeadline()) || newPost.isDone()){
@@ -397,12 +474,6 @@ public class MainActivity extends AppCompatActivity {
                                     notreportedpostArrayList.add(newPost);
                                 }
                             }
-                            Log.d("array size is",""+postArrayList.size());
-                            Log.d("finisharray size is",""+ notreportedpostArrayList.size());
-//                            if(done==0){
-//                                HomeFragment.receivedPosts();
-//                                done = 1;
-//                            }
                         } catch (JSONException e) {
                             Log.d("exception", "JSON error");
                             e.printStackTrace();
@@ -418,9 +489,8 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
-    public static void getSurveytips() throws Exception{
+    public static void getSurveytips(){
         try{
-            Log.d("starting request", "get surveytips");
             String requestURL = "http://ec2-3-35-152-40.ap-northeast-2.compute.amazonaws.com/api/surveytips";
             RequestQueue requestQueue = Volley.newRequestQueue(mContext);
             JsonArrayRequest jsonArrayRequest = new JsonArrayRequest
@@ -442,7 +512,6 @@ public class MainActivity extends AppCompatActivity {
                                 Date date = null;
                                 try {
                                     date = fm.parse(post.getString("date"));
-                                    Log.d("parsing date", "success");
                                 } catch (ParseException e) {
                                     e.printStackTrace();
                                 }
@@ -465,10 +534,12 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+                                String author_userid = post.getString("author_userid");
 
 
 
                                 Surveytip newSurveytip = new Surveytip(id, title, author, author_lvl, content,  date, category, likes, liked_users);
+                                newSurveytip.setAuthor_userid(author_userid);
                                 if(images!=null){
                                     newSurveytip.setImage_uris(imagearray);
                                 }
@@ -495,7 +566,7 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
-    public static void getFeedbacks() throws Exception{
+    public static void getFeedbacks(){
         try{
             Log.d("starting request", "get feedbacks");
             String requestURL = "http://ec2-3-35-152-40.ap-northeast-2.compute.amazonaws.com/api/feedbacks";
@@ -541,19 +612,28 @@ public class MainActivity extends AppCompatActivity {
                                         e.printStackTrace();
                                     }
                                     Boolean replyhide = post.getBoolean("hide");
-                                    JSONArray ua = (JSONArray)post.get("reports");
+                                    JSONArray ua = (JSONArray)reply.get("reports");
 
                                     ArrayList<String> replyreports = new ArrayList<String>();
                                     for (int u = 0; u<ua.length(); u++){
                                         replyreports.add(ua.getString(u));
                                     }
-                                    Log.d("start app comment", ""+datereply.toString());
+                                    String writer_name = null;
+                                    try {
+                                        writer_name = reply.getString("writer_name");
+                                    }catch (Exception e){
+                                        writer_name = null;
+                                    }
                                     Reply re = new Reply(reid, writer, contetn, datereply,replyreports,replyhide);
+                                    re.setWriter_name(writer_name);
                                     comments.add(re);
                                 }
 
+                                String author_userid = post.getString("author_userid");
+
 
                                 PostNonSurvey newFeedback = new PostNonSurvey(id, title, author, author_lvl, content, date, category, comments);
+                                newFeedback.setAuthor_userid(author_userid);
                                 feedbackArrayList.add(newFeedback);
                             }
 //                            Log.d("array size is",""+postArrayList.size());
@@ -579,7 +659,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public static void getNotices() throws Exception{
+    public static void getNotices(){
         try{
             Log.d("starting request", "get notices");
             String requestURL = "http://ec2-3-35-152-40.ap-northeast-2.compute.amazonaws.com/api/notices";
@@ -641,8 +721,147 @@ public class MainActivity extends AppCompatActivity {
             Log.d("exception", "failed getting response");
             e.printStackTrace();
         }
-
     }
+    public static void getGenerals(){
+        try{
+            String requestURL = "http://ec2-3-35-152-40.ap-northeast-2.compute.amazonaws.com/api/generals";
+            RequestQueue requestQueue = Volley.newRequestQueue(mContext);
+            JsonArrayRequest jsonArrayRequest = new JsonArrayRequest
+                    (Request.Method.GET, requestURL, null, response -> {
+                        try {
+                            generalArrayList = new ArrayList<>();
+                            JSONArray resultArr = new JSONArray(response.toString());
+                            Log.d("gettinggeneralresponseis", ""+response);
+                            for (int i = 0; i < resultArr.length(); i++) {
+                                JSONObject general = resultArr.getJSONObject(i);
+                                String id = general.getString("_id");
+                                String title = general.getString("title");
+                                String author = general.getString("author");
+                                Integer author_lvl = general.getInt("author_lvl");
+                                String content = general.getString("content");
+                                SimpleDateFormat fm = new SimpleDateFormat(mContext.getString(R.string.date_format));
+                                Date date = null;
+                                try {
+                                    date = fm.parse(general.getString("date"));
+                                } catch (ParseException e) {
+                                    e.printStackTrace();
+                                }
+                                Date deadline = null;
+                                try {
+                                    deadline = fm.parse(general.getString("deadline"));
+                                } catch (ParseException e) {
+                                    e.printStackTrace();
+                                }
+                                ArrayList<Reply> comments = new ArrayList<>();
+                                try{
+                                    JSONArray ja = (JSONArray)general.get("comments");
+                                    if (ja.length() != 0){
+                                        for (int j = 0; j<ja.length(); j++){
+                                            JSONObject reply = ja.getJSONObject(j);
+                                            String reid = reply.getString("_id");
+                                            String writer = reply.getString("writer");
+                                            String contetn = reply.getString("content");
+                                            Date datereply = null;
+                                            try {
+                                                datereply = fm.parse(reply.getString("date"));
+                                            } catch (ParseException e) {
+                                                e.printStackTrace();
+                                            }
+                                            Boolean replyhide = reply.getBoolean("hide");
+                                            JSONArray ua = (JSONArray)reply.get("reports");
+
+
+                                            ArrayList<String> replyreports = new ArrayList<String>();
+                                            for (int u = 0; u<ua.length(); u++){
+                                                replyreports.add(ua.getString(u));
+                                            }
+                                            String writer_name = null;
+                                            try {
+                                                writer_name = reply.getString("writer_name");
+                                            }catch (Exception e){
+                                                writer_name = null;
+                                            }
+                                            Reply re = new Reply(reid, writer, contetn, datereply,replyreports,replyhide);
+                                            re.setWriter_name(writer_name);
+                                            if ((!replyhide )&& (!replyreports.contains(UserPersonalInfo.userID))){
+                                                comments.add(re);
+                                            }
+                                        }
+                                    }
+
+                                } catch (Exception e){
+                                    e.printStackTrace();
+                                }
+                                Boolean done = general.getBoolean("done");
+                                String author_userid = general.getString("author_userid");
+                                JSONArray ka = (JSONArray)general.get("reports");
+                                ArrayList<String> reports = new ArrayList<String>();
+                                for (int j = 0; j<ka.length(); j++){
+                                    reports.add(ka.getString(j));
+                                }
+                                Boolean multi_response = general.getBoolean("multi_response");
+                                Integer participants = general.getInt("participants");
+                                JSONArray ia = (JSONArray)general.get("participants_userids");
+                                ArrayList<String> participants_userids = new ArrayList<String>();
+                                for (int j = 0; j<ia.length(); j++){
+                                    participants_userids.add(ia.getString(j));
+                                }
+                                Boolean with_image = general.getBoolean("with_image");
+                                ArrayList<Poll> polls = new ArrayList<>();
+                                try{
+                                    JSONArray ja = (JSONArray)general.get("polls");
+                                    if (ja.length() != 0){
+                                        for (int j = 0; j<ja.length(); j++){
+                                            JSONObject poll = ja.getJSONObject(j);
+                                            String poll_id = poll.getString("_id");
+                                            String poll_content = poll.getString("content");
+                                            ArrayList<String> poll_participants_userids = new ArrayList<String>();
+                                            JSONArray ua = (JSONArray)poll.get("participants_userids");
+                                            for (int u = 0; u<ua.length(); u++){
+                                                poll_participants_userids.add(ua.getString(u));
+                                            }
+                                            String image = poll.getString("image");
+                                            Poll newpoll = new Poll(poll_id, poll_content, poll_participants_userids, image);
+                                            polls.add(newpoll);
+                                        }
+                                    }
+
+                                } catch (Exception e){
+                                    e.printStackTrace();
+                                }
+
+                                JSONArray la = (JSONArray)general.get("liked_users");
+                                ArrayList<String> liked_users = new ArrayList<String>();
+                                for (int j = 0; j<la.length(); j++){
+                                    liked_users.add(la.getString(j));
+                                }
+
+                                Integer likes = general.getInt("likes");
+
+                                Boolean hide = general.getBoolean("hide");
+
+                                General newGeneral = new General(id, title, author, author_lvl, content,
+                                        date, deadline, comments, done, author_userid, reports, multi_response,
+                                        participants, participants_userids, with_image, polls, liked_users, likes, hide);
+                                if((!newGeneral.getReports().contains(UserPersonalInfo.userID)) && (hide!=true))
+                                    generalArrayList.add(newGeneral);
+                            }
+                        } catch (JSONException e) {
+                            Log.d("exception", "JSON error");
+                            e.printStackTrace();
+                        }
+                    }, error -> {
+                        Log.d("exception", "volley error");
+                        error.printStackTrace();
+                    });
+            jsonArrayRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            requestQueue.add(jsonArrayRequest);
+        } catch (Exception e){
+            Log.d("exception", "failed getting response");
+            e.printStackTrace();
+        }
+    }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);

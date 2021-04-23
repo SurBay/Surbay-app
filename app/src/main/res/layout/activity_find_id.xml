@@ -11,7 +11,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="아이디 찾기/비밀번호 재설정"
+        android:text="비밀번호 재설정"
         android:textSize="20dp"
         android:textStyle="bold"
         android:textColor="@color/text_black"

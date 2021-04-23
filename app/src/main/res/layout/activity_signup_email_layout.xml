@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:orientation="vertical"
+        android:background="@color/gray">
+        <LinearLayout
+            android:layout_marginTop="120dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="51dp">
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="SurBay 회원가입"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_black"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:textSize="15dp"
+                android:text="학교 메일은 아이디로 사용되며, 학교 인증 절차를 통해 더 나은 서비스를 제공하고자 합니다"
+                android:textColor="@color/text_gray"></TextView>
+            <TextView
+                android:layout_marginTop="17.5sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="학교 메일 인증하기"
+                android:textSize="15sp"
+                android:textColorHint="@color/text_black_70"></TextView>
+        </LinearLayout>
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="7dp"
+            android:id="@+id/signup_university_search_layout">
+
+            <TextView
+                android:id="@+id/signup_university"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="51dp"
+                android:background="@drawable/box_white"
+                android:ems="10"
+                android:hint="학교명 검색하기"
+                style="@style/TextviewTheme"
+                android:tag="0"/>
+            <ImageButton
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:id="@+id/sign_up_university_search"
+                android:layout_alignRight="@id/signup_university"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="10dp"
+                android:src="@drawable/search_icon"
+                android:scaleType="centerInside"
+                android:background="@color/white"
+                />
+        </RelativeLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginHorizontal="51dp"
+            >
+            <EditText
+                android:id="@+id/signup_userid"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                style="@style/EdittextTheme"
+                android:inputType="text"
+                android:privateImeOptions="defaultInputmode=english"
+                android:background="@drawable/box_white"
+                android:hint="아이디"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/username_center"
+                app:layout_constraintTop_toTopOf="parent"
+                android:layout_marginEnd="5dp"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="\@"
+                android:textSize="15sp"
+                android:textColor="@color/text_black_70"
+                android:id="@+id/username_center"
+                android:layout_marginHorizontal="5dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                />
+            <TextView
+                android:id="@+id/signup_domain"
+                android:layout_width="0dp"
+                android:layout_marginStart="5dp"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                style="@style/TextviewTheme"
+                android:inputType="text"
+                android:privateImeOptions="defaultInputmode=english"
+                android:background="@drawable/box_white"
+                app:layout_constraintStart_toEndOf="@id/username_center"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/signup_check_id"
+            android:layout_marginHorizontal="52dp"
+            android:textSize="12.5sp"
+            android:text="중복 확인 중입니다."
+            android:visibility="gone"/>
+
+        <Button
+            android:id="@+id/signup_email_next"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="다음"
+            android:textSize="14sp"
+            android:textColor="@color/teal_200"
+            android:background="@drawable/round_border_white"
+            android:paddingHorizontal="71dp"
+            android:paddingTop="11dp"
+            android:paddingBottom="10dp"
+            android:minHeight="0dp"
+            android:minWidth="0dp"
+            android:layout_marginHorizontal="51dp"
+            android:layout_marginTop="10dp"/>
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/loadingPanel"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:alpha="0.5"
+            android:background="@color/gray" />
+
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:indeterminate="true" />
+
+
+    </RelativeLayout>
+
+</FrameLayout>

@@ -37,7 +37,7 @@ public class RecyclerViewNoticeAdapter extends RecyclerView.Adapter<RecyclerView
     @Override
     public RecyclerViewNoticeAdapter.NoticeViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
-        View view = inflater.inflate(R.layout.recycler_item, parent, false);
+        View view = inflater.inflate(R.layout.home_recycler_item, parent, false);
         RecyclerViewNoticeAdapter.NoticeViewHolder holder = new RecyclerViewNoticeAdapter.NoticeViewHolder(view);
 
 

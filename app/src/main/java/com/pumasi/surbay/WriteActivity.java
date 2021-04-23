@@ -31,6 +31,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
@@ -73,9 +74,7 @@ import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -119,6 +118,10 @@ public class WriteActivity extends AppCompatActivity {
     private TextView prize_plus;
     private TextView prize_list;
 
+    private EditText writeAuthorInfo;
+    private CheckBox writeAnnonymous;
+    private TextView wrtieAnnonymousTextView;
+
 
     Integer goalParticipants;
     String url;
@@ -132,6 +135,8 @@ public class WriteActivity extends AppCompatActivity {
     String timestr;
     String prize;
     Integer count;
+    String author_info;
+    Boolean annonymous = true;
 
     ArrayList<Uri> image_uris = new ArrayList<>();
 
@@ -147,12 +152,17 @@ public class WriteActivity extends AppCompatActivity {
     private DatePickerDialog.OnDateSetListener callbackMethod;
     final String[] spinner_esttime = {"선택해주세요", "1분 미만", "1~2분", "2~3분", "3~5분", "5~7분", "7~10분", "10분 초과"};
     private List<Image> images;
+    private RelativeLayout loading;
+    private boolean postDone = false;
+    private postHandler handler = new postHandler();
+    private boolean updateDone = false;
+    private updateHandler updateHandler = new updateHandler();
 
     @SuppressLint("ResourceAsColor")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_write);
+        setContentView(R.layout.activity_post_write);
         getSupportActionBar().hide();
         imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 
@@ -186,9 +196,16 @@ public class WriteActivity extends AppCompatActivity {
         prize_list = findViewById(R.id.gift_list);
         gift_image_list = findViewById(R.id.gith_image_list);
 
+        writeAuthorInfo = findViewById(R.id.write_author_info);
+        writeAnnonymous = findViewById(R.id.write_annonymous);
+        wrtieAnnonymousTextView = findViewById(R.id.write_annonymous_textview);
+
         writeBack = findViewById(R.id.writeBack);
         writeSave = findViewById(R.id.writesave);
         writeDone = findViewById(R.id.writeDone);
+
+        loading = findViewById(R.id.loadingPanel);
+        loading.setVisibility(View.GONE);
 
 
         ArrayAdapter adapter = new ArrayAdapter(this, R.layout.simple_spinner_item, spinner_esttime);
@@ -344,7 +361,7 @@ public class WriteActivity extends AppCompatActivity {
                 timedialog = new TimePickerDialog(WriteActivity.this, tcallbackMethod, Integer.valueOf(hour), 00, false);
                 Calendar cal = Calendar.getInstance();
                 cal.setTime(new Date());
-                cal.add(Calendar.DATE, 3);
+                cal.add(Calendar.DATE, 5);
 
                 dialog.getDatePicker().setMinDate(date.getTime());
                 dialog.getDatePicker().setMaxDate(cal.getTime().getTime());
@@ -389,7 +406,7 @@ public class WriteActivity extends AppCompatActivity {
                     timedialog = new TimePickerDialog(WriteActivity.this, tcallbackMethod, Integer.valueOf(hour), 00, false);
                     Calendar cal = Calendar.getInstance();
                     cal.setTime(new Date());
-                    cal.add(Calendar.DATE, 3);
+                    cal.add(Calendar.DATE, 5);
 
                     dialog.getDatePicker().setMinDate(date.getTime());
                     dialog.getDatePicker().setMaxDate(cal.getTime().getTime());
@@ -441,6 +458,20 @@ public class WriteActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 saveDialog();
+            }
+        });
+
+        writeAnnonymous.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked){
+                    annonymous = false;
+                    withPrize.setButtonTintList(ColorStateList.valueOf(Color.parseColor("#3AD1BF")));
+                }
+                else{
+                    annonymous = true;
+                    withPrize.setButtonTintList(ColorStateList.valueOf(Color.parseColor("#C4C4C4")));
+                }
             }
         });
     }
@@ -497,7 +528,8 @@ public class WriteActivity extends AppCompatActivity {
     public void postPost(String title, String author, Integer author_lvl, String content,
                          Integer participants, Integer goal_participants, String url, Date date,
                          Date deadline, Boolean with_prize, String prize, Integer est_time,
-                         String target, Integer count, ArrayList<Reply> comments, boolean done, ArrayList<Uri> images, String author_userid) {
+                         String target, Integer count, ArrayList<Reply> comments, boolean done,
+                         ArrayList<Uri> images, String author_userid, Boolean annonymous, String author_info) {
         String requestURL = getString(R.string.server)+"/api/posts/";
         VolleyMultipartRequest volleyMultipartRequest = new VolleyMultipartRequest(Request.Method.POST, requestURL,
                 response -> {
@@ -516,10 +548,12 @@ public class WriteActivity extends AppCompatActivity {
                             String utc_deadline = fm.format(deadline);
                             fm.setTimeZone(TimeZone.getTimeZone("Asia/Seoul"));
                             Date realdeadline = fm.parse(utc_deadline);
-                            Post item = new Post(id, title, author, author_lvl, content, participants, goal_participants, url, realdate, realdeadline, with_prize, prize, est_time, target, count, new ArrayList<Reply>(), false, 0, new ArrayList<String>(), new ArrayList<String>(), false, author_userid);
+                            Integer pinned = 0;
+                            Post item = new Post(id, title, author, author_lvl, content, participants, goal_participants, url, realdate, realdeadline, with_prize, prize, est_time, target, count, new ArrayList<Reply>(), false, 0, new ArrayList<String>(), new ArrayList<String>(), false, author_userid, pinned, annonymous, author_info);
+
                             MainActivity.postArrayList.add(item);
                             Log.d("response id", id);
-                            Intent intent = new Intent(WriteActivity.this, BoardFragment1.class);
+                            Intent intent = new Intent(WriteActivity.this, BoardPost.class);
                             intent.putExtra("post", item);
                             setResult(NEWPOST, intent);
                             finish();
@@ -542,6 +576,7 @@ public class WriteActivity extends AppCompatActivity {
                     } catch (JSONException | ParseException e) {
                         e.printStackTrace();
                     }
+                    postDone = true;
                 },
                 new Response.ErrorListener() {
                     @Override
@@ -596,6 +631,8 @@ public class WriteActivity extends AppCompatActivity {
                 params.put("done", String.valueOf(false));
                 params.put("comments", String.valueOf(new ArrayList<Reply>()));
                 params.put("author_userid", UserPersonalInfo.userID);
+                params.put("annonymous", String.valueOf(annonymous));
+                params.put("author_info", author_info);
 
                 return params;
             }
@@ -604,7 +641,7 @@ public class WriteActivity extends AppCompatActivity {
 
         //adding the request to volley
         volleyMultipartRequest.setRetryPolicy(new DefaultRetryPolicy(
-                0,
+                DefaultRetryPolicy.DEFAULT_TIMEOUT_MS,
                 DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         Volley.newRequestQueue(this).add(volleyMultipartRequest);
@@ -622,6 +659,7 @@ public class WriteActivity extends AppCompatActivity {
                         Log.d("exception", "volley error");
                         e.printStackTrace();
                     }
+                    updateDone = true;
                 },
                 new Response.ErrorListener() {
                     @Override
@@ -671,7 +709,7 @@ public class WriteActivity extends AppCompatActivity {
 
         //adding the request to volley
         volleyMultipartRequest.setRetryPolicy(new DefaultRetryPolicy(
-                0,
+                DefaultRetryPolicy.DEFAULT_TIMEOUT_MS,
                 DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         Volley.newRequestQueue(this).add(volleyMultipartRequest);
@@ -799,6 +837,7 @@ public class WriteActivity extends AppCompatActivity {
         boolean with_prize = withPrize.isChecked();
         est_time = writeEstTime.getSelectedItemPosition() - 1;
         Log.d("est_timeis",""+est_time);
+        author_info = writeAuthorInfo.getText().toString();
 
         if(writeGoalParticipants.getText().toString().length() > 0) {
             goalParticipants = Integer.valueOf(writeGoalParticipants.getText().toString());
@@ -853,6 +892,7 @@ public class WriteActivity extends AppCompatActivity {
 
 //            count = post.getNum_prize();
         }
+
         SimpleDateFormat formatter = new SimpleDateFormat(getString(R.string.date_format));
 
 
@@ -903,16 +943,22 @@ public class WriteActivity extends AppCompatActivity {
                 }
                 else {
                     if (purpose == 1) {
-                        Log.d("date formatted", formatter.format(deadline));
-                        try {
-                            Log.d("author is ", "author" + author);
-                            postPost(title, author, author_lvl, content, participants, goalParticipants, url, date, deadline, with_prize, prize, est_time, target, count, new ArrayList<Reply>(), false, image_uris, UserPersonalInfo.userID);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                            Intent intent = new Intent(WriteActivity.this, BoardFragment1.class);
-                            setResult(0, intent);
-                            finish();
-                        }
+                        loading.setVisibility(View.VISIBLE);
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+
+                                postPost(title, author, author_lvl, content, participants, goalParticipants, url, date, deadline, with_prize, prize, est_time, target, count, new ArrayList<Reply>(), false, image_uris, UserPersonalInfo.userID, annonymous, author_info);
+
+                                while(!(postDone)) {
+                                    try {
+                                        Thread.sleep(100);
+                                    } catch (Exception e) {}
+                                }
+                                Message message = handler.obtainMessage();
+                                handler.sendMessage(message);
+                            }
+                        }).start();
 
                     } else if (purpose == 2) {
                         post.setTitle(title);
@@ -924,18 +970,23 @@ public class WriteActivity extends AppCompatActivity {
                         post.setPrize(prize);
                         post.setNum_prize(count);
 
-                        Intent intent = new Intent(WriteActivity.this, PostDetailActivity.class);
-                        intent.putExtra("post", post);
+
                         Log.d("date formatted", formatter.format(deadline));
-                        try {
-                            updatePost(title, author, content, goalParticipants, est_time, target, image_uris, count, prize, with_prize);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                        startActivity(intent);
-                        setResult(FIX_DONE, intent);
-                        Log.d("fix", UserPersonalInfo.name);
-                        finish();
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+
+                                updatePost(title, author, content, goalParticipants, est_time, target, image_uris, count, prize, with_prize);
+                                while(!(updateDone)) {
+                                    try {
+                                        Thread.sleep(100);
+                                    } catch (Exception e) {}
+                                }
+                                Message message = updateHandler.obtainMessage();
+                                updateHandler.sendMessage(message);
+                            }
+                        }).start();
+
                     }
                 }
             }
@@ -953,17 +1004,18 @@ public class WriteActivity extends AppCompatActivity {
         }
         long diff = deadline.getTime() - date.getTime();
         Log.d("writedeadline", String.valueOf(diff));
-        if (Integer.valueOf((int) diff) > 72*60*60*1000){
+        if (Integer.valueOf((int) diff) > 120*60*60*1000){
 
             CustomDialog customDialog = new CustomDialog(WriteActivity.this, null);
             customDialog.show();
-            customDialog.setMessage("설문 기간이 72시간을 초과했습니다");
+            customDialog.setMessage("설문 기간이 120시간을 초과했습니다");
             customDialog.setNegativeButton("확인");
             writeDeadline.clearFocus();
         } else {
             SimpleDateFormat transFormat = new SimpleDateFormat("yyyy-MM-dd a KK시");
 
             writeDeadline.setText(transFormat.format(deadline));
+            writeDeadline.setTextSize(2, 15);
             writeDeadline.clearFocus();
         }
     }
@@ -1207,17 +1259,27 @@ public class WriteActivity extends AppCompatActivity {
             }
         }
     }
-    private void saveBitmaptoCache(Bitmap bm){
-        try {
 
-            File cachePath = new File(getCacheDir(), "images");
-            cachePath.mkdirs(); // don't forget to make the directory
-            FileOutputStream stream = new FileOutputStream(cachePath + "/image.png"); // overwrites this image every time
-            bm.compress(Bitmap.CompressFormat.PNG, 100, stream);
-            stream.close();
-
-        } catch (IOException e) {
-            e.printStackTrace();
+    private class postHandler extends Handler{
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            super.handleMessage(msg);
+            loading.setVisibility(View.GONE);
+            postDone = false;
+        }
+    }
+    private class updateHandler extends Handler{
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            super.handleMessage(msg);
+            loading.setVisibility(View.GONE);
+            Intent intent = new Intent(WriteActivity.this, PostDetailActivity.class);
+            intent.putExtra("post", post);
+            startActivity(intent);
+            setResult(FIX_DONE, intent);
+            Log.d("fix", UserPersonalInfo.name);
+            finish();
+            updateDone = false;
         }
     }
 }

@@ -1,6 +1,9 @@
 package com.pumasi.surbay;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.text.Editable;
@@ -28,11 +31,11 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-import com.example.surbay.ChangePwFragment;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseException;
 import com.google.firebase.FirebaseTooManyRequestsException;
+import com.google.firebase.auth.ActionCodeSettings;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
@@ -72,13 +75,14 @@ public class FindPwFragment extends Fragment {
     private Boolean phone_check = false;
     private CustomDialog customDialog;
     String id;
-    String phone;
+    String confirm_email;
     String email;
     private String mVerificationId;
 
     public static FindPwFragment newInstance() {
         return new FindPwFragment();
     }
+    Boolean confirmed = false;
 
     @Nullable
     @Override
@@ -87,7 +91,7 @@ public class FindPwFragment extends Fragment {
 
         getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-        findpw_PNedit = view.findViewById(R.id.find_pw_phonenumber);
+        findpw_PNedit = view.findViewById(R.id.find_pw_email);
         findpw_PAB = view.findViewById(R.id.find_pw_PAB);
         findpw_PNCedit = view.findViewById(R.id.find_pw_PCN);
         findpw_Ptimer = view.findViewById(R.id.findpw_Ptimer);
@@ -99,6 +103,22 @@ public class FindPwFragment extends Fragment {
         findpw_Etimer = view.findViewById(R.id.findpw_Etimer);
         findpw_ECtext = view.findViewById(R.id.findpw_ECtext);
         findpw_EB = view.findViewById(R.id.find_pw_EB);
+
+        Intent intent = getActivity().getIntent();
+        confirmed = intent.getBooleanExtra("confirmed", false);
+        if(confirmed==true){
+            FragmentTransaction trans = getFragmentManager().beginTransaction();
+            trans.replace(R.id.fragment_root, ChangePwFragment.newInstance());
+            trans.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+            trans.addToBackStack(null);
+            trans.commit();
+            SharedPreferences auto = getActivity().getSharedPreferences("auto", Activity.MODE_PRIVATE);
+            confirm_email = auto.getString("pwdchangeemail", null);
+            if(confirm_email!=null){
+                ChangePwActivity.email = confirm_email;
+                findpw_PNedit.setText(confirm_email);
+            }
+        }
 
         view.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -116,17 +136,53 @@ public class FindPwFragment extends Fragment {
         findpw_PAB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                phone = findpw_PNedit.getText().toString();
+                confirm_email = findpw_PNedit.getText().toString();
 
-                if (phone.length() == 11){
-                    try {
-                        phoneCheck();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+                Log.d("confirmemailis", confirm_email);
+
+                if (confirm_email.length() != 0){
+                    ActionCodeSettings actionCodeSettings =
+                            ActionCodeSettings.newBuilder()
+                                    // URL you want to redirect back to. The domain (www.example.com) for this
+                                    // URL must be whitelisted in the Firebase Console.
+                                    .setUrl("http://ec2-13-209-96-165.ap-northeast-2.compute.amazonaws.com:3000/passwordchange/?email=" + confirm_email)
+                                    // This must be true
+                                    .setHandleCodeInApp(true)
+                                    .setAndroidPackageName(
+                                            "com.pumasi.surbay",
+                                            true, /* installIfNotAvailable */
+                                            "29"    /* minimumVersion */)
+                                    .build();
+                    FirebaseAuth auth = FirebaseAuth.getInstance();
+                    auth.sendSignInLinkToEmail(confirm_email, actionCodeSettings)
+                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if (task.isSuccessful()) {
+                                        Log.d("email", "Email sent.");
+                                    }
+                                }
+                            });
+
+                    CustomDialog customDialog = new CustomDialog(getActivity(), null);
+                    customDialog.show();
+                    customDialog.setMessage("비밀번호 재설정 링크가 발송되었습니다");
+                   customDialog.setNegativeButton("확인");
+                    SharedPreferences auto = getActivity().getSharedPreferences("auto", Activity.MODE_PRIVATE);
+                    SharedPreferences.Editor autoLogin = auto.edit();
+                    autoLogin.putString("pwdchangeemail", confirm_email);
+                    autoLogin.commit();
+                   ChangePwActivity.email = confirm_email;
+
+                    FragmentTransaction trans = getFragmentManager().beginTransaction();
+                    trans.replace(R.id.fragment_root, ChangePwFragment.newInstance());
+                    trans.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+                    trans.addToBackStack(null);
+                    trans.commit();
+
                 }
                 else{
-                    Toast.makeText(getActivity().getApplicationContext(), "휴대폰 번호를 확인해주세요", Toast.LENGTH_SHORT);
+                    Toast.makeText(getActivity().getApplicationContext(), "이메일을 확인해주세요", Toast.LENGTH_SHORT);
                 }
             }
         });
@@ -348,9 +404,9 @@ public class FindPwFragment extends Fragment {
     private void phoneCheck() throws Exception{
         try {
             RequestQueue requestQueue = Volley.newRequestQueue(getActivity());
-            String requestURL = getString(R.string.server)+"/phonenumbers/duplicate?phoneNumber=" + phone;
+            String requestURL = getString(R.string.server)+"/phonenumbers/duplicate?phoneNumber=" + confirm_email;
             JSONObject params = new JSONObject();
-            params.put("phoneNumber", phone);
+            params.put("phoneNumber", confirm_email);
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
                     (Request.Method.GET, requestURL, params, response -> {
                         Log.d("response is", "" + response);
@@ -358,7 +414,7 @@ public class FindPwFragment extends Fragment {
                             JSONObject nameObj = new JSONObject(response.toString());
                             Boolean success = nameObj.getBoolean("type");
                             if (!success) {
-                                String realphone = "+82"+phone.substring(1);
+                                String realphone = "+82"+ confirm_email.substring(1);
                                 Log.d("phone", "num is "+ realphone);
 
                                 customDialog = new CustomDialog(getActivity(), new View.OnClickListener() {

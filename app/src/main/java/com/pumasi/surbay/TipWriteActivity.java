@@ -39,8 +39,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-import static com.pumasi.surbay.BoardFragment2.listView;
-import static com.pumasi.surbay.BoardFragment2.listViewAdapter;
+import static com.pumasi.surbay.BoardSurveyTip.listView;
+import static com.pumasi.surbay.BoardSurveyTip.listViewAdapter;
 
 public class TipWriteActivity extends AppCompatActivity {
     static final int NEWPOST = 1;
@@ -190,10 +190,11 @@ public class TipWriteActivity extends AppCompatActivity {
             customDialog.setNegativeButton("확인");
         } else {
             Surveytip tip = new Surveytip(null, title, author, author_lvl, content, date, category, 0, new ArrayList<String>());
+            tip.setAuthor_userid(UserPersonalInfo.userID);
             MainActivity.surveytipArrayList.add(0, tip);
             listViewAdapter.notifyDataSetChanged();
             listView.setAdapter(listViewAdapter);
-            Intent intent = new Intent(TipWriteActivity.this, BoardFragment2.class);
+            Intent intent = new Intent(TipWriteActivity.this, BoardSurveyTip.class);
             try {
                 postPost(title, author, author_lvl, content, date, category, 0);
             } catch (Exception e) {
@@ -225,6 +226,7 @@ public class TipWriteActivity extends AppCompatActivity {
                             JSONObject resultObj = new JSONObject(response.toString());
                             String id = resultObj.getString("id");
                             Surveytip item = new Surveytip(id, title, author, author_lvl, content, date, category, likes, new ArrayList<String>());
+                            item.setAuthor_userid(UserPersonalInfo.userID);
                             MainActivity.surveytipArrayList.add(item);
 
                         } catch (JSONException e) {

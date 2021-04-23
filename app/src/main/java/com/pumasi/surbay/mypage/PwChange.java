@@ -176,11 +176,12 @@ public class PwChange extends AppCompatActivity {
 
 
     private void updatePw(String newpassword) throws Exception{
-        String requestURL = getString(R.string.server)+"/api/users/changepassword?phoneNumber=" + UserPersonalInfo.phoneNumber;
+        String requestURL = getString(R.string.server)+"/api/users/changepassword?email=" + UserPersonalInfo.email;
         try{
             RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
             JSONObject params = new JSONObject();
             params.put("userPassword", newpassword);
+            params.put("inapp", true);
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
                     (Request.Method.PUT, requestURL, params, response -> {
                         Log.d("response is", ""+response);

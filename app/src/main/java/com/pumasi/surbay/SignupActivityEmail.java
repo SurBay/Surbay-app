@@ -1,0 +1,283 @@
+package com.pumasi.surbay;
+
+import android.annotation.SuppressLint;
+import android.app.MediaRouteButton;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.CountDownTimer;
+import android.os.Handler;
+import android.os.Message;
+import android.text.Editable;
+import android.text.InputFilter;
+import android.text.Spanned;
+import android.text.TextWatcher;
+import android.text.method.HideReturnsTransformationMethod;
+import android.text.method.PasswordTransformationMethod;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ListView;
+import android.widget.RelativeLayout;
+import android.widget.SimpleAdapter;
+import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.FirebaseException;
+import com.google.firebase.FirebaseTooManyRequestsException;
+import com.google.firebase.auth.ActionCodeSettings;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.PhoneAuthCredential;
+import com.google.firebase.auth.PhoneAuthOptions;
+import com.google.firebase.auth.PhoneAuthProvider;
+import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
+import com.google.firebase.dynamiclinks.PendingDynamicLinkData;
+import com.pumasi.surbay.classfile.CustomDialog;
+import com.pumasi.surbay.classfile.CustomViewPager;
+import com.pumasi.surbay.classfile.DomainSearchDialog;
+import com.pumasi.surbay.classfile.Post;
+import com.pumasi.surbay.classfile.Reply;
+import com.pumasi.surbay.classfile.UserPersonalInfo;
+import com.pumasi.surbay.mypage.SettingInfo;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+public class SignupActivityEmail extends AppCompatActivity {
+
+    TextView university_edittext;
+    ImageButton university_search;
+    EditText userid_edittext;
+    TextView domain_textview;
+    Button signup_next;
+    RelativeLayout signup_layout;
+    TextView check_id;
+
+    public static JSONObject domains;
+    public static String search_result_university = null;
+
+
+    Boolean dup_check = false;
+    private RelativeLayout loading;
+
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_signup_email_layout);
+        getSupportActionBar().hide();
+        getDomains();
+
+
+        university_edittext = findViewById(R.id.signup_university);
+        university_search = findViewById(R.id.sign_up_university_search);
+        userid_edittext = findViewById(R.id.signup_userid);
+        domain_textview = findViewById(R.id.signup_domain);
+        signup_next = findViewById(R.id.signup_email_next);
+        loading = findViewById(R.id.loadingPanel);
+        loading.setVisibility(View.GONE);
+        signup_layout = findViewById(R.id.signup_university_search_layout);
+        check_id = findViewById(R.id.signup_check_id);
+
+        signup_layout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SearchDialog();
+            }
+        });
+        university_edittext.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SearchDialog();
+            }
+        });
+        university_search.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SearchDialog();
+            }
+        });
+
+        userid_edittext.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            @Override
+            public void afterTextChanged(Editable s) {
+                if(domain_textview.getText().toString().length()!=0) {
+                    check_id.setVisibility(View.VISIBLE);
+                    check_id.setText("중복 확인 중입니다.");
+                    check_id.setTextColor(getResources().getColor(R.color.red));
+                    try {
+                        idCheck();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+
+        signup_next.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String userid = userid_edittext.getText().toString() + "@" + domain_textview.getText().toString();
+                if (userid.length() == 0 || dup_check==false) {
+                    CustomDialog customDialog = new CustomDialog(SignupActivityEmail.this, null);
+                    customDialog.show();
+                    customDialog.setMessage("아이디를 확인해주세요");
+                    customDialog.setNegativeButton("확인");
+                    return;
+                }
+                Intent intent = new Intent(SignupActivityEmail.this, SignupActivityPassword.class);
+
+                intent.putExtra("userid", userid);
+                startActivity(intent);
+
+            }
+        });
+
+
+
+
+    }
+
+    private void SearchDialog()
+    {
+        DomainSearchDialog domainSearchDialog = new DomainSearchDialog(SignupActivityEmail.this);
+        domainSearchDialog.setCanceledOnTouchOutside(true);
+        domainSearchDialog.setCancelable(true);
+        domainSearchDialog.getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT);
+        domainSearchDialog.show();
+        getFragmentManager().executePendingTransactions();
+        domainSearchDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                if(search_result_university!=null){
+                    university_edittext.setText(search_result_university);
+                    try {
+                        JSONArray university_domains = domains.getJSONArray(search_result_university);
+                        ArrayList<String> domains_list= new ArrayList<>();
+                        for(int i=0;i<university_domains.length();i++){
+                            domains_list.add(university_domains.getString(i));
+                        }
+                        domain_textview.setText(domains_list.get(0));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+    }
+
+    private void getDomains(){
+        try{
+            String requestURL = "http://ec2-3-35-152-40.ap-northeast-2.compute.amazonaws.com/api/domains";
+            RequestQueue requestQueue = Volley.newRequestQueue(SignupActivityEmail.this);
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                    (Request.Method.GET, requestURL, null, response -> {
+                        try {
+                            JSONObject res = new JSONObject(response.toString());
+                            domains  = res.getJSONObject("domainMap");
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }, error -> {
+                        Log.d("exception", "volley error");
+                        error.printStackTrace();
+                    });
+            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            requestQueue.add(jsonObjectRequest);
+        } catch (Exception e){
+            Log.d("exception", "failed getting response");
+            e.printStackTrace();
+        }
+    }
+
+
+    private void idCheck(){
+        if (userid_edittext.getText().toString().length() == 0) {
+            check_id.setVisibility(View.GONE);
+        } else {
+            try {
+                String userid = userid_edittext.getText().toString() + "@" + domain_textview.getText().toString();
+                RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
+                String requestURL = getString(R.string.server)+"/userids/duplicate?userID="+ userid;
+                JSONObject params = new JSONObject();
+                params.put("userID", userid);
+                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                        (Request.Method.GET, requestURL, params, response -> {
+                            Log.d("response is", ""+response);
+                            try {
+                                JSONObject idObj = new JSONObject(response.toString());
+                                Boolean success = idObj.getBoolean("type");
+                                if (success){
+                                    check_id.setText("사용 가능한 아이디입니다.");
+                                    dup_check = true;
+                                    check_id.setTextColor(getResources().getColor(R.color.blue));
+                                } else {
+                                    check_id.setText("이미 가입된 이메일입니다.");
+                                    dup_check = false;
+                                    check_id.setTextColor(getResources().getColor(R.color.red));
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }, error -> {
+                            Log.d("exception", "volley error");
+                            error.printStackTrace();
+                        });
+                jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+                requestQueue.add(jsonObjectRequest);
+            } catch(Exception e){
+                e.printStackTrace();
+            }
+        }
+    }
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        if(getCurrentFocus()!=null)imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+        return true;
+    }
+}

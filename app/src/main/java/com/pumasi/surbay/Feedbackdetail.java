@@ -8,25 +8,15 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.android.volley.DefaultRetryPolicy;
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
 import com.pumasi.surbay.adapter.FeedbackReplyListViewAdapter;
 import com.pumasi.surbay.classfile.PostNonSurvey;
 import com.pumasi.surbay.classfile.Reply;
-import com.pumasi.surbay.classfile.UserPersonalInfo;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -95,7 +85,7 @@ public class Feedbackdetail extends AppCompatActivity {
         detail_reply_listView.setAdapter(detail_reply_Adapter);
 
 
-        Intent resultIntent = new Intent(getApplicationContext(), BoardFragment3.class);
+        Intent resultIntent = new Intent(getApplicationContext(), BoardFeedback.class);
         resultIntent.putExtra("position", position);
         setResult(RESULT_OK, resultIntent);
     }

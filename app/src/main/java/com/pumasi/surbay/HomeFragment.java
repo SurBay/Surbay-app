@@ -7,12 +7,14 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -21,12 +23,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.viewpager.widget.ViewPager;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -36,6 +40,7 @@ import com.pumasi.surbay.adapter.RecyclerViewGoalAdapter;
 import com.pumasi.surbay.adapter.RecyclerViewNewAdapter;
 import com.pumasi.surbay.adapter.RecyclerViewNoticeAdapter;
 import com.pumasi.surbay.classfile.Notice;
+import com.pumasi.surbay.classfile.Notification;
 import com.pumasi.surbay.classfile.Post;
 import com.pumasi.surbay.classfile.Reply;
 import com.pumasi.surbay.classfile.UserPersonalInfo;
@@ -47,6 +52,7 @@ import org.json.JSONObject;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -56,11 +62,11 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import static com.pumasi.surbay.BoardFragment1.frag1datesortbutton;
-import static com.pumasi.surbay.BoardFragment1.frag1goalsortbutton;
-import static com.pumasi.surbay.BoardFragment1.frag1newsortbutton;
-import static com.pumasi.surbay.BoardFragment1.listView;
-import static com.pumasi.surbay.BoardFragment1.listViewAdapter;
+import static com.pumasi.surbay.BoardPost.frag1datesortbutton;
+import static com.pumasi.surbay.BoardPost.frag1goalsortbutton;
+import static com.pumasi.surbay.BoardPost.frag1newsortbutton;
+import static com.pumasi.surbay.BoardPost.listView;
+import static com.pumasi.surbay.BoardPost.postListViewAdapter;
 
 public class HomeFragment extends Fragment // Fragment 클래스를 상속받아야한다
 {
@@ -105,12 +111,23 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
     private ArrayList<Integer> ImagesArray = new ArrayList<>();
     private int currentPage = 0;
 
-    @Nullable
+    private static Boolean getPostsDone = false;
+    private static Boolean getNoticesDone = false;
+
+    private SwipeRefreshLayout mSwipeRefreshLayout;
+    ValueHandler handler = new ValueHandler();
+    private Comparator<Notice> cmpNoticeNew;
+
+    private BackgroundThread refreshThread;
+    private RelativeLayout loading;
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
     {
         view = inflater.inflate(R.layout.fragment_home,container,false);
         ((AppCompatActivity) getActivity()).getSupportActionBar().hide();
+
+        mContext = getActivity();
 
         recyclerView = view.findViewById(R.id.recycler1);
         recyclerView2 = view.findViewById(R.id.recycler2);
@@ -127,14 +144,72 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
         tiger2 = view.findViewById(R.id.none_tiger_2);
         tiger3 = view.findViewById(R.id.none_tiger_3);
 
-        setRecyclerView();
-        setBanner();
+        loading = view.findViewById(R.id.loadingPanel);
+
+        mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.home_swipe_container);
+
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                refreshThread = new BackgroundThread();
+                refreshThread.start();
+            }
+        });
+
+        try {
+            setRecyclerView();
+            setBanner();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
 
 
         return view;
     }
 
+    class BackgroundThread extends Thread {
+        public void run() {
+            try {
+                getPosts();
+            } catch (Exception e) {
+                e.printStackTrace();
+                getPostsDone = true;
+            }
+            try {
+                getNotices();
+            } catch (Exception e) {
+                e.printStackTrace();
+                getNoticesDone = true;
+            }
+            while(!(getNoticesDone&&getPostsDone)) {
+                try {
+                    Thread.sleep(100);
+                } catch (Exception e) {}
+            }
+            Message message = handler.obtainMessage();
+            handler.sendMessage(message);
+        }
+    }
+
+    class ValueHandler extends Handler {
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            super.handleMessage(msg);
+            Log.d("gotmessage", "goetmessage");
+            getNoticesDone = false;
+            getPostsDone = false;
+            setRecyclerView();
+            mSwipeRefreshLayout.setRefreshing(false);
+        }
+    }
+
     private void setRecyclerView(){
+        String[] adminsList = {"SurBay_Admin", "SurBay_dev", "SurBay_dev2", "SurBay_des", "djrobort", "surbaying"};
+        ArrayList<String> admins = new ArrayList<>(Arrays.asList(adminsList));
+        tiger1.setImageResource(R.drawable.no_selection_surbay_lv1);
+        tiger2.setImageResource(R.drawable.no_selection_surbay_lv1);
+        tiger3.setImageResource(R.drawable.no_selection_surbay_lv1);
         tiger1.setVisibility(View.GONE);
         tiger2.setVisibility(View.GONE);
         tiger3.setVisibility(View.GONE);
@@ -144,10 +219,8 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
                 int ret;
                 Date now = new Date();
                 if((now.after(o1.getDeadline()) || o1.isDone()) && (!(now.after(o2.getDeadline()) || o2.isDone()))){
-                    Log.d("comparing", ""+o1.getTitle() + o2.getTitle());
                     return 1;
                 }else if((!(now.after(o1.getDeadline()) || o1.isDone())) && (now.after(o2.getDeadline()) || o2.isDone())){
-                    Log.d("comparing2", ""+o1.getTitle() + o2.getTitle());
                     return -1;
                 }
                 else {
@@ -169,10 +242,8 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
                 int ret;
                 Date now = new Date();
                 if((now.after(o1.getDeadline()) || o1.isDone()) && (!(now.after(o2.getDeadline()) || o2.isDone()))){
-                    Log.d("comparing", ""+o1.getTitle() + o2.getTitle());
                     return 1;
                 }else if((!(now.after(o1.getDeadline()) || o1.isDone())) && (now.after(o2.getDeadline()) || o2.isDone())){
-                    Log.d("comparing2", ""+o1.getTitle() + o2.getTitle());
                     return -1;
                 }
                 else {
@@ -195,10 +266,8 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
                 int ret;
                 Date now = new Date();
                 if((now.after(o1.getDeadline()) || o1.isDone()) && (!(now.after(o2.getDeadline()) || o2.isDone()))){
-                    Log.d("comparing", ""+o1.getTitle() + o2.getTitle());
                     return 1;
                 }else if((!(now.after(o1.getDeadline()) || o1.isDone())) && (now.after(o2.getDeadline()) || o2.isDone())){
-                    Log.d("comparing2", ""+o1.getTitle() + o2.getTitle());
                     return -1;
                 }
                 else {
@@ -216,21 +285,38 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
                 }
             }
         };
+        cmpNoticeNew = new Comparator<Notice>() {
+            @Override
+            public int compare(Notice o1, Notice o2) {
+                int ret;
+                Date date1 = o1.getDate();
+                Date date2 = o2.getDate();
+                int compare = date1.compareTo(date2);
+                if (compare > 0)
+                    ret = -1; //date2<date1
+                else if (compare == 0)
+                    ret = 0;
+                else
+                    ret = 1;
+                return ret;
+            }
+        };
 
         list1 = new ArrayList<>(MainActivity.postArrayList); //dday
         Iterator<Post> iter = list1.iterator();
         while (iter.hasNext()) {
             Post p = iter.next();
             Date now = new Date();
-            Log.d("nowdeadline", ""+p.getDeadline()+" "+now);
-            if (p.getDeadline().getTime()-now.getTime()>24*60*60*1000 || now.after(p.getDeadline())) iter.remove();
+//            if (p.getDeadline().getTime()-now.getTime()>24*60*60*1000 || now.after(p.getDeadline())) iter.remove();
+            if (now.after(p.getDeadline())) iter.remove();
         }
 
         list2 = new ArrayList<>(MainActivity.postArrayList); //goal
         iter = list2.iterator();
         while (iter.hasNext()) {
             Post p = iter.next();
-            if (((float) p.getParticipants() / p.getGoal_participants())<0.7) iter.remove();
+//            if (((float) p.getParticipants() / p.getGoal_participants())<0.7) iter.remove();
+            if (((float) p.getParticipants() / p.getGoal_participants())<0.5) iter.remove();
         }
 
         list3 = new ArrayList<>(MainActivity.postArrayList); //new
@@ -238,17 +324,19 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
         while (iter.hasNext()) {
             Post p = iter.next();
             Date now = new Date();
-            if (now.getTime()-p.getDate().getTime()>(24 * 60 * 60 * 1000)) iter.remove();
+//            if (now.getTime()-p.getDate().getTime()>(24 * 60 * 60 * 1000)) iter.remove();
         }
 
         list4 = new ArrayList<>(MainActivity.NoticeArrayList);
         Collections.sort(list1, cmpDeadline);
         Collections.sort(list2, cmpGoal);
         Collections.sort(list3, cmpNew);
+        Collections.sort(list4, cmpNoticeNew);
         if(list1.size()>5) list1 = new ArrayList<>(list1.subList(0, 5));
         if(list2.size()>5) list2 = new ArrayList<>(list2.subList(0, 5));
         if(list3.size()>5) list3 = new ArrayList<>(list3.subList(0, 5));
 
+        if(mContext==null) mContext=getActivity();
         adapter4 = new RecyclerViewNoticeAdapter(mContext, list4);
         adapter1 = new RecyclerViewDdayAdapter(mContext, list1);
         adapter2 = new RecyclerViewGoalAdapter(mContext, list2);
@@ -265,7 +353,11 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
             @Override
             public void onItemClick(View v, int position) {
                 Post item = (Post) adapter1.getItem(position);
-                getPost(item.getID(), position);
+                Intent intent = new Intent(mContext, PostDetailActivity.class);
+                intent.putExtra("post", item);
+                intent.putExtra("position", position);
+                startActivityForResult(intent, DO_SURVEY);
+//                getPost(item.getID(), position);
 
             }
         });
@@ -273,14 +365,22 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
             @Override
             public void onItemClick(View v, int position) {
                 Post item = (Post) adapter2.getItem(position);
-                getPost(item.getID(), position);
+                Intent intent = new Intent(mContext, PostDetailActivity.class);
+                intent.putExtra("post", item);
+                intent.putExtra("position", position);
+                startActivityForResult(intent, DO_SURVEY);
+//                getPost(item.getID(), position);
             }
         });
         adapter3.setOnItemClickListener(new RecyclerViewNewAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View v, int position) {
                 Post item = (Post) adapter3.getItem(position);
-                getPost(item.getID(), position);
+                Intent intent = new Intent(mContext, PostDetailActivity.class);
+                intent.putExtra("post", item);
+                intent.putExtra("position", position);
+                startActivityForResult(intent, DO_SURVEY);
+//                getPost(item.getID(), position);
             }
         });
         adapter4.setOnItemClickListener(new RecyclerViewNoticeAdapter.OnItemClickListener() {
@@ -297,7 +397,7 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
         date_sort_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                OnRefresh(DEADLINE);
+                onSort(DEADLINE);
                 BottomNavigationView bottomNavigationView = (BottomNavigationView) getActivity().findViewById(R.id.bottomNavi);
                 bottomNavigationView.setSelectedItemId(R.id.action_boards);
             }
@@ -305,7 +405,7 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
         goal_sort_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                OnRefresh(GOAL);
+                onSort(GOAL);
                 BottomNavigationView bottomNavigationView = (BottomNavigationView) getActivity().findViewById(R.id.bottomNavi);
                 bottomNavigationView.setSelectedItemId(R.id.action_boards);
             }
@@ -313,7 +413,7 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
         new_sort_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                OnRefresh(NEW);
+                onSort(NEW);
                 BottomNavigationView bottomNavigationView = (BottomNavigationView) getActivity().findViewById(R.id.bottomNavi);
                 bottomNavigationView.setSelectedItemId(R.id.action_boards);
             }
@@ -321,19 +421,19 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
         notice_sort_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(mContext, noticeActivity.class);
+                Intent intent = new Intent(mContext, NoticeActivity.class);
                 startActivityForResult(intent, NOTICE);
             }
         });
 
 
 
-        if (MainActivity.NoticeArrayList.size() != 0){
-            main_notice.setText(MainActivity.NoticeArrayList.get(0).getTitle());
+        if (list4.size() != 0){
+            main_notice.setText(list4.get(0).getTitle());
             main_notice.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Notice item = (Notice)MainActivity.NoticeArrayList.get(0);
+                    Notice item = (Notice)list4.get(0);
                     Intent intent = new Intent(mContext, NoticeDetailActivity.class);
                     intent.putExtra("post", item);
                     intent.putExtra("position", 0);
@@ -356,100 +456,40 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
         }
     }
 
-//    public static void receivedPosts(){
-//        makeView();
-//    }
-//    private static void makeView(){
-//        list1 = new ArrayList<>(MainActivity.postArrayList);
-//        list2 = new ArrayList<>(MainActivity.postArrayList);
-//        list3 = new ArrayList<>(MainActivity.postArrayList);
-//        list4 = new ArrayList<>(MainActivity.NoticeArrayList);
-//        Collections.sort(list1, cmpDeadline);
-//        Collections.sort(list2, cmpGoal);
-//        Collections.sort(list3, cmpNew);
-//        adapter4 = new RecyclerViewNoticeAdapter(mContext, list4);
-//        adapter1 = new RecyclerViewDdayAdapter(mContext, list1);
-//        adapter2 = new RecyclerViewGoalAdapter(mContext, list2);
-//        adapter3 = new RecyclerViewNewAdapter(mContext, list3);
-//        recyclerView.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
-//        recyclerView.setAdapter(adapter1);
-//        recyclerView2.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
-//        recyclerView2.setAdapter(adapter2);
-//        recyclerView3.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
-//        recyclerView3.setAdapter(adapter3);
-//        recyclerView4.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
-//        recyclerView4.setAdapter(adapter4);
-//        adapter1.setOnItemClickListener(new RecyclerViewDdayAdapter.OnItemClickListener() {
-//            @Override
-//            public void onItemClick(View v, int position) {
-//                Post item = (Post) adapter1.getItem(position);
-//                Intent intent = new Intent(mContext, PostDetailActivity.class);
-//                intent.putExtra("post", item);
-//                intent.putExtra("position", position);
-//                ((Activity)mContext).startActivityForResult(intent, DO_SURVEY);
-//            }
-//        });
-//        adapter2.setOnItemClickListener(new RecyclerViewGoalAdapter.OnItemClickListener() {
-//            @Override
-//            public void onItemClick(View v, int position) {
-//                Post item = (Post) adapter2.getItem(position);
-//                Intent intent = new Intent(mContext, PostDetailActivity.class);
-//                intent.putExtra("post", item);
-//                intent.putExtra("position", position);
-//                ((Activity)mContext).startActivityForResult(intent, DO_SURVEY);
-//            }
-//        });
-//        adapter3.setOnItemClickListener(new RecyclerViewNewAdapter.OnItemClickListener() {
-//            @Override
-//            public void onItemClick(View v, int position) {
-//                Post item = (Post) adapter3.getItem(position);
-//                Intent intent = new Intent(mContext, PostDetailActivity.class);
-//                intent.putExtra("post", item);
-//                intent.putExtra("position", position);
-//                ((Activity)mContext).startActivityForResult(intent, DO_SURVEY);
-//            }
-//        });
-//        adapter4.setOnItemClickListener(new RecyclerViewNoticeAdapter.OnItemClickListener() {
-//            @Override
-//            public void onItemClick(View v, int position) {
-//                Notice item = (Notice) adapter4.getItem(position);
-//                Intent intent = new Intent(mContext, NoticeDetailActivity.class);
-//                intent.putExtra("post", item);
-//                intent.putExtra("position", position);
-//                ((Activity)mContext).startActivityForResult(intent, DO_SURVEY);
-//            }
-//        });
-//
-//        if (MainActivity.NoticeArrayList.size() != 0){
-//            main_notice.setText(MainActivity.NoticeArrayList.get(0).getContent());
-//            main_notice.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    Notice item = (Notice)MainActivity.NoticeArrayList.get(0);
-//                    Intent intent = new Intent(mContext, NoticeDetailActivity.class);
-//                    intent.putExtra("post", item);
-//                    intent.putExtra("position", 0);
-//                    ((Activity)mContext).startActivityForResult(intent, DO_SURVEY);
-//                }
-//            });
-//        }
-//        view.setVisibility(View.VISIBLE);
-//    }
-
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        mContext = context;
+        if(mSwipeRefreshLayout!=null) {
+            mSwipeRefreshLayout.setRefreshing(false);
+            mSwipeRefreshLayout.destroyDrawingCache();
+            mSwipeRefreshLayout.clearAnimation();
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (mSwipeRefreshLayout!=null) {
+            mSwipeRefreshLayout.setRefreshing(false);
+            mSwipeRefreshLayout.destroyDrawingCache();
+            mSwipeRefreshLayout.clearAnimation();
+        }
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        mContext = null;
+        if(refreshThread!=null) refreshThread.interrupt();
+        if (mSwipeRefreshLayout!=null) {
+            mSwipeRefreshLayout.setRefreshing(false);
+            mSwipeRefreshLayout.destroyDrawingCache();
+            mSwipeRefreshLayout.clearAnimation();
+        }
     }
 
-    public void OnRefresh(int sort){
+
+    public void onSort(int sort){
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -466,7 +506,6 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
                             Date date1 = o1.getDate();
                             Date date2 = o2.getDate();
                             int compare = date1.compareTo(date2);
-                            Log.d("datecomparing", date1+"   "+date2+"  "+compare);
                             if(compare>0)
                                 ret = -1; //date2<date1
                             else if(compare==0)
@@ -506,7 +545,7 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
                             Date date1 = o1.getDate();
                             Date date2 = o2.getDate();
                             int compare = date1.compareTo(date2);
-                            Log.d("datecomparing", date1+"   "+date2+"  "+compare);
+
                             if(compare>0)
                                 ret = -1; //date2<date1
                             else if(compare==0)
@@ -525,7 +564,6 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
                         Date date1 = o1.getDate();
                         Date date2 = o2.getDate();
                         int compare = date1.compareTo(date2);
-                        Log.d("datecomparing", date1 + "   " + date2 + "  " + compare);
                         if (compare > 0)
                             ret = -1; //date2<date1
                         else if (compare == 0)
@@ -548,7 +586,6 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
                             Date date1 = o1.getDate();
                             Date date2 = o2.getDate();
                             int compare = date1.compareTo(date2);
-                            Log.d("datecomparing", date1+"   "+date2+"  "+compare);
                             if(compare>0)
                                 ret = -1; //date2<date1
                             else if(compare==0)
@@ -579,22 +616,22 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
                 };
                 switch (sort){
                     case NEW:
-                        Collections.sort(BoardFragment1.list, cmpNewBoard);
+                        Collections.sort(BoardPost.list, cmpNewBoard);
                         frag1newselect();
                         break;
                     case GOAL:
-                        Collections.sort(BoardFragment1.list, cmpGoalBoard);
+                        Collections.sort(BoardPost.list, cmpGoalBoard);
                         frag1goalselect();
                         break;
                     case DEADLINE:
-                        Collections.sort(BoardFragment1.list, cmpDeadlineBoard);
+                        Collections.sort(BoardPost.list, cmpDeadlineBoard);
                         frag1dateselect();
                         break;
                     default:
                         break;
                 }
-                listViewAdapter.notifyDataSetChanged();
-                listView.setAdapter(listViewAdapter);
+                postListViewAdapter.notifyDataSetChanged();
+                listView.setAdapter(postListViewAdapter);
             }
         },100);
     }
@@ -648,7 +685,6 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
                     (Request.Method.GET, requestURL, null, response -> {
                         try {
                             JSONObject res = new JSONObject(response.toString());
-                            Log.d("response is", ""+response);
                             JSONObject user = res.getJSONObject("data");
                             UserPersonalInfo.name = user.getString("name");
                             UserPersonalInfo.email = user.getString("email");
@@ -658,7 +694,6 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
                             UserPersonalInfo.userPassword = user.getString("userPassword");
                             UserPersonalInfo.gender = user.getInt("gender");
                             UserPersonalInfo.yearBirth = user.getInt("yearBirth");
-                            UserPersonalInfo.phoneNumber = user.getString("phoneNumber");
                             JSONArray ja = (JSONArray)user.get("participations");
 
                             ArrayList<String> partiarray = new ArrayList<String>();
@@ -667,7 +702,6 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
                             }
 
                             UserPersonalInfo.participations = partiarray;
-                            Log.d("partiarray", ""+UserPersonalInfo.participations.toString());
 
                             JSONArray ja2 = (JSONArray)user.get("prizes");
                             ArrayList<String> prizearray = new ArrayList<String>();
@@ -675,7 +709,35 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
                                 prizearray.add(ja2.getString(j));
                             }
                             UserPersonalInfo.prizes = prizearray;
-                            Log.d("prizearray", ""+UserPersonalInfo.prizes.toString());
+                            ArrayList<Notification> notifications = new ArrayList<>();
+                            try{
+                                SimpleDateFormat fm = new SimpleDateFormat(getString(R.string.date_format));
+                                JSONArray na = (JSONArray)user.get("notifications");
+                                if (na.length() != 0){
+                                    for (int j = 0; j<na.length(); j++){
+                                        JSONObject notification = na.getJSONObject(j);
+                                        String title = notification.getString("title");
+                                        String content = notification.getString("content");
+                                        String post_id = notification.getString("post_id");
+                                        Date date = null;
+                                        try {
+                                            date = fm.parse(notification.getString("date"));
+                                        } catch (ParseException e) {
+                                            e.printStackTrace();
+                                        }
+                                        Integer post_type = notification.getInt("post_type");
+                                        Notification newNotification = new Notification(title, content, post_id, date, post_type);
+                                        notifications.add(newNotification);
+                                    }
+                                }
+
+                            } catch (Exception e){
+                                e.printStackTrace();
+                            }
+                            UserPersonalInfo.notifications = notifications;
+                            UserPersonalInfo.notificationAllow = user.getBoolean("notification_allow");
+                            UserPersonalInfo.prize_check = user.getInt("prize_check");
+
 
 
                             if(getActivity()!=null) {
@@ -712,7 +774,7 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
         for(int i=0;i<IMAGES.length;i++){
             ImagesArray.add(IMAGES[i]);
         }
-        adapter = new BannerViewPagerAdapter(mContext, ImagesArray);
+        adapter = new BannerViewPagerAdapter(getActivity().getApplicationContext(), ImagesArray);
         banner.setAdapter(adapter);
 
 
@@ -763,7 +825,6 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
                     (Request.Method.GET, requestURL, null, response -> {
                         try {
                             JSONObject res = new JSONObject(response.toString());
-                            Log.d("response is", "post"+response);
                             String post_id = res.getString("_id");
                             String title = res.getString("title");
                             String author = res.getString("author");
@@ -776,7 +837,6 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
                             Date date = null;
                             try {
                                 date = fm.parse(res.getString("date"));
-                                Log.d("parsing date", "success");
                             } catch (ParseException e) {
                                 e.printStackTrace();
                             }
@@ -840,31 +900,39 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
                                         ArrayList<String> replyreports = new ArrayList<String>();
                                         for (int u = 0; u<ua.length(); u++){
                                             replyreports.add(ua.getString(u));
-                                            Log.d("reported by", "him"+ua.getString(u));
                                         }
-                                        Log.d("start app comment", ""+datereply.toString());
+                                        String writer_name = null;
+                                        try {
+                                            writer_name = reply.getString("writer_name");
+                                        }catch (Exception e){
+                                            writer_name = null;
+                                        }
                                         Reply re = new Reply(reid, writer, contetn, datereply,replyreports,replyhide);
-                                        Log.d("start app reply", ""+re.getDate().toString()+replyreports);
-                                        Log.d("report ", "replry report" + !replyhide + !replyreports.contains(UserPersonalInfo.userID));
+                                        re.setWriter_name(writer_name);
                                         if (!replyhide && !replyreports.contains(UserPersonalInfo.userID)){
                                             comments.add(re);
                                         }
                                     }
                                 }
-                                Log.d("start app", "getpost comment"+comments.size()+"");
                             } catch (Exception e){
                                 e.printStackTrace();
-                                Log.d("parsing date", "non reply");
                             }
-                            Integer pinned = res.getInt("pinned");
+                            Integer pinned = 0;
+                            Boolean annonymous = false;
+                            String author_info = "";
+                            try {
+                                pinned = res.getInt("pinned");
+                                annonymous = res.getBoolean("annonymous");
+                                author_info = res.getString("author_info");
+                            }catch (Exception e){
 
-                            Post post = new Post(post_id, title, author, author_lvl, content, participants, goal_participants, url, date, deadline, with_prize, prize, est_time, target, count,comments,done, extended, participants_userids, reports, hide, author_userid);
-                            post.setPinned(pinned);
+                            }
+                            Post post = new Post(id, title, author, author_lvl, content, participants, goal_participants, url, date, deadline, with_prize, prize, est_time, target, count,comments,done, extended, participants_userids, reports, hide, author_userid, pinned, annonymous, author_info);
+
                             if(with_prize) post.setPrize_urls(prize_urls);
                             Intent intent = new Intent(((AppCompatActivity) getActivity()).getApplicationContext(), PostDetailActivity.class);
                             intent.putExtra("post", post);
                             intent.putParcelableArrayListExtra("reply", post.getComments());
-                            Log.d("adapter click", "prize:"+post.getComments().toString());
                             intent.putExtra("position", position);
                             startActivityForResult(intent, DO_SURVEY);
 
@@ -883,5 +951,207 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
             Log.d("exception", "failed getting response");
             e.printStackTrace();
         }
+    }
+
+    private void getPosts() throws Exception{
+        try{
+            String requestURL = "http://ec2-3-35-152-40.ap-northeast-2.compute.amazonaws.com/api/posts";
+            RequestQueue requestQueue = Volley.newRequestQueue(mContext.getApplicationContext());
+            JsonArrayRequest jsonArrayRequest = new JsonArrayRequest
+                    (Request.Method.GET, requestURL, null, response -> {
+                        try {
+                            ArrayList<Post> postArrayList = new ArrayList<Post>();
+                            ArrayList<Post> notreportedpostArrayList = new ArrayList<Post>();
+                            ArrayList<Post> reportpostArrayList = new ArrayList<Post>();
+                            JSONArray resultArr = new JSONArray(response.toString());
+                            for (int i = 0; i < resultArr.length(); i++) {
+                                JSONObject post = resultArr.getJSONObject(i);
+                                String id = post.getString("_id");
+                                String title = post.getString("title");
+                                String author = post.getString("author");
+                                Integer author_lvl = post.getInt("author_lvl");
+                                String content = post.getString("content");
+                                Integer participants = post.getInt("participants");
+                                Integer goal_participants = post.getInt("goal_participants");
+                                String url = post.getString("url");
+                                SimpleDateFormat fm = new SimpleDateFormat(mContext.getString(R.string.date_format));
+                                Date date = null;
+                                try {
+                                    date = fm.parse(post.getString("date"));
+                                } catch (ParseException e) {
+                                    e.printStackTrace();
+                                }
+                                Date deadline = null;
+                                try {
+                                    deadline = fm.parse(post.getString("deadline"));
+                                } catch (ParseException e) {
+                                    e.printStackTrace();
+                                }
+                                Boolean with_prize = post.getBoolean("with_prize");
+                                String prize = "none";
+                                Integer count= 0;
+                                Integer est_time = post.getInt("est_time");
+                                String target = post.getString("target");
+                                Boolean done = post.getBoolean("done");
+                                Boolean hide = post.getBoolean("hide");
+                                Integer extended = post.getInt("extended");
+                                String author_userid = post.getString("author_userid");
+                                if(with_prize) {
+                                    prize = post.getString("prize");
+                                    count = post.getInt("num_prize");
+                                }
+                                JSONArray ia = (JSONArray)post.get("participants_userids");
+
+                                ArrayList<String> participants_userids = new ArrayList<String>();
+                                for (int j = 0; j<ia.length(); j++){
+                                    participants_userids.add(ia.getString(j));
+                                }
+
+                                JSONArray ka = (JSONArray)post.get("reports");
+
+                                ArrayList<String> reports = new ArrayList<String>();
+                                for (int j = 0; j<ka.length(); j++){
+                                    reports.add(ka.getString(j));
+                                }
+
+                                ArrayList<Reply> comments = new ArrayList<>();
+                                try{
+                                    JSONArray ja = (JSONArray)post.get("comments");
+                                    if (ja.length() != 0){
+                                        for (int j = 0; j<ja.length(); j++){
+                                            JSONObject reply = ja.getJSONObject(j);
+                                            String reid = reply.getString("_id");
+                                            String writer = reply.getString("writer");
+                                            String contetn = reply.getString("content");
+                                            Date datereply = null;
+                                            try {
+                                                datereply = fm.parse(reply.getString("date"));
+                                            } catch (ParseException e) {
+                                                e.printStackTrace();
+                                            }
+                                            Boolean replyhide = reply.getBoolean("hide");
+                                            JSONArray ua = (JSONArray)reply.get("reports");
+
+
+                                            ArrayList<String> replyreports = new ArrayList<String>();
+                                            for (int u = 0; u<ua.length(); u++){
+                                                replyreports.add(ua.getString(u));
+                                            }
+                                            String writer_name = null;
+                                            try {
+                                                writer_name = reply.getString("writer_name");
+                                            }catch (Exception e){
+                                                writer_name = null;
+                                            }
+                                            Reply re = new Reply(reid, writer, contetn, datereply,replyreports,replyhide);
+                                            re.setWriter_name(writer_name);
+                                            if ((!replyhide )&& (!replyreports.contains(UserPersonalInfo.userID))){
+                                                comments.add(re);
+                                            }
+                                        }
+                                    }
+
+                                } catch (Exception e){
+                                    e.printStackTrace();
+                                }
+                                Integer pinned = 0;
+                                Boolean annonymous = false;
+                                String author_info = "";
+                                try {
+                                    pinned = post.getInt("pinned");
+                                    annonymous = post.getBoolean("annonymous");
+                                    author_info = post.getString("author_info");
+                                }catch (Exception e){
+
+                                }
+                                Post newPost = new Post(id, title, author, author_lvl, content, participants, goal_participants, url, date, deadline, with_prize, prize, est_time, target, count,comments,done, extended, participants_userids, reports, hide, author_userid, pinned, annonymous, author_info);
+                                Date now = new Date();
+                                if(reports.contains(UserPersonalInfo.userID) || hide) {
+                                    reportpostArrayList.add(newPost);
+                                } else if (now.after(newPost.getDeadline()) || newPost.isDone()){
+                                    notreportedpostArrayList.add(newPost);
+                                }
+                                else {
+                                    postArrayList.add(newPost);
+                                    notreportedpostArrayList.add(newPost);
+                                }
+                            }
+                            MainActivity.reportpostArrayList = reportpostArrayList;
+                            MainActivity.notreportedpostArrayList = notreportedpostArrayList;
+                            MainActivity.postArrayList = postArrayList;
+                            getPostsDone = true;
+
+                        } catch (JSONException e) {
+                            Log.d("exception", "JSON error");
+                            e.printStackTrace();
+                        }
+                    }, error -> {
+                        Log.d("exception", "volley error");
+                        error.printStackTrace();
+                    });
+            jsonArrayRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            requestQueue.add(jsonArrayRequest);
+        } catch (Exception e){
+            Log.d("exception", "failed getting response");
+            e.printStackTrace();
+        }
+    }
+    private void getNotices() throws Exception{
+        try{
+            String requestURL = "http://ec2-3-35-152-40.ap-northeast-2.compute.amazonaws.com/api/notices";
+            RequestQueue requestQueue = Volley.newRequestQueue(mContext.getApplicationContext());
+            JsonArrayRequest jsonArrayRequest = new JsonArrayRequest
+                    (Request.Method.GET, requestURL, null, response -> {
+                        try {
+                            ArrayList<Notice> NoticeArrayList = new ArrayList<Notice>();
+                            JSONArray resultArr = new JSONArray(response.toString());
+
+                            for (int i = 0; i < resultArr.length(); i++) {
+                                JSONObject post = resultArr.getJSONObject(i);
+                                String id = post.getString("_id");
+                                String title = post.getString("title");
+                                String author = post.getString("author");
+                                String content = post.getString("content");
+                                SimpleDateFormat fm = new SimpleDateFormat(mContext.getString(R.string.date_format));
+                                Date date = null;
+                                try {
+                                    date = fm.parse(post.getString("date"));
+                                } catch (ParseException e) {
+                                    e.printStackTrace();
+                                }
+                                JSONArray images = (JSONArray)post.get("image_urls");
+                                ArrayList<String> imagearray = new ArrayList<>();
+                                if(images!=null) {
+                                    imagearray = new ArrayList<String>();
+                                    for (int j = 0; j < images.length(); j++) {
+                                        imagearray.add(images.getString(j));
+                                    }
+                                }
+
+
+                                Notice newNotice = new Notice(id, title, author, content, date);
+
+                                if(images!=null){
+                                    newNotice.setImages(imagearray);
+                                }
+                                NoticeArrayList.add(newNotice);
+                            }
+                            MainActivity.NoticeArrayList = NoticeArrayList;
+                            getNoticesDone = true;
+                        } catch (JSONException e) {
+                            Log.d("exception", "JSON error");
+                            e.printStackTrace();
+                        }
+                    }, error -> {
+                        Log.d("exception", "volley error");
+                        error.printStackTrace();
+                    });
+            jsonArrayRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            requestQueue.add(jsonArrayRequest);
+        } catch (Exception e){
+            Log.d("exception", "failed getting response");
+            e.printStackTrace();
+        }
+
     }
 }

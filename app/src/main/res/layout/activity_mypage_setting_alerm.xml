@@ -62,6 +62,7 @@
             android:layout_marginTop="10dp"
             />
         <TextView
+            android:visibility="gone"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="소리"
@@ -72,6 +73,7 @@
             android:layout_marginLeft="10dp"
             />
         <Switch
+            android:visibility="gone"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignBaseline="@id/alerm_sound"
@@ -79,6 +81,7 @@
             android:id="@+id/alerm_sound_switch"
             />
         <TextView
+            android:visibility="gone"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="진동"
@@ -89,6 +92,7 @@
             android:layout_marginLeft="10dp"
             />
         <Switch
+            android:visibility="gone"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignBaseline="@id/alerm_vibe"

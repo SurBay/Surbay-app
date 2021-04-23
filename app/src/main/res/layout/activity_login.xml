@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@color/gray">
+
 
     <ImageView
         android:id="@+id/textView"
@@ -24,7 +28,7 @@
         android:background="@color/white"
         android:ems="10"
         android:hint="아이디 (이메일 형식)"
-        android:inputType="text"
+        android:inputType="textEmailAddress"
         style="@style/EdittextTheme"
         android:privateImeOptions="defaultInputmode=english"/>
 
@@ -55,6 +59,7 @@
             android:src="@drawable/visibletoggle"
             android:scaleType="centerInside"
             android:background="@color/white"
+            android:visibility="invisible"
             />
     </RelativeLayout>
     <LinearLayout
@@ -119,13 +124,48 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="아이디 찾기/비밀번호 재설정"
+        android:text="비밀번호 재설정"
         android:gravity="center"
         android:layout_marginHorizontal="40dp"
         android:layout_marginTop="15dp"
         android:clickable="true"
         android:textColor="@color/text_black_70"
         android:id="@+id/findidorpw"/>
-
-
+    <View
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"></View>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="비회원으로 둘러보기"
+        android:layout_marginBottom="50dp"
+        android:gravity="center"
+        android:layout_marginHorizontal="40dp"
+        android:clickable="true"
+        android:textColor="@color/text_black_70"
+        android:id="@+id/non_member_login"/>
 </LinearLayout>
+    <RelativeLayout
+        android:id="@+id/loadingPanel"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:alpha="0.5"
+            android:background="@color/gray" />
+
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:indeterminate="true" />
+
+
+    </RelativeLayout>
+
+</FrameLayout>

@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -50,6 +51,11 @@ public class MypageSettingAccount extends AppCompatActivity {
 
     ImageView back;
 
+    LinearLayout memberView;
+    LinearLayout nonMemberView;
+
+    Button gotoLogin;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,16 +85,38 @@ public class MypageSettingAccount extends AppCompatActivity {
         logout = findViewById(R.id.account_logout);
         userdelect = findViewById(R.id.alerm_userdelect);
 
+        memberView = findViewById(R.id.memberView);
+        nonMemberView = findViewById(R.id.nonMemberView);
+
         id.setText(UserPersonalInfo.userID);
         name.setText(UserPersonalInfo.name);
-        phone.setText(UserPersonalInfo.phoneNumber);
+//        phone.setText(UserPersonalInfo.phoneNumber);
+        if(UserPersonalInfo.userID.equals("nonMember")){
+            memberView.setVisibility(View.GONE);
+            nonMemberView.setVisibility(View.VISIBLE);
+            gotoLogin = findViewById(R.id.go_to_login);
+            gotoLogin.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(MypageSettingAccount.this, LoginActivity.class);
+                    startActivity(intent);
+                }
+            });
+            return;
+
+        }
         if (UserPersonalInfo.gender == 0){
             sex.setText("남성");
-        } else {
+        } else if(UserPersonalInfo.gender == 1){
             sex.setText("여성");
+        } else{
+            sex.setText("선택안함");
         }
-        birth.setText(UserPersonalInfo.yearBirth.toString());
-
+        if(UserPersonalInfo.yearBirth==0){
+            birth.setText("선택안함");
+        }else {
+            birth.setText(UserPersonalInfo.yearBirth.toString());
+        }
         uifix.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -116,28 +144,7 @@ public class MypageSettingAccount extends AppCompatActivity {
                     @Override
                     public void onClick(View v) {
 
-                        SharedPreferences auto = getSharedPreferences("auto", Activity.MODE_PRIVATE);
-                        SharedPreferences.Editor editor = auto.edit();
-                        //editor.clear()는 auto에 들어있는 모든 정보를 기기에서 지웁니다.
-                        editor.clear();
-                        editor.commit();
-                        SharedPreferences tempWrite = getSharedPreferences("tempWrite", Activity.MODE_PRIVATE);
-                        SharedPreferences.Editor tempWriteedit = tempWrite.edit();
-                        tempWriteedit.clear();
-                        tempWriteedit.commit();
-
-                        UserPersonalInfo.clearInfo();
-                        MainActivity.notreportedpostArrayList = new ArrayList<>();
-                        MainActivity.postArrayList = new ArrayList<>();
-                        MainActivity.reportpostArrayList = new ArrayList<>();
-                        MainActivity.surveytipArrayList = new ArrayList<>();
-                        MainActivity.feedbackArrayList = new ArrayList<>();
-                        MainActivity.NoticeArrayList = new ArrayList<>();
-                        MainActivity.done = 0;
-                        Toast.makeText(MypageSettingAccount.this, "로그아웃 되었습니다", Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent(MypageSettingAccount.this, LoginActivity.class);
-                        startActivity(intent);
-                        finish();
+                        logoutRequest();
                     }
                 });
                 customDialog.show();
@@ -211,7 +218,7 @@ public class MypageSettingAccount extends AppCompatActivity {
 
             id.setText(UserPersonalInfo.userID);
             name.setText(UserPersonalInfo.name);
-            phone.setText(UserPersonalInfo.phoneNumber);
+//            phone.setText(UserPersonalInfo.phoneNumber);
             if (UserPersonalInfo.gender == 0){
                 sex.setText("남성");
             } else {
@@ -251,6 +258,50 @@ public class MypageSettingAccount extends AppCompatActivity {
                     return headers;
                 }
             };
+            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            requestQueue.add(jsonObjectRequest);
+        } catch (Exception e){
+            Log.d("exception", "failed getting response");
+            e.printStackTrace();
+        }
+    }
+    private void logoutRequest(){
+        try{
+            String requestURL = getString(R.string.server)+"/api/users/logout";
+            JSONObject params = new JSONObject();
+            params.put("userID", UserPersonalInfo.userID);
+            RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
+            JsonObjectRequest jsonObjectRequest= new JsonObjectRequest
+                    (Request.Method.PUT, requestURL, params, response -> {
+                        try {
+                            SharedPreferences auto = getSharedPreferences("auto", Activity.MODE_PRIVATE);
+                            SharedPreferences.Editor editor = auto.edit();
+                            //editor.clear()는 auto에 들어있는 모든 정보를 기기에서 지웁니다.
+                            editor.clear();
+                            editor.commit();
+                            SharedPreferences tempWrite = getSharedPreferences("tempWrite", Activity.MODE_PRIVATE);
+                            SharedPreferences.Editor tempWriteedit = tempWrite.edit();
+                            tempWriteedit.clear();
+                            tempWriteedit.commit();
+
+                            UserPersonalInfo.clearInfo();
+                            MainActivity.notreportedpostArrayList = new ArrayList<>();
+                            MainActivity.postArrayList = new ArrayList<>();
+                            MainActivity.reportpostArrayList = new ArrayList<>();
+                            MainActivity.surveytipArrayList = new ArrayList<>();
+                            MainActivity.feedbackArrayList = new ArrayList<>();
+                            MainActivity.NoticeArrayList = new ArrayList<>();
+                            MainActivity.done = 0;
+                            Toast.makeText(MypageSettingAccount.this, "로그아웃 되었습니다", Toast.LENGTH_SHORT).show();
+                            Intent intent = new Intent(MypageSettingAccount.this, LoginActivity.class);
+                            startActivity(intent);
+                            finish();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }, error -> {
+                        error.printStackTrace();
+                    });
             jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
             requestQueue.add(jsonObjectRequest);
         } catch (Exception e){

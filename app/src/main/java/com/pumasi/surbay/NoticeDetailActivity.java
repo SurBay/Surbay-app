@@ -16,6 +16,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.pumasi.surbay.adapter.GiftImageAdapter2;
 import com.pumasi.surbay.adapter.noticeImageAdapter;
@@ -42,6 +43,9 @@ public class NoticeDetailActivity extends AppCompatActivity {
     private RecyclerView imagesrecyclerview;
     private noticeImageAdapter imageAdapter;
     private ArrayList<Bitmap> image_bitmaps = new ArrayList<>();
+
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -131,4 +135,5 @@ public class NoticeDetailActivity extends AppCompatActivity {
         title.setText(post.getTitle());
         content.setText(post.getContent());
     }
+
 }

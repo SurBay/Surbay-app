@@ -69,9 +69,27 @@
             android:layout_height="wrap_content"
             android:text="surbay.official@gmail.com"
             android:textSize="15dp"
-            android:layout_marginLeft="20dp"
+            android:layout_marginLeft="22dp"
             android:layout_toRightOf="@id/setting_report_C_title"
             android:layout_alignBaseline="@id/setting_report_C_for"
+            />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="인스타그램"
+            android:textSize="15dp"
+            android:layout_below="@id/setting_report_C_for"
+            android:id="@+id/setting_report_C_instagram"
+            android:layout_marginTop="10dp"
+            />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=" @surbay_official"
+            android:textSize="15dp"
+            android:layout_marginLeft="18dp"
+            android:layout_toRightOf="@id/setting_report_C_title"
+            android:layout_alignBaseline="@id/setting_report_C_instagram"
             />
     </RelativeLayout>
 </LinearLayout>

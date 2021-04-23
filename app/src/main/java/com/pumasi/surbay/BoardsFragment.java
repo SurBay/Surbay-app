@@ -1,13 +1,11 @@
 package com.pumasi.surbay;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -43,13 +41,13 @@ public class BoardsFragment extends Fragment  {
             @Override
             public Fragment createFragment(int position) {
                 if(position==0) {
-                    return new BoardFragment1();
+                    return new BoardPost();
                 }else if(position==1){
-                    return new BoardFragment2();
+                    return new BoardGeneral();
                 }else if(position==2){
-                    return new BoardFragment3();
+                    return new BoardSurveyTip();
                 }
-                return new BoardFragment1();
+                return new BoardPost();
             }
 
             @Override
@@ -78,10 +76,10 @@ public class BoardsFragment extends Fragment  {
         new TabLayoutMediator(tabLayout, viewPager,
                 (tab, position) -> {
                     if(position==0){
-                        tab.setText("SurBay");
+                        tab.setText("품앗이");
                     }
-                    else if(position==1){tab.setText("설문 TIP");}
-                    else if(position==2){tab.setText("건의/의견");}
+                    else if(position==1){tab.setText("SurBay");}
+                    else if(position==2){tab.setText("설문TIP");}
                 }
         ).attach();
     }

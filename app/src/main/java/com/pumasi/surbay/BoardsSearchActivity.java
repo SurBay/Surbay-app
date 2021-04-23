@@ -19,9 +19,10 @@ import android.widget.Spinner;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.pumasi.surbay.adapter.ListViewAdapter;
-import com.pumasi.surbay.adapter.NonSurveyListViewAdapter;
+import com.pumasi.surbay.adapter.GeneralListViewAdapter;
+import com.pumasi.surbay.adapter.PostListViewAdapter;
 import com.pumasi.surbay.adapter.SurveyTipListViewAdapter;
+import com.pumasi.surbay.classfile.General;
 import com.pumasi.surbay.classfile.Post;
 import com.pumasi.surbay.classfile.PostNonSurvey;
 import com.pumasi.surbay.classfile.Surveytip;
@@ -33,25 +34,26 @@ public class BoardsSearchActivity extends AppCompatActivity {
     static final int DISLIKED = 4;
 
     public final int SURBAY_SELECT = 0;
-    public final int TIP_SELECT = 1;
-    public final int FEEDBACK_SELECT = 2;
+    public final int GENERAL_SELECT = 1;
+    public final int TIP_SELECT = 2;
+
 
     static final int DO_SURVEY = 2;
     static final int DONE = 1;
     static final int LIKE_SURVEY = 3;
 
-    final String[] spinner_context = {"SurBay", "설문 Tip", "건의사항"};
+    final String[] spinner_context = {"품앗이", "SurBay", "설문 Tip"};
     ListView search_listview;
     EditText search_editview;
-    ImageButton search_enter;
+    ImageButton search_delete;
     Spinner search_spinner;
     ImageButton back;
 
-    static ListViewAdapter search_SurveyAdapter;
-    static NonSurveyListViewAdapter search_NonsurveyAdapter;
+    static PostListViewAdapter search_SurveyAdapter;
+    static GeneralListViewAdapter search_GeneralAdapter;
     static SurveyTipListViewAdapter search_TipAdapter;
     static ArrayList<Post> search_list_post;
-    static ArrayList<PostNonSurvey> search_list_postNon;
+    static ArrayList<General> search_list_general;
     static ArrayList<Surveytip> search_list_tip;
 
     int selecting_spinner;
@@ -66,7 +68,7 @@ public class BoardsSearchActivity extends AppCompatActivity {
 
 
         search_editview = (EditText)findViewById(R.id.search_edittext);
-        search_enter = (ImageButton)findViewById(R.id.boards_enter_button);
+        search_delete = (ImageButton)findViewById(R.id.boards_delete_button);
         search_spinner = (Spinner)findViewById(R.id.search_spinner);
         search_listview = (ListView)findViewById(R.id.search_listview);
 
@@ -79,10 +81,10 @@ public class BoardsSearchActivity extends AppCompatActivity {
         search_spinner.setSelection(selected_spinner);
 
 
-        search_list_post = new ArrayList<Post>();
+        search_list_post = new ArrayList<>();
         search_list_tip = new ArrayList<>();
-        search_list_postNon = new ArrayList<>();
-        search_SurveyAdapter = new ListViewAdapter(search_list_post);
+        search_list_general = new ArrayList<>();
+        search_SurveyAdapter = new PostListViewAdapter(search_list_post);
         search_listview.setAdapter(search_SurveyAdapter);
 
         back = findViewById(R.id.go_back_search);
@@ -106,11 +108,11 @@ public class BoardsSearchActivity extends AppCompatActivity {
             }
         });
 
-        search_enter.setOnClickListener(new View.OnClickListener() {
+        search_delete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 search_editview.getText().clear();
-                search_enter.setVisibility(View.GONE);
+                search_delete.setVisibility(View.INVISIBLE);
             }
         });
 
@@ -130,7 +132,8 @@ public class BoardsSearchActivity extends AppCompatActivity {
                 if (search_keyword.length() > 0 ){
                     Log.d("search", " " + search_keyword);
                     search_list_post = new ArrayList<Post>();
-                    search_list_postNon = new ArrayList<PostNonSurvey>();
+                    search_list_general = new ArrayList<General>();
+                    search_delete.setVisibility(View.VISIBLE);
                     do_search(search_keyword);
                 };
             }
@@ -168,7 +171,7 @@ public class BoardsSearchActivity extends AppCompatActivity {
                         search_list_post.add(post);
                     }
                 }
-                search_SurveyAdapter = new ListViewAdapter(search_list_post);
+                search_SurveyAdapter = new PostListViewAdapter(search_list_post);
                 search_listview.setAdapter(search_SurveyAdapter);
                 search_listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
@@ -186,6 +189,29 @@ public class BoardsSearchActivity extends AppCompatActivity {
                     }
                 });
 
+                break;
+            case GENERAL_SELECT:
+                search_list_general.clear();
+                for (General post : MainActivity.generalArrayList){
+                    if ((post.getContent().contains(search_keyword)) || (post.getTitle().contains(search_keyword))){
+                        search_list_general.add(post);
+                    }
+                }
+                search_GeneralAdapter = new GeneralListViewAdapter(search_list_general);
+                search_listview.setAdapter(search_GeneralAdapter);
+
+                search_listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        General item =  (General) search_GeneralAdapter.getItem(position);
+                        Log.d("search", item.toString());
+                        Intent intent = new Intent(BoardsSearchActivity.this, GeneralDetailActivity.class);
+                        intent.putExtra("general", item);
+                        intent.putExtra("position", position);
+                        Log.d("search", item.toString());
+                        startActivity(intent);
+                    }
+                });
                 break;
             case TIP_SELECT:
                 search_list_tip.clear();
@@ -213,29 +239,7 @@ public class BoardsSearchActivity extends AppCompatActivity {
                     }
                 });
                 break;
-            case FEEDBACK_SELECT:
-                search_list_postNon.clear();
-                for (PostNonSurvey post : MainActivity.feedbackArrayList){
-                    if ((post.getContent().contains(search_keyword)) || (post.getTitle().contains(search_keyword))){
-                        search_list_postNon.add(post);
-                    }
-                }
-                search_NonsurveyAdapter = new NonSurveyListViewAdapter(search_list_postNon);
-                search_listview.setAdapter(search_NonsurveyAdapter);
 
-                search_listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        PostNonSurvey item = (PostNonSurvey)search_NonsurveyAdapter.getItem(position);
-                        Log.d("search", item.toString());
-                        Intent intent = new Intent(BoardsSearchActivity.this, Feedbackdetail.class);
-                        intent.putExtra("post", item);
-                        intent.putExtra("position", position);
-                        Log.d("search", item.toString());
-                        startActivity(intent);
-                    }
-                });
-                break;
         }
 
     }

@@ -4,8 +4,14 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -15,20 +21,29 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
+import com.google.firebase.dynamiclinks.PendingDynamicLinkData;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.pumasi.surbay.classfile.CustomDialog;
+import com.pumasi.surbay.classfile.Notification;
 import com.pumasi.surbay.classfile.Post;
 import com.pumasi.surbay.classfile.Reply;
 import com.pumasi.surbay.classfile.UserPersonalInfo;
@@ -41,8 +56,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 public class LoginActivity extends AppCompatActivity {
     private AlertDialog dialog;
@@ -54,12 +67,30 @@ public class LoginActivity extends AppCompatActivity {
 
     private EditText usernameEditText;
     private EditText passwordEditText;
+    private boolean loginDone = false;
+
+    RelativeLayout loading;
+
+    loginHandler handler = new loginHandler();
+    private boolean getPostDone = false;
+
+    TextView nonMemberLogin;
+
+    String fcm_token;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        try {
+            MainActivity.getNotices();
+            getPosts();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
         setContentView(R.layout.activity_login);
         getSupportActionBar().hide();
-        Log.d("user info start is ", ""+UserPersonalInfo.userID);
         save_id_check = findViewById(R.id.id_save_check);
         auto_login_check = findViewById(R.id.auto_login_check);
 
@@ -69,41 +100,150 @@ public class LoginActivity extends AppCompatActivity {
 
         visibletoggle = findViewById(R.id.visible_toggle_login);
 
+        nonMemberLogin = findViewById(R.id.non_member_login);
+
+        loading = findViewById(R.id.loadingPanel);
+        loading.setVisibility(View.GONE);
+
+        SharedPreferences autologin = getSharedPreferences("auto", Activity.MODE_PRIVATE);
+        String loginId, loginPwd, name, token;
+        loginId = autologin.getString("inputId", null);
+        loginPwd = autologin.getString("inputPwd", null);
+        name = autologin.getString("name", null);
+        token = autologin.getString("token", null);
+        Log.d("자동로그인", "" + loginId + loginPwd + name + token);
+        fcm_token = null;
+//        FirebaseMessaging.getInstance().subscribeToTopic("surbay");
+        FirebaseMessaging.getInstance().getToken()
+                .addOnCompleteListener(new OnCompleteListener<String>() {
+                    @Override
+                    public void onComplete(@NonNull Task<String> task) {
+                        if (!task.isSuccessful()) {
+                            Log.w("FIREBASEMESSAGING", "Fetching FCM registration token failed", task.getException());
+                            return;
+                        }
+
+                        // Get new FCM registration token
+                        String token = task.getResult();
+
+                        // Log and toast
+//                        String msg = getString(R.string.msg_token_fmt, token);
+                        Log.d("tokenis", token);
+                        fcm_token = token;
+                        if (loginId != null && loginPwd != null) {
+                            loading.setVisibility(View.VISIBLE);
+                            new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+
+                                    makeLoginRequest(loginId, loginPwd);
+                                    while (!(loginDone && getPostDone)) {
+                                        try {
+                                            Thread.sleep(100);
+                                        } catch (Exception e) {
+                                        }
+                                    }
+
+                                    Message message = handler.obtainMessage();
+                                    handler.sendMessage(message);
+                                }
+                            }).start();
+                        }
+
+//                        Toast.makeText(MainActivity.this, token, Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+
+
+
         visibletoggle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                change_visible(passwordEditText);
+                change_visible(passwordEditText, visibletoggle);
+            }
+        });
+        passwordEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (passwordEditText.getText().length() != 0) {
+                    visibletoggle.setVisibility(View.VISIBLE);
+                } else {
+                    visibletoggle.setVisibility(View.INVISIBLE);
+                }
             }
         });
 
         Button login = findViewById(R.id.login);
         Button signup = findViewById(R.id.sign_up);
 
+        nonMemberLogin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                UserPersonalInfo.token = null;
+                UserPersonalInfo.name = "비회원";
+                UserPersonalInfo.email = null;
+                UserPersonalInfo.points = 0;
+                UserPersonalInfo.level = 0;
+                UserPersonalInfo.userID = "nonMember";
+                UserPersonalInfo.participations = new ArrayList<>();
+                UserPersonalInfo.prizes = new ArrayList<>();
+                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                startActivity(intent);
+            }
+        });
+
+
+
         login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String username = usernameEditText.getText().toString();
                 String password = passwordEditText.getText().toString();
-                if(username.length()==0){Toast.makeText(LoginActivity.this, "아이디를 입력해주세요", Toast.LENGTH_SHORT).show();}
-                else if(password.length()==0){Toast.makeText(LoginActivity.this, "비밀번호를 입력해주세요", Toast.LENGTH_SHORT).show();}
-                else{
-                    try {
-                        makeLoginRequest(username, password);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+                if (username.length() == 0) {
+                    Toast.makeText(LoginActivity.this, "아이디를 입력해주세요", Toast.LENGTH_SHORT).show();
+                } else if (password.length() == 0) {
+                    Toast.makeText(LoginActivity.this, "비밀번호를 입력해주세요", Toast.LENGTH_SHORT).show();
+                } else {
+                    loading.setVisibility(View.VISIBLE);
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+
+                            makeLoginRequest(username, password);
+                            while (!(loginDone && getPostDone)) {
+                                try {
+                                    Thread.sleep(100);
+                                } catch (Exception e) {
+                                }
+                            }
+
+                            Message message = handler.obtainMessage();
+                            handler.sendMessage(message);
+                        }
+                    }).start();
                 }
             }
         });
         signup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(LoginActivity.this, SignupActivity.class);
+//                Intent intent = new Intent(LoginActivity.this, SignupActivity.class);
+                Intent intent = new Intent(LoginActivity.this, SignupActivityEmail.class);
+
                 startActivity(intent);
             }
         });
 
-        save_id_check.setOnClickListener(new View.OnClickListener(){
+        save_id_check.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
@@ -119,22 +259,54 @@ public class LoginActivity extends AppCompatActivity {
 
         SharedPreferences auto = getSharedPreferences("auto", Activity.MODE_PRIVATE);
         String auto_id = auto.getString("inputId", null);
-        if (auto_id != null){
+        if (auto_id != null) {
             usernameEditText.setText(auto_id);
         }
 
         findidorpw.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(LoginActivity.this, FindIdActivity.class);
+                Intent intent = new Intent(LoginActivity.this, ChangePwActivity.class);
                 startActivity(intent);
             }
         });
+
+
+        FirebaseDynamicLinks.getInstance()
+                .getDynamicLink(getIntent())
+                .addOnSuccessListener(this, new OnSuccessListener<PendingDynamicLinkData>() {
+                    @Override
+                    public void onSuccess(PendingDynamicLinkData pendingDynamicLinkData) {
+                        // Get deep link from result (may be null if no link is found)
+                        Uri deepLink = null;
+                        if (pendingDynamicLinkData != null) {
+                            deepLink = pendingDynamicLinkData.getLink();
+                        }
+                        Log.d("dynamiclinkis", "" + deepLink);
+                        if(autologin.getString("temp_email", null)!=null && deepLink!=null && (!deepLink.toString().contains("passwordchange")))
+                            confirmemail(autologin.getString("temp_email", null));
+                        else if(autologin.getString("pwdchangeemail", null)!=null && deepLink!=null && deepLink.toString().contains("passwordchange")){
+                            confirmemailpasswordchange(autologin.getString("pwdchangeemail", null));
+                            Intent intent = new Intent(LoginActivity.this, ChangePwActivity.class);
+                            intent.putExtra("confirmed", true);
+                            startActivity(intent);
+                        }
+                    }
+                })
+                .addOnFailureListener(this, new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w("dynamictest", "getDynamicLink:onFailure", e);
+                    }
+                });
+
     }
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        if(getCurrentFocus()!=null)imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+        if (getCurrentFocus() != null)
+            imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
         return true;
     }
 
@@ -151,6 +323,7 @@ public class LoginActivity extends AppCompatActivity {
         customDialog.setPositiveButton("종료");
         customDialog.setNegativeButton("취소");
     }
+
     private void exitProgram() {
         moveTaskToBack(true);
         if (Build.VERSION.SDK_INT >= 21) {
@@ -164,16 +337,80 @@ public class LoginActivity extends AppCompatActivity {
         System.exit(0);
     }
 
-    private void makeLoginRequest(String username, String password) throws Exception{
+    private class loginHandler extends Handler {
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            super.handleMessage(msg);
+            if (UserPersonalInfo.userID != null) {
+                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                startActivity(intent);
+            } else {
+                loading.setVisibility(View.GONE);
+            }
+        }
+    }
+
+    private void confirmemail(String email) {
+        String requestURL = getString(R.string.server) + "/api/users/confirmemail";
+        RequestQueue requestQueue = Volley.newRequestQueue(LoginActivity.this);
+        JSONObject params = new JSONObject();
+        try {
+            params.put("email",email);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+            (Request.Method.PUT, requestURL, params, response -> {
+                Toast.makeText(LoginActivity.this, "회원가입이 완료되었습니다", Toast.LENGTH_SHORT).show();
+            }, error -> {
+                Log.d("exception", "volley error");
+                CustomDialog customDialog = new CustomDialog(LoginActivity.this, null);
+                customDialog.show();
+                customDialog.setMessage("오류가 발생했습니다");
+                customDialog.setNegativeButton("다시시도");
+                error.printStackTrace();
+            });
+            jsonObjectRequest.setRetryPolicy(new
+
+    DefaultRetryPolicy(20*1000,DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            requestQueue.add(jsonObjectRequest);
+    }
+    private void confirmemailpasswordchange(String email) {
+        String requestURL = getString(R.string.server) + "/api/users/confirmemailpassword";
+        RequestQueue requestQueue = Volley.newRequestQueue(LoginActivity.this);
+        JSONObject params = new JSONObject();
+        try {
+            params.put("email",email);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                (Request.Method.PUT, requestURL, params, response -> {
+                }, error -> {
+                    Log.d("exception", "volley error");
+                    CustomDialog customDialog = new CustomDialog(LoginActivity.this, null);
+                    customDialog.show();
+                    customDialog.setMessage("오류가 발생했습니다");
+                    customDialog.setNegativeButton("다시시도");
+                    error.printStackTrace();
+                });
+        jsonObjectRequest.setRetryPolicy(new
+
+                DefaultRetryPolicy(20*1000,DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        requestQueue.add(jsonObjectRequest);
+    }
+
+    private void makeLoginRequest(String username, String password){
         try{
             String requestURL = getString(R.string.server)+"/login";
             RequestQueue requestQueue = Volley.newRequestQueue(LoginActivity.this);
             JSONObject params = new JSONObject();
             params.put("userID", username);
             params.put("userPassword", password);
+            Log.d("logintoken", "" + fcm_token);
+            params.put("fcm_token", fcm_token);
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
                     (Request.Method.POST, requestURL, params, response -> {
-                        Log.d("response is", ""+response);
                         try {
                             JSONObject resultObj = new JSONObject(response.toString());
                             Boolean success = resultObj.getBoolean("type");
@@ -191,7 +428,6 @@ public class LoginActivity extends AppCompatActivity {
                                     UserPersonalInfo.userPassword = user.getString("userPassword");
                                     UserPersonalInfo.gender = user.getInt("gender");
                                     UserPersonalInfo.yearBirth = user.getInt("yearBirth");
-                                    UserPersonalInfo.phoneNumber = user.getString("phoneNumber");
                                     JSONArray ja = (JSONArray)user.get("participations");
 
                                     ArrayList<String> partiarray = new ArrayList<String>();
@@ -200,7 +436,6 @@ public class LoginActivity extends AppCompatActivity {
                                     }
 
                                     UserPersonalInfo.participations = partiarray;
-                                    Log.d("partiarray", ""+UserPersonalInfo.participations.toString());
 
                                     JSONArray ja2 = (JSONArray)user.get("prizes");
                                     ArrayList<String> prizearray = new ArrayList<String>();
@@ -208,6 +443,35 @@ public class LoginActivity extends AppCompatActivity {
                                         prizearray.add(ja2.getString(j));
                                     }
                                     UserPersonalInfo.prizes = prizearray;
+                                    ArrayList<Notification> notifications = new ArrayList<>();
+                                    try{
+                                        SimpleDateFormat fm = new SimpleDateFormat(getString(R.string.date_format));
+                                        JSONArray na = (JSONArray)user.get("notifications");
+                                        if (na.length() != 0){
+                                            for (int j = 0; j<na.length(); j++){
+                                                JSONObject notification = na.getJSONObject(j);
+                                                String title = notification.getString("title");
+                                                String content = notification.getString("content");
+                                                String post_id = notification.getString("post_id");
+                                                Date date = null;
+                                                try {
+                                                    date = fm.parse(notification.getString("date"));
+                                                } catch (ParseException e) {
+                                                    e.printStackTrace();
+                                                }
+                                                Integer post_type = notification.getInt("post_type");
+                                                Notification newNotification = new Notification(title, content, post_id, date, post_type);
+                                                notifications.add(newNotification);
+                                            }
+                                        }
+
+                                    } catch (Exception e){
+                                        e.printStackTrace();
+                                    }
+                                    UserPersonalInfo.notifications = notifications;
+                                    UserPersonalInfo.notificationAllow = user.getBoolean("notification_allow");
+                                    UserPersonalInfo.prize_check = user.getInt("prize_check");
+
                                     if (auto_login_check.isChecked()){
                                         SharedPreferences auto = getSharedPreferences("auto", Activity.MODE_PRIVATE);
                                         SharedPreferences.Editor autoLogin = auto.edit();
@@ -237,35 +501,35 @@ public class LoginActivity extends AppCompatActivity {
                                             autoLogin.commit();
                                         }
                                     }
-
-                                    Log.d("starting main", "myname is "+UserPersonalInfo.userID);
-                                    try {
-                                        MainActivity.getNotices();
-                                        getPosts();
-
-                                    } catch (Exception e) {
-                                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                                        LoginActivity.this.startActivity(intent);
-                                        e.printStackTrace();
-                                    }
+                                    loginDone = true;
                                 } catch (JSONException e) {
                                     e.printStackTrace();
-                                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                                    LoginActivity.this.startActivity(intent);
                                 }
-
-
                             }else {
-                                CustomDialog customDialog = new CustomDialog(LoginActivity.this, null);
-                                customDialog.show();
-                                customDialog.setMessage("아이디나 비밀번호가 일치하지 않습니다");
-                                customDialog.setNegativeButton("다시시도");
+                                if(resultObj.getString("data").startsWith("email")){
+                                    CustomDialog customDialog = new CustomDialog(LoginActivity.this, null);
+                                    customDialog.show();
+                                    customDialog.setMessage("메일 인증을 진행해주세요");
+                                    customDialog.setNegativeButton("다시시도");
+                                }else{
+                                    CustomDialog customDialog = new CustomDialog(LoginActivity.this, null);
+                                    customDialog.show();
+                                    customDialog.setMessage("아이디나 비밀번호가 일치하지 않습니다");
+                                    customDialog.setNegativeButton("다시시도");
+                                }
+                                loginDone = true;
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
+                        loginDone = true;
                     }, error -> {
                         Log.d("exception", "volley error");
+                        CustomDialog customDialog = new CustomDialog(LoginActivity.this, null);
+                        customDialog.show();
+                        customDialog.setMessage("오류가 발생했습니다");
+                        customDialog.setNegativeButton("다시시도");
+                        loginDone = true;
                         error.printStackTrace();
                     });
             jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
@@ -276,17 +540,21 @@ public class LoginActivity extends AppCompatActivity {
     }
 
 
-    private void change_visible(EditText v){
+    private void change_visible(EditText v, ImageButton visibletoggle){
         if (v.getTag() == "0"){
-            v.setTransformationMethod(null);
+            v.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+            v.setSelection(v.getText().length());
+            visibletoggle.setImageResource(R.drawable.ic_unvisibletoggle);
             v.setTag("1");
         } else {
             v.setTransformationMethod(PasswordTransformationMethod.getInstance());
+            v.setSelection(v.getText().length());
+            visibletoggle.setImageResource(R.drawable.visibletoggle);
             v.setTag("0");
         }
     }
 
-    private void getPosts() throws Exception{
+    private void getPosts(){
         try{
             Log.d("starting request", "get posts");
             String requestURL = "http://ec2-3-35-152-40.ap-northeast-2.compute.amazonaws.com/api/posts";
@@ -372,25 +640,36 @@ public class LoginActivity extends AppCompatActivity {
                                             for (int u = 0; u<ua.length(); u++){
                                                 replyreports.add(ua.getString(u));
                                             }
-                                            Log.d("start app comment", ""+datereply.toString());
+                                            String writer_name = null;
+                                            try {
+                                                writer_name = reply.getString("writer_name");
+                                            }catch (Exception e){
+                                                writer_name = null;
+                                            }
                                             Reply re = new Reply(reid, writer, contetn, datereply,replyreports,replyhide);
-                                            Log.d("start app reply", ""+re.getDate().toString());
+                                            re.setWriter_name(writer_name);
                                             if (!replyhide && !replyreports.contains(UserPersonalInfo.userID)){
                                                 comments.add(re);
                                             }
                                         }
                                     }
-                                    Log.d("start app", "getpost comment"+comments.size()+"");
 
                                 } catch (Exception e){
                                     e.printStackTrace();
-                                    Log.d("parsing date", "non reply");
                                 }
-                                Integer pinned = post.getInt("pinned");
-                                Post newPost = new Post(id, title, author, author_lvl, content, participants, goal_participants, url, date, deadline, with_prize, prize, est_time, target, count,comments,done, extended, participants_userids, reports, hide, author_userid);
-                                newPost.setPinned(pinned);
+                                Integer pinned = 0;
+                                Boolean annonymous = false;
+                                String author_info = "";
+                                try {
+                                    pinned = post.getInt("pinned");
+                                    annonymous = post.getBoolean("annonymous");
+                                    author_info = post.getString("author_info");
+                                }catch (Exception e){
+
+                                }
+                                Post newPost = new Post(id, title, author, author_lvl, content, participants, goal_participants, url, date, deadline, with_prize, prize, est_time, target, count,comments,done, extended, participants_userids, reports, hide, author_userid, pinned, annonymous, author_info);
+
                                 Date now = new Date();
-                                Log.d(title+"reported by", ""+reports+"  "+UserPersonalInfo.userID+reports.contains(UserPersonalInfo.userID));
                                 if(reports.contains(UserPersonalInfo.userID) || hide) {
                                     MainActivity.reportpostArrayList.add(newPost);
                                 } else if (now.after(newPost.getDeadline()) || newPost.isDone()){
@@ -401,10 +680,7 @@ public class LoginActivity extends AppCompatActivity {
                                     MainActivity.notreportedpostArrayList.add(newPost);
                                 }
                             }
-                            Log.d("array size is",""+MainActivity.postArrayList.size());
-                            Log.d("finisharray size is",""+ MainActivity.notreportedpostArrayList.size());
-                            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                            startActivity(intent);
+                            getPostDone = true;
                         } catch (JSONException e) {
                             Log.d("exception", "JSON error");
                             e.printStackTrace();

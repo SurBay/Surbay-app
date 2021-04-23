@@ -7,7 +7,6 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -15,7 +14,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.PopupMenu;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -33,8 +31,6 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-import com.gun0912.tedpicker.Config;
-import com.gun0912.tedpicker.ImagePickerActivity;
 import com.pumasi.surbay.adapter.ImageAdapter;
 import com.pumasi.surbay.classfile.CustomDialog;
 import com.pumasi.surbay.classfile.GifSizeFilter;
@@ -53,8 +49,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-import static com.pumasi.surbay.BoardFragment2.listView;
-import static com.pumasi.surbay.BoardFragment2.listViewAdapter;
+import static com.pumasi.surbay.BoardSurveyTip.listView;
+import static com.pumasi.surbay.BoardSurveyTip.listViewAdapter;
 
 public class FeedbackWrite extends AppCompatActivity {
     static final int NEWPOST = 1;
@@ -273,10 +269,11 @@ public class FeedbackWrite extends AppCompatActivity {
             customDialog.setNegativeButton("확인");
         } else {
             PostNonSurvey feedback = new PostNonSurvey(null, title, author, author_lvl, content, date, category, new ArrayList<Reply>());
+            feedback.setAuthor_userid(UserPersonalInfo.userID);
             MainActivity.feedbackArrayList.add(0, feedback);
             listViewAdapter.notifyDataSetChanged();
             listView.setAdapter(listViewAdapter);
-            Intent intent = new Intent(FeedbackWrite.this, BoardFragment3.class);
+            Intent intent = new Intent(FeedbackWrite.this, BoardFeedback.class);
             try {
                 postPost(title, author, author_lvl, content, date, category);
             } catch (Exception e) {
@@ -301,6 +298,7 @@ public class FeedbackWrite extends AppCompatActivity {
             params.put("date", fm.format(date));
             params.put("category", String.valueOf(category));
             params.put("comments", String.valueOf(new ArrayList<Reply>()));
+            params.put("author_userid", UserPersonalInfo.userID);
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
                     (Request.Method.POST, requestURL, params, response -> {
                         Log.d("response is", ""+response);
@@ -308,6 +306,7 @@ public class FeedbackWrite extends AppCompatActivity {
                             JSONObject resultObj = new JSONObject(response.toString());
                             String id = resultObj.getString("id");
                             PostNonSurvey item = new PostNonSurvey(id, title, author, author_lvl, content, date, category, new ArrayList<Reply>());
+                            item.setAuthor_userid(UserPersonalInfo.userID);
                             MainActivity.feedbackArrayList.add(item);
 
                         } catch (JSONException e) {
