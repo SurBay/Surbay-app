@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.media.Image;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -17,7 +16,6 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -36,15 +34,11 @@ import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.pumasi.surbay.adapter.GeneralListViewAdapter;
-import com.pumasi.surbay.adapter.PostListViewAdapter;
-import com.pumasi.surbay.adapter.SurveyTipListViewAdapter;
 import com.pumasi.surbay.classfile.CustomDialog;
 import com.pumasi.surbay.classfile.General;
 import com.pumasi.surbay.classfile.Notification;
 import com.pumasi.surbay.classfile.Poll;
-import com.pumasi.surbay.classfile.Post;
 import com.pumasi.surbay.classfile.Reply;
-import com.pumasi.surbay.classfile.Surveytip;
 import com.pumasi.surbay.classfile.UserPersonalInfo;
 
 import org.json.JSONArray;
@@ -58,7 +52,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import static com.pumasi.surbay.HomeFragment.adapter1;
@@ -137,7 +130,6 @@ public class BoardGeneral extends Fragment// Fragment 클래스를 상속받아�
                 Date date1 = o1.getDate();
                 Date date2 = o2.getDate();
                 int compare = date1.compareTo(date2);
-                Log.d("datecomparing", date1+"   "+date2+"  "+compare);
                 if(compare>0)
                     ret = -1; //date2<date1
                 else if(compare==0)
@@ -196,12 +188,8 @@ public class BoardGeneral extends Fragment// Fragment 클래스를 상속받아�
                     return;
                 }
                 General general = (General) generalListViewAdapter.getItem(position);
-                Intent intent = new Intent(((AppCompatActivity) getActivity()).getApplicationContext(), GeneralDetailActivity.class);
-                intent.putExtra("general", general);
-                intent.putParcelableArrayListExtra("reply", general.getComments());
-                intent.putParcelableArrayListExtra("polls", general.getPolls());
-                intent.putExtra("position", position);
-                startActivityForResult(intent, DO_SURVEY);
+                getGeneral(general.getID(), position);
+
             }
         });
 
@@ -232,6 +220,7 @@ public class BoardGeneral extends Fragment// Fragment 클래스를 상속받아�
         frag2likesortbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Log.d("loglog", "likesort");
                 SORT = LIKE;
                 changeSort();
             }
@@ -318,7 +307,7 @@ public class BoardGeneral extends Fragment// Fragment 클래스를 상속받아�
                     break;
                 case LIKE:
                     Collections.sort(list, cmpLike);
-                    frag1dateselect();
+                    frag1likeselect();
                     break;
                 default:
                     break;
@@ -345,7 +334,6 @@ public class BoardGeneral extends Fragment// Fragment 클래스를 상속받아�
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-
         super.onActivityResult(requestCode, resultCode, data);
         Log.d("result code is", ""+requestCode+"   "+resultCode);
 //        mSwipeRefreshLayout.refreshDrawableState();
@@ -404,43 +392,16 @@ public class BoardGeneral extends Fragment// Fragment 클래스를 상속받아�
                         if(state != null) {
                             listView.onRestoreInstanceState(state);
                         }
+                    case(DONE):
+                        MainActivity.getGenerals();
+                        changeSort();
+                        generalListViewAdapter.changeItem();
+                        listView.setAdapter(generalListViewAdapter);
+                        if(state != null) {
+                            listView.onRestoreInstanceState(state);
+                        }
+                        break;
                 }
-//                    case(DONE):
-//                        int position = data.getIntExtra("position", -1);
-//                        int newParticipants = data.getIntExtra("participants", -1);
-////                        generalListViewAdapter.updateParticipants(position, newParticipants);
-////                        Post item = (Post) generalListViewAdapter.getItem(position);
-////
-////                        listView.setAdapter(generalListViewAdapter);
-////                        Log.d("new participant", "new is: " + item.getParticipants());
-//                        return;
-//
-//                    case(FIX_DONE):
-//                        int fix_pos = data.getIntExtra("position", -1);
-//                        if(fix_pos!=-1) {
-//                            Post newpost = data.getParcelableExtra("post");
-//                            list.set(fix_pos, newpost);
-//                        }
-//                        changeSort();
-//                        generalListViewAdapter.changeItem();
-//                        listView.setAdapter(generalListViewAdapter);
-//
-//                    default:
-//                        list = MainActivity.notreportedpostArrayList;
-//                        if(hide_done.isChecked()){
-//                            Iterator<Post> iter = list.iterator();
-//                            while (iter.hasNext()) {
-//                                Post p = iter.next();
-//                                if(p.getParticipants_userids().contains(UserPersonalInfo.userID)){
-//                                    iter.remove();
-//                                }
-//                            }
-//                        }
-//                        changeSort();
-//                        generalListViewAdapter.changeItem();
-//                        listView.setAdapter(generalListViewAdapter);
-//                        return;
-//                }
             default:
                 return;
         }
@@ -579,6 +540,7 @@ public class BoardGeneral extends Fragment// Fragment 클래스를 상속받아�
 
     public void changeSort(){
         list = MainActivity.generalArrayList;
+        Log.d("inchangesort", "sortis"+SORT);
         switch (SORT) {
             case NEW:
                 Collections.sort(list, cmpNew);
@@ -590,19 +552,20 @@ public class BoardGeneral extends Fragment// Fragment 클래스를 상속받아�
                 break;
             case LIKE:
                 Collections.sort(list, cmpLike);
-                frag1dateselect();
+                frag1likeselect();
                 break;
             default:
                 break;
         }
-        generalListViewAdapter.notifyDataSetChanged();
+        generalListViewAdapter = new GeneralListViewAdapter(list);
+
         listView.setAdapter(generalListViewAdapter);
         if(state != null) {
             listView.onRestoreInstanceState(state);
         }
     }
 
-    public void frag1dateselect(){
+    public void frag1likeselect(){
         frag2partisortbutton.setBackgroundResource(R.drawable.ic_tabnoselect);
         frag2likesortbutton.setBackgroundResource(R.drawable.ic_tabselect);
         frag2newsortbutton.setBackgroundResource(R.drawable.ic_tabnoselect);
@@ -769,6 +732,145 @@ public class BoardGeneral extends Fragment// Fragment 클래스를 상속받아�
             requestQueue.add(jsonArrayRequest);
         } catch (Exception e){
             Log.d("exception", "failed getting response");
+            e.printStackTrace();
+        }
+    }
+
+    private void getGeneral(String general_id, Integer position){
+        try{
+            String requestURL = "http://ec2-3-35-152-40.ap-northeast-2.compute.amazonaws.com/api/generals/getpost/"+general_id;
+            RequestQueue requestQueue = Volley.newRequestQueue(getActivity());
+            JsonObjectRequest jsonObjectRequest= new JsonObjectRequest
+                    (Request.Method.GET, requestURL, null, response -> {
+                        try {
+                            JSONObject general = new JSONObject(response.toString());
+                            String id = general.getString("_id");
+                            String title = general.getString("title");
+                            String author = general.getString("author");
+                            Integer author_lvl = general.getInt("author_lvl");
+                            String content = general.getString("content");
+                            SimpleDateFormat fm = new SimpleDateFormat(getActivity().getString(R.string.date_format));
+                            Date date = null;
+                            try {
+                                date = fm.parse(general.getString("date"));
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
+                            Date deadline = null;
+                            try {
+                                deadline = fm.parse(general.getString("deadline"));
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
+                            ArrayList<Reply> comments = new ArrayList<>();
+                            try{
+                                JSONArray ja = (JSONArray)general.get("comments");
+                                if (ja.length() != 0){
+                                    for (int j = 0; j<ja.length(); j++){
+                                        JSONObject reply = ja.getJSONObject(j);
+                                        String reid = reply.getString("_id");
+                                        String writer = reply.getString("writer");
+                                        String contetn = reply.getString("content");
+                                        Date datereply = null;
+                                        try {
+                                            datereply = fm.parse(reply.getString("date"));
+                                        } catch (ParseException e) {
+                                            e.printStackTrace();
+                                        }
+                                        Boolean replyhide = reply.getBoolean("hide");
+                                        JSONArray ua = (JSONArray)reply.get("reports");
+
+
+                                        ArrayList<String> replyreports = new ArrayList<String>();
+                                        for (int u = 0; u<ua.length(); u++){
+                                            replyreports.add(ua.getString(u));
+                                        }
+                                        String writer_name = null;
+                                        try {
+                                            writer_name = reply.getString("writer_name");
+                                        }catch (Exception e){
+                                            writer_name = null;
+                                        }
+                                        Reply re = new Reply(reid, writer, contetn, datereply,replyreports,replyhide);
+                                        re.setWriter_name(writer_name);
+                                        if ((!replyhide )&& (!replyreports.contains(UserPersonalInfo.userID))){
+                                            comments.add(re);
+                                        }
+                                    }
+                                }
+
+                            } catch (Exception e){
+                                e.printStackTrace();
+                            }
+                            Boolean done = general.getBoolean("done");
+                            String author_userid = general.getString("author_userid");
+                            JSONArray ka = (JSONArray)general.get("reports");
+                            ArrayList<String> reports = new ArrayList<String>();
+                            for (int j = 0; j<ka.length(); j++){
+                                reports.add(ka.getString(j));
+                            }
+                            Boolean multi_response = general.getBoolean("multi_response");
+                            Integer participants = general.getInt("participants");
+                            JSONArray ia = (JSONArray)general.get("participants_userids");
+                            ArrayList<String> participants_userids = new ArrayList<String>();
+                            for (int j = 0; j<ia.length(); j++){
+                                participants_userids.add(ia.getString(j));
+                            }
+                            Boolean with_image = general.getBoolean("with_image");
+                            ArrayList<Poll> polls = new ArrayList<>();
+                            try{
+                                JSONArray ja = (JSONArray)general.get("polls");
+                                if (ja.length() != 0){
+                                    for (int j = 0; j<ja.length(); j++){
+                                        JSONObject poll = ja.getJSONObject(j);
+                                        String poll_id = poll.getString("_id");
+                                        String poll_content = poll.getString("content");
+                                        ArrayList<String> poll_participants_userids = new ArrayList<String>();
+                                        JSONArray ua = (JSONArray)poll.get("participants_userids");
+                                        for (int u = 0; u<ua.length(); u++){
+                                            poll_participants_userids.add(ua.getString(u));
+                                        }
+                                        String image = poll.getString("image");
+                                        Poll newpoll = new Poll(poll_id, poll_content, poll_participants_userids, image);
+                                        polls.add(newpoll);
+                                    }
+                                }
+
+                            } catch (Exception e){
+                                e.printStackTrace();
+                            }
+
+                            JSONArray la = (JSONArray)general.get("liked_users");
+                            ArrayList<String> liked_users = new ArrayList<String>();
+                            for (int j = 0; j<la.length(); j++){
+                                liked_users.add(la.getString(j));
+                            }
+
+                            Integer likes = general.getInt("likes");
+                            Boolean hide = general.getBoolean("hide");
+                            General newGeneral = new General(id, title, author, author_lvl, content,
+                                    date, deadline, comments, done, author_userid, reports, multi_response,
+                                    participants, participants_userids, with_image, polls, liked_users, likes, hide);
+
+                            Intent intent = new Intent(((AppCompatActivity) getActivity()).getApplicationContext(), GeneralDetailActivity.class);
+                            intent.putExtra("general", newGeneral);
+                            intent.putExtra("position", position);
+                            intent.putParcelableArrayListExtra("reply", newGeneral.getComments());
+                            intent.putParcelableArrayListExtra("polls", newGeneral.getPolls());
+                            startActivityForResult(intent, DO_SURVEY);
+
+
+                        } catch (JSONException e) {
+                            Log.d("exception", "JSON error");
+                            e.printStackTrace();
+                        }
+                    }, error -> {
+                        Log.d("exception", "volley error");
+                        error.printStackTrace();
+                    });
+            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            requestQueue.add(jsonObjectRequest);
+        }catch (Exception e){
             e.printStackTrace();
         }
     }

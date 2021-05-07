@@ -85,8 +85,8 @@ public class GeneralListViewAdapter extends BaseAdapter {
         }
         participants.setText(general.getParticipants().toString());
         SimpleDateFormat fm = new SimpleDateFormat("MM.dd kk:mm", Locale.KOREA);
-        Log.d("realdateis", ""+general.getDate());
-        Log.d("dateis", ""+fm.format(general.getDate()));
+//        Log.d("realdateis", ""+general.getDate());
+//        Log.d("dateis", ""+fm.format(general.getDate()));
         date.setText(fm.format(general.getDate()));
         likes.setText(general.getLikes().toString());
         comments.setText(String.valueOf(general.getComments().size()));
@@ -174,10 +174,10 @@ public class GeneralListViewAdapter extends BaseAdapter {
                 content2 = content2.substring(0,6) + "...";
             String content3 = polls.get(2).getContent();
             if(content3.length()>7)
-                content3 = content1.substring(0,6) + "...";
+                content3 = content3.substring(0,6) + "...";
             String content4 = polls.get(3).getContent();
             if(content4.length()>7)
-                content4 = content2.substring(0,6) + "...";
+                content4 = content4.substring(0,6) + "...";
             content4_1.setText(content1);
             content4_2.setText(content2);
             content4_3.setText(content3);

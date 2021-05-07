@@ -71,7 +71,7 @@ public class GeneralDetailActivity extends AppCompatActivity {
     static final int START_SURVEY = 1;
     static final int DONE = 1;
     static final int NOT_DONE = 0;
-    static final int FIX = 2;
+    static final int DO_SURVEY = 2;
     static final int LIKE = 3;
     static final int REPORTED = 5;
 
@@ -700,6 +700,7 @@ public class GeneralDetailActivity extends AppCompatActivity {
                         if(bitArray.stream().mapToInt(a->a).sum()==0){
                             return;
                         }
+                        setResult(DONE);
                         loading.setVisibility(View.VISIBLE);
                         BackgroundSurveyThread surveyThread = new BackgroundSurveyThread();
                         surveyThread.start();
@@ -726,6 +727,7 @@ public class GeneralDetailActivity extends AppCompatActivity {
                 new View.OnClickListener(){
                     @Override
                     public void onClick(View v) {
+                        setResult(DONE);
                         if(general.getWith_image()==false)
                             bitArray = pollDoneAdapter.bitArray;
                         else
