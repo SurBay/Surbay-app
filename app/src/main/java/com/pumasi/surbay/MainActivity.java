@@ -160,42 +160,6 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(MainActivity.this, NoticeActivity.class);
             startActivity(intent);
         }
-
-
-//        FirebaseMessaging.getInstance().getToken()
-//                .addOnCompleteListener(new OnCompleteListener<String>() {
-//                    @Override
-//                    public void onComplete(@NonNull Task<String> task) {
-//                        if (!task.isSuccessful()) {
-//                            Log.w("FIREBASEMESSAGING", "Fetching FCM registration token failed", task.getException());
-//                            return;
-//                        }
-//
-//                        // Get new FCM registration token
-//                        String token = task.getResult();
-//
-//                        // Log and toast
-////                        String msg = getString(R.string.msg_token_fmt, token);
-//                        Log.d("tokenis", token);
-////                        Toast.makeText(MainActivity.this, token, Toast.LENGTH_SHORT).show();
-//                    }
-//                });
-//        FirebaseMessaging.getInstance().setAutoInitEnabled(true);
-//        FirebaseAnalytics.getInstance(MainActivity.this).setAnalyticsCollectionEnabled(true);
-//        FirebaseMessaging.getInstance().subscribeToTopic("weather")
-//                .addOnCompleteListener(new OnCompleteListener<Void>() {
-//                    @Override
-//                    public void onComplete(@NonNull Task<Void> task) {
-////                        String msg = getString(R.string.msg_subscribed);
-//                        String msg = "Subscirbed to weather topic";
-//                        if (!task.isSuccessful()) {
-////                            msg = getString(R.string.msg_subscribe_failed);
-//                            msg = "Failed to subscribe to weather topic";
-//                        }
-//                        Log.d("FIREBASE MESSAGING", msg);
-//                        Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
-//                    }
-//                });
     }
 
     // 프레그먼트 교체

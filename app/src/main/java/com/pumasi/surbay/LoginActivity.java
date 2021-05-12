@@ -404,11 +404,13 @@ public class LoginActivity extends AppCompatActivity {
         try{
             String requestURL = getString(R.string.server)+"/login";
             RequestQueue requestQueue = Volley.newRequestQueue(LoginActivity.this);
+
             JSONObject params = new JSONObject();
             params.put("userID", username);
             params.put("userPassword", password);
             Log.d("logintoken", "" + fcm_token);
             params.put("fcm_token", fcm_token);
+
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
                     (Request.Method.POST, requestURL, params, response -> {
                         try {

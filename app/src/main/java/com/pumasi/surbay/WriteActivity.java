@@ -34,6 +34,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -1197,22 +1198,6 @@ public class WriteActivity extends AppCompatActivity {
         return bytesResult;
     }
 
-    public byte[] getFileDataFromUri(Uri uri){
-        InputStream iStream = null;
-        try {
-            iStream = getContentResolver().openInputStream(uri);
-
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        byte[] inputData = new byte[0];
-        try {
-            inputData = getBytes(iStream);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return inputData;
-    }
     private void getPrizeImages() {
         final Handler handler = new Handler() {
             @Override

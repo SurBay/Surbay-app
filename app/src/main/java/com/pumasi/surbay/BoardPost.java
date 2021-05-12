@@ -34,6 +34,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.pumasi.surbay.adapter.GeneralListViewAdapter;
 import com.pumasi.surbay.adapter.PostListViewAdapter;
 import com.pumasi.surbay.classfile.CustomDialog;
 import com.pumasi.surbay.classfile.Notification;
@@ -697,6 +698,7 @@ public class BoardPost extends Fragment// Fragment 클래스를 상속받아야�
     }
 
     public void changeSort(){
+        list = MainActivity.notreportedpostArrayList;
             switch (SORT) {
                 case NEW:
                     Collections.sort(list, cmpNew);
@@ -713,7 +715,7 @@ public class BoardPost extends Fragment// Fragment 클래스를 상속받아야�
                 default:
                     break;
             }
-            postListViewAdapter.notifyDataSetChanged();
+            postListViewAdapter = new PostListViewAdapter(list);
             listView.setAdapter(postListViewAdapter);
         if(state != null) {
             listView.onRestoreInstanceState(state);

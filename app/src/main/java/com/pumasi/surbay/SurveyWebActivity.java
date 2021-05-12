@@ -11,6 +11,8 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.webkit.JavascriptInterface;
+import android.webkit.WebChromeClient;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -79,7 +81,11 @@ public class SurveyWebActivity extends AppCompatActivity {
             url = "https://" + url;
         }
         Log.d("url is ", url);
+
         mWebView.loadUrl(url);//웹뷰 실행
+
+        mWebView.getSettings().setSupportMultipleWindows(true);
+
 
 
         WebViewClient mWebViewClient = new WebViewClient(){
@@ -87,6 +93,7 @@ public class SurveyWebActivity extends AppCompatActivity {
             @Override
             public void onPageFinished(WebView view, String url)
             {
+                Log.d("hereonpagefinished", "url is "+url);
                 String js =
                         "( " +
                                 "function() { " +
@@ -101,50 +108,13 @@ public class SurveyWebActivity extends AppCompatActivity {
                 else
                     mWebView.loadUrl("javascript:" + js);
             }
-//
-//            @Override
-//            public void onPageFinished(WebView view, String url){
-//                Log.d("on page", "url is "+ url);
-//                Log.d("on page geturl", "url is "+ view.getUrl());
-//                Log.d("on page getorgurl", "url is "+ view.getOriginalUrl());
-//                super.onPageFinished(view, url);
-//                view.evaluateJavascript("document.getElementsByClassName('freebirdFormviewerViewResponseConfirmContentContainer').length > 0", new ValueCallback<String>(){
-//                    @Override
-//                    public void onReceiveValue(String s) {
-//                        Log.d("survey", "survey done");
-//
-//                        AlertDialog.Builder builder = new AlertDialog.Builder(SurveyWebActivity.this);
-//                        dialog = builder.setMessage("응답 완료")
-//                                .setPositiveButton("확인", new DialogInterface.OnClickListener() {
-//                                    @Override
-//                                    public void onClick(DialogInterface dialog, int which) {
-//                                        setResult(DONE);
-//                                        finish();
-//                                    }
-//                                })
-//                                .create();
-//                        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-//                            @SuppressLint("ResourceAsColor")
-//                            @Override
-//                            public void onShow(DialogInterface arg0) {
-//                                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(R.color.black);
-//                            }
-//                        });
-//                        dialog.show();
-//                    }
-//                });
-//            }
-//            @Override
-//            public boolean shouldOverrideUrlLoading(WebView webView, WebResourceRequest request){
-//                String url = webView.getUrl();
-//                Log.d("overide", "url is "+ url);
-//                return true;
-//            }
 
             @Override
             public boolean shouldOverrideUrlLoading(WebView webView, String url) {
                 Log.d("url is ", url);
                 if (url.startsWith("http:") || url.startsWith("https:")) {
+                    Log.d("here", "url is " + url);
+                    webView.loadUrl(url);
                     return false;
                 } else {
                     if (url.startsWith("intent://")) {
@@ -194,6 +164,22 @@ public class SurveyWebActivity extends AppCompatActivity {
         mWebView.setWebViewClient(mWebViewClient);
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1)
             mWebView.addJavascriptInterface(new WebViewInterface(SurveyWebActivity.this), WEBVIEW_INTERFACE_NAME);
+
+            mWebView.setWebChromeClient(new WebChromeClient() {
+            @Override
+            public boolean onCreateWindow(WebView view, boolean dialog, boolean userGesture, android.os.Message resultMsg)
+            {
+                WebView.HitTestResult result = view.getHitTestResult();
+                String data = result.getExtra();
+                Context context = view.getContext();
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(data));
+                context.startActivity(browserIntent);
+                return false;
+            }
+        });
+
+
+
     }
 
     @Override
