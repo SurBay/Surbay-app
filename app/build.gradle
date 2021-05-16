@@ -6,7 +6,7 @@ plugins {
 android {
     signingConfigs {
         release {
-            storeFile file('C:\\Users\\ismty\\SurBayKeystore.jks')
+            storeFile file('C:\\Users\\actio\\SurBayKeystore.jks')
             storePassword 'SurBayvkdlxld!'
             keyAlias 'surbaykeystore'
             keyPassword 'SurBayvkdlxld!'
@@ -19,8 +19,8 @@ android {
         applicationId "com.pumasi.surbay"
         minSdkVersion 26
         targetSdkVersion 30
-        versionCode 21
-        versionName '2.0.8'
+        versionCode 23
+        versionName '2.0.9'
         multiDexEnabled true
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"

@@ -196,6 +196,7 @@ public class LoginActivity extends AppCompatActivity {
                 UserPersonalInfo.userID = "nonMember";
                 UserPersonalInfo.participations = new ArrayList<>();
                 UserPersonalInfo.prizes = new ArrayList<>();
+                UserPersonalInfo.prize_check = 0;
                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                 startActivity(intent);
             }
