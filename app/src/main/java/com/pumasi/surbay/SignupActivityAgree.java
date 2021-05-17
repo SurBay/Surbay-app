@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Message;
+import android.os.SystemClock;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.Spanned;
@@ -30,6 +31,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
@@ -87,9 +89,14 @@ import java.util.regex.Pattern;
 
 public class SignupActivityAgree extends AppCompatActivity {
 
+    private Long mLastClickTime = 0L;
+
     TextView user_agree_info;
     TextView user_agree_info2;
     Button signup_next;
+
+    CheckBox user_agree_check;
+    CheckBox user_agree_check2;
 
     String userid;
     String password;
@@ -115,6 +122,9 @@ public class SignupActivityAgree extends AppCompatActivity {
         signup_next = findViewById(R.id.signup_agree_next);
         user_agree_info = findViewById(R.id.user_agree_info);
         user_agree_info2 = findViewById(R.id.user_agree_info2);
+        user_agree_check = findViewById(R.id.user_agree_check);
+        user_agree_check2 = findViewById(R.id.user_agree_check2);
+
         user_agree_info.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -133,15 +143,29 @@ public class SignupActivityAgree extends AppCompatActivity {
         signup_next.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent1 = new Intent(SignupActivityAgree.this, SignupActivityDone.class);
-                intent1.putExtra("userid", userid);
-                intent1.putExtra("password", password);
-                intent1.putExtra("name", name);
-                intent1.putExtra("gender", gender);
-                intent1.putExtra("yearBirth", yearBirth);
-                startActivity(intent1);
+                // 클릭 주기 1초
+                if (SystemClock.elapsedRealtime() - mLastClickTime > 1000) {
+                    // 동의 시에만 다음 페이지로 이동
+                    if (user_agree_check.isChecked() && user_agree_check2.isChecked()) {
+                        Intent intent1 = new Intent(SignupActivityAgree.this, SignupActivityDone.class);
+                        intent1.putExtra("userid", userid);
+                        intent1.putExtra("password", password);
+                        intent1.putExtra("name", name);
+                        intent1.putExtra("gender", gender);
+                        intent1.putExtra("yearBirth", yearBirth);
+                        startActivity(intent1);
+                    } else {
+                        Toast.makeText(SignupActivityAgree.this, "약관을 모두 동의해주십시오", Toast.LENGTH_SHORT).show();
+                    }
+                    mLastClickTime = SystemClock.elapsedRealtime();
+                }
+
+
             }
         });
+
+
+
 
 
 
