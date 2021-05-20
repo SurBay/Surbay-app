@@ -128,7 +128,7 @@ public class SignupActivityDone extends AppCompatActivity {
                 ActionCodeSettings.newBuilder()
                         // URL you want to redirect back to. The domain (www.example.com) for this
                         // URL must be whitelisted in the Firebase Console.
-                        .setUrl("http://ec2-3-36-228-245.ap-northeast-2.compute.amazonaws.com/?email=" + userid)
+                        .setUrl("http://ec2-3-36-228-245.ap-northeast-2.compute.amazonaws.com:3000/?email=" + userid)
                         // This must be true
                         .setHandleCodeInApp(true)
                         .setAndroidPackageName(
