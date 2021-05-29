@@ -126,7 +126,7 @@ public class GeneralListViewAdapter extends BaseAdapter {
                 content2 = content2.substring(0,4) + "...";
             String content3 = polls.get(2).getContent();
             if(content3.length()>5)
-                content3 = content2.substring(0,4) + "...";
+                content3 = content3.substring(0,4) + "...";
             content3_1.setText(content1);
             content3_2.setText(content2);
             content3_3.setText(content3);
