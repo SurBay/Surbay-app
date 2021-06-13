@@ -10,7 +10,7 @@
     android:background="@color/gray"
     android:orientation="vertical"
     android:padding="15dp"
-    tools:context=".mypage.MypageSettingMain">
+    tools:context=".pages.mypage.MypageSettingMain">
 
     <ImageView
         android:id="@+id/uifix_back"

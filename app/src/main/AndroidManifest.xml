@@ -15,26 +15,31 @@
         android:allowBackup="true"
         android:icon="@drawable/surbay_logo"
         android:label="@string/app_name"
+        android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:sharedUserId="android.uid.system"
-        android:requestLegacyExternalStorage="true"
         android:supportsRtl="true"
         android:theme="@style/Theme.SurBay"
         android:usesCleartextTraffic="true">
+        <activity android:name=".ProblemActivity"></activity>
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.pumasi.surbay.fileprovider"
-            android:grantUriPermissions="true"
-            android:exported="false">
+            android:exported="false"
+            android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/filepaths" />
         </provider>
+
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
             android:resource="@drawable/surbay_logo_transparent" />
-        <!-- Set color used with incoming notification messages. This is used when no color is set for the incoming
-             notification message. See README(https://goo.gl/6BKBk7) for more. -->
+        <!--
+ Set color used with incoming notification messages. This is used when no color is set for the incoming
+             notification message. See README(https://goo.gl/6BKBk7) for more.
+        -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_color"
             android:resource="@color/teal_200" />
@@ -47,6 +52,7 @@
         <meta-data
             android:name="firebase_analytics_collection_enabled"
             android:value="true" />
+
         <service
             android:name=".classfile.MyFirebaseMessagingService"
             android:exported="false">
@@ -54,45 +60,60 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
-        <activity android:name=".ChangePwActivity"
-            android:screenOrientation="portrait"></activity>
-        <activity android:name=".GeneralImageDetail"
-            android:screenOrientation="portrait"></activity>
-        <activity android:name=".mypage.SettingInfo2"
-            android:screenOrientation="portrait"></activity>
-        <activity android:name=".SignupActivityDone"
-            android:screenOrientation="portrait"></activity>
-        <activity android:name=".SignupActivityAgree"
-            android:screenOrientation="portrait"></activity>
-        <activity android:name=".SignupActivityExtra"
-            android:screenOrientation="portrait"></activity>
-        <activity android:name=".SignupActivityPassword"
-            android:screenOrientation="portrait"></activity>
-        <activity android:name=".SignupActivityEmail"
-            android:screenOrientation="portrait"></activity>
-        <activity android:name=".GeneralWriteActivity"
-            android:screenOrientation="portrait"></activity>
-        <activity android:name=".GeneralDetailActivity"
-            android:screenOrientation="portrait"></activity>
-        <activity android:name=".mypage.SettingFeedbacks"
-            android:screenOrientation="portrait"></activity>
-        <activity android:name=".NoticeImageDeatil"
-            android:screenOrientation="portrait"></activity>
-        <activity android:name=".mypage.SettingInfo"
-            android:screenOrientation="portrait"></activity>
-        <activity android:name=".mypage.SettingReport"
-            android:screenOrientation="portrait"/>
+
         <activity
-            android:name=".mypage.NotificationsActivity"
+            android:name=".ChangePwActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".GeneralImageDetail"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".pages.mypage.SettingInfo2"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".pages.signup.SignupActivityDone"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".pages.signup.SignupActivityAgree"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".pages.signup.SignupActivityExtra"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".pages.signup.SignupActivityPassword"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".pages.signup.SignupActivityEmail"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".GeneralWriteActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".GeneralDetailActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".pages.mypage.SettingFeedbacks"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".NoticeImageDeatil"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".pages.mypage.SettingInfo"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".pages.mypage.SettingReport"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".pages.mypage.NotificationsActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".FeedbackWrite"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".mypage.GiftDetailActivity"
+            android:name=".pages.mypage.GiftDetailActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".mypage.IGotGifts"
+            android:name=".pages.mypage.IGotGifts"
             android:screenOrientation="portrait" />
         <activity
             android:name=".TipdetailActivity"
@@ -107,22 +128,22 @@
             android:name=".Feedbackdetail"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".mypage.MypageSettingAlerm"
+            android:name=".pages.mypage.MypageSettingAlerm"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".mypage.PwChange"
+            android:name=".pages.mypage.PwChange"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".mypage.SchoolAuth"
+            android:name=".pages.mypage.SchoolAuth"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".mypage.AccountFix"
+            android:name=".pages.mypage.AccountFix"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".mypage.MypageSettingAccount"
+            android:name=".pages.mypage.MypageSettingAccount"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".mypage.MypageSettingMain"
+            android:name=".pages.mypage.MypageSettingMain"
             android:screenOrientation="portrait" />
         <activity
             android:name=".FindIdActivity"
@@ -134,13 +155,13 @@
             android:name=".NoticeActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".mypage.Mypage_uploadNParti"
+            android:name=".pages.mypage.Mypage_uploadNParti"
             android:screenOrientation="portrait" />
         <activity
             android:name=".BoardsSearchActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".SplashActivity"
+            android:name=".pages.signup.SplashActivity"
             android:screenOrientation="portrait"
             android:theme="@style/SplashTheme">
             <intent-filter>
@@ -151,8 +172,8 @@
         </activity>
         <activity
             android:name=".MainActivity"
-            android:screenOrientation="portrait"
-            android:exported="false">
+            android:exported="false"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
@@ -160,14 +181,15 @@
         <activity
             android:name=".LoginActivity"
             android:screenOrientation="portrait">
-
             <intent-filter>
-                <action android:name="android.intent.action.VIEW"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <category android:name="android.intent.category.BROWSABLE"/>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
                 <data
                     android:host="surbay.page.link"
-                    android:scheme="https"/>
+                    android:scheme="https" />
             </intent-filter>
         </activity>
         <activity
@@ -180,9 +202,8 @@
             android:name=".PostDetailActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".SignupActivity"
-            android:screenOrientation="portrait">
-        </activity>
+            android:name=".not_use.SignupActivity"
+            android:screenOrientation="portrait"></activity>
         <activity
             android:name="com.gun0912.tedpicker.ImagePickerActivity"
             android:screenOrientation="portrait"

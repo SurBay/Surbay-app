@@ -10,6 +10,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -21,6 +22,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
+import android.widget.Scroller;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -152,7 +154,6 @@ public class GeneralDetailActivity extends AppCompatActivity {
         Intent intent = getIntent();
         images = new ArrayList<>();
 
-
         author = findViewById(R.id.author);
         level = findViewById(R.id.author_info);
         title = findViewById(R.id.title);
@@ -216,8 +217,20 @@ public class GeneralDetailActivity extends AppCompatActivity {
         });
 
 
-
-
+        reply_enter.setOnTouchListener(new View.OnTouchListener() {
+            public boolean onTouch(View view, MotionEvent event) {
+                // TODO Auto-generated method stub
+                if (view.getId() == R.id.reply_enter) {
+                    view.getParent().requestDisallowInterceptTouchEvent(true);
+                    switch (event.getAction()&MotionEvent.ACTION_MASK){
+                        case MotionEvent.ACTION_UP:
+                            view.getParent().requestDisallowInterceptTouchEvent(false);
+                            break;
+                    }
+                }
+                return false;
+            }
+        });
 
 
         reply_enter_button.setOnClickListener(new View.OnClickListener() {
@@ -245,6 +258,7 @@ public class GeneralDetailActivity extends AppCompatActivity {
         Log.d("whyislikedfalse", ""+likedselected+likedlist+UserPersonalInfo.userID);
 
         loading_detail(general);
+
         likes.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -256,6 +270,7 @@ public class GeneralDetailActivity extends AppCompatActivity {
                     return;
                 }
                 if (likedselected){
+
                     LIKE_CHANGE = DISLIKED;
                     if(general.getLikes()>99){
                         likes.setText("공감 99+");

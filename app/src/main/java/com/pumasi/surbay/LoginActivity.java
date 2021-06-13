@@ -47,10 +47,12 @@ import com.pumasi.surbay.classfile.Notification;
 import com.pumasi.surbay.classfile.Post;
 import com.pumasi.surbay.classfile.Reply;
 import com.pumasi.surbay.classfile.UserPersonalInfo;
+import com.pumasi.surbay.pages.signup.SignupActivityEmail;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -60,13 +62,13 @@ import java.util.Date;
 public class LoginActivity extends AppCompatActivity {
     private AlertDialog dialog;
 
-    CheckBox auto_login_check;
-    CheckBox save_id_check;
+    private CheckBox cb_auto_login;
+    private CheckBox cb_save_id;
 
     ImageButton visibletoggle;
 
-    private EditText usernameEditText;
-    private EditText passwordEditText;
+    private EditText et_id;
+    private EditText et_password;
     private boolean loginDone = false;
 
     RelativeLayout loading;
@@ -81,22 +83,25 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_login);
+        getSupportActionBar().hide();
+
         try {
             MainActivity.getNotices();
             getPosts();
         } catch (Exception e) {
             e.printStackTrace();
         }
+        TextView tv_find_pw = findViewById(R.id.findidorpw);
+        TextView tv_problem = findViewById(R.id.tv_problem);
+        Button bt_login = findViewById(R.id.login);
+        Button bt_sign_up = findViewById(R.id.sign_up);
 
+        cb_save_id = findViewById(R.id.id_save_check);
+        cb_auto_login = findViewById(R.id.auto_login_check);
 
-        setContentView(R.layout.activity_login);
-        getSupportActionBar().hide();
-        save_id_check = findViewById(R.id.id_save_check);
-        auto_login_check = findViewById(R.id.auto_login_check);
-
-        usernameEditText = findViewById(R.id.username);
-        passwordEditText = findViewById(R.id.password);
-        TextView findidorpw = findViewById(R.id.findidorpw);
+        et_id = findViewById(R.id.et_id);
+        et_password = findViewById(R.id.et_password);
 
         visibletoggle = findViewById(R.id.visible_toggle_login);
 
@@ -160,10 +165,10 @@ public class LoginActivity extends AppCompatActivity {
         visibletoggle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                change_visible(passwordEditText, visibletoggle);
+                change_visible(et_password, visibletoggle);
             }
         });
-        passwordEditText.addTextChangedListener(new TextWatcher() {
+        et_password.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             }
@@ -174,7 +179,7 @@ public class LoginActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
-                if (passwordEditText.getText().length() != 0) {
+                if (et_password.getText().length() != 0) {
                     visibletoggle.setVisibility(View.VISIBLE);
                 } else {
                     visibletoggle.setVisibility(View.INVISIBLE);
@@ -182,8 +187,7 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        Button login = findViewById(R.id.login);
-        Button signup = findViewById(R.id.sign_up);
+
 
         nonMemberLogin.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -204,11 +208,11 @@ public class LoginActivity extends AppCompatActivity {
 
 
 
-        login.setOnClickListener(new View.OnClickListener() {
+        bt_login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String username = usernameEditText.getText().toString();
-                String password = passwordEditText.getText().toString();
+                String username = et_id.getText().toString();
+                String password = et_password.getText().toString();
                 if (username.length() == 0) {
                     Toast.makeText(LoginActivity.this, "아이디를 입력해주세요", Toast.LENGTH_SHORT).show();
                 } else if (password.length() == 0) {
@@ -234,7 +238,7 @@ public class LoginActivity extends AppCompatActivity {
                 }
             }
         });
-        signup.setOnClickListener(new View.OnClickListener() {
+        bt_sign_up.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 //                Intent intent = new Intent(LoginActivity.this, SignupActivity.class);
@@ -243,31 +247,24 @@ public class LoginActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-
-        save_id_check.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
-        auto_login_check.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
-
-
         SharedPreferences auto = getSharedPreferences("auto", Activity.MODE_PRIVATE);
         String auto_id = auto.getString("inputId", null);
         if (auto_id != null) {
-            usernameEditText.setText(auto_id);
+            et_id.setText(auto_id);
         }
 
-        findidorpw.setOnClickListener(new View.OnClickListener() {
+        tv_find_pw.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(LoginActivity.this, ChangePwActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        tv_problem.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(LoginActivity.this, ProblemActivity.class);
                 startActivity(intent);
             }
         });
@@ -475,7 +472,7 @@ public class LoginActivity extends AppCompatActivity {
                                     UserPersonalInfo.notificationAllow = user.getBoolean("notification_allow");
                                     UserPersonalInfo.prize_check = user.getInt("prize_check");
 
-                                    if (auto_login_check.isChecked()){
+                                    if (cb_auto_login.isChecked()){
                                         SharedPreferences auto = getSharedPreferences("auto", Activity.MODE_PRIVATE);
                                         SharedPreferences.Editor autoLogin = auto.edit();
                                         autoLogin.putString("inputId", username);
@@ -484,7 +481,7 @@ public class LoginActivity extends AppCompatActivity {
                                         autoLogin.putString("name", user.getString("name"));
                                         autoLogin.commit();
                                     } else {
-                                        if (save_id_check.isChecked()){
+                                        if (cb_save_id.isChecked()){
                                             SharedPreferences auto = getSharedPreferences("auto", Activity.MODE_PRIVATE);
                                             SharedPreferences.Editor autoLogin = auto.edit();
 
@@ -541,7 +538,6 @@ public class LoginActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
-
 
     private void change_visible(EditText v, ImageButton visibletoggle){
         if (v.getTag() == "0"){

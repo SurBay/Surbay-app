@@ -18,7 +18,6 @@ import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.pumasi.surbay.MainActivity;
 import com.pumasi.surbay.R;
-import com.pumasi.surbay.SignupActivity;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private static final String TAG = "MyFirebaseMsgService";

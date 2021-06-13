@@ -25,23 +25,22 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-
                 android:textSize="15dp"
                 android:text="학교 메일은 아이디로 사용되며, 학교 인증 절차를 통해 더 나은 서비스를 제공하고자 합니다"
-                android:textColor="@color/text_gray"></TextView>
+                android:textColor="@color/text_gray" />
             <TextView
                 android:layout_marginTop="17.5sp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="학교 메일 인증하기"
                 android:textSize="15sp"
-                android:textColorHint="@color/text_black_70"></TextView>
+                android:textColorHint="@color/text_black_70" />
         </LinearLayout>
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="7dp"
-            android:id="@+id/signup_university_search_layout">
+            android:id="@+id/rl_sign_up_university_search">
 
             <TextView
                 android:id="@+id/signup_university"

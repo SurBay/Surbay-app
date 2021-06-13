@@ -206,6 +206,20 @@ public class PostDetailActivity extends AppCompatActivity {
 
         setbuttonunable();
 
+        reply_enter.setOnTouchListener(new View.OnTouchListener() {
+            public boolean onTouch(View view, MotionEvent event) {
+                // TODO Auto-generated method stub
+                if (view.getId() == R.id.reply_enter) {
+                    view.getParent().requestDisallowInterceptTouchEvent(true);
+                    switch (event.getAction()&MotionEvent.ACTION_MASK){
+                        case MotionEvent.ACTION_UP:
+                            view.getParent().requestDisallowInterceptTouchEvent(false);
+                            break;
+                    }
+                }
+                return false;
+            }
+        });
 
         reply_enter_button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -932,6 +946,7 @@ public class PostDetailActivity extends AppCompatActivity {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
+                Log.d("tag", "donepost");
                 donepost();
                 customDialog.dismiss();
             }
@@ -985,6 +1000,7 @@ public class PostDetailActivity extends AppCompatActivity {
 
 
     public void donepost(){
+        Log.d("tag", "donepost2");
         String requestURL = getString(R.string.server)+"/api/posts/done/"+post.getID();
         try{
             RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
@@ -996,7 +1012,7 @@ public class PostDetailActivity extends AppCompatActivity {
                         Log.d("exception", "volley error");
                         error.printStackTrace();
                     });
-            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, 0, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
             requestQueue.add(jsonObjectRequest);
         } catch (Exception e){
             Log.d("exception", "failed posting");

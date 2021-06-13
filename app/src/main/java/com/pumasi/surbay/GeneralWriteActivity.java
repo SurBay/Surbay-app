@@ -97,7 +97,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
-public class GeneralWriteActivity extends AppCompatActivity {
+public class    GeneralWriteActivity extends AppCompatActivity {
     static final int NEWPOST = 1;
     static final int FIX_DONE = 3;
     static final int CHECK = 2;

@@ -1,27 +1,17 @@
 package com.pumasi.surbay;
 
 import android.content.Intent;
-import android.graphics.drawable.ColorDrawable;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
-import android.widget.ImageView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.FileProvider;
-import androidx.viewpager.widget.ViewPager;
 
 import com.pumasi.surbay.adapter.ViewPagerAdapter;
 import com.pumasi.surbay.classfile.BitmapTransfer;
 import com.pumasi.surbay.classfile.CustomViewPager;
-import com.pumasi.surbay.mypage.GiftDetailActivity;
-
-import java.io.File;
 
 public class NoticeImageDeatil extends AppCompatActivity {
     private ScaleGestureDetector mScaleGestureDetector;

@@ -354,6 +354,11 @@
                 android:textColorHint="@color/text_black_70"
                 android:paddingStart="5dp"
                 android:id="@+id/reply_enter"
+                android:inputType="none"
+                android:maxLines="5"
+                android:scrollbars="vertical"
+                android:scrollbarThumbVertical="@color/poll_color_secondary_B6"
+                android:scrollbarStyle="insideInset"
                 android:layout_toLeftOf="@id/reply_enter_button"
                 android:layout_centerVertical="true"
                 />

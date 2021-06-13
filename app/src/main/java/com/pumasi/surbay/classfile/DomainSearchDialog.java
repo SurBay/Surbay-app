@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -16,11 +15,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 
 import com.pumasi.surbay.R;
-import com.pumasi.surbay.SignupActivity;
-import com.pumasi.surbay.SignupActivityEmail;
+import com.pumasi.surbay.pages.signup.SignupActivityEmail;
 import com.pumasi.surbay.adapter.DialogSearchListViewAdapter;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
