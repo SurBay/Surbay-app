@@ -6,6 +6,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.TextView;
 
@@ -36,7 +37,7 @@ public class CustomDialog extends Dialog{
 
         //셋팅
         content=(TextView)findViewById(R.id.customdialog_text);
-         mPositiveButton=(TextView)findViewById(R.id.customdialog_btnpositive);
+        mPositiveButton=(TextView)findViewById(R.id.customdialog_btnpositive);
         mNegativeButton=(TextView)findViewById(R.id.customdialog_btnnegative);
 
         //클릭 리스너 셋팅 (클릭버튼이 동작하도록 만들어줌.)
@@ -76,6 +77,7 @@ public class CustomDialog extends Dialog{
     public void setMessage(String message) {
         this.content.setText(message);
     }
+
 
     public void setNegativeButton(String text) {
         this.mNegativeButton.setVisibility(View.VISIBLE);

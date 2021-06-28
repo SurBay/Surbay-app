@@ -52,15 +52,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
+
     private BottomNavigationView bottomNavigationView; // 바텀 네비게이션 뷰
     private FragmentManager fm;
     private FragmentTransaction ft;
+
     private HomeFragment homeFragment;
     private BoardsFragment boardsFragment;
     private MypageFragment mypageFragment;
+
     public static ArrayList<Post> postArrayList = new ArrayList<>();
     public static ArrayList<Post> notreportedpostArrayList = new ArrayList<>();
     public static ArrayList<Post> reportpostArrayList = new ArrayList<>();
+
     public static ArrayList<Surveytip> surveytipArrayList = new ArrayList<>();
     public static ArrayList<PostNonSurvey> feedbackArrayList = new ArrayList<>();
     public static ArrayList<Notice> NoticeArrayList = new ArrayList<>();
@@ -78,15 +82,20 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
 
         mContext = getApplicationContext();
 
+        bottomNavigationView = findViewById(R.id.bottomNavi);
+
+        homeFragment= new HomeFragment();
+        boardsFragment = new BoardsFragment();
+        mypageFragment = new MypageFragment();
 
         today = new Date();
         SimpleDateFormat fm = new SimpleDateFormat(mContext.getString(R.string.date_format));
 
-        loadingProgress loadingProgress = new loadingProgress();
-        Log.d("onmainactivitystartted", "sizeis"+postArrayList.size());
+        // 받지 못한 정보가 있으면 서버에서 가져오는 함수
         if(postArrayList.size() == 0 || notreportedpostArrayList.size() == 0) {
             getPosts();
         }
@@ -102,8 +111,8 @@ public class MainActivity extends AppCompatActivity {
         if(generalArrayList.size()==0){
             getGenerals();
         }
-
         getPersonalInfo();
+
         cmpNoticeNew = new Comparator<Notice>() {
             @Override
             public int compare(Notice o1, Notice o2) {
@@ -112,7 +121,7 @@ public class MainActivity extends AppCompatActivity {
                 Date date2 = o2.getDate();
                 int compare = date1.compareTo(date2);
                 if (compare > 0)
-                    ret = -1; //date2<date1
+                    ret = -1;
                 else if (compare == 0)
                     ret = 0;
                 else
@@ -120,9 +129,8 @@ public class MainActivity extends AppCompatActivity {
                 return ret;
             }
         };
+
         Collections.sort(MainActivity.NoticeArrayList, cmpNoticeNew);
-        setContentView(R.layout.activity_main);
-        bottomNavigationView = findViewById(R.id.bottomNavi);
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener()
         {
             @Override
@@ -143,16 +151,12 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         });
-
-        homeFragment=new HomeFragment();
-        boardsFragment = new BoardsFragment();
-        mypageFragment = new MypageFragment();
         setFrag(0); // 첫 프래그먼트 화면 지정
 
-        if(SplashActivity.notification_type==2){
+        if (SplashActivity.notification_type==2){
             Intent intent = new Intent(MainActivity.this, NotificationsActivity.class);
             startActivity(intent);
-        }else if(SplashActivity.notification_type==1){
+        } else if(SplashActivity.notification_type==1){
             Intent intent = new Intent(MainActivity.this, NoticeActivity.class);
             startActivity(intent);
         }
@@ -214,7 +218,6 @@ public class MainActivity extends AppCompatActivity {
 //        }
         this.finishAffinity();
     }
-
 
     private void getPersonalInfo() {
         if (UserPersonalInfo.token == null) {
@@ -309,7 +312,6 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
-
     public static void getPosts(){
         try{
             String requestURL = "http://ec2-3-35-152-40.ap-northeast-2.compute.amazonaws.com/api/posts";
@@ -617,8 +619,6 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
-
-
     public static void getNotices(){
         try{
             Log.d("starting request", "get notices");

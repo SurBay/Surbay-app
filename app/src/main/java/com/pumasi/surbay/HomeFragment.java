@@ -952,7 +952,6 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
             e.printStackTrace();
         }
     }
-
     private void getPosts() throws Exception{
         try{
             String requestURL = "http://ec2-3-35-152-40.ap-northeast-2.compute.amazonaws.com/api/posts";

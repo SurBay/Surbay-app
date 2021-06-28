@@ -1,3 +1,4 @@
+
 package com.pumasi.surbay;
 
 import android.Manifest;
@@ -97,7 +98,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
-public class    GeneralWriteActivity extends AppCompatActivity {
+public class GeneralWriteActivity extends AppCompatActivity {
     static final int NEWPOST = 1;
     static final int FIX_DONE = 3;
     static final int CHECK = 2;
@@ -115,7 +116,6 @@ public class    GeneralWriteActivity extends AppCompatActivity {
     ImageButton addPollBtn;
 
     CheckBox multiResponse;
-    CheckBox setDeadline;
     TextView deadlineTextview;
 
     String author;
@@ -177,59 +177,55 @@ public class    GeneralWriteActivity extends AppCompatActivity {
 
         addPollBtn = findViewById(R.id.write_add_poll);
         multiResponse = findViewById(R.id.write_multi_response_checkbox);
-        setDeadline = findViewById(R.id.write_deadline_checkbox);
         deadlineTextview = findViewById(R.id.write_deadline);
 
         this.InitializeListener();
-        setDeadline.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        deadlineTextview.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(isChecked){
-                    date = new Date();
-                    String year = new SimpleDateFormat("yyyy").format(date);
-                    String month = new SimpleDateFormat("MM").format(date);
-                    String day = new SimpleDateFormat("dd").format(date);
-                    String hour = new SimpleDateFormat("kk").format(date);
-                    DatePickerDialog dialog = new DatePickerDialog(GeneralWriteActivity.this, callbackMethod, Integer.valueOf(year), Integer.valueOf(month)-1, Integer.valueOf(day));
-                    timedialog = new TimePickerDialog(GeneralWriteActivity.this, tcallbackMethod, Integer.valueOf(hour), 00, false);
-                    Calendar cal = Calendar.getInstance();
-                    cal.setTime(new Date());
-                    cal.add(Calendar.DATE, 14);
+            public void onClick(View v) {
+                date = new Date();
+                String year = new SimpleDateFormat("yyyy").format(date);
+                String month = new SimpleDateFormat("MM").format(date);
+                String day = new SimpleDateFormat("dd").format(date);
+                String hour = new SimpleDateFormat("kk").format(date);
+                DatePickerDialog dialog = new DatePickerDialog(GeneralWriteActivity.this, callbackMethod, Integer.valueOf(year), Integer.valueOf(month)-1, Integer.valueOf(day));
+                timedialog = new TimePickerDialog(GeneralWriteActivity.this, tcallbackMethod, Integer.valueOf(hour), 00, false);
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(new Date());
+                cal.add(Calendar.DATE, 14);
 
-                    dialog.getDatePicker().setMinDate(date.getTime());
-                    dialog.getDatePicker().setMaxDate(cal.getTime().getTime());
+                dialog.getDatePicker().setMinDate(date.getTime());
+                dialog.getDatePicker().setMaxDate(cal.getTime().getTime());
 
-                    dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-                        @Override
-                        public void onShow(DialogInterface dialogInterface) {
-                            dialog.getButton(Dialog.BUTTON_NEGATIVE).setVisibility(View.GONE);
-                        }
-                    });
-                    dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-                        @Override
-                        public void onDismiss(DialogInterface dialog) {
-                            if(datestr!=null) timedialog.show();
-                            if(datestr==null) setDeadline.setChecked(false);
-                        }
-                    });
-                    timedialog.setOnShowListener(new DialogInterface.OnShowListener() {
-                        @Override
-                        public void onShow(DialogInterface dialog) {
-                            timedialog.getButton(DialogInterface.BUTTON_NEGATIVE).setVisibility(View.GONE);
-                        }
-                    });
-                    timedialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-                        @Override
-                        public void onDismiss(DialogInterface dialog) {
-                            setDeadline();
-                        }
-                    });
-                    dialog.show();
-                }else{
-                    deadlineTextview.setText("");
-                }
+                dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                    @Override
+                    public void onShow(DialogInterface dialogInterface) {
+                        dialog.getButton(Dialog.BUTTON_NEGATIVE).setVisibility(View.GONE);
+                    }
+                });
+                dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    @Override
+                    public void onDismiss(DialogInterface dialog) {
+                        if(datestr!=null) timedialog.show();
+                    }
+                });
+                timedialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                    @Override
+                    public void onShow(DialogInterface dialog) {
+                        timedialog.getButton(DialogInterface.BUTTON_NEGATIVE).setVisibility(View.GONE);
+                    }
+                });
+                timedialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    @Override
+                    public void onDismiss(DialogInterface dialog) {
+                        setDeadline();
+                    }
+                });
+                dialog.show();
+
             }
         });
+
 
         write_polls = new ArrayList<>();
         image_uris = new ArrayList<>();
@@ -298,8 +294,8 @@ public class    GeneralWriteActivity extends AppCompatActivity {
 
 
     public void postGeneral(String title, String author, Integer author_lvl, String content,
-                         Date date, Date deadline, String author_userid, Boolean multi_response,
-                         Boolean with_image, JSONArray polls, JSONArray bitArray) {
+                            Date date, Date deadline, String author_userid, Boolean multi_response,
+                            Boolean with_image, JSONArray polls, JSONArray bitArray) {
         String requestURL = getString(R.string.server)+"/api/generals/parseandroid";
         VolleyMultipartRequest volleyMultipartRequest = new VolleyMultipartRequest(Request.Method.POST, requestURL,
                 response -> {
@@ -447,21 +443,15 @@ public class    GeneralWriteActivity extends AppCompatActivity {
         date = new Date();
 
         deadline = null;
-        if(setDeadline.isChecked()) {
-            if (deadlineTextview.getText().length() != 0) {
-                try {
-                    Log.d("deadline is", deadlineTextview.getText().toString());
-                    deadline = fm.parse(deadlineTextview.getText().toString());
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-            } else {
-                Calendar c = Calendar.getInstance();
-                c.setTime(date);
-                c.add(Calendar.WEEK_OF_MONTH, 2);
-                deadline = c.getTime();
+
+        if (!deadlineTextview.getText().equals("날짜 변경하기")) {
+            try {
+                Log.d("deadline is", deadlineTextview.getText().toString());
+                deadline = fm.parse(deadlineTextview.getText().toString());
+            } catch (ParseException e) {
+                e.printStackTrace();
             }
-        }else {
+        } else {
             Calendar c = Calendar.getInstance();
             c.setTime(date);
             c.add(Calendar.WEEK_OF_MONTH, 2);
@@ -505,8 +495,7 @@ public class    GeneralWriteActivity extends AppCompatActivity {
             customDialog.setMessage("입력되지 않은 정보가 있습니다");
             customDialog.setNegativeButton("확인");
         }
-        else if (setDeadline.isChecked() && deadline.before(date)){
-            Log.d("de222adlineis", ""+setDeadline.isChecked());
+        else if (deadline.before(date)){
             CustomDialog customDialog = new CustomDialog(GeneralWriteActivity.this, null);
             customDialog.show();
             customDialog.setMessage("날짜를 제대로 입력해주세요");

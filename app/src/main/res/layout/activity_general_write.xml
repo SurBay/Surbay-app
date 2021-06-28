@@ -141,33 +141,47 @@
                     android:orientation="horizontal"
                     android:layout_marginRight="26dp"
                     android:layout_marginLeft="20dp"
+                    android:paddingTop="5dp"
+                    android:paddingBottom="5dp"
                     >
-                    <CheckBox
-                        android:id="@+id/write_deadline_checkbox"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:buttonTint="@color/gray2"
-                        ></CheckBox>
+
                     <TextView
+                        android:paddingLeft="5dp"
+                        android:gravity="center"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="@color/text_black_70"
                         android:textSize="15sp"
-                        android:text = "투표 마감일 "></TextView>
+                        android:text = "투표 마감일 " />
                     <TextView
+                        android:gravity="center"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="@color/text_black_70"
                         android:textSize="13sp"
-                        android:text = "(최대 2주)"></TextView>
+                        android:text = "(최대 2주)" />
                     <TextView
+                        android:clickable="true"
+                        android:background="@drawable/general_deadline_background"
+                        android:text="날짜 변경하기"
+                        android:gravity="center"
                         android:layout_marginStart="7dp"
                         android:id="@+id/write_deadline"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:paddingBottom="5dp"
                         android:textColor="@color/text_black"
                         android:textSize="15sp"
-                        android:layout_weight="1"></TextView>
+                        android:layout_weight="1" />
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="25dp"
+                        android:text="* 날짜를 변경하지 않으면 자동으로 2주로 설정됩니다." />
                 </LinearLayout>
                 <LinearLayout
                     android:layout_width="match_parent"

@@ -36,6 +36,7 @@ public class SignupActivityPassword extends AppCompatActivity {
 
     String userid;
     String password;
+    String passwordCheck;
 
     ImageButton visibletoggle;
 
@@ -108,19 +109,39 @@ public class SignupActivityPassword extends AppCompatActivity {
         signup_next.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(pwcheckword.getVisibility() == View.GONE){
-                    password = passwordEditText.getText().toString();
-                } else {
-                    password = "";
-                }
 
-                if(password.length()==0){
+                password = passwordEditText.getText().toString();
+                passwordCheck = passwordcheckEditText.getText().toString();
+
+                if(password.length() < 6){
                     CustomDialog customDialog = new CustomDialog(SignupActivityPassword.this, null);
                     customDialog.show();
-                    customDialog.setMessage("비밀번호를 입력해주세요");
+                    customDialog.setMessage("6자 이상의 비밀번호를 입력해주세요");
                     customDialog.setNegativeButton("확인");
                     return;
                 }
+                if(password.length() > 20){
+                    CustomDialog customDialog = new CustomDialog(SignupActivityPassword.this, null);
+                    customDialog.show();
+                    customDialog.setMessage("20자 이하의 비밀번호를 입력해주세요");
+                    customDialog.setNegativeButton("확인");
+                    return;
+                }
+                if (!pwChk(password)) {
+                    CustomDialog customDialog = new CustomDialog(SignupActivityPassword.this, null);
+                    customDialog.show();
+                    customDialog.setMessage("영문과 숫자 조합으로\n비밀번호를 입력해주세요");
+                    customDialog.setNegativeButton("확인");
+                    return;
+                }
+                if (!password.equals(passwordCheck)) {
+                    CustomDialog customDialog = new CustomDialog(SignupActivityPassword.this, null);
+                    customDialog.show();
+                    customDialog.setMessage("비밀번호가 일치하지 않습니다.");
+                    customDialog.setNegativeButton("확인");
+                    return;
+                }
+
                 Intent intent1 = new Intent(SignupActivityPassword.this, SignupActivityExtra.class);
                 intent1.putExtra("userid", userid);
                 intent1.putExtra("password", password);
@@ -160,7 +181,6 @@ public class SignupActivityPassword extends AppCompatActivity {
         if (m.find()){
             check = true;
         }
-
         return check;
     }
 }
