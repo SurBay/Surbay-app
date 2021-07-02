@@ -16,6 +16,8 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
+import com.pumasi.surbay.pages.boardpage.BoardGeneral;
+import com.pumasi.surbay.pages.boardpage.BoardPost;
 
 public class BoardsFragment extends Fragment  {
     private View view;

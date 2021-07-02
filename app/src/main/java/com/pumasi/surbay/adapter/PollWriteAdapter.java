@@ -2,7 +2,6 @@ package com.pumasi.surbay.adapter;
 
 import android.content.Context;
 
-import android.net.Uri;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.DisplayMetrics;
@@ -16,10 +15,8 @@ import android.widget.LinearLayout;
 
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.pumasi.surbay.GeneralWriteActivity;
+import com.pumasi.surbay.pages.boardpage.GeneralWriteActivity;
 import com.pumasi.surbay.R;
-import com.pumasi.surbay.classfile.General;
-import com.pumasi.surbay.classfile.Poll;
 
 import java.util.ArrayList;
 

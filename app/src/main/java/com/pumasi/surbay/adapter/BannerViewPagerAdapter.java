@@ -10,9 +10,9 @@ import android.widget.ImageView;
 
 import androidx.viewpager.widget.PagerAdapter;
 
-import com.pumasi.surbay.MainActivity;
-import com.pumasi.surbay.NoticeDetailActivity;
-import com.pumasi.surbay.PostDetailActivity;
+import com.pumasi.surbay.pages.MainActivity;
+import com.pumasi.surbay.pages.homepage.NoticeDetailActivity;
+import com.pumasi.surbay.pages.boardpage.PostDetailActivity;
 import com.pumasi.surbay.R;
 import com.pumasi.surbay.classfile.Notice;
 import com.pumasi.surbay.classfile.Post;

@@ -9,9 +9,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.pumasi.surbay.GeneralDetailActivity;
-import com.pumasi.surbay.MainActivity;
-import com.pumasi.surbay.PostDetailActivity;
+import com.pumasi.surbay.pages.boardpage.GeneralDetailActivity;
+import com.pumasi.surbay.pages.MainActivity;
+import com.pumasi.surbay.pages.boardpage.PostDetailActivity;
 import com.pumasi.surbay.R;
 import com.pumasi.surbay.adapter.NotificationsAdapter;
 import com.pumasi.surbay.classfile.General;

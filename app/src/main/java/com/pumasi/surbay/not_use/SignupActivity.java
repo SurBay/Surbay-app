@@ -50,7 +50,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthOptions;
 import com.google.firebase.auth.PhoneAuthProvider;
-import com.pumasi.surbay.LoginActivity;
+import com.pumasi.surbay.pages.signup.LoginActivity;
 import com.pumasi.surbay.R;
 import com.pumasi.surbay.classfile.CustomDialog;
 import com.pumasi.surbay.pages.mypage.SettingInfo;

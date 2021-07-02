@@ -8,8 +8,7 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.pumasi.surbay.LoginActivity;
-import com.pumasi.surbay.MainActivity;
+import com.pumasi.surbay.pages.MainActivity;
 
 public class SplashActivity extends AppCompatActivity {
     private static int SPLASH_TIME_OUT = 300;

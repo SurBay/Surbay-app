@@ -8,24 +8,19 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.pumasi.surbay.GeneralDetailActivity;
-import com.pumasi.surbay.GeneralImageDetail;
+import com.pumasi.surbay.pages.boardpage.GeneralDetailActivity;
+import com.pumasi.surbay.pages.boardpage.GeneralImageDetail;
 import com.pumasi.surbay.R;
 import com.pumasi.surbay.classfile.BitmapTransfer;
 import com.pumasi.surbay.classfile.Poll;
-import com.pumasi.surbay.classfile.UserPersonalInfo;
-
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
-import java.util.Collections;
 
 public class PollDoneAdapterWImage extends RecyclerView.Adapter<PollDoneAdapterWImage.MyViewHolder> {
     private static OnItemClickListener mListener = null ;

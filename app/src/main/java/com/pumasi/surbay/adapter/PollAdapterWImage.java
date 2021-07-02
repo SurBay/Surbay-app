@@ -4,19 +4,17 @@ import android.content.Context;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.media.Image;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.pumasi.surbay.GeneralDetailActivity;
-import com.pumasi.surbay.GeneralImageDetail;
+import com.pumasi.surbay.pages.boardpage.GeneralDetailActivity;
+import com.pumasi.surbay.pages.boardpage.GeneralImageDetail;
 import com.pumasi.surbay.R;
 import com.pumasi.surbay.classfile.BitmapTransfer;
 import com.pumasi.surbay.classfile.Poll;

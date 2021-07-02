@@ -16,7 +16,7 @@ import androidx.work.WorkManager;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
-import com.pumasi.surbay.MainActivity;
+import com.pumasi.surbay.pages.MainActivity;
 import com.pumasi.surbay.R;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {

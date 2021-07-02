@@ -10,7 +10,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.pumasi.surbay.MainActivity;
+import com.pumasi.surbay.pages.MainActivity;
 import com.pumasi.surbay.R;
 import com.pumasi.surbay.classfile.UserPersonalInfo;
 import com.pumasi.surbay.classfile.Post;

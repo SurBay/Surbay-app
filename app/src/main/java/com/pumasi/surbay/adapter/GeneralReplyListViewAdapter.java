@@ -26,7 +26,7 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-import com.pumasi.surbay.MainActivity;
+import com.pumasi.surbay.pages.MainActivity;
 import com.pumasi.surbay.R;
 import com.pumasi.surbay.classfile.CustomDialog;
 import com.pumasi.surbay.classfile.General;

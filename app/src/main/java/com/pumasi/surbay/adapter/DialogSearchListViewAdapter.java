@@ -1,30 +1,16 @@
 package com.pumasi.surbay.adapter;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.pumasi.surbay.MainActivity;
 import com.pumasi.surbay.R;
-import com.pumasi.surbay.classfile.UserPersonalInfo;
-import com.pumasi.surbay.classfile.Post;
 
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.concurrent.TimeUnit;
 
 public class DialogSearchListViewAdapter extends BaseAdapter {
     // Adapter에 추가된 데이터를 저장하기 위한 ArrayList

@@ -4,7 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.view.View;
 
-import com.pumasi.surbay.TipImageDetail;
+import com.pumasi.surbay.pages.boardpage.TipImageDetail;
 
 import java.net.URL;
 

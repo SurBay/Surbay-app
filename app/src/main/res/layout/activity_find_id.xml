@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".FindIdActivity"
+    tools:context=".pages.signup.FindIdActivity"
     android:orientation="vertical"
     android:background="@color/gray"
     android:paddingTop="40dp">

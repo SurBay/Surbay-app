@@ -5,9 +5,9 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
 
-import com.pumasi.surbay.BoardPost;
+import com.pumasi.surbay.pages.boardpage.BoardPost;
 import com.pumasi.surbay.BoardSurveyTip;
-import com.pumasi.surbay.BoardFeedback;
+import com.pumasi.surbay.pages.boardpage.BoardFeedback;
 
 import java.util.ArrayList;
 import java.util.List;

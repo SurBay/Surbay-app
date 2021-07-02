@@ -10,7 +10,7 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.pumasi.surbay.PostDetailActivity;
+import com.pumasi.surbay.pages.boardpage.PostDetailActivity;
 import com.pumasi.surbay.R;
 import com.pumasi.surbay.adapter.PostListViewAdapter;
 import com.pumasi.surbay.classfile.Post;

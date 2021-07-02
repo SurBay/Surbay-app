@@ -24,7 +24,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.ActionCodeSettings;
 import com.google.firebase.auth.FirebaseAuth;
-import com.pumasi.surbay.LoginActivity;
 import com.pumasi.surbay.R;
 import com.pumasi.surbay.classfile.CustomDialog;
 

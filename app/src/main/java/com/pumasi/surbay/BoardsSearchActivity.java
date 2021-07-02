@@ -24,8 +24,11 @@ import com.pumasi.surbay.adapter.PostListViewAdapter;
 import com.pumasi.surbay.adapter.SurveyTipListViewAdapter;
 import com.pumasi.surbay.classfile.General;
 import com.pumasi.surbay.classfile.Post;
-import com.pumasi.surbay.classfile.PostNonSurvey;
 import com.pumasi.surbay.classfile.Surveytip;
+import com.pumasi.surbay.pages.MainActivity;
+import com.pumasi.surbay.pages.boardpage.GeneralDetailActivity;
+import com.pumasi.surbay.pages.boardpage.PostDetailActivity;
+import com.pumasi.surbay.pages.boardpage.TipdetailActivity;
 
 import java.util.ArrayList;
 

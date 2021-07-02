@@ -21,7 +21,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SurBay"
         android:usesCleartextTraffic="true">
-        <activity android:name=".ProblemActivity"></activity>
+        <activity android:name=".pages.signup.ProblemActivity"></activity>
 
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -62,10 +62,10 @@
         </service>
 
         <activity
-            android:name=".ChangePwActivity"
+            android:name=".pages.signup.ChangePwActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".GeneralImageDetail"
+            android:name=".pages.boardpage.GeneralImageDetail"
             android:screenOrientation="portrait" />
         <activity
             android:name=".pages.mypage.SettingInfo2"
@@ -86,16 +86,16 @@
             android:name=".pages.signup.SignupActivityEmail"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".GeneralWriteActivity"
+            android:name=".pages.boardpage.GeneralWriteActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".GeneralDetailActivity"
+            android:name=".pages.boardpage.GeneralDetailActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".pages.mypage.SettingFeedbacks"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".NoticeImageDeatil"
+            android:name=".pages.homepage.NoticeImageDeatil"
             android:screenOrientation="portrait" />
         <activity
             android:name=".pages.mypage.SettingInfo"
@@ -107,7 +107,7 @@
             android:name=".pages.mypage.NotificationsActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".FeedbackWrite"
+            android:name=".pages.mypage.FeedbackWrite"
             android:screenOrientation="portrait" />
         <activity
             android:name=".pages.mypage.GiftDetailActivity"
@@ -116,16 +116,16 @@
             android:name=".pages.mypage.IGotGifts"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".TipdetailActivity"
+            android:name=".pages.boardpage.TipdetailActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".TipImageDetail"
+            android:name=".pages.boardpage.TipImageDetail"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".TipWriteActivity"
+            android:name=".pages.boardpage.TipWriteActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".Feedbackdetail"
+            android:name=".pages.mypage.Feedbackdetail"
             android:screenOrientation="portrait" />
         <activity
             android:name=".pages.mypage.MypageSettingAlerm"
@@ -146,13 +146,13 @@
             android:name=".pages.mypage.MypageSettingMain"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".FindIdActivity"
+            android:name=".pages.signup.FindIdActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".NoticeDetailActivity"
+            android:name=".pages.homepage.NoticeDetailActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".NoticeActivity"
+            android:name=".pages.homepage.NoticeActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".pages.mypage.Mypage_uploadNParti"
@@ -171,7 +171,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".MainActivity"
+            android:name=".pages.MainActivity"
             android:exported="false"
             android:screenOrientation="portrait">
             <intent-filter>
@@ -179,7 +179,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".LoginActivity"
+            android:name=".pages.signup.LoginActivity"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -193,13 +193,13 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".WriteActivity"
+            android:name=".pages.boardpage.PostWriteActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".SurveyWebActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".PostDetailActivity"
+            android:name=".pages.boardpage.PostDetailActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".not_use.SignupActivity"

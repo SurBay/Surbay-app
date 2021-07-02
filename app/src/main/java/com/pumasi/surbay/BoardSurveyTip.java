@@ -28,6 +28,8 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.pumasi.surbay.adapter.SurveyTipListViewAdapter;
 import com.pumasi.surbay.classfile.Surveytip;
+import com.pumasi.surbay.pages.MainActivity;
+import com.pumasi.surbay.pages.boardpage.TipdetailActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;

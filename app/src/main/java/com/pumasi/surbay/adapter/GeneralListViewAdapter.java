@@ -1,39 +1,23 @@
 package com.pumasi.surbay.adapter;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
-import android.media.Image;
-import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.pumasi.surbay.MainActivity;
+import com.pumasi.surbay.pages.MainActivity;
 import com.pumasi.surbay.R;
 import com.pumasi.surbay.classfile.General;
 import com.pumasi.surbay.classfile.Poll;
-import com.pumasi.surbay.classfile.UserPersonalInfo;
-import com.pumasi.surbay.classfile.Post;
-
-import org.w3c.dom.Text;
 
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.Locale;
-import java.util.concurrent.TimeUnit;
 
 public class GeneralListViewAdapter extends BaseAdapter {
     // Adapter에 추가된 데이터를 저장하기 위한 ArrayList
