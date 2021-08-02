@@ -62,14 +62,15 @@ public class BannerViewPagerAdapter extends PagerAdapter {
             @Override
             public void onClick(View v) {
                 if(position==0) {
-                    List<Post> result = MainActivity.notreportedpostArrayList.stream().filter(a -> a.getID().equals("60363e6bb25c6932d02dca5a")).collect(Collectors.toList());
-
-                    Post item = result.get(0);
-                    Intent intent = new Intent(context, PostDetailActivity.class);
-                    intent.putExtra("post", item);
-                    intent.putParcelableArrayListExtra("reply", item.getComments());
-                    intent.putExtra("position", position);
-                    context.startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+//                    List<Post> result = MainActivity.notreportedpostArrayList.stream().filter(a -> a.getID().equals("60363e6bb25c6932d02dca5a")).collect(Collectors.toList());
+//
+//                    Post item = result.get(0);
+//                    Intent intent = new Intent(context, PostDetailActivity.class);
+//                    intent.putExtra("post", item);
+//                    intent.putParcelableArrayListExtra("reply", item.getComments());
+//                    intent.putExtra("position", position);
+//                    context.startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+                    return;
                 }else if(position==1){
                     List<Notice> result = MainActivity.NoticeArrayList.stream().filter(a -> a.getID().equals("603bc733f8853d5f37d4e67e")).collect(Collectors.toList());
 

@@ -14,6 +14,7 @@ import com.pumasi.surbay.classfile.Notification;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class NotificationsAdapter extends RecyclerView.Adapter<NotificationsAdapter.MyViewHolder> {
     private static OnItemClickListener mListener = null ;
@@ -26,7 +27,11 @@ public class NotificationsAdapter extends RecyclerView.Adapter<NotificationsAdap
 
     public NotificationsAdapter(Context ctx, ArrayList<Notification> imageModelArrayList){
         inflater = LayoutInflater.from(ctx);
-        this.imageModelArrayList = imageModelArrayList;
+        if (imageModelArrayList != null) {
+            Collections.reverse(imageModelArrayList);
+            this.imageModelArrayList = imageModelArrayList;
+        }
+
     }
 
     public interface OnItemClickListener {
@@ -59,7 +64,10 @@ public class NotificationsAdapter extends RecyclerView.Adapter<NotificationsAdap
 
     @Override
     public int getItemCount() {
-        return imageModelArrayList.size();
+        if (imageModelArrayList != null) {
+            return imageModelArrayList.size();
+        }
+        return 0;
     }
 
     public Object getItem(int position) {

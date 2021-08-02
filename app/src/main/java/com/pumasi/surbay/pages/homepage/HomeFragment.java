@@ -113,7 +113,7 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
 
     private static ViewPager banner;
     private static BannerViewPagerAdapter adapter;
-    private static final Integer[] IMAGES= {R.drawable.tutorialbanner1, R.drawable.tutorialbanner2};
+    private static final Integer[] IMAGES= {R.drawable.renewal_banner, R.drawable.tutorialbanner2};
     private ArrayList<Integer> ImagesArray = new ArrayList<>();
     private int currentPage = 0;
 
@@ -151,7 +151,6 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
         tiger3 = view.findViewById(R.id.none_tiger_3);
 
         loading = view.findViewById(R.id.loadingPanel);
-
         mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.home_swipe_container);
 
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {

@@ -80,6 +80,7 @@ public class SignupActivityDone extends AppCompatActivity {
                                 true, /* installIfNotAvailable */
                                 "29"    /* minimumVersion */)
                         .build();
+        Log.d("url", userid);
         FirebaseAuth auth = FirebaseAuth.getInstance();
         auth.sendSignInLinkToEmail(userid, actionCodeSettings)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -90,6 +91,7 @@ public class SignupActivityDone extends AppCompatActivity {
                         }
                     }
                 });
+
 
 
 
