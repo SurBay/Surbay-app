@@ -24,6 +24,7 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.pumasi.surbay.BoardsFragment;
+import com.pumasi.surbay.HomeRenewalFragment;
 import com.pumasi.surbay.pages.homepage.HomeFragment;
 import com.pumasi.surbay.pages.homepage.NoticeActivity;
 import com.pumasi.surbay.R;
@@ -60,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
     private FragmentManager fm;
     private FragmentTransaction ft;
 
-    private HomeFragment homeFragment;
+    private HomeRenewalFragment homeRenewalFragment;
     private BoardsFragment boardsFragment;
     private MypageFragment mypageFragment;
 
@@ -91,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
 
         bottomNavigationView = findViewById(R.id.bottomNavi);
 
-        homeFragment= new HomeFragment();
+        homeRenewalFragment= new HomeRenewalFragment();
         boardsFragment = new BoardsFragment();
         mypageFragment = new MypageFragment();
 
@@ -173,7 +174,7 @@ public class MainActivity extends AppCompatActivity {
         switch (n)
         {
             case 0:
-                ft.replace(R.id.Main_Frame,homeFragment);
+                ft.replace(R.id.Main_Frame,homeRenewalFragment);
                 ft.commit();
                 break;
 

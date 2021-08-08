@@ -112,7 +112,7 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
     private static Comparator<Post> cmpGoal;
 
     private static ViewPager banner;
-    private static BannerViewPagerAdapter adapter;
+    private BannerViewPagerAdapter adapter;
     private static final Integer[] IMAGES= {R.drawable.renewal_banner, R.drawable.tutorialbanner2};
     private ArrayList<Integer> ImagesArray = new ArrayList<>();
     private int currentPage = 0;

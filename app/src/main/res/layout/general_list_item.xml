@@ -87,18 +87,19 @@
                     android:textSize="15sp"
                     android:textColor="@color/text_black"
                     android:background="@drawable/round_border_general_poll_primary"></TextView>
+
                 <TextView
                     android:id="@+id/content2_2"
-                    android:layout_width="100dp"
+                    android:layout_width="101dp"
                     android:layout_height="100dp"
                     android:layout_gravity="center"
                     android:layout_marginLeft="52dp"
-                    android:text="맥주"
+                    android:background="@drawable/round_border_general_poll_secondary"
                     android:gravity="center"
-                    android:textStyle="bold"
-                    android:textSize="15sp"
+                    android:text="맥주"
                     android:textColor="@color/text_black"
-                    android:background="@drawable/round_border_general_poll_secondary"></TextView>
+                    android:textSize="15sp"
+                    android:textStyle="bold"></TextView>
                 <ImageView
                     android:layout_width="37.5dp"
                     android:layout_height="37.5dp"
@@ -290,14 +291,15 @@
                         android:scaleType="fitCenter"
                         android:layout_marginRight="5dp"
                         android:src="@drawable/general_comments"></ImageView>
+
                     <TextView
                         android:id="@+id/comments"
                         android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="2dp"
                         android:text="0"
-                        android:textSize="12.5sp"
                         android:textColor="@color/text_black_70"
-                        android:layout_marginBottom="2dp"></TextView>
+                        android:textSize="12.5sp"></TextView>
                 </LinearLayout>
 
             </LinearLayout>

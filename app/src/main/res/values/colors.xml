@@ -24,4 +24,5 @@
     <color name="poll_color_secondary_B6">#B6E9ED</color>
     <color name="notification_teal">#E4FFFC</color>
 
+    <color name="renewal_background">#F2F2F2</color>
 </resources>
