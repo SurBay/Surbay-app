@@ -25,4 +25,5 @@
     <color name="notification_teal">#E4FFFC</color>
 
     <color name="renewal_background">#F2F2F2</color>
+    <color name="renewal_gray">#C4C4C4</color>
 </resources>

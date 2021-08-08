@@ -89,6 +89,19 @@
                         android:scaleType="centerInside"
                         android:src="@drawable/leftarrow" />
                 </RelativeLayout>
+                <androidx.viewpager2.widget.ViewPager2
+                    android:id="@+id/vp_research"
+                    android:layout_width="373.92dp"
+                    android:layout_height="171dp"
+                    android:layout_gravity="center_horizontal"
+                    android:background="@color/white" />
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
+                    android:layout_marginTop="10.26dp">
+                </LinearLayout>
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
@@ -116,6 +129,19 @@
                         android:scaleType="centerInside"
                         android:src="@drawable/leftarrow" />
                 </RelativeLayout>
+                <androidx.viewpager2.widget.ViewPager2
+                    android:id="@+id/vp_vote"
+                    android:layout_width="319.2dp"
+                    android:layout_height="171dp"
+                    android:layout_gravity="center_horizontal"
+                    android:background="@color/white" />
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
+                    android:layout_marginTop="10.26dp">
+                </LinearLayout>
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
@@ -143,6 +169,19 @@
                         android:scaleType="centerInside"
                         android:src="@drawable/leftarrow" />
                 </RelativeLayout>
+                <androidx.viewpager2.widget.ViewPager2
+                    android:id="@+id/vp_research_tip"
+                    android:layout_width="373.92dp"
+                    android:layout_height="171dp"
+                    android:layout_gravity="center_horizontal"
+                    android:background="@color/white" />
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
+                    android:layout_marginTop="10.26dp">
+                </LinearLayout>
             </LinearLayout>
 
         </ScrollView>
