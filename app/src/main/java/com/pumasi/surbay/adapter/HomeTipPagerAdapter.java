@@ -6,15 +6,19 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 
 import com.pumasi.surbay.HomeResearchFragment;
+import com.pumasi.surbay.HomeTipFragment;
+import com.pumasi.surbay.classfile.Surveytip;
 
-public class HomeResearchPagerAdapter extends FragmentPagerAdapter {
+import java.util.ArrayList;
 
+public class HomeTipPagerAdapter extends FragmentPagerAdapter {
 
-    public HomeResearchPagerAdapter(@NonNull FragmentManager fm) {
+    ArrayList<Surveytip> surveytipArrayList;
+    public HomeTipPagerAdapter(@NonNull FragmentManager fm) {
         super(fm);
     }
 
-    public HomeResearchPagerAdapter(@NonNull FragmentManager fm, int behavior) {
+    public HomeTipPagerAdapter(@NonNull FragmentManager fm, int behavior) {
         super(fm, behavior);
     }
 
@@ -23,11 +27,11 @@ public class HomeResearchPagerAdapter extends FragmentPagerAdapter {
     public Fragment getItem(int position) {
         switch (position) {
             case 0:
-                return (HomeResearchFragment.newInstance());
+                return (HomeTipFragment.newInstance(0));
             case 1:
-                return (HomeResearchFragment.newInstance());
+                return (HomeTipFragment.newInstance(1));
             case 2:
-                return (HomeResearchFragment.newInstance());
+                return (HomeTipFragment.newInstance(2));
             default: return null;
         }
     }
@@ -37,4 +41,3 @@ public class HomeResearchPagerAdapter extends FragmentPagerAdapter {
         return 3;
     }
 }
-

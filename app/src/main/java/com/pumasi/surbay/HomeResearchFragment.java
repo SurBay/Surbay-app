@@ -9,19 +9,19 @@ import android.view.View;
 import android.view.ViewGroup;
 
 
-public class HomeResearchFragment1 extends Fragment {
+public class HomeResearchFragment extends Fragment {
 
     private View view;
 
-    public static HomeResearchFragment1 newInstance() {
-        HomeResearchFragment1 homeResearchFragment1 = new HomeResearchFragment1();
+    public static HomeResearchFragment newInstance() {
+        HomeResearchFragment homeResearchFragment1 = new HomeResearchFragment();
         return homeResearchFragment1;
     }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        view = inflater.inflate(R.layout.fragment_home_research1, container, false);
+        view = inflater.inflate(R.layout.fragment_home_research, container, false);
         return view;
     }
 }

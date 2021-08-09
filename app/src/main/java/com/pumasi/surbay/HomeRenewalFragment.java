@@ -1,8 +1,10 @@
 package com.pumasi.surbay;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
@@ -14,6 +16,7 @@ import android.view.ViewGroup;
 
 import com.pumasi.surbay.adapter.BannerViewPagerAdapter;
 import com.pumasi.surbay.adapter.HomeResearchPagerAdapter;
+import com.pumasi.surbay.adapter.HomeTipPagerAdapter;
 
 import java.util.ArrayList;
 import java.util.Timer;
@@ -22,7 +25,7 @@ import java.util.TimerTask;
 public class HomeRenewalFragment extends Fragment {
 
     private static Context mContext;
-    private static final Integer[] IMAGES= {R.drawable.renewal_banner, R.drawable.tutorialbanner2};
+    private static final Integer[] IMAGES = {R.drawable.renewal_banner, R.drawable.tutorialbanner2};
     private ArrayList<Integer> ImagesArray = new ArrayList<>();
     private ViewPager vp_banner;
     private ViewPager vp_research;
@@ -30,8 +33,10 @@ public class HomeRenewalFragment extends Fragment {
     private ViewPager vp_research_tip;
     private int currentPage;
     private View view;
-    private HomeResearchPagerAdapter homeResearchAdapter;
+    private HomeResearchPagerAdapter homeResearchPagerAdapter;
+    private HomeTipPagerAdapter homeTipPagerAdapter;
     private static BannerViewPagerAdapter bannerAdapter;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -45,12 +50,14 @@ public class HomeRenewalFragment extends Fragment {
 
         setVp_banner();
         setVp_research();
+        setVp_research_tip();
         return view;
     }
+
     private void setVp_banner() {
         if (view != null) {
             vp_banner = view.findViewById(R.id.vp_banner);
-            for (int i=0;i<IMAGES.length;i++) ImagesArray.add(IMAGES[i]);
+            for (int i = 0; i < IMAGES.length; i++) ImagesArray.add(IMAGES[i]);
             bannerAdapter = new BannerViewPagerAdapter(getActivity().getApplicationContext(), ImagesArray);
             vp_banner.setAdapter(bannerAdapter);
 
@@ -91,13 +98,21 @@ public class HomeRenewalFragment extends Fragment {
             }, 30000, 30000);
         }
     }
+
     private void setVp_research() {
         vp_research = view.findViewById(R.id.vp_research);
-        homeResearchAdapter = new HomeResearchPagerAdapter(getFragmentManager());
-        vp_research.setAdapter(homeResearchAdapter);
+        homeResearchPagerAdapter = new HomeResearchPagerAdapter(getFragmentManager());
+        vp_research.setAdapter(homeResearchPagerAdapter);
     }
 
     private void setVp_research_tip() {
         vp_research_tip = view.findViewById(R.id.vp_research_tip);
+        homeTipPagerAdapter = new HomeTipPagerAdapter(getFragmentManager());
+        vp_research_tip.setAdapter(homeTipPagerAdapter);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
     }
 }
