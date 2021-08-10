@@ -23,14 +23,14 @@
         <TextView
             android:id="@+id/tv_tip_title1"
             android:layout_width="152.76dp"
-            android:layout_height="35.92dp"
+            android:layout_height="38dp"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="0.56dp"
             android:text="설문조사 결과는 공유하자!!"
             android:textSize="14.82dp"
             android:textStyle="bold"
             android:textColor="@color/text_black"
-            android:lineHeight="14dp" />
+            android:lineHeight="17.1dp"
+            android:maxLines="2"/>
         <TextView
             android:id="@+id/tv_tip_des1"
             android:layout_width="152.76dp"
@@ -40,14 +40,14 @@
             android:text="Surbay는 현재 설문조사의 결과를 손쉽게 공유할 수 있는 방법에 대해 연구중입니다. 성공적인 틀을 개발..."
             android:textSize="13.11dp"
             android:textColor="@color/text_black_70"
-            android:lineHeight="14dp"
+            android:lineHeight="17.1dp"
             android:maxLines="4"
             android:maxEms="100" />
         <LinearLayout
             android:layout_width="159.6dp"
             android:layout_height="1dp"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="4.56dp"
+            android:layout_marginTop="2dp"
             android:background="@color/gray2" />
         <LinearLayout
             android:orientation="horizontal"
@@ -90,14 +90,14 @@
         <TextView
             android:id="@+id/tv_tip_title2"
             android:layout_width="152.76dp"
-            android:layout_height="35.92dp"
+            android:layout_height="38dp"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="0.56dp"
             android:text="설문조사 결과는 공유하자!!"
             android:textSize="14.82dp"
             android:textStyle="bold"
             android:textColor="@color/text_black"
-            android:lineHeight="14dp" />
+            android:lineHeight="17.1dp"
+            android:maxLines="2"/>
         <TextView
             android:id="@+id/tv_tip_des2"
             android:layout_width="152.76dp"
@@ -107,14 +107,14 @@
             android:text="Surbay는 현재 설문조사의 결과를 손쉽게 공유할 수 있는 방법에 대해 연구중입니다. 성공적인 틀을 개발..."
             android:textSize="13.11dp"
             android:textColor="@color/text_black_70"
-            android:lineHeight="14dp"
+            android:lineHeight="17.1dp"
             android:maxLines="4"
             android:maxEms="100" />
         <LinearLayout
             android:layout_width="159.6dp"
             android:layout_height="1dp"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="4.56dp"
+            android:layout_marginTop="2dp"
             android:background="@color/gray2" />
         <LinearLayout
             android:orientation="horizontal"

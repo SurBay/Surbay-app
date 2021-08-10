@@ -404,7 +404,7 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
             public void onClick(View v) {
                 onSort(DEADLINE);
                 BottomNavigationView bottomNavigationView = (BottomNavigationView) getActivity().findViewById(R.id.bottomNavi);
-                bottomNavigationView.setSelectedItemId(R.id.action_boards);
+                bottomNavigationView.setSelectedItemId(R.id.action_research_board);
             }
         });
         goal_sort_button.setOnClickListener(new View.OnClickListener() {
@@ -412,7 +412,7 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
             public void onClick(View v) {
                 onSort(GOAL);
                 BottomNavigationView bottomNavigationView = (BottomNavigationView) getActivity().findViewById(R.id.bottomNavi);
-                bottomNavigationView.setSelectedItemId(R.id.action_boards);
+                bottomNavigationView.setSelectedItemId(R.id.action_research_board);
             }
         });
         new_sort_button.setOnClickListener(new View.OnClickListener() {
@@ -420,7 +420,7 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
             public void onClick(View v) {
                 onSort(NEW);
                 BottomNavigationView bottomNavigationView = (BottomNavigationView) getActivity().findViewById(R.id.bottomNavi);
-                bottomNavigationView.setSelectedItemId(R.id.action_boards);
+                bottomNavigationView.setSelectedItemId(R.id.action_research_board);
             }
         });
         notice_sort_button.setOnClickListener(new View.OnClickListener() {

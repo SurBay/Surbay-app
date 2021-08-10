@@ -23,9 +23,10 @@ import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.pumasi.surbay.BoardsFragment;
+import com.pumasi.surbay.FreeBoardFragment;
+import com.pumasi.surbay.ResearchBoardFragment;
 import com.pumasi.surbay.HomeRenewalFragment;
-import com.pumasi.surbay.pages.homepage.HomeFragment;
+import com.pumasi.surbay.VoucherFragment;
 import com.pumasi.surbay.pages.homepage.NoticeActivity;
 import com.pumasi.surbay.R;
 import com.pumasi.surbay.classfile.CustomDialog;
@@ -62,7 +63,9 @@ public class MainActivity extends AppCompatActivity {
     private FragmentTransaction ft;
 
     private HomeRenewalFragment homeRenewalFragment;
-    private BoardsFragment boardsFragment;
+    private ResearchBoardFragment researchBoardFragment;
+    private FreeBoardFragment freeBoardFragment;
+    private VoucherFragment voucherFragment;
     private MypageFragment mypageFragment;
 
     public static ArrayList<Post> postArrayList = new ArrayList<>();
@@ -93,7 +96,9 @@ public class MainActivity extends AppCompatActivity {
         bottomNavigationView = findViewById(R.id.bottomNavi);
 
         homeRenewalFragment= new HomeRenewalFragment();
-        boardsFragment = new BoardsFragment();
+        researchBoardFragment = new ResearchBoardFragment();
+        freeBoardFragment = new FreeBoardFragment();
+        voucherFragment = new VoucherFragment();
         mypageFragment = new MypageFragment();
 
         today = new Date();
@@ -145,11 +150,17 @@ public class MainActivity extends AppCompatActivity {
                     case R.id.action_home:
                         setFrag(0);
                         break;
-                    case R.id.action_boards:
+                    case R.id.action_research_board:
                         setFrag(1);
                         break;
-                    case R.id.action_mypage:
+                    case R.id.action_free_board:
                         setFrag(2);
+                        break;
+                    case R.id.action_voucher:
+                        setFrag(3);
+                        break;
+                    case R.id.action_mypage:
+                        setFrag(4);
                         break;
                 }
                 return true;
@@ -179,11 +190,21 @@ public class MainActivity extends AppCompatActivity {
                 break;
 
             case 1:
-                ft.replace(R.id.Main_Frame,boardsFragment);
+                ft.replace(R.id.Main_Frame,researchBoardFragment);
                 ft.commit();
                 break;
 
             case 2:
+                ft.replace(R.id.Main_Frame,freeBoardFragment);
+                ft.commit();
+                break;
+
+            case 3:
+                ft.replace(R.id.Main_Frame,voucherFragment);
+                ft.commit();
+                break;
+
+            case 4:
                 ft.replace(R.id.Main_Frame,mypageFragment);
                 ft.commit();
                 break;

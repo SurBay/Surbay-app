@@ -111,17 +111,19 @@ public class PostListViewAdapter extends BaseAdapter {
 
         contentTextView.setText(post.getTarget());
         dateTextView.setText(date+" - "+deadline);
-
-        if (UserPersonalInfo.participations.contains(post.getID()) && !UserPersonalInfo.userID.equals(post.getAuthor_userid())){ //참여했으면 회색
+        if (UserPersonalInfo.participations != null) {
+            if (UserPersonalInfo.participations.contains(post.getID()) && !UserPersonalInfo.userID.equals(post.getAuthor_userid())){ //참여했으면 회색
 //            background.setBackgroundResource(R.drawable.round_border_gray_list);
-            DoneView.setVisibility(View.VISIBLE);
-        }else if(!(now.after(post.getDeadline()) || post.isDone())){ //참여 안하고 안끝났으면 민트색
+                DoneView.setVisibility(View.VISIBLE);
+            }else if(!(now.after(post.getDeadline()) || post.isDone())){ //참여 안하고 안끝났으면 민트색
 //            background.setBackgroundResource(R.drawable.participants_round_border);
-            DoneView.setVisibility(View.GONE);
-        }else{
+                DoneView.setVisibility(View.GONE);
+            }else{
 //            background.setBackgroundResource(R.drawable.round_border_gray_list);
-            DoneView.setVisibility(View.GONE);
+                DoneView.setVisibility(View.GONE);
+            }
         }
+
 
         Integer done = DoneView.getVisibility();
         Drawable back = background.getBackground();

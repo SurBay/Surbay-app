@@ -80,6 +80,7 @@
                             android:textStyle="bold"/>
                     </LinearLayout>
                     <ImageButton
+                        android:id="@+id/btn_shift_home_research"
                         android:layout_width="20dp"
                         android:layout_height="20dp"
                         android:layout_alignParentRight="true"
@@ -101,10 +102,20 @@
                     android:layout_height="wrap_content"
                     android:gravity="center_horizontal"
                     android:layout_marginTop="10.26dp">
+                    <com.tbuonomo.viewpagerdotsindicator.DotsIndicator
+                        android:id="@+id/vp_research_indicator"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:dotsColor="#C4C4C4"
+                        app:selectedDotColor="#484747"
+                        app:dotsSize="5.7dp"
+                        app:dotsSpacing="4.275dp"
+                        app:progressMode="true"/>
                 </LinearLayout>
                 <RelativeLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="17.1dp">
                     <LinearLayout
                         android:orientation="horizontal"
                         android:layout_width="wrap_content"
@@ -120,6 +131,7 @@
                             android:textStyle="bold"/>
                     </LinearLayout>
                     <ImageButton
+                        android:id="@+id/btn_shift_home_vote"
                         android:layout_width="20dp"
                         android:layout_height="20dp"
                         android:layout_alignParentRight="true"
@@ -141,10 +153,20 @@
                     android:layout_height="wrap_content"
                     android:gravity="center_horizontal"
                     android:layout_marginTop="10.26dp">
+                    <com.tbuonomo.viewpagerdotsindicator.DotsIndicator
+                        android:id="@+id/vp_vote_indicator"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:dotsColor="#C4C4C4"
+                        app:selectedDotColor="#484747"
+                        app:dotsSize="5.7dp"
+                        app:dotsSpacing="4.275dp"
+                        app:progressMode="true"/>
                 </LinearLayout>
                 <RelativeLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="17.1dp">
                     <LinearLayout
                         android:orientation="horizontal"
                         android:layout_width="wrap_content"
@@ -160,6 +182,7 @@
                             android:textStyle="bold"/>
                     </LinearLayout>
                     <ImageButton
+                        android:id="@+id/btn_shift_home_tip"
                         android:layout_width="20dp"
                         android:layout_height="20dp"
                         android:layout_alignParentRight="true"
@@ -181,7 +204,17 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center_horizontal"
-                    android:layout_marginTop="10.26dp">
+                    android:layout_marginTop="10.26dp"
+                    android:layout_marginBottom="30dp">
+                    <com.tbuonomo.viewpagerdotsindicator.DotsIndicator
+                        android:id="@+id/vp_tip_indicator"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:dotsColor="#C4C4C4"
+                        app:selectedDotColor="#484747"
+                        app:dotsSize="5.7dp"
+                        app:dotsSpacing="4.275dp"
+                        app:progressMode="true"/>
                 </LinearLayout>
             </LinearLayout>
 

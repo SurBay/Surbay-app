@@ -4,18 +4,30 @@
     <item
         android:id="@+id/action_home"
         android:enabled="true"
-        android:icon="@drawable/home_selector"
+        android:icon="@drawable/bottom_navi_home_react"
         tools:ignore="MenuTitle" />
 
     <item
-        android:id="@+id/action_boards"
+        android:id="@+id/action_research_board"
         android:enabled="true"
-        android:icon="@drawable/board_selector"
+        android:icon="@drawable/bottom_navi_research_react"
+        tools:ignore="MenuTitle" />
+
+    <item
+        android:id="@+id/action_free_board"
+        android:enabled="true"
+        android:icon="@drawable/bottom_navi_free_react"
+        tools:ignore="MenuTitle" />
+
+    <item
+        android:id="@+id/action_voucher"
+        android:enabled="true"
+        android:icon="@drawable/bottom_navi_voucher_react"
         tools:ignore="MenuTitle" />
 
     <item
         android:id="@+id/action_mypage"
         android:enabled="true"
-        android:icon="@drawable/my_selector"
+        android:icon="@drawable/bottom_navi_user_react"
         tools:ignore="MenuTitle" />
 </menu>

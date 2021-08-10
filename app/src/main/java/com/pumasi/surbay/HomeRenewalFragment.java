@@ -13,10 +13,15 @@ import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageButton;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.pumasi.surbay.adapter.BannerViewPagerAdapter;
 import com.pumasi.surbay.adapter.HomeResearchPagerAdapter;
 import com.pumasi.surbay.adapter.HomeTipPagerAdapter;
+import com.pumasi.surbay.adapter.HomeVotePagerAdapter;
+import com.tbuonomo.viewpagerdotsindicator.DotsIndicator;
 
 import java.util.ArrayList;
 import java.util.Timer;
@@ -31,29 +36,62 @@ public class HomeRenewalFragment extends Fragment {
     private ViewPager vp_research;
     private ViewPager vp_vote;
     private ViewPager vp_research_tip;
+    private ImageButton btn_shift_home_research;
+    private ImageButton btn_shift_home_vote;
+    private ImageButton btn_shift_home_tip;
     private int currentPage;
     private View view;
     private HomeResearchPagerAdapter homeResearchPagerAdapter;
+    private HomeVotePagerAdapter homeVotePagerAdapter;
     private HomeTipPagerAdapter homeTipPagerAdapter;
     private static BannerViewPagerAdapter bannerAdapter;
+    private DotsIndicator vp_research_indicator;
+    private DotsIndicator vp_vote_indicator;
+    private DotsIndicator vp_tip_indicator;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_home_renewal, container, false);
         ((AppCompatActivity) getActivity()).getSupportActionBar().hide();
+        btn_shift_home_research = view.findViewById(R.id.btn_shift_home_research);
+        btn_shift_home_vote = view.findViewById(R.id.btn_shift_home_vote);
+        btn_shift_home_tip = view.findViewById(R.id.btn_shift_home_tip);
 
-        mContext = getActivity();
-        vp_vote = view.findViewById(R.id.vp_vote);
-        vp_research_tip = view.findViewById(R.id.vp_research_tip);
+        btn_shift_home_research.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                BottomNavigationView bottomNavigationView = getActivity().findViewById(R.id.bottomNavi);
+                bottomNavigationView.setSelectedItemId(R.id.action_research_board);
+            }
+        });
+
+        btn_shift_home_vote.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+
+        btn_shift_home_tip.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+
+        setView();
 
 
-        setVp_banner();
-        setVp_research();
-        setVp_research_tip();
         return view;
     }
-
+    private void setView() {
+        mContext = getActivity();
+        setVp_banner();
+        setVp_research();
+        setVp_vote();
+        setVp_research_tip();
+    }
     private void setVp_banner() {
         if (view != null) {
             vp_banner = view.findViewById(R.id.vp_banner);
@@ -98,17 +136,36 @@ public class HomeRenewalFragment extends Fragment {
             }, 30000, 30000);
         }
     }
-
     private void setVp_research() {
-        vp_research = view.findViewById(R.id.vp_research);
-        homeResearchPagerAdapter = new HomeResearchPagerAdapter(getFragmentManager());
-        vp_research.setAdapter(homeResearchPagerAdapter);
-    }
 
+        vp_research = view.findViewById(R.id.vp_research);
+        vp_research_indicator = view.findViewById(R.id.vp_research_indicator);
+
+        homeResearchPagerAdapter = new HomeResearchPagerAdapter(getChildFragmentManager());
+
+        vp_research.setAdapter(homeResearchPagerAdapter);
+        vp_research_indicator.setViewPager(vp_research);
+
+    }
+    private void setVp_vote() {
+        vp_vote_indicator = view.findViewById(R.id.vp_vote_indicator);
+        vp_vote = view.findViewById(R.id.vp_vote);
+
+        homeVotePagerAdapter = new HomeVotePagerAdapter(getChildFragmentManager());
+
+        vp_vote.setAdapter(homeVotePagerAdapter);
+        vp_vote_indicator.setViewPager(vp_vote);
+
+    }
     private void setVp_research_tip() {
+        vp_tip_indicator = view.findViewById(R.id.vp_tip_indicator);
         vp_research_tip = view.findViewById(R.id.vp_research_tip);
-        homeTipPagerAdapter = new HomeTipPagerAdapter(getFragmentManager());
+
+        homeTipPagerAdapter = new HomeTipPagerAdapter(getChildFragmentManager());
+
         vp_research_tip.setAdapter(homeTipPagerAdapter);
+        vp_tip_indicator.setViewPager(vp_research_tip);
+
     }
 
     @Override

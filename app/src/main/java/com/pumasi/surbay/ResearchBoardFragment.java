@@ -19,7 +19,7 @@ import com.google.android.material.tabs.TabLayoutMediator;
 import com.pumasi.surbay.pages.boardpage.BoardGeneral;
 import com.pumasi.surbay.pages.boardpage.BoardPost;
 
-public class BoardsFragment extends Fragment  {
+public class ResearchBoardFragment extends Fragment  {
     private View view;
     public static ViewPager2 viewPager;
     private TabLayout tabLayout;
@@ -33,28 +33,30 @@ public class BoardsFragment extends Fragment  {
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.fragment_boards, container, false);
+        view = inflater.inflate(R.layout.fragment_research_board, container, false);
         ((AppCompatActivity) getActivity()).getSupportActionBar().hide();
-        tabLayout = (TabLayout) view.findViewById(R.id.tabLayout);
 
         viewPager = (ViewPager2) view.findViewById(R.id.viewPager);
         viewPager.setAdapter(adapter = new FragmentStateAdapter(getActivity()) {
             @NonNull
             @Override
             public Fragment createFragment(int position) {
-                if(position==0) {
-                    return new BoardPost();
-                }else if(position==1){
-                    return new BoardGeneral();
-                }else if(position==2){
-                    return new BoardSurveyTip();
-                }
+//                if(position==0) {
+//                    return new BoardPost();
+//                }
                 return new BoardPost();
+
+//                else if(position==1){
+//                    return new BoardGeneral();
+//                }else if(position==2){
+//                    return new BoardSurveyTip();
+//                }
+//                return new BoardPost();
             }
 
             @Override
             public int getItemCount() {
-                return 3;
+                return 1;
             }
 
         });
@@ -73,16 +75,16 @@ public class BoardsFragment extends Fragment  {
 
         return view;
     }
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        new TabLayoutMediator(tabLayout, viewPager,
-                (tab, position) -> {
-                    if(position==0){
-                        tab.setText("품앗이");
-                    }
-                    else if(position==1){tab.setText("SurBay");}
-                    else if(position==2){tab.setText("설문TIP");}
-                }
-        ).attach();
-    }
+//    @Override
+//    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+//        new TabLayoutMediator(tabLayout, viewPager,
+//                (tab, position) -> {
+//                    if(position==0){
+//                        tab.setText("품앗이");
+//                    }
+//                    else if(position==1){tab.setText("SurBay");}
+//                    else if(position==2){tab.setText("설문TIP");}
+//                }
+//        ).attach();
+//    }
 }
