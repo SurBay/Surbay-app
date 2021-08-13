@@ -15,15 +15,16 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="리서치"
+            android:text="교환 페이지"
             android:textSize="20dp"
             android:textColor="@color/black"
             android:textStyle="bold"
             android:gravity="center"
             />
 
+
         <ImageButton
-            android:id="@+id/btn_query_research_board"
+            android:id="@+id/btn_query_voucher_board"
             android:layout_width="26dp"
             android:layout_height="26dp"
             android:layout_alignParentRight="true"
@@ -33,9 +34,17 @@
             android:scaleType="centerInside"
             android:src="@drawable/magnifiyingglass" />
     </RelativeLayout>
-
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tl_voucher_board"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:tabSelectedTextColor="@color/teal_200"
+        app:tabTextAppearance="@android:style/TextAppearance.Widget.TabWidget"
+        app:tabMode="fixed"
+        app:tabGravity="fill"
+        app:tabTextColor="@color/gray2"/>
     <androidx.viewpager2.widget.ViewPager2
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/vp_research_board"/>
+        android:id="@+id/vp_voucher_board"/>
 </LinearLayout>

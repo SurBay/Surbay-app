@@ -87,7 +87,7 @@ public class LoginActivity extends AppCompatActivity {
         getSupportActionBar().hide();
 
         try {
-            MainActivity.getNotices();
+            MainActivity.getSurveytips();
             getPosts();
         } catch (Exception e) {
             e.printStackTrace();

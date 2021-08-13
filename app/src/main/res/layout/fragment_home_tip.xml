@@ -5,6 +5,7 @@
     android:layout_height="171dp"
     android:background="@color/renewal_background">
     <LinearLayout
+        android:id="@+id/ll_home_tip_item1"
         android:orientation="vertical"
         android:layout_width="184.68dp"
         android:layout_height="171dp"
@@ -72,6 +73,7 @@
         </LinearLayout>
     </LinearLayout>
     <LinearLayout
+        android:id="@+id/ll_home_tip_item2"
         android:orientation="vertical"
         android:layout_width="184.68dp"
         android:layout_height="171dp"

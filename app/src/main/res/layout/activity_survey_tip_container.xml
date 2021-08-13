@@ -15,27 +15,36 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="리서치"
+            android:text="리서치 Tip"
             android:textSize="20dp"
             android:textColor="@color/black"
             android:textStyle="bold"
             android:gravity="center"
             />
+        <ImageButton
+            android:id="@+id/btn_back"
+            android:layout_width="31dp"
+            android:layout_height="22dp"
+            android:src="@drawable/leftarrow2"
+            android:layout_marginLeft="15dp"
+            android:background="@color/white"
+            android:scaleType="centerInside"
+            android:layout_centerVertical="true" />
 
         <ImageButton
-            android:id="@+id/btn_query_research_board"
             android:layout_width="26dp"
             android:layout_height="26dp"
-            android:layout_alignParentRight="true"
             android:layout_marginRight="15dp"
-            android:background="#FFFFFF"
+            android:layout_alignParentRight="true"
             android:padding="3dp"
-            android:scaleType="centerInside"
-            android:src="@drawable/magnifiyingglass" />
+            android:id="@+id/btn_query"
+            android:src="@drawable/magnifiyingglass"
+            android:background="#FFFFFF"
+            android:scaleType="centerInside"/>
     </RelativeLayout>
 
     <androidx.viewpager2.widget.ViewPager2
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/vp_research_board"/>
+        android:id="@+id/vp_survey_tip"/>
 </LinearLayout>

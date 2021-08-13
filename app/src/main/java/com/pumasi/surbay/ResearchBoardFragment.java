@@ -1,4 +1,4 @@
-package com.pumasi.surbay;
+ package com.pumasi.surbay;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -21,14 +21,14 @@ import com.pumasi.surbay.pages.boardpage.BoardPost;
 
 public class ResearchBoardFragment extends Fragment  {
     private View view;
-    public static ViewPager2 viewPager;
+    public static ViewPager2 vp_research_board;
     private TabLayout tabLayout;
     public static final Integer NEW = 1;
     public static final Integer DEADLINE = 2;
     public static final Integer GOAL = 3;
 
     public static FragmentStateAdapter adapter;
-    ImageButton boards_search_button;
+    ImageButton btn_query_research_board;
 
 
     @Override
@@ -36,8 +36,8 @@ public class ResearchBoardFragment extends Fragment  {
         view = inflater.inflate(R.layout.fragment_research_board, container, false);
         ((AppCompatActivity) getActivity()).getSupportActionBar().hide();
 
-        viewPager = (ViewPager2) view.findViewById(R.id.viewPager);
-        viewPager.setAdapter(adapter = new FragmentStateAdapter(getActivity()) {
+        vp_research_board = (ViewPager2) view.findViewById(R.id.vp_research_board);
+        vp_research_board.setAdapter(adapter = new FragmentStateAdapter(getActivity()) {
             @NonNull
             @Override
             public Fragment createFragment(int position) {
@@ -62,12 +62,12 @@ public class ResearchBoardFragment extends Fragment  {
         });
         adapter.notifyDataSetChanged();
 
-        boards_search_button = view.findViewById(R.id.boards_search_button);
-        boards_search_button.setOnClickListener(new View.OnClickListener() {
+        btn_query_research_board = view.findViewById(R.id.btn_query_research_board);
+        btn_query_research_board.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(((AppCompatActivity) getActivity()).getApplicationContext(), BoardsSearchActivity.class);
-                intent.putExtra("pos", viewPager.getCurrentItem());
+                intent.putExtra("pos", vp_research_board.getCurrentItem());
                 startActivity(intent);
             }
         });

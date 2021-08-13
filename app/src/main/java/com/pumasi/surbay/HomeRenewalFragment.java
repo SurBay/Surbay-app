@@ -15,12 +15,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.pumasi.surbay.adapter.BannerViewPagerAdapter;
 import com.pumasi.surbay.adapter.HomeResearchPagerAdapter;
 import com.pumasi.surbay.adapter.HomeTipPagerAdapter;
 import com.pumasi.surbay.adapter.HomeVotePagerAdapter;
+import com.pumasi.surbay.pages.MainActivity;
 import com.tbuonomo.viewpagerdotsindicator.DotsIndicator;
 
 import java.util.ArrayList;
@@ -48,15 +50,23 @@ public class HomeRenewalFragment extends Fragment {
     private DotsIndicator vp_research_indicator;
     private DotsIndicator vp_vote_indicator;
     private DotsIndicator vp_tip_indicator;
+    private ImageView iv_research_none;
+    private ImageView iv_vote_none;
+    private ImageView iv_tip_none;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_home_renewal, container, false);
         ((AppCompatActivity) getActivity()).getSupportActionBar().hide();
+
         btn_shift_home_research = view.findViewById(R.id.btn_shift_home_research);
         btn_shift_home_vote = view.findViewById(R.id.btn_shift_home_vote);
         btn_shift_home_tip = view.findViewById(R.id.btn_shift_home_tip);
+
+        iv_research_none = view.findViewById(R.id.iv_research_none);
+        iv_vote_none = view.findViewById(R.id.iv_vote_none);
+        iv_tip_none = view.findViewById(R.id.iv_tip_none);
 
         btn_shift_home_research.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -69,6 +79,9 @@ public class HomeRenewalFragment extends Fragment {
         btn_shift_home_vote.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                BottomNavigationView bottomNavigationView = getActivity().findViewById(R.id.bottomNavi);
+                bottomNavigationView.setSelectedItemId(R.id.action_free_board);
+                FreeBoardFragment.free_position = 0;
 
             }
         });
@@ -76,13 +89,12 @@ public class HomeRenewalFragment extends Fragment {
         btn_shift_home_tip.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                Intent intent = new Intent(getActivity(), SurveyTipContainer.class);
+                startActivity(intent);
             }
         });
 
         setView();
-
-
         return view;
     }
     private void setView() {
@@ -167,6 +179,7 @@ public class HomeRenewalFragment extends Fragment {
         vp_tip_indicator.setViewPager(vp_research_tip);
 
     }
+
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {

@@ -27,7 +27,6 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.gun0912.tedpicker.Config;
 import com.gun0912.tedpicker.ImagePickerActivity;
-import com.pumasi.surbay.BoardSurveyTip;
 import com.pumasi.surbay.pages.MainActivity;
 import com.pumasi.surbay.R;
 import com.pumasi.surbay.adapter.ImageAdapter;
@@ -42,8 +41,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-import static com.pumasi.surbay.BoardSurveyTip.listView;
-import static com.pumasi.surbay.BoardSurveyTip.listViewAdapter;
+import static com.pumasi.surbay.pages.boardpage.BoardSurveyTip.listView;
+import static com.pumasi.surbay.pages.boardpage.BoardSurveyTip.listViewAdapter;
 
 public class TipWriteActivity extends AppCompatActivity {
     static final int NEWPOST = 1;

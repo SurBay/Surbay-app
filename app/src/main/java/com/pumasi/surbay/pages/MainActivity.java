@@ -26,7 +26,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.pumasi.surbay.FreeBoardFragment;
 import com.pumasi.surbay.ResearchBoardFragment;
 import com.pumasi.surbay.HomeRenewalFragment;
-import com.pumasi.surbay.VoucherFragment;
+import com.pumasi.surbay.VoucherBoardFragment;
 import com.pumasi.surbay.pages.homepage.NoticeActivity;
 import com.pumasi.surbay.R;
 import com.pumasi.surbay.classfile.CustomDialog;
@@ -64,8 +64,8 @@ public class MainActivity extends AppCompatActivity {
 
     private HomeRenewalFragment homeRenewalFragment;
     private ResearchBoardFragment researchBoardFragment;
-    private FreeBoardFragment freeBoardFragment;
-    private VoucherFragment voucherFragment;
+    public static FreeBoardFragment freeBoardFragment;
+    private VoucherBoardFragment voucherBoardFragment;
     private MypageFragment mypageFragment;
 
     public static ArrayList<Post> postArrayList = new ArrayList<>();
@@ -98,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
         homeRenewalFragment= new HomeRenewalFragment();
         researchBoardFragment = new ResearchBoardFragment();
         freeBoardFragment = new FreeBoardFragment();
-        voucherFragment = new VoucherFragment();
+        voucherBoardFragment = new VoucherBoardFragment();
         mypageFragment = new MypageFragment();
 
         today = new Date();
@@ -200,7 +200,7 @@ public class MainActivity extends AppCompatActivity {
                 break;
 
             case 3:
-                ft.replace(R.id.Main_Frame,voucherFragment);
+                ft.replace(R.id.Main_Frame, voucherBoardFragment);
                 ft.commit();
                 break;
 
@@ -844,6 +844,7 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
+
 
 
     @Override

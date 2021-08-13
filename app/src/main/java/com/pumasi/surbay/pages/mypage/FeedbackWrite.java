@@ -39,7 +39,7 @@ import com.pumasi.surbay.classfile.GifSizeFilter;
 import com.pumasi.surbay.classfile.PostNonSurvey;
 import com.pumasi.surbay.classfile.Reply;
 import com.pumasi.surbay.classfile.UserPersonalInfo;
-import com.pumasi.surbay.pages.boardpage.BoardFeedback;
+import com.pumasi.surbay.pages.BoardFeedback;
 import com.pumasi.surbay.pages.boardpage.TipImageDetail;
 import com.zhihu.matisse.Matisse;
 import com.zhihu.matisse.MimeType;
@@ -53,8 +53,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-import static com.pumasi.surbay.BoardSurveyTip.listView;
-import static com.pumasi.surbay.BoardSurveyTip.listViewAdapter;
+import static com.pumasi.surbay.pages.boardpage.BoardSurveyTip.listView;
+import static com.pumasi.surbay.pages.boardpage.BoardSurveyTip.listViewAdapter;
 
 public class FeedbackWrite extends AppCompatActivity {
     static final int NEWPOST = 1;

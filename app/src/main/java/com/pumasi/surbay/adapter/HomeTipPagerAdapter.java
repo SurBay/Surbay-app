@@ -13,9 +13,11 @@ import java.util.ArrayList;
 
 public class HomeTipPagerAdapter extends FragmentPagerAdapter {
 
-    ArrayList<Surveytip> surveytipArrayList;
     public HomeTipPagerAdapter(@NonNull FragmentManager fm) {
         super(fm);
+        HomeTipFragment homeTipFragment = new HomeTipFragment(0);
+        homeTipFragment.setSurveytips();
+        homeTipFragment.Shuffle();
     }
 
     public HomeTipPagerAdapter(@NonNull FragmentManager fm, int behavior) {
@@ -27,11 +29,12 @@ public class HomeTipPagerAdapter extends FragmentPagerAdapter {
     public Fragment getItem(int position) {
         switch (position) {
             case 0:
-                return (HomeTipFragment.newInstance(0));
+
+                return new HomeTipFragment(0);
             case 1:
-                return (HomeTipFragment.newInstance(1));
+                return new HomeTipFragment(1);
             case 2:
-                return (HomeTipFragment.newInstance(2));
+                return new HomeTipFragment(2);
             default: return null;
         }
     }

@@ -4,15 +4,15 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
+
     <ImageView
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        style="@style/back_button"
-        android:src="@drawable/leftarrow2"
-        android:scaleType="fitCenter"
         android:id="@+id/tip_detail_back"
+        style="@style/back_button"
+        android:layout_width="24dp"
+        android:layout_height="17dp"
         android:clickable="true"
-        />
+        android:scaleType="fitCenter"
+        android:src="@drawable/leftarrow2" />
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

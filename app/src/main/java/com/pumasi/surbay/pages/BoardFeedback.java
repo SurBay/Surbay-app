@@ -1,4 +1,4 @@
-package com.pumasi.surbay.pages.boardpage;
+package com.pumasi.surbay.pages;
 
 import android.content.Intent;
 import android.os.Bundle;

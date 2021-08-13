@@ -24,7 +24,6 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-import com.pumasi.surbay.BoardSurveyTip;
 import com.pumasi.surbay.pages.homepage.NoticeImageDeatil;
 import com.pumasi.surbay.R;
 import com.pumasi.surbay.adapter.noticeImageAdapter;

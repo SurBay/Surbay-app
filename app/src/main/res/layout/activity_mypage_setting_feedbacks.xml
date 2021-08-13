@@ -5,7 +5,7 @@
     android:background="@color/gray">
     <fragment
         android:layout_marginTop="30dp"
-        android:name="com.pumasi.surbay.pages.boardpage.BoardFeedback"
+        android:name="com.pumasi.surbay.pages.BoardFeedback"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/feedbacks_borad"

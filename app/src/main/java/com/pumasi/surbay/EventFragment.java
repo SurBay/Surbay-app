@@ -8,12 +8,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-public class VoucherFragment extends Fragment {
+public class EventFragment extends Fragment {
+
+    private View view;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_voucher, container, false);
+        view = inflater.inflate(R.layout.fragment_event, container, false);
+        return view;
     }
 }

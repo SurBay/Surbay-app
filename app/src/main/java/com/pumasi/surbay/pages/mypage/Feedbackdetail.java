@@ -18,7 +18,7 @@ import com.pumasi.surbay.R;
 import com.pumasi.surbay.adapter.FeedbackReplyListViewAdapter;
 import com.pumasi.surbay.classfile.PostNonSurvey;
 import com.pumasi.surbay.classfile.Reply;
-import com.pumasi.surbay.pages.boardpage.BoardFeedback;
+import com.pumasi.surbay.pages.BoardFeedback;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;

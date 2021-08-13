@@ -287,7 +287,7 @@ public class BoardPost extends Fragment// Fragment 클래스를 상속받아야�
         frag1goalsortbutton = view.findViewById(R.id.fragment1_goal_sort_button);
         frag1datesortbutton = view.findViewById(R.id.fragment1_date_sort_button);
 
-        TextView writeButton = view.findViewById(R.id.writeButton);
+        Button writeButton = view.findViewById(R.id.writeButton);
         writeButton.setOnClickListener(
                 new View.OnClickListener(){
                     @Override

@@ -62,22 +62,15 @@
                 android:layout_height="match_parent">
             </ListView>
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
-        <TextView
+        <Button
             android:id="@+id/writeButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingVertical="10dp"
-            android:paddingHorizontal="17.5dp"
+            android:layout_width="59.28dp"
+            android:layout_height="59.28dp"
             android:gravity="center"
-            android:text="글 작성"
-            android:textSize="15sp"
-            android:textStyle="bold"
-            android:textColor="@color/red_F16"
-            android:background="@drawable/round_border_red_list"
+            android:background="@drawable/vote_add_button"
             android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true"
-            android:layout_marginBottom="20dp"
-            >
-        </TextView>
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="22.8dp"
+            android:layout_marginBottom="20dp"/>
     </RelativeLayout>
 </LinearLayout>

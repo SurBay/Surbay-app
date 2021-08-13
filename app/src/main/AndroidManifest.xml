@@ -21,7 +21,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SurBay"
         android:usesCleartextTraffic="true">
-        <activity android:name=".pages.signup.ProblemActivity"></activity>
+        <activity android:name=".SurveyTipContainer"></activity>
+        <activity android:name=".pages.signup.ProblemActivity" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -203,7 +204,7 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".not_use.SignupActivity"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait" />
         <activity
             android:name="com.gun0912.tedpicker.ImagePickerActivity"
             android:screenOrientation="portrait"

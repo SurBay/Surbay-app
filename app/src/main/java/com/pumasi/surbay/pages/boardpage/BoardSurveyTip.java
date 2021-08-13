@@ -1,4 +1,4 @@
-package com.pumasi.surbay;
+package com.pumasi.surbay.pages.boardpage;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -26,6 +26,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.pumasi.surbay.R;
 import com.pumasi.surbay.adapter.SurveyTipListViewAdapter;
 import com.pumasi.surbay.classfile.Surveytip;
 import com.pumasi.surbay.pages.MainActivity;
