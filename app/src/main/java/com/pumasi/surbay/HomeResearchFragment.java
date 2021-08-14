@@ -11,11 +11,11 @@ import android.view.ViewGroup;
 
 public class HomeResearchFragment extends Fragment {
 
+    private int RESEARCH_ITEM_NUM;
     private View view;
 
-    public static HomeResearchFragment newInstance() {
-        HomeResearchFragment homeResearchFragment1 = new HomeResearchFragment();
-        return homeResearchFragment1;
+    public HomeResearchFragment(int num) {
+        this.RESEARCH_ITEM_NUM = num;
     }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,

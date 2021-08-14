@@ -2,6 +2,7 @@ package com.pumasi.surbay;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
@@ -31,28 +32,35 @@ import java.util.TimerTask;
 
 public class HomeRenewalFragment extends Fragment {
 
+    public static int HOME_RESEARCH = 0;
+    public static int HOME_VOTE = 1;
+    public static int HOME_TIP = 2;
+
     private static Context mContext;
     private static final Integer[] IMAGES = {R.drawable.renewal_banner, R.drawable.tutorialbanner2};
     private ArrayList<Integer> ImagesArray = new ArrayList<>();
     private ViewPager vp_banner;
-    private ViewPager vp_research;
-    private ViewPager vp_vote;
-    private ViewPager vp_research_tip;
-    private ImageButton btn_shift_home_research;
-    private ImageButton btn_shift_home_vote;
-    private ImageButton btn_shift_home_tip;
+    private static ViewPager vp_research;
+    private static ViewPager vp_vote;
+    private static ViewPager vp_tip;
+    private ImageButton ib_shift_home_research;
+    private ImageButton ib_shift_home_vote;
+    private ImageButton ib_shift_home_tip;
+    private ImageButton ib_home_research_shuffle;
+    private ImageButton ib_home_vote_shuffle;
+    private ImageButton ib_home_tip_shuffle;
     private int currentPage;
     private View view;
     private HomeResearchPagerAdapter homeResearchPagerAdapter;
     private HomeVotePagerAdapter homeVotePagerAdapter;
     private HomeTipPagerAdapter homeTipPagerAdapter;
     private static BannerViewPagerAdapter bannerAdapter;
-    private DotsIndicator vp_research_indicator;
-    private DotsIndicator vp_vote_indicator;
-    private DotsIndicator vp_tip_indicator;
-    private ImageView iv_research_none;
-    private ImageView iv_vote_none;
-    private ImageView iv_tip_none;
+    private static DotsIndicator vp_research_indicator;
+    private static DotsIndicator vp_vote_indicator;
+    private static DotsIndicator vp_tip_indicator;
+    private static ImageView iv_research_none;
+    private static ImageView iv_vote_none;
+    private static ImageView iv_tip_none;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -60,15 +68,41 @@ public class HomeRenewalFragment extends Fragment {
         view = inflater.inflate(R.layout.fragment_home_renewal, container, false);
         ((AppCompatActivity) getActivity()).getSupportActionBar().hide();
 
-        btn_shift_home_research = view.findViewById(R.id.btn_shift_home_research);
-        btn_shift_home_vote = view.findViewById(R.id.btn_shift_home_vote);
-        btn_shift_home_tip = view.findViewById(R.id.btn_shift_home_tip);
+        ib_shift_home_research = view.findViewById(R.id.ib_shift_home_research);
+        ib_shift_home_vote = view.findViewById(R.id.ib_shift_home_vote);
+        ib_shift_home_tip = view.findViewById(R.id.ib_shift_home_tip);
+
+        ib_home_research_shuffle = view.findViewById(R.id.ib_home_search_shuffle);
+        ib_home_vote_shuffle = view.findViewById(R.id.ib_home_vote_shuffle);
+        ib_home_tip_shuffle = view.findViewById(R.id.ib_home_tip_shuffle);
 
         iv_research_none = view.findViewById(R.id.iv_research_none);
         iv_vote_none = view.findViewById(R.id.iv_vote_none);
         iv_tip_none = view.findViewById(R.id.iv_tip_none);
 
-        btn_shift_home_research.setOnClickListener(new View.OnClickListener() {
+        ib_home_research_shuffle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                HomeResearchPagerAdapter.ShuffleHomeResearch();
+                vp_research.setAdapter(homeResearchPagerAdapter);
+            }
+        });
+        ib_home_vote_shuffle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                HomeVotePagerAdapter.ShuffleHomeVote();
+                vp_vote.setAdapter(homeVotePagerAdapter);
+            }
+        });
+        ib_home_tip_shuffle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                HomeTipPagerAdapter.ShuffleHomeTip();
+                vp_tip.setAdapter(homeTipPagerAdapter);
+                vp_tip_indicator.setViewPager(vp_tip);
+            }
+        });
+        ib_shift_home_research.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 BottomNavigationView bottomNavigationView = getActivity().findViewById(R.id.bottomNavi);
@@ -76,7 +110,7 @@ public class HomeRenewalFragment extends Fragment {
             }
         });
 
-        btn_shift_home_vote.setOnClickListener(new View.OnClickListener() {
+        ib_shift_home_vote.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 BottomNavigationView bottomNavigationView = getActivity().findViewById(R.id.bottomNavi);
@@ -86,7 +120,7 @@ public class HomeRenewalFragment extends Fragment {
             }
         });
 
-        btn_shift_home_tip.setOnClickListener(new View.OnClickListener() {
+        ib_shift_home_tip.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), SurveyTipContainer.class);
@@ -171,15 +205,44 @@ public class HomeRenewalFragment extends Fragment {
     }
     private void setVp_research_tip() {
         vp_tip_indicator = view.findViewById(R.id.vp_tip_indicator);
-        vp_research_tip = view.findViewById(R.id.vp_research_tip);
+        vp_tip = view.findViewById(R.id.vp_tip);
 
         homeTipPagerAdapter = new HomeTipPagerAdapter(getChildFragmentManager());
 
-        vp_research_tip.setAdapter(homeTipPagerAdapter);
-        vp_tip_indicator.setViewPager(vp_research_tip);
+        vp_tip.setAdapter(homeTipPagerAdapter);
+        vp_tip_indicator.setViewPager(vp_tip);
 
     }
-
+    public static void set_invisible(int pos) {
+        if (pos == HOME_RESEARCH) {
+            iv_research_none.setVisibility(View.VISIBLE);
+            vp_research.setVisibility(View.INVISIBLE);
+            vp_research_indicator.setVisibility(View.INVISIBLE);
+        } else if (pos == HOME_VOTE) {
+            iv_vote_none.setVisibility(View.VISIBLE);
+            vp_vote.setVisibility(View.INVISIBLE);
+            vp_vote_indicator.setVisibility(View.INVISIBLE);
+        } else if (pos == HOME_TIP) {
+            iv_tip_none.setVisibility(View.VISIBLE);
+            vp_tip.setVisibility(View.INVISIBLE);
+            vp_tip_indicator.setVisibility(View.INVISIBLE);
+        }
+    }
+    public static void set_visible(int pos) {
+        if (pos == HOME_RESEARCH) {
+            iv_research_none.setVisibility(View.INVISIBLE);
+            vp_research.setVisibility(View.VISIBLE);
+            vp_research_indicator.setVisibility(View.VISIBLE);
+        } else if (pos == HOME_VOTE) {
+            iv_vote_none.setVisibility(View.INVISIBLE);
+            vp_vote.setVisibility(View.VISIBLE);
+            vp_vote_indicator.setVisibility(View.VISIBLE);
+        } else if (pos == HOME_TIP) {
+            iv_tip_none.setVisibility(View.INVISIBLE);
+            vp_tip.setVisibility(View.VISIBLE);
+            vp_tip_indicator.setVisibility(View.VISIBLE);
+        }
+    }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {

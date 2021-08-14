@@ -10,12 +10,13 @@ import android.view.ViewGroup;
 
 public class HomeVoteFragment extends Fragment {
 
+    private int VOTE_ITEM_NUM;
     private View view;
 
-    public static HomeVoteFragment newInstance() {
-        HomeVoteFragment homeVoteFragment = new HomeVoteFragment();
-        return homeVoteFragment;
+    public HomeVoteFragment(int num) {
+        this.VOTE_ITEM_NUM = num;
     }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {

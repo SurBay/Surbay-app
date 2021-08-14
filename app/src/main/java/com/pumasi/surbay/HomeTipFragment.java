@@ -38,6 +38,7 @@ import java.util.Collections;
 import java.util.Date;
 
 import static com.pumasi.surbay.BoardsSearchActivity.LIKE_SURVEY;
+import static com.pumasi.surbay.adapter.HomeTipPagerAdapter.home_surveytips;
 
 
 public class HomeTipFragment extends Fragment {
@@ -57,16 +58,9 @@ public class HomeTipFragment extends Fragment {
     private TextView tv_tip_des2;
     private TextView tv_tip_likes2;
 
-    public static ArrayList<Surveytip> home_surveytips;
-    public void setSurveytips() {
-        home_surveytips = MainActivity.surveytipArrayList;
-    }
-    public void Shuffle() {
-        Collections.shuffle(home_surveytips);
-    }
+
     public HomeTipFragment(int num) {
         this.TIP_ITEM_NUM = num;
-        Log.d("surveytips", "HomeTipFragment: " + home_surveytips);
     }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
