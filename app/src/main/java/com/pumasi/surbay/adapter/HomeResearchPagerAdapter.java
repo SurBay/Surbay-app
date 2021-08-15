@@ -16,27 +16,24 @@ import java.util.Collections;
 
 public class HomeResearchPagerAdapter extends FragmentPagerAdapter {
     public static int HOME_RESEARCH_COUNT;
-    public static ArrayList<Post> home_posts;
-    public void setPosts() {
-        home_posts = MainActivity.postArrayList;
+    public static ArrayList<Post> home_research;
+    public static void setPosts() {
+        home_research = MainActivity.postArrayList;
     }
     public static void ShuffleHomeResearch() {
-        if (home_posts != null) {
-            Collections.shuffle(home_posts);
+        setPosts();
+        if (home_research != null) {
+            Collections.shuffle(home_research);
         }
     }
 
     public HomeResearchPagerAdapter(@NonNull FragmentManager fm) {
         super(fm);
         setPosts();
-        if (home_posts == null) {
+        if (home_research == null) {
             HOME_RESEARCH_COUNT = 0;
         } else {
-            if (home_posts.size() % 2 == 0) {
-                HOME_RESEARCH_COUNT = home_posts.size() / 2;
-            } else if (home_posts.size() % 2 == 1) {
-                HOME_RESEARCH_COUNT = home_posts.size() / 2 + 1;
-            }
+            HOME_RESEARCH_COUNT = home_research.size();
         }
 
         if (HOME_RESEARCH_COUNT == 0) {
@@ -59,7 +56,11 @@ public class HomeResearchPagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public int getCount() {
-        return Math.min(HOME_RESEARCH_COUNT, 3);
+        int page = HOME_RESEARCH_COUNT / 2;
+        if (HOME_RESEARCH_COUNT % 2 == 1) {
+            page += 1;
+        }
+        return Math.min(page, 3);
     }
 }
 
