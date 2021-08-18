@@ -26,4 +26,8 @@
 
     <color name="renewal_background">#F2F2F2</color>
     <color name="renewal_gray">#C4C4C4</color>
+    <color name="E5gray">#E5E5E5</color>
+    <color name="text_color48">#484747</color>
+    <color name="text_color3A">#3AD1BF</color>
+    <color name="text_color70">#707070</color>
 </resources>

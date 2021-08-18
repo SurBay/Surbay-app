@@ -21,7 +21,9 @@ public class HomeVotePagerAdapter extends FragmentPagerAdapter {
     public void setVotes() {
         for (General general : MainActivity.generalArrayList) {
             if (!general.getDone()) {
-                home_votes.add(general);
+                if (general != null) {
+                    home_votes.add(general);
+                }
             }
         }
     }

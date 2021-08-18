@@ -2,6 +2,7 @@ package com.pumasi.surbay.adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Parcelable;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,12 +11,11 @@ import android.widget.ImageView;
 
 import androidx.viewpager.widget.PagerAdapter;
 
+import com.bumptech.glide.Glide;
 import com.pumasi.surbay.pages.MainActivity;
 import com.pumasi.surbay.pages.homepage.NoticeDetailActivity;
-import com.pumasi.surbay.pages.boardpage.PostDetailActivity;
 import com.pumasi.surbay.R;
 import com.pumasi.surbay.classfile.Notice;
-import com.pumasi.surbay.classfile.Post;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,12 +24,12 @@ import java.util.stream.Collectors;
 public class BannerViewPagerAdapter extends PagerAdapter {
 
 
-    private ArrayList<Integer> IMAGES;
+    private ArrayList<String> IMAGES;
     private LayoutInflater inflater;
     private Context context;
 
 
-    public BannerViewPagerAdapter(Context context,ArrayList<Integer> IMAGES) {
+    public BannerViewPagerAdapter(Context context, ArrayList<String> IMAGES) {
         this.context = context;
         this.IMAGES=IMAGES;
         inflater = LayoutInflater.from(context);
@@ -54,7 +54,7 @@ public class BannerViewPagerAdapter extends PagerAdapter {
                 .findViewById(R.id.imageview);
 
 
-        imageView.setImageResource(IMAGES.get(position));
+        Glide.with(context).load(IMAGES.get(position)).into(imageView);
 
         view.addView(imageLayout, 0);
 

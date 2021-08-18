@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MypageRenewalFragment">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="51.3dp"
+        android:background="@color/white">
+
+    </RelativeLayout>
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/E5gray">
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <RelativeLayout
+                    android:id="@+id/rl_profile"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="9.12dp"
+                    android:layout_marginBottom="9.12dp"
+                    android:layout_marginLeft="18.24dp"
+                    android:layout_marginRight="18.24dp">
+                    <ImageView
+                        android:id="@+id/circle"
+                        android:layout_width="80.94dp"
+                        android:layout_height="80.94dp"
+                        android:src="@drawable/white_circle" />
+                    <LinearLayout
+                        android:orientation="vertical"
+                        android:layout_width="220dp"
+                        android:layout_height="fill_parent"
+                        android:layout_centerVertical="true"
+                        android:layout_marginLeft="12.54dp"
+                        android:layout_toRightOf="@+id/circle">
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="닉네임"
+                            android:textSize="17.1dp"
+                            android:textColor="@color/text_color48"
+                            android:textStyle="bold"/>
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="5.7dp"
+                            android:text="고려대학교"
+                            android:textSize="14.82dp"
+                            android:textColor="@color/text_color48" />
+                    </LinearLayout>
+
+                    <ImageView
+                        android:layout_width="45.6dp"
+                        android:layout_height="45.6dp"
+                        android:src="@drawable/white_circle"
+                        android:layout_alignParentRight="true"
+                        android:layout_centerVertical="true" />
+                </RelativeLayout>
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    style="@style/mypage_profile_renewal"
+                    android:layout_marginTop="5.7dp"
+                    android:layout_marginLeft="18.24dp"
+                    android:layout_marginRight="18.24dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="11.4dp"
+                        android:layout_marginLeft="25.08dp"
+                        android:text="보유한 설문 크레딧"
+                        android:textSize="14.82dp"
+                        android:textColor="@color/text_color48"
+                        android:textStyle="bold" />
+                    <TextView
+                        android:id="@+id/tv_credit"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:layout_marginTop="11.4dp"
+                        android:layout_marginRight="25.08dp"
+                        android:text="2 크레딧"
+                        android:textSize="15.94dp"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_color3A" />
+                    <LinearLayout
+                        android:orientation="horizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/tv_credit"
+                        android:layout_marginTop="4.56dp"
+                        android:layout_marginBottom="15.96dp"
+                        android:layout_marginLeft="25.08dp"
+                        android:layout_marginRight="6.84dp">
+                        <TextView
+                            android:id="@+id/tv_credit_des1"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="리서치 참여"
+                            android:textSize="14.82dp"
+                            android:textColor="@color/text_color70" />
+                        <TextView
+                            android:id="@+id/tv_credit_des2"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="+1크레딧"
+                            android:textSize="14.82dp"
+                            android:textStyle="bold"
+                            android:textColor="@color/text_color70" />
+                        <TextView
+                            android:id="@+id/tv_credit_des3"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="20dp"
+                            android:text="|"
+                            android:textSize="14.82dp"
+                            android:textStyle="bold"
+                            android:textColor="@color/text_color70" />
+                        <TextView
+                            android:id="@+id/tv_credit_des4"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="20dp"
+                            android:text="리서치 업로드"
+                            android:textSize="14.82dp"
+                            android:textColor="@color/text_color70" />
+                        <TextView
+                            android:id="@+id/tv_credit_des5"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentRight="true"
+                            android:text="-5크레딧"
+                            android:textSize="14.82dp"
+                            android:textStyle="bold"
+                            android:textColor="@color/text_color70" />
+                    </LinearLayout>
+                </RelativeLayout>
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="9.12dp"
+                    android:layout_marginLeft="18.24dp"
+                    android:layout_marginRight="18.24dp"
+                    style="@style/mypage_profile_renewal">
+                    <TextView
+                        android:id="@+id/tv_research_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="리서치"
+                        android:layout_marginTop="5.7dp"
+                        android:layout_marginLeft="22.8dp"
+                        android:textSize="17.1dp"
+                        android:textColor="@color/text_color48"
+                        android:textStyle="bold" />
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_marginTop="10.26dp"
+                        android:layout_marginBottom="12.54dp"
+                        android:layout_marginLeft="41.04dp"
+                        android:layout_marginRight="36.48dp"
+                        android:layout_below="@id/tv_research_name">
+                        <LinearLayout
+                            android:orientation="horizontal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content">
+                            <LinearLayout
+                                android:orientation="vertical"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content">
+                                <TextView
+                                    android:layout_width="99.18dp"
+                                    android:layout_height="wrap_content"
+                                    android:text="업로드한 리서치"
+                                    android:textSize="13.68dp"
+                                    android:textStyle="bold"
+                                    android:textColor="@color/text_color48" />
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="2dp"
+                                    android:text="1개"
+                                    android:textSize="14.82dp"
+                                    android:textStyle="bold"
+                                    android:textColor="@color/text_color3A" />
+                            </LinearLayout>
+                            <ImageView
+                                android:layout_width="17.1dp"
+                                android:layout_height="17.1dp"
+                                android:layout_marginLeft="12dp"
+                                android:src="@drawable/leftarrow" />
+                        </LinearLayout>
+                        <LinearLayout
+                            android:orientation="horizontal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="50dp">
+                            <LinearLayout
+                                android:orientation="vertical"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content">
+
+                                <TextView
+                                    android:layout_width="99.18dp"
+                                    android:layout_height="wrap_content"
+                                    android:text="참여한 리서치"
+                                    android:textColor="@color/text_color48"
+                                    android:textSize="13.68dp"
+                                    android:textStyle="bold" />
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="2dp"
+                                    android:text="1개"
+                                    android:textSize="14.82dp"
+                                    android:textStyle="bold"
+                                    android:textColor="@color/text_color3A" />
+                            </LinearLayout>
+                            <ImageView
+                                android:layout_width="17.1dp"
+                                android:layout_height="17.1dp"
+                                android:src="@drawable/leftarrow" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                </RelativeLayout>
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4.56dp"
+                    android:layout_marginLeft="18.24dp"
+                    android:layout_marginRight="18.24dp"
+                    style="@style/mypage_profile_renewal">
+                    <TextView
+                        android:id="@+id/tv_vote_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="투표"
+                        android:layout_marginTop="5.7dp"
+                        android:layout_marginLeft="22.8dp"
+                        android:textSize="17.1dp"
+                        android:textColor="@color/text_color48"
+                        android:textStyle="bold" />
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_marginTop="10.26dp"
+                        android:layout_marginBottom="12.54dp"
+                        android:layout_marginLeft="41.04dp"
+                        android:layout_marginRight="36.48dp"
+                        android:layout_below="@id/tv_vote_name">
+                        <LinearLayout
+                            android:orientation="horizontal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content">
+                            <LinearLayout
+                                android:orientation="vertical"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content">
+                                <TextView
+                                    android:layout_width="99.18dp"
+                                    android:layout_height="wrap_content"
+                                    android:text="업로드한 투표"
+                                    android:textSize="13.68dp"
+                                    android:textStyle="bold"
+                                    android:textColor="@color/text_color48" />
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="2dp"
+                                    android:text="1개"
+                                    android:textSize="14.82dp"
+                                    android:textStyle="bold"
+                                    android:textColor="@color/text_color3A" />
+                            </LinearLayout>
+                            <ImageView
+                                android:layout_width="17.1dp"
+                                android:layout_height="17.1dp"
+                                android:layout_marginLeft="12dp"
+                                android:src="@drawable/leftarrow" />
+                        </LinearLayout>
+                        <LinearLayout
+                            android:orientation="horizontal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="50dp">
+                            <LinearLayout
+                                android:orientation="vertical"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content">
+
+                                <TextView
+                                    android:layout_width="99.18dp"
+                                    android:layout_height="wrap_content"
+                                    android:text="참여한 투표"
+                                    android:textColor="@color/text_color48"
+                                    android:textSize="13.68dp"
+                                    android:textStyle="bold" />
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="2dp"
+                                    android:text="1개"
+                                    android:textSize="14.82dp"
+                                    android:textStyle="bold"
+                                    android:textColor="@color/text_color3A" />
+                            </LinearLayout>
+                            <ImageView
+                                android:layout_width="17.1dp"
+                                android:layout_height="17.1dp"
+                                android:src="@drawable/leftarrow" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                </RelativeLayout>
+            </LinearLayout>
+
+
+        </ScrollView>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+</LinearLayout>

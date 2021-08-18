@@ -31,7 +31,7 @@
                 android:layout_height="40.34dp">
 
                 <ImageView
-                    android:id="@+id/iv_research_item_icon"
+                    android:id="@+id/iv_research_item_blank"
                     android:layout_width="36.84dp"
                     android:layout_height="36.84dp"
                     android:layout_marginTop="6dp"
@@ -43,11 +43,13 @@
                     android:layout_marginTop="6dp"
                     android:src="@drawable/research_character" />
                 <ImageView
+                    android:id="@+id/iv_research_item_check"
                     android:layout_width="13dp"
                     android:layout_height="15dp"
                     android:layout_marginLeft="2dp"
                     android:src="@drawable/check"/>
                 <TextView
+                    android:id="@+id/tv_research_item_author"
                     android:layout_width="175.56dp"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="4dp"
@@ -58,6 +60,7 @@
                     android:textColor="#707070" />
             </RelativeLayout>
             <TextView
+                android:id="@+id/tv_research_item_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
@@ -68,6 +71,7 @@
                 android:lineHeight="17.1dp"
                 android:maxLines="2" />
             <TextView
+                android:id="@+id/tv_research_item_des"
                 android:layout_width="226.86dp"
                 android:layout_height="wrap_content"
                 android:text="온라인 강의를 들은 경험이 있는 대학생들 모두"
@@ -95,6 +99,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="9.12dp">
                 <TextView
+                    android:id="@+id/tv_research_item_indicator"
                     android:layout_width="52.44dp"
                     android:layout_height="17.1dp"
                     android:text="NEW"
@@ -102,6 +107,7 @@
                     android:textColor="@color/teal_200"
                     android:textStyle="bold" />
                 <ImageView
+                    android:id="@+id/iv_research_item_check2"
                     android:layout_width="33.06dp"
                     android:layout_height="13.68dp"
                     android:src="@drawable/participation"
@@ -113,6 +119,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="17.1dp">
                 <TextView
+                    android:id="@+id/tv_research_item_start"
                     android:layout_width="67.26dp"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="9.12dp"
@@ -120,6 +127,7 @@
                     android:textSize="12.54dp"
                     android:textColor="#707070" />
                 <TextView
+                    android:id="@+id/tv_research_item_end"
                     android:layout_width="96.9dp"
                     android:layout_height="wrap_content"
                     android:text="~ 08.12 19:29"
@@ -134,6 +142,7 @@
                 android:layout_marginLeft="12.54dp"
                 android:gravity="right">
                 <TextView
+                    android:id="@+id/tv_research_item_participation"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="50"
@@ -148,6 +157,7 @@
                     android:textColor="@color/nav_gray"
                     android:textStyle="bold"/>
                 <TextView
+                    android:id="@+id/tv_research_item_purpose"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="100"

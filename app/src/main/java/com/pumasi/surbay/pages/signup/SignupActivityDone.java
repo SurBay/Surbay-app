@@ -66,13 +66,12 @@ public class SignupActivityDone extends AppCompatActivity {
         SharedPreferences.Editor autoLogin = auto.edit();
         autoLogin.putString("temp_email", userid);
         autoLogin.commit();
-
         makeSignupRequest(name, userid, userid, password, gender, yearBirth);
         ActionCodeSettings actionCodeSettings =
                 ActionCodeSettings.newBuilder()
                         // URL you want to redirect back to. The domain (www.example.com) for this
                         // URL must be whitelisted in the Firebase Console.
-                        .setUrl("http://ec2-3-36-228-245.ap-northeast-2.compute.amazonaws.com:3000/?email=" + userid)
+                        .setUrl("https://main.d2w6n37lfl2sg2.amplifyapp.com/?email=" + userid)
                         // This must be true
                         .setHandleCodeInApp(true)
                         .setAndroidPackageName(

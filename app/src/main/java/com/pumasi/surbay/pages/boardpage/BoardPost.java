@@ -34,6 +34,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.pumasi.surbay.adapter.ResearchListViewAdapter;
 import com.pumasi.surbay.pages.MainActivity;
 import com.pumasi.surbay.R;
 import com.pumasi.surbay.adapter.PostListViewAdapter;
@@ -57,12 +58,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import static com.pumasi.surbay.pages.homepage.HomeFragment.adapter1;
-import static com.pumasi.surbay.pages.homepage.HomeFragment.adapter2;
-import static com.pumasi.surbay.pages.homepage.HomeFragment.adapter3;
-import static com.pumasi.surbay.pages.homepage.HomeFragment.recyclerView;
-import static com.pumasi.surbay.pages.homepage.HomeFragment.recyclerView2;
-import static com.pumasi.surbay.pages.homepage.HomeFragment.recyclerView3;
 
 
 public class BoardPost extends Fragment// Fragment 클래스를 상속받아야한다
@@ -465,12 +460,6 @@ public class BoardPost extends Fragment// Fragment 클래스를 상속받아야�
 
             postListViewAdapter = new PostListViewAdapter(list);
             listView.setAdapter(postListViewAdapter);
-            adapter1.notifyDataSetChanged();
-            recyclerView.setAdapter(adapter1);
-            adapter2.notifyDataSetChanged();
-            recyclerView2.setAdapter(adapter2);
-            adapter3.notifyDataSetChanged();
-            recyclerView3.setAdapter(adapter3);
 
 
             mSwipeRefreshLayout.setRefreshing(false);

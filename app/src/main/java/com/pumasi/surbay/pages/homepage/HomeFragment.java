@@ -163,7 +163,7 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
 
         try {
             setRecyclerView();
-            setBanner();
+//            setBanner();
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -774,53 +774,53 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
         }
     }
 
-    private void setBanner(){
-        banner = view.findViewById(R.id.banner);
-        for(int i=0;i<IMAGES.length;i++){
-            ImagesArray.add(IMAGES[i]);
-        }
-        adapter = new BannerViewPagerAdapter(getActivity().getApplicationContext(), ImagesArray);
-        banner.setAdapter(adapter);
-
-
-
-        banner.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                currentPage = position;
-            }
-
-            @Override
-            public void onPageSelected(int position) {
-
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-
-            }
-        });
-
-
-        int NUM_PAGES = IMAGES.length;
-
-        final Handler handler = new Handler();
-        final Runnable Update = new Runnable() {
-            public void run() {
-                if (currentPage == NUM_PAGES) {
-                    currentPage = 0;
-                }
-                banner.setCurrentItem(currentPage++, true);
-            }
-        };
-        Timer swipeTimer = new Timer();
-        swipeTimer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                handler.post(Update);
-            }
-        }, 30000, 30000);
-    }
+//    private void setBanner(){
+//        banner = view.findViewById(R.id.banner);
+//        for(int i=0;i<IMAGES.length;i++){
+//            ImagesArray.add(IMAGES[i]);
+//        }
+//        adapter = new BannerViewPagerAdapter(getActivity().getApplicationContext(), ImagesArray);
+//        banner.setAdapter(adapter);
+//
+//
+//
+//        banner.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+//            @Override
+//            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+//                currentPage = position;
+//            }
+//
+//            @Override
+//            public void onPageSelected(int position) {
+//
+//            }
+//
+//            @Override
+//            public void onPageScrollStateChanged(int state) {
+//
+//            }
+//        });
+//
+//
+//        int NUM_PAGES = IMAGES.length;
+//
+//        final Handler handler = new Handler();
+//        final Runnable Update = new Runnable() {
+//            public void run() {
+//                if (currentPage == NUM_PAGES) {
+//                    currentPage = 0;
+//                }
+//                banner.setCurrentItem(currentPage++, true);
+//            }
+//        };
+//        Timer swipeTimer = new Timer();
+//        swipeTimer.schedule(new TimerTask() {
+//            @Override
+//            public void run() {
+//                handler.post(Update);
+//            }
+//        }, 30000, 30000);
+//    }
 
     private void getPost(String id, int position) {
         try{

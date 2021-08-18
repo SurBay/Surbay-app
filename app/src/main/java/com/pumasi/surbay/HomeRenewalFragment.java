@@ -5,12 +5,14 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 
 import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +25,7 @@ import com.pumasi.surbay.adapter.BannerViewPagerAdapter;
 import com.pumasi.surbay.adapter.HomeResearchPagerAdapter;
 import com.pumasi.surbay.adapter.HomeTipPagerAdapter;
 import com.pumasi.surbay.adapter.HomeVotePagerAdapter;
+import com.pumasi.surbay.classfile.Banner;
 import com.pumasi.surbay.pages.MainActivity;
 import com.tbuonomo.viewpagerdotsindicator.DotsIndicator;
 
@@ -35,10 +38,10 @@ public class HomeRenewalFragment extends Fragment {
     public static int HOME_RESEARCH = 0;
     public static int HOME_VOTE = 1;
     public static int HOME_TIP = 2;
-
+    public static ArrayList<Banner> homeBanners = new ArrayList<>();
     private static Context mContext;
     private static final Integer[] IMAGES = {R.drawable.renewal_banner, R.drawable.tutorialbanner2};
-    private ArrayList<Integer> ImagesArray = new ArrayList<>();
+    private ArrayList<String> ImagesArray = new ArrayList<>();
     private ViewPager vp_banner;
     private static ViewPager vp_research;
     private static ViewPager vp_vote;
@@ -50,7 +53,7 @@ public class HomeRenewalFragment extends Fragment {
     private ImageButton ib_home_vote_shuffle;
     private ImageButton ib_home_tip_shuffle;
     private int currentPage;
-    private View view;
+    private static View view;
     private HomeResearchPagerAdapter homeResearchPagerAdapter;
     private HomeVotePagerAdapter homeVotePagerAdapter;
     private HomeTipPagerAdapter homeTipPagerAdapter;
@@ -65,8 +68,10 @@ public class HomeRenewalFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         view = inflater.inflate(R.layout.fragment_home_renewal, container, false);
         ((AppCompatActivity) getActivity()).getSupportActionBar().hide();
+        MainActivity.getBanners();
 
         ib_shift_home_research = view.findViewById(R.id.ib_shift_home_research);
         ib_shift_home_vote = view.findViewById(R.id.ib_shift_home_vote);
@@ -139,48 +144,59 @@ public class HomeRenewalFragment extends Fragment {
         setVp_research_tip();
     }
     private void setVp_banner() {
-        if (view != null) {
-            vp_banner = view.findViewById(R.id.vp_banner);
-            for (int i = 0; i < IMAGES.length; i++) ImagesArray.add(IMAGES[i]);
-            bannerAdapter = new BannerViewPagerAdapter(getActivity().getApplicationContext(), ImagesArray);
-            vp_banner.setAdapter(bannerAdapter);
-
-            // 원리 시간 날 때 찾아볼 것!!
-            vp_banner.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-                @Override
-                public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                    currentPage = position;
-                }
-
-                @Override
-                public void onPageSelected(int position) {
-
-                }
-
-                @Override
-                public void onPageScrollStateChanged(int state) {
-
-                }
-            });
-            int NUM_PAGES = IMAGES.length;
-
-            final Handler handler = new Handler();
-            final Runnable Update = new Runnable() {
-                public void run() {
-                    if (currentPage == NUM_PAGES) {
-                        currentPage = 0;
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (homeBanners.size() == 0) {
+                    try {
+                        Log.d("fuck", "run: ");
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
-                    vp_banner.setCurrentItem(currentPage++, true);
                 }
-            };
-            Timer swipeTimer = new Timer();
-            swipeTimer.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    handler.post(Update);
+            }
+        }).start();
+        vp_banner = view.findViewById(R.id.vp_banner);
+        for (int i = 0; i < homeBanners.size(); i++) ImagesArray.add(homeBanners.get(i).getImage_url());
+        bannerAdapter = new BannerViewPagerAdapter(getActivity().getApplicationContext(), ImagesArray);
+        vp_banner.setAdapter(bannerAdapter);
+
+        // 원리 시간 날 때 찾아볼 것!!
+        vp_banner.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                currentPage = position;
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
+        int NUM_PAGES = IMAGES.length;
+
+        final Handler handler = new Handler();
+        final Runnable Update = new Runnable() {
+            public void run() {
+                if (currentPage == NUM_PAGES) {
+                    currentPage = 0;
                 }
-            }, 30000, 30000);
-        }
+                vp_banner.setCurrentItem(currentPage++, true);
+            }
+        };
+        Timer swipeTimer = new Timer();
+        swipeTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                handler.post(Update);
+            }
+        }, 30000, 30000);
     }
     private void setVp_research() {
 
@@ -242,6 +258,12 @@ public class HomeRenewalFragment extends Fragment {
             vp_tip.setVisibility(View.VISIBLE);
             vp_tip_indicator.setVisibility(View.VISIBLE);
         }
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        setVp_banner();
     }
 
     @Override

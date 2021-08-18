@@ -56,12 +56,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.pumasi.surbay.pages.homepage.HomeFragment.adapter1;
-import static com.pumasi.surbay.pages.homepage.HomeFragment.adapter2;
-import static com.pumasi.surbay.pages.homepage.HomeFragment.adapter3;
-import static com.pumasi.surbay.pages.homepage.HomeFragment.recyclerView;
-import static com.pumasi.surbay.pages.homepage.HomeFragment.recyclerView2;
-import static com.pumasi.surbay.pages.homepage.HomeFragment.recyclerView3;
 
 
 public class BoardGeneral extends Fragment// Fragment 클래스를 상속받아야한다
@@ -320,12 +314,6 @@ public class BoardGeneral extends Fragment// Fragment 클래스를 상속받아�
             if(state != null) {
                 listView.onRestoreInstanceState(state);
             }
-            adapter1.notifyDataSetChanged();
-            recyclerView.setAdapter(adapter1);
-            adapter2.notifyDataSetChanged();
-            recyclerView2.setAdapter(adapter2);
-            adapter3.notifyDataSetChanged();
-            recyclerView3.setAdapter(adapter3);
 
             Log.d("refreshing is", "finish");
 
