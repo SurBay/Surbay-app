@@ -20,16 +20,32 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 
+import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.pumasi.surbay.adapter.BannerViewPagerAdapter;
 import com.pumasi.surbay.adapter.HomeResearchPagerAdapter;
 import com.pumasi.surbay.adapter.HomeTipPagerAdapter;
 import com.pumasi.surbay.adapter.HomeVotePagerAdapter;
 import com.pumasi.surbay.classfile.Banner;
+import com.pumasi.surbay.classfile.General;
+import com.pumasi.surbay.classfile.Post;
+import com.pumasi.surbay.classfile.Reply;
+import com.pumasi.surbay.classfile.UserPersonalInfo;
 import com.pumasi.surbay.pages.MainActivity;
 import com.tbuonomo.viewpagerdotsindicator.DotsIndicator;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -64,6 +80,9 @@ public class HomeRenewalFragment extends Fragment {
     private static ImageView iv_research_none;
     private static ImageView iv_vote_none;
     private static ImageView iv_tip_none;
+    public static ArrayList<Post> randomPosts;
+    public static ArrayList<General> randomVotes;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -72,6 +91,7 @@ public class HomeRenewalFragment extends Fragment {
         view = inflater.inflate(R.layout.fragment_home_renewal, container, false);
         ((AppCompatActivity) getActivity()).getSupportActionBar().hide();
         MainActivity.getBanners();
+        getRandomPosts();
 
         ib_shift_home_research = view.findViewById(R.id.ib_shift_home_research);
         ib_shift_home_vote = view.findViewById(R.id.ib_shift_home_vote);
@@ -137,7 +157,6 @@ public class HomeRenewalFragment extends Fragment {
         return view;
     }
     private void setView() {
-        mContext = getActivity();
         setVp_banner();
         setVp_research();
         setVp_vote();
@@ -259,7 +278,130 @@ public class HomeRenewalFragment extends Fragment {
             vp_tip_indicator.setVisibility(View.VISIBLE);
         }
     }
+    public static void getRandomPosts() {
+        try {
+            String requestURL = "http://ec2-3-35-152-40.ap-northeast-2.compute.amazonaws.com/api/posts/random/?user_object_id=" + UserPersonalInfo.userID;
+            RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.mContext);
+            JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(
+                    Request.Method.GET, requestURL, null, response -> {
+                        try {
+                            randomPosts = new ArrayList<Post>();
+                            JSONArray responseArray = new JSONArray(response.toString());
+                            for (int i = 0; i < responseArray.length(); i++) {
+                                JSONObject post = responseArray.getJSONObject(i);
+                                String id = post.getString("_id");
+                                String title = post.getString("title");
+                                String author = post.getString("author");
+                                Integer author_lvl = post.getInt("author_lvl");
+                                String content = post.getString("content");
+                                Integer participants = post.getInt("participants");
+                                Integer goal_participants = post.getInt("goal_participants");
+                                String url = post.getString("url");
+                                SimpleDateFormat fm = new SimpleDateFormat("yyyy-MM-dd\'T\'kk:mm:ss.SSS");
+                                Date date = null;
+                                Date deadline = null;
+                                try {
+                                    date = fm.parse(post.getString("date"));
+                                    deadline = fm.parse(post.getString("deadline"));
+                                } catch (ParseException e) {
+                                    e.printStackTrace();
+                                }
+                                Boolean with_prize = post.getBoolean("with_prize");
+                                Integer est_time = post.getInt("est_time");
+                                String target = post.getString("target");
+                                Boolean done = post.getBoolean("done");
+                                Boolean hide = post.getBoolean("hide");
+                                Integer extended = post.getInt("extended");
+                                String author_userid = post.getString("author_userid");
+                                String prize = "none";
+                                Integer num_prize = 0;
+                                if (with_prize) {
+                                    prize = post.getString("prize");
+                                    num_prize = post.getInt("num_prize");
+                                }
+                                Integer pinned = 0;
+                                Boolean annonymous = false;
+                                String author_info = "";
+                                try {
+                                    pinned = post.getInt("pinned");
+                                    annonymous = post.getBoolean("annonymous");
+                                    author_info = post.getString("author_info");
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                                JSONArray ia = (JSONArray) post.get("participants_userids");
+                                ArrayList<String> participants_userids = new ArrayList<String>();
+                                for (int j = 0; j < ia.length(); j++) {
+                                    participants_userids.add(ia.getString(j));
+                                }
+                                JSONArray ka = (JSONArray) post.get("reports");
+                                ArrayList<String> reports = new ArrayList<String>();
+                                for (int j = 0; j < ka.length(); j++) {
+                                    reports.add(ka.getString(j));
+                                }
+                                ArrayList<Reply> comments = new ArrayList<>();
+                                try{
+                                    JSONArray ja = (JSONArray)post.get("comments");
+                                    if (ja.length() != 0){
+                                        for (int j = 0; j<ja.length(); j++){
+                                            JSONObject reply = ja.getJSONObject(j);
+                                            String reid = reply.getString("_id");
+                                            String writer = reply.getString("writer");
+                                            String contetn = reply.getString("content");
+                                            Date datereply = null;
+                                            try {
+                                                datereply = fm.parse(reply.getString("date"));
+                                            } catch (ParseException e) {
+                                                e.printStackTrace();
+                                            }
+                                            Boolean replyhide = reply.getBoolean("hide");
+                                            JSONArray ua = (JSONArray)reply.get("reports");
 
+
+                                            ArrayList<String> replyreports = new ArrayList<String>();
+                                            for (int u = 0; u<ua.length(); u++){
+                                                replyreports.add(ua.getString(u));
+                                            }
+                                            String writer_name = null;
+                                            try {
+                                                writer_name = reply.getString("writer_name");
+                                            }catch (Exception e){
+                                                writer_name = null;
+                                            }
+                                            Reply re = new Reply(reid, writer, contetn, datereply,replyreports,replyhide);
+                                            re.setWriter_name(writer_name);
+                                            if ((!replyhide )&& (!replyreports.contains(UserPersonalInfo.userID))){
+                                                comments.add(re);
+                                            }
+                                        }
+                                    }
+
+                                } catch (Exception e){
+                                    e.printStackTrace();
+                                }
+                                Post newPost = new Post(id, title, author, author_lvl, content, participants, goal_participants, url, date, deadline, with_prize, prize, est_time, target, num_prize, comments, done, extended, participants_userids, reports, hide, author_userid, pinned, annonymous, author_info);
+                                randomPosts.add(newPost);
+                                Log.d("어?", "getRandomPosts: ");
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+            }, error -> {
+                        error.printStackTrace();
+            });
+            jsonArrayRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            requestQueue.add(jsonArrayRequest);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+//    public static void getRandomVotes() {
+//        try {
+//            String requestURL = R.string.server + "/api/generals/random";
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);

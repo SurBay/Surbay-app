@@ -83,12 +83,10 @@
             android:layout_height="match_parent"
             android:id="@+id/refresh_boards"
             >
-            <ListView
-                android:divider="#00000000"
-                android:id="@+id/list"
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_board_post_item"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
-            </ListView>
+                android:layout_height="match_parent" />
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
         <Button
             android:id="@+id/writeButton"

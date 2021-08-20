@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="match_parent"
@@ -10,7 +11,25 @@
         android:layout_width="match_parent"
         android:layout_height="51.3dp"
         android:background="@color/white">
-
+        <ImageButton
+            android:id="@+id/ib_my_setting"
+            android:layout_width="22.8dp"
+            android:layout_height="22.8dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="45.6dp"
+            android:padding="0dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/settings"
+            android:background="@color/white" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:text="마이페이지"
+            android:textSize="20.54dp"
+            android:textColor="@color/text_color48"
+            android:textStyle="bold" />
     </RelativeLayout>
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:layout_width="match_parent"
@@ -69,7 +88,7 @@
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    style="@style/mypage_profile_renewal"
+                    style="@style/round_border_white_fill_30px"
                     android:layout_marginTop="5.7dp"
                     android:layout_marginLeft="18.24dp"
                     android:layout_marginRight="18.24dp">
@@ -151,7 +170,7 @@
                     android:layout_marginTop="9.12dp"
                     android:layout_marginLeft="18.24dp"
                     android:layout_marginRight="18.24dp"
-                    style="@style/mypage_profile_renewal">
+                    style="@style/round_border_white_fill_20px">
                     <TextView
                         android:id="@+id/tv_research_name"
                         android:layout_width="wrap_content"
@@ -240,7 +259,7 @@
                     android:layout_marginTop="4.56dp"
                     android:layout_marginLeft="18.24dp"
                     android:layout_marginRight="18.24dp"
-                    style="@style/mypage_profile_renewal">
+                    style="@style/round_border_white_fill_20px">
                     <TextView
                         android:id="@+id/tv_vote_name"
                         android:layout_width="wrap_content"
@@ -323,9 +342,167 @@
                     </LinearLayout>
 
                 </RelativeLayout>
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="10.26dp"
+                    android:background="@color/white">
+                    <RelativeLayout
+                        android:layout_width="55.86dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="14.82dp"
+                        android:layout_marginBottom="10.26dp"
+                        android:layout_marginLeft="57dp">
+                        <ImageButton
+                            android:id="@+id/ib_my_exchange"
+                            android:layout_width="55.86dp"
+                            android:layout_height="55.86dp"
+                            android:padding="0dp"
+                            android:scaleType="centerCrop"
+                            android:src="@drawable/my_page_coupon"
+                            android:background="@color/white" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerHorizontal="true"
+                            android:layout_below="@id/ib_my_exchange"
+                            android:text="교환권"
+                            android:textSize="14.82dp"
+                            android:textColor="@color/text_color48"
+                            android:textStyle="bold" />
+                    </RelativeLayout>
+                    <RelativeLayout
+                        android:layout_width="55.86dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="14.82dp"
+                        android:layout_marginBottom="10.26dp"
+                        android:layout_marginLeft="57dp"
+                        android:layout_centerHorizontal="true">
+                        <ImageButton
+                            android:id="@+id/ib_my_gift"
+                            android:layout_width="55.86dp"
+                            android:layout_height="55.86dp"
+                            android:padding="0dp"
+                            android:scaleType="centerCrop"
+                            android:src="@drawable/my_page_gift"
+                            android:background="@color/white" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerHorizontal="true"
+                            android:layout_below="@id/ib_my_gift"
+                            android:text="경품함"
+                            android:textSize="14.82dp"
+                            android:textColor="@color/text_color48"
+                            android:textStyle="bold" />
+                    </RelativeLayout>
+                    <RelativeLayout
+                        android:layout_width="55.86dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="14.82dp"
+                        android:layout_marginBottom="10.26dp"
+                        android:layout_marginRight="57dp"
+                        android:layout_alignParentRight="true">
+                        <ImageButton
+                            android:id="@+id/ib_my_note"
+                            android:layout_width="55.86dp"
+                            android:layout_height="55.86dp"
+                            android:padding="0dp"
+                            android:scaleType="centerCrop"
+                            android:src="@drawable/my_page_note"
+                            android:background="@color/white" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerHorizontal="true"
+                            android:layout_below="@id/ib_my_note"
+                            android:text="쪽지함"
+                            android:textSize="14.82dp"
+                            android:textColor="@color/text_color48"
+                            android:textStyle="bold" />
+                    </RelativeLayout>
+                </RelativeLayout>
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="12.54dp">
+                    <RelativeLayout
+                        android:layout_width="55.86dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="14.82dp"
+                        android:layout_marginBottom="10.26dp"
+                        android:layout_marginLeft="57dp">
+
+                        <ImageButton
+                            android:id="@+id/ib_my_announce"
+                            android:layout_width="55.86dp"
+                            android:layout_height="55.86dp"
+                            android:background="@color/E5gray"
+                            android:padding="0dp"
+                            android:scaleType="centerCrop"
+                            android:src="@drawable/my_page_announce" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerHorizontal="true"
+                            android:layout_below="@id/ib_my_announce"
+                            android:text="공지"
+                            android:textSize="14.82dp"
+                            android:textColor="@color/text_color48"
+                            android:textStyle="bold" />
+                    </RelativeLayout>
+                    <RelativeLayout
+                        android:layout_width="55.86dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="14.82dp"
+                        android:layout_marginBottom="10.26dp"
+                        android:layout_marginLeft="57dp"
+                        android:layout_centerHorizontal="true">
+                        <ImageButton
+                            android:id="@+id/ib_my_suggest"
+                            android:layout_width="55.86dp"
+                            android:layout_height="55.86dp"
+                            android:padding="0dp"
+                            android:scaleType="centerCrop"
+                            android:src="@drawable/my_page_suggest"
+                            android:background="@color/E5gray" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerHorizontal="true"
+                            android:layout_below="@id/ib_my_suggest"
+                            android:text="건의"
+                            android:textSize="14.82dp"
+                            android:textColor="@color/text_color48"
+                            android:textStyle="bold" />
+                    </RelativeLayout>
+                    <RelativeLayout
+                        android:layout_width="55.86dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="14.82dp"
+                        android:layout_marginBottom="10.26dp"
+                        android:layout_marginRight="57dp"
+                        android:layout_alignParentRight="true">
+                        <ImageButton
+                            android:id="@+id/ib_my_report"
+                            android:layout_width="55.86dp"
+                            android:layout_height="55.86dp"
+                            android:padding="0dp"
+                            android:scaleType="centerCrop"
+                            android:src="@drawable/my_page_report"
+                            android:background="@color/E5gray" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerHorizontal="true"
+                            android:layout_below="@id/ib_my_report"
+                            android:text="신고"
+                            android:textSize="14.82dp"
+                            android:textColor="@color/text_color48"
+                            android:textStyle="bold" />
+                    </RelativeLayout>
+                </RelativeLayout>
             </LinearLayout>
-
-
         </ScrollView>
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 </LinearLayout>

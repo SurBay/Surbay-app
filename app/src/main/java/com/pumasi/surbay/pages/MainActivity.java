@@ -24,6 +24,7 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.pumasi.surbay.FreeBoardFragment;
+import com.pumasi.surbay.MypageRenewalFragment;
 import com.pumasi.surbay.ResearchBoardFragment;
 import com.pumasi.surbay.HomeRenewalFragment;
 import com.pumasi.surbay.VoucherBoardFragment;
@@ -67,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
     private ResearchBoardFragment researchBoardFragment;
     public static FreeBoardFragment freeBoardFragment;
     private VoucherBoardFragment voucherBoardFragment;
-    private MypageFragment mypageFragment;
+    private MypageRenewalFragment mypageRenewalFragment;
 
     public static ArrayList<Post> postArrayList = new ArrayList<>();
     public static ArrayList<Post> notreportedpostArrayList = new ArrayList<>();
@@ -100,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
         researchBoardFragment = new ResearchBoardFragment();
         freeBoardFragment = new FreeBoardFragment();
         voucherBoardFragment = new VoucherBoardFragment();
-        mypageFragment = new MypageFragment();
+        mypageRenewalFragment = new MypageRenewalFragment();
 
         today = new Date();
         SimpleDateFormat fm = new SimpleDateFormat(mContext.getString(R.string.date_format));
@@ -207,7 +208,7 @@ public class MainActivity extends AppCompatActivity {
                 break;
 
             case 4:
-                ft.replace(R.id.Main_Frame,mypageFragment);
+                ft.replace(R.id.Main_Frame, mypageRenewalFragment);
                 ft.commit();
                 break;
 

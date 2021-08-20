@@ -46,7 +46,6 @@ import com.pumasi.surbay.classfile.Post;
 import com.pumasi.surbay.classfile.Reply;
 import com.pumasi.surbay.classfile.UserPersonalInfo;
 import com.pumasi.surbay.pages.MainActivity;
-import com.pumasi.surbay.pages.boardpage.BoardPost;
 import com.pumasi.surbay.pages.boardpage.PostDetailActivity;
 import com.pumasi.surbay.pages.homepage.NoticeActivity;
 import com.pumasi.surbay.pages.homepage.NoticeDetailActivity;
@@ -68,11 +67,6 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import static com.pumasi.surbay.pages.boardpage.BoardPost.frag1datesortbutton;
-import static com.pumasi.surbay.pages.boardpage.BoardPost.frag1goalsortbutton;
-import static com.pumasi.surbay.pages.boardpage.BoardPost.frag1newsortbutton;
-import static com.pumasi.surbay.pages.boardpage.BoardPost.listView;
-import static com.pumasi.surbay.pages.boardpage.BoardPost.postListViewAdapter;
 
 public class HomeFragment extends Fragment // Fragment 클래스를 상속받아야한다
 {
@@ -399,37 +393,7 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
             }
         });
 
-        date_sort_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onSort(DEADLINE);
-                BottomNavigationView bottomNavigationView = (BottomNavigationView) getActivity().findViewById(R.id.bottomNavi);
-                bottomNavigationView.setSelectedItemId(R.id.action_research_board);
-            }
-        });
-        goal_sort_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onSort(GOAL);
-                BottomNavigationView bottomNavigationView = (BottomNavigationView) getActivity().findViewById(R.id.bottomNavi);
-                bottomNavigationView.setSelectedItemId(R.id.action_research_board);
-            }
-        });
-        new_sort_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onSort(NEW);
-                BottomNavigationView bottomNavigationView = (BottomNavigationView) getActivity().findViewById(R.id.bottomNavi);
-                bottomNavigationView.setSelectedItemId(R.id.action_research_board);
-            }
-        });
-        notice_sort_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(mContext, NoticeActivity.class);
-                startActivityForResult(intent, NOTICE);
-            }
-        });
+
 
 
 
@@ -494,152 +458,6 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
     }
 
 
-    public void onSort(int sort){
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                Comparator<Post> cmpGoalBoard = new Comparator<Post>() {
-                    @Override
-                    public int compare(Post o1, Post o2) {
-                        if (o1.getPinned() == 1 && o2.getPinned() == 0) {
-                            return -1;
-                        } else if (o2.getPinned() == 1 && o1.getPinned() == 0) {
-                            return 1;
-                        }
-                        else if(o1.getPinned()==1 && o1.getPinned()==1){
-                            int ret;
-                            Date date1 = o1.getDate();
-                            Date date2 = o2.getDate();
-                            int compare = date1.compareTo(date2);
-                            if(compare>0)
-                                ret = -1; //date2<date1
-                            else if(compare==0)
-                                ret = 0;
-                            else
-                                ret = 1;
-                            return ret;
-                        }
-                        Date now = new Date();
-                        if ((now.after(o1.getDeadline()) || o1.isDone()) && (!(now.after(o2.getDeadline()) || o2.isDone()))) {
-                            return 1;
-                        } else if ((!(now.after(o1.getDeadline()) || o1.isDone())) && (now.after(o2.getDeadline()) || o2.isDone())) {
-                            return -1;
-                        }
-                        int ret;
-                        float goal1 = ((float) o1.getParticipants() / o1.getGoal_participants());
-                        float goal2 = ((float) o2.getParticipants() / o2.getGoal_participants());
-                        if (goal1 > goal2)
-                            ret = -1;
-                        else if (goal1 == goal2)
-                            ret = 0;
-                        else
-                            ret = 1;
-                        return ret;
-                    }
-                };
-                Comparator<Post> cmpNewBoard = new Comparator<Post>() {
-                    @Override
-                    public int compare(Post o1, Post o2) {
-                        if (o1.getPinned() == 1 && o2.getPinned() == 0) {
-                            return -1;
-                        } else if (o2.getPinned() == 1 && o1.getPinned() == 0) {
-                            return 1;
-                        }
-                        else if(o1.getPinned()==1 && o1.getPinned()==1){
-                            int ret;
-                            Date date1 = o1.getDate();
-                            Date date2 = o2.getDate();
-                            int compare = date1.compareTo(date2);
-
-                            if(compare>0)
-                                ret = -1; //date2<date1
-                            else if(compare==0)
-                                ret = 0;
-                            else
-                                ret = 1;
-                            return ret;
-                        }
-                        Date now = new Date();
-                        if ((now.after(o1.getDeadline()) || o1.isDone()) && (!(now.after(o2.getDeadline()) || o2.isDone()))) {
-                            return 1;
-                        } else if ((!(now.after(o1.getDeadline()) || o1.isDone())) && (now.after(o2.getDeadline()) || o2.isDone())) {
-                            return -1;
-                        }
-                        int ret;
-                        Date date1 = o1.getDate();
-                        Date date2 = o2.getDate();
-                        int compare = date1.compareTo(date2);
-                        if (compare > 0)
-                            ret = -1; //date2<date1
-                        else if (compare == 0)
-                            ret = 0;
-                        else
-                            ret = 1;
-                        return ret;
-                    }
-                };
-                Comparator<Post> cmpDeadlineBoard = new Comparator<Post>() {
-                    @Override
-                    public int compare(Post o1, Post o2) {
-                        if (o1.getPinned() == 1 && o2.getPinned() == 0) {
-                            return -1;
-                        } else if (o2.getPinned() == 1 && o1.getPinned() == 0) {
-                            return 1;
-                        }
-                        else if(o1.getPinned()==1 && o1.getPinned()==1){
-                            int ret;
-                            Date date1 = o1.getDate();
-                            Date date2 = o2.getDate();
-                            int compare = date1.compareTo(date2);
-                            if(compare>0)
-                                ret = -1; //date2<date1
-                            else if(compare==0)
-                                ret = 0;
-                            else
-                                ret = 1;
-                            return ret;
-                        }
-                        int ret;
-                        Date now = new Date();
-                        if ((now.after(o1.getDeadline()) || o1.isDone()) && (!(now.after(o2.getDeadline()) || o2.isDone()))) {
-                            return 1;
-                        } else if ((!(now.after(o1.getDeadline()) || o1.isDone())) && (now.after(o2.getDeadline()) || o2.isDone())) {
-                            return -1;
-                        } else {
-                            Date date1 = o1.getDeadline();
-                            Date date2 = o2.getDeadline();
-                            int compare = date1.compareTo(date2);
-                            if (compare < 0)
-                                ret = -1; //date2>date1
-                            else if (compare == 0)
-                                ret = 0;
-                            else
-                                ret = 1;
-                            return ret;
-                        }
-                    }
-                };
-                switch (sort){
-                    case NEW:
-                        Collections.sort(BoardPost.list, cmpNewBoard);
-                        frag1newselect();
-                        break;
-                    case GOAL:
-                        Collections.sort(BoardPost.list, cmpGoalBoard);
-                        frag1goalselect();
-                        break;
-                    case DEADLINE:
-                        Collections.sort(BoardPost.list, cmpDeadlineBoard);
-                        frag1dateselect();
-                        break;
-                    default:
-                        break;
-                }
-                postListViewAdapter.notifyDataSetChanged();
-                listView.setAdapter(postListViewAdapter);
-            }
-        },100);
-    }
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         try {
@@ -651,32 +469,8 @@ public class HomeFragment extends Fragment // Fragment 클래스를 상속받아
     }
 
 
-    public void frag1dateselect(){
-        frag1goalsortbutton.setBackgroundResource(R.drawable.ic_tabnoselect);
-        frag1datesortbutton.setBackgroundResource(R.drawable.ic_tabselect);
-        frag1newsortbutton.setBackgroundResource(R.drawable.ic_tabnoselect);
-        frag1goalsortbutton.setTextColor(Color.parseColor("#BDBDBD"));
-        frag1datesortbutton.setTextColor(Color.parseColor("#FFFFFF"));
-        frag1newsortbutton.setTextColor(Color.parseColor("#BDBDBD"));
-    }
 
-    public void frag1newselect(){
-        frag1goalsortbutton.setBackgroundResource(R.drawable.ic_tabnoselect);
-        frag1datesortbutton.setBackgroundResource(R.drawable.ic_tabnoselect);
-        frag1newsortbutton.setBackgroundResource(R.drawable.ic_tabselect);
-        frag1goalsortbutton.setTextColor(Color.parseColor("#BDBDBD"));
-        frag1datesortbutton.setTextColor(Color.parseColor("#BDBDBD"));
-        frag1newsortbutton.setTextColor(Color.parseColor("#FFFFFF"));
-    }
 
-    public void frag1goalselect(){
-        frag1goalsortbutton.setBackgroundResource(R.drawable.ic_tabselect);
-        frag1datesortbutton.setBackgroundResource(R.drawable.ic_tabnoselect);
-        frag1newsortbutton.setBackgroundResource(R.drawable.ic_tabnoselect);
-        frag1goalsortbutton.setTextColor(Color.parseColor("#FFFFFF"));
-        frag1datesortbutton.setTextColor(Color.parseColor("#BDBDBD"));
-        frag1newsortbutton.setTextColor(Color.parseColor("#BDBDBD"));
-    }
 
     private void getPersonalInfo() {
         if (UserPersonalInfo.token == null) {

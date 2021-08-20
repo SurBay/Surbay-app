@@ -24,8 +24,11 @@
         <item name="android:background">@drawable/round_border_white</item>
         <item name="backgroundColor">#FFFFFF</item>
     </style>
-    <style name="mypage_profile_renewal">
+    <style name="round_border_white_fill_30px">
         <item name="android:background">@drawable/round_border_white_fill_30px</item>
+    </style>
+    <style name="round_border_white_fill_20px">
+        <item name="android:background">@drawable/round_border_white_fill_20px</item>
     </style>
     <style name="search_back">
         <item name="android:background">@drawable/search_back</item>

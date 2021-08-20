@@ -42,268 +42,273 @@
                 app:layout_constraintStart_toEndOf="@+id/logo"
                 app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
-        <ScrollView
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@color/renewal_background">
-            <LinearLayout
-                android:orientation="vertical"
+            android:layout_height="match_parent">
+            <ScrollView
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:background="@color/renewal_background">
                 <LinearLayout
                     android:orientation="vertical"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
-
-                    <androidx.viewpager.widget.ViewPager
-                        android:id="@+id/vp_banner"
-                        android:layout_width="374dp"
-                        android:layout_height="208dp"
-                        android:layout_gravity="center_horizontal"
-                        android:layout_marginVertical="12dp"
-                        android:background="@drawable/round_border_white_fill" />
-                </LinearLayout>
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
                     <LinearLayout
-                        android:orientation="horizontal"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="18dp"
-                        android:layout_marginVertical="6dp">
-                        <RelativeLayout
-                            android:layout_width="228dp"
-                            android:layout_height="23dp">
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="23dp"
-                                android:text="리서치 게시판"
-                                android:textColor="@color/text_black"
-                                android:textSize="17dp"
-                                android:textStyle="bold"/>
-                            <ImageButton
-                                android:id="@+id/ib_home_search_shuffle"
-                                android:layout_width="66.12dp"
-                                android:layout_height="13.68dp"
-                                android:src="@drawable/shuffle"
-                                android:layout_marginTop="6.84dp"
-                                android:layout_marginBottom="2.28dp"
-                                android:scaleType="centerCrop"
-                                android:background="@color/gray"
-                                android:layout_alignParentRight="true"
-                                android:layout_marginRight="54.72dp"
-                                />
-                        </RelativeLayout>
+                        android:orientation="vertical"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
 
+                        <androidx.viewpager.widget.ViewPager
+                            android:id="@+id/vp_banner"
+                            android:layout_width="374dp"
+                            android:layout_height="208dp"
+                            android:layout_gravity="center_horizontal"
+                            android:layout_marginVertical="12dp"
+                            android:background="@drawable/round_border_white_fill" />
                     </LinearLayout>
-                    <ImageButton
-                        android:id="@+id/ib_shift_home_research"
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:layout_alignParentRight="true"
-                        android:layout_centerVertical="true"
-                        android:layout_marginRight="18dp"
-                        android:background="@color/gray"
-                        android:scaleType="centerInside"
-                        android:src="@drawable/leftarrow" />
-                </RelativeLayout>
-                <RelativeLayout
-                    android:layout_width="373.92dp"
-                    android:layout_height="171dp"
-                    android:layout_gravity="center_horizontal">
-                    <androidx.viewpager.widget.ViewPager
-                        android:id="@+id/vp_research"
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+                        <LinearLayout
+                            android:orientation="horizontal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="18dp"
+                            android:layout_marginVertical="6dp">
+                            <RelativeLayout
+                                android:layout_width="228dp"
+                                android:layout_height="23dp">
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="23dp"
+                                    android:text="리서치 게시판"
+                                    android:textColor="@color/text_black"
+                                    android:textSize="17dp"
+                                    android:textStyle="bold"/>
+                                <ImageButton
+                                    android:id="@+id/ib_home_search_shuffle"
+                                    android:layout_width="66.12dp"
+                                    android:layout_height="13.68dp"
+                                    android:src="@drawable/shuffle"
+                                    android:layout_marginTop="6.84dp"
+                                    android:layout_marginBottom="2.28dp"
+                                    android:scaleType="centerCrop"
+                                    android:background="@color/gray"
+                                    android:layout_alignParentRight="true"
+                                    android:layout_marginRight="54.72dp"
+                                    />
+                            </RelativeLayout>
+
+                        </LinearLayout>
+                        <ImageButton
+                            android:id="@+id/ib_shift_home_research"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_alignParentRight="true"
+                            android:layout_centerVertical="true"
+                            android:layout_marginRight="18dp"
+                            android:background="@color/gray"
+                            android:scaleType="centerInside"
+                            android:src="@drawable/leftarrow" />
+                    </RelativeLayout>
+                    <RelativeLayout
                         android:layout_width="373.92dp"
                         android:layout_height="171dp"
-                        android:layout_gravity="center_horizontal"
-                        android:background="@color/white" />
-                    <ImageView
-                        android:id="@+id/iv_research_none"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:src="@drawable/home_none_tiger"
-                        android:visibility="gone" />
+                        android:layout_gravity="center_horizontal">
+                        <androidx.viewpager.widget.ViewPager
+                            android:id="@+id/vp_research"
+                            android:layout_width="373.92dp"
+                            android:layout_height="171dp"
+                            android:layout_gravity="center_horizontal"
+                            android:background="@color/white" />
+                        <ImageView
+                            android:id="@+id/iv_research_none"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:src="@drawable/home_none_tiger"
+                            android:visibility="gone" />
 
-                </RelativeLayout>
-                <LinearLayout
-                    android:orientation="horizontal"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_horizontal"
-                    android:layout_marginTop="10.26dp">
-                    <com.tbuonomo.viewpagerdotsindicator.DotsIndicator
-                        android:id="@+id/vp_research_indicator"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        app:dotsColor="#C4C4C4"
-                        app:selectedDotColor="#484747"
-                        app:dotsSize="5.7dp"
-                        app:dotsSpacing="4.275dp"/>
-                </LinearLayout>
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="17.1dp">
+                    </RelativeLayout>
                     <LinearLayout
                         android:orientation="horizontal"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="18dp"
-                        android:layout_marginVertical="6dp">
-                        <RelativeLayout
-                            android:layout_width="228dp"
-                            android:layout_height="23dp">
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="23dp"
-                                android:text="투표 게시판"
-                                android:textColor="@color/text_black"
-                                android:textSize="17dp"
-                                android:textStyle="bold"/>
-                            <ImageButton
-                                android:id="@+id/ib_home_vote_shuffle"
-                                android:layout_width="66.12dp"
-                                android:layout_height="13.68dp"
-                                android:src="@drawable/shuffle"
-                                android:layout_marginTop="6.84dp"
-                                android:layout_marginBottom="2.28dp"
-                                android:scaleType="centerCrop"
-                                android:background="@color/gray"
-                                android:layout_alignParentRight="true"
-                                android:layout_marginRight="69.54dp"
-                                />
-                        </RelativeLayout>
-                    </LinearLayout>
-                    <ImageButton
-                        android:id="@+id/ib_shift_home_vote"
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:layout_alignParentRight="true"
-                        android:layout_centerVertical="true"
-                        android:layout_marginRight="18dp"
-                        android:background="@color/gray"
-                        android:scaleType="centerInside"
-                        android:src="@drawable/leftarrow" />
-                </RelativeLayout>
-                <RelativeLayout
-                    android:layout_width="373.92dp"
-                    android:layout_height="171dp"
-                    android:layout_gravity="center_horizontal">
-                    <ImageView
-                        android:id="@+id/iv_vote_none"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:src="@drawable/home_none_tiger"
-                        android:visibility="gone" />
-                    <androidx.viewpager.widget.ViewPager
-                        android:id="@+id/vp_vote"
-                        android:layout_width="319.2dp"
-                        android:layout_height="171dp"
-                        android:background="@color/white"
-                        android:layout_centerHorizontal="true"
-                        android:layout_centerVertical="true"/>
-                </RelativeLayout>
-
-                <LinearLayout
-                    android:orientation="horizontal"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_horizontal"
-                    android:layout_marginTop="10.26dp">
-                    <com.tbuonomo.viewpagerdotsindicator.DotsIndicator
-                        android:id="@+id/vp_vote_indicator"
-                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        app:dotsColor="#C4C4C4"
-                        app:selectedDotColor="#484747"
-                        app:dotsSize="5.7dp"
-                        app:dotsSpacing="4.275dp"/>
-                </LinearLayout>
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="17.1dp">
-                    <LinearLayout
-                        android:orientation="horizontal"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="18dp"
-                        android:layout_marginVertical="6dp">
-                        <RelativeLayout
-                            android:layout_width="228dp"
-                            android:layout_height="23dp">
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="23dp"
-                                android:text="리서치 Tip"
-                                android:textColor="@color/text_black"
-                                android:textSize="17dp"
-                                android:textStyle="bold"/>
-                            <ImageButton
-                                android:id="@+id/ib_home_tip_shuffle"
-                                android:layout_width="66.12dp"
-                                android:layout_height="13.68dp"
-                                android:src="@drawable/shuffle"
-                                android:layout_marginTop="6.84dp"
-                                android:layout_marginBottom="2.28dp"
-                                android:scaleType="centerCrop"
-                                android:background="@color/gray"
-                                android:layout_alignParentRight="true"
-                                android:layout_marginRight="71.82dp"
-                                />
-                        </RelativeLayout>
+                        android:gravity="center_horizontal"
+                        android:layout_marginTop="10.26dp">
+                        <com.tbuonomo.viewpagerdotsindicator.DotsIndicator
+                            android:id="@+id/vp_research_indicator"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:dotsColor="#C4C4C4"
+                            app:selectedDotColor="#484747"
+                            app:dotsSize="5.7dp"
+                            app:dotsSpacing="4.275dp"/>
                     </LinearLayout>
-                    <ImageButton
-                        android:id="@+id/ib_shift_home_tip"
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:layout_alignParentRight="true"
-                        android:layout_centerVertical="true"
-                        android:layout_marginRight="18dp"
-                        android:background="@color/gray"
-                        android:scaleType="centerInside"
-                        android:src="@drawable/leftarrow" />
-                </RelativeLayout>
-
-                <RelativeLayout
-                    android:layout_width="373.92dp"
-                    android:layout_height="171dp"
-                    android:layout_gravity="center_horizontal">
-                    <ImageView
-                        android:id="@+id/iv_tip_none"
+                    <RelativeLayout
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:src="@drawable/home_none_tiger"
-                        android:visibility="gone"/>
-                    <androidx.viewpager.widget.ViewPager
-                        android:id="@+id/vp_tip"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="17.1dp">
+                        <LinearLayout
+                            android:orientation="horizontal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="18dp"
+                            android:layout_marginVertical="6dp">
+                            <RelativeLayout
+                                android:layout_width="228dp"
+                                android:layout_height="23dp">
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="23dp"
+                                    android:text="투표 게시판"
+                                    android:textColor="@color/text_black"
+                                    android:textSize="17dp"
+                                    android:textStyle="bold"/>
+                                <ImageButton
+                                    android:id="@+id/ib_home_vote_shuffle"
+                                    android:layout_width="66.12dp"
+                                    android:layout_height="13.68dp"
+                                    android:src="@drawable/shuffle"
+                                    android:layout_marginTop="6.84dp"
+                                    android:layout_marginBottom="2.28dp"
+                                    android:scaleType="centerCrop"
+                                    android:background="@color/gray"
+                                    android:layout_alignParentRight="true"
+                                    android:layout_marginRight="69.54dp"
+                                    />
+                            </RelativeLayout>
+                        </LinearLayout>
+                        <ImageButton
+                            android:id="@+id/ib_shift_home_vote"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_alignParentRight="true"
+                            android:layout_centerVertical="true"
+                            android:layout_marginRight="18dp"
+                            android:background="@color/gray"
+                            android:scaleType="centerInside"
+                            android:src="@drawable/leftarrow" />
+                    </RelativeLayout>
+                    <RelativeLayout
                         android:layout_width="373.92dp"
                         android:layout_height="171dp"
-                        android:layout_gravity="center_horizontal"
-                        android:background="@color/white"/>
-                </RelativeLayout>
+                        android:layout_gravity="center_horizontal">
+                        <ImageView
+                            android:id="@+id/iv_vote_none"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:src="@drawable/home_none_tiger"
+                            android:visibility="gone" />
+                        <androidx.viewpager.widget.ViewPager
+                            android:id="@+id/vp_vote"
+                            android:layout_width="319.2dp"
+                            android:layout_height="171dp"
+                            android:background="@color/white"
+                            android:layout_centerHorizontal="true"
+                            android:layout_centerVertical="true"/>
+                    </RelativeLayout>
 
-                <LinearLayout
-                    android:orientation="horizontal"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_horizontal"
-                    android:layout_marginTop="10.26dp"
-                    android:layout_marginBottom="30dp">
-                    <com.tbuonomo.viewpagerdotsindicator.DotsIndicator
-                        android:id="@+id/vp_tip_indicator"
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:orientation="horizontal"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        app:dotsColor="#C4C4C4"
-                        app:selectedDotColor="#484747"
-                        app:dotsSize="5.7dp"
-                        app:dotsSpacing="4.275dp"/>
+                        android:gravity="center_horizontal"
+                        android:layout_marginTop="10.26dp">
+                        <com.tbuonomo.viewpagerdotsindicator.DotsIndicator
+                            android:id="@+id/vp_vote_indicator"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:dotsColor="#C4C4C4"
+                            app:selectedDotColor="#484747"
+                            app:dotsSize="5.7dp"
+                            app:dotsSpacing="4.275dp"/>
+                    </LinearLayout>
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="17.1dp">
+                        <LinearLayout
+                            android:orientation="horizontal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="18dp"
+                            android:layout_marginVertical="6dp">
+                            <RelativeLayout
+                                android:layout_width="228dp"
+                                android:layout_height="23dp">
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="23dp"
+                                    android:text="리서치 Tip"
+                                    android:textColor="@color/text_black"
+                                    android:textSize="17dp"
+                                    android:textStyle="bold"/>
+                                <ImageButton
+                                    android:id="@+id/ib_home_tip_shuffle"
+                                    android:layout_width="66.12dp"
+                                    android:layout_height="13.68dp"
+                                    android:src="@drawable/shuffle"
+                                    android:layout_marginTop="6.84dp"
+                                    android:layout_marginBottom="2.28dp"
+                                    android:scaleType="centerCrop"
+                                    android:background="@color/gray"
+                                    android:layout_alignParentRight="true"
+                                    android:layout_marginRight="71.82dp"
+                                    />
+                            </RelativeLayout>
+                        </LinearLayout>
+                        <ImageButton
+                            android:id="@+id/ib_shift_home_tip"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_alignParentRight="true"
+                            android:layout_centerVertical="true"
+                            android:layout_marginRight="18dp"
+                            android:background="@color/gray"
+                            android:scaleType="centerInside"
+                            android:src="@drawable/leftarrow" />
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:layout_width="373.92dp"
+                        android:layout_height="171dp"
+                        android:layout_gravity="center_horizontal">
+                        <ImageView
+                            android:id="@+id/iv_tip_none"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:src="@drawable/home_none_tiger"
+                            android:visibility="gone"/>
+                        <androidx.viewpager.widget.ViewPager
+                            android:id="@+id/vp_tip"
+                            android:layout_width="373.92dp"
+                            android:layout_height="171dp"
+                            android:layout_gravity="center_horizontal"
+                            android:background="@color/white"/>
+                    </RelativeLayout>
+
+                    <LinearLayout
+                        android:orientation="horizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_horizontal"
+                        android:layout_marginTop="10.26dp"
+                        android:layout_marginBottom="30dp">
+                        <com.tbuonomo.viewpagerdotsindicator.DotsIndicator
+                            android:id="@+id/vp_tip_indicator"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:dotsColor="#C4C4C4"
+                            app:selectedDotColor="#484747"
+                            app:dotsSize="5.7dp"
+                            app:dotsSpacing="4.275dp"/>
+                    </LinearLayout>
+
+
                 </LinearLayout>
 
+            </ScrollView>
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-            </LinearLayout>
-
-        </ScrollView>
     </LinearLayout>
 </FrameLayout>

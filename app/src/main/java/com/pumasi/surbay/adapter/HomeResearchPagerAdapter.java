@@ -1,5 +1,8 @@
 package com.pumasi.surbay.adapter;
 
+import android.util.Log;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -18,13 +21,14 @@ public class HomeResearchPagerAdapter extends FragmentPagerAdapter {
     public static int HOME_RESEARCH_COUNT;
     public static ArrayList<Post> home_research;
     public static void setPosts() {
-        home_research = MainActivity.postArrayList;
+        home_research = HomeRenewalFragment.randomPosts;
     }
     public static void ShuffleHomeResearch() {
+
+        HomeRenewalFragment.getRandomPosts();
         setPosts();
-        if (home_research != null) {
-            Collections.shuffle(home_research);
-        }
+        Log.d("ㅋㅋ", "ShuffleHomeResearch: " + home_research);
+        Log.d("1234567890", "ShuffleHomeResearch: " + HomeRenewalFragment.randomPosts.size());
     }
 
     public HomeResearchPagerAdapter(@NonNull FragmentManager fm) {
