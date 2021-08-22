@@ -24,11 +24,23 @@ public class HomeResearchPagerAdapter extends FragmentPagerAdapter {
         home_research = HomeRenewalFragment.randomPosts;
     }
     public static void ShuffleHomeResearch() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (!HomeRenewalFragment.doneResearch) {
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+                setPosts();
+                if (home_research != null) {
+                    Collections.shuffle(home_research);
+                }
+            }
 
-        HomeRenewalFragment.getRandomPosts();
-        setPosts();
-        Log.d("ㅋㅋ", "ShuffleHomeResearch: " + home_research);
-        Log.d("1234567890", "ShuffleHomeResearch: " + HomeRenewalFragment.randomPosts.size());
+        }).start();
     }
 
     public HomeResearchPagerAdapter(@NonNull FragmentManager fm) {

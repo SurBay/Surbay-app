@@ -1,5 +1,6 @@
 package com.pumasi.surbay.adapter;
 
+import android.os.HandlerThread;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -7,6 +8,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 
+import com.google.firebase.database.Transaction;
 import com.pumasi.surbay.HomeRenewalFragment;
 import com.pumasi.surbay.HomeVoteFragment;
 import com.pumasi.surbay.classfile.General;
@@ -14,28 +16,15 @@ import com.pumasi.surbay.pages.MainActivity;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 
 public class HomeVotePagerAdapter extends FragmentPagerAdapter {
     public static int HOME_VOTE_COUNT;
     public static ArrayList<General> home_votes;
-    public void setVotes() {
-        for (General general : MainActivity.generalArrayList) {
-            if (!general.getDone()) {
-                if (general != null) {
-                    home_votes.add(general);
-                }
-            }
-        }
-    }
-    public static void ShuffleHomeVote() {
-        if (home_votes != null) {
-            Collections.shuffle(home_votes);
-        }
-    }
+
 
     public HomeVotePagerAdapter(@NonNull FragmentManager fm) {
         super(fm);
-        setVotes();
         if (home_votes == null) {
             HOME_VOTE_COUNT = 0;
         } else {

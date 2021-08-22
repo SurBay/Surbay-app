@@ -20,7 +20,7 @@
             android:textSize="13dp"
             android:layout_marginLeft="17.1dp"
             android:layout_marginBottom="6dp"
-            android:id="@+id/fragment1_new_sort_button"
+            android:id="@+id/btn_post_sort_new"
             style="@style/TabButtonSelect"
             />
         <Button
@@ -31,9 +31,9 @@
             android:layout_marginBottom="6dp"
             android:text="D-Day"
             android:textSize="13dp"
-            android:id="@+id/fragment1_date_sort_button"
+            android:id="@+id/btn_post_sort_day"
             style="@style/TabButtonNotSelect"
-            android:layout_toRightOf="@id/fragment1_new_sort_button"
+            android:layout_toRightOf="@id/btn_post_sort_new"
             />
         <Button
             android:layout_width="68.4dp"
@@ -43,9 +43,9 @@
             android:text="Almost"
             android:textSize="13dp"
             android:gravity="center"
-            android:id="@+id/fragment1_goal_sort_button"
+            android:id="@+id/btn_post_sort_goal"
             style="@style/TabButtonNotSelect"
-            android:layout_toRightOf="@id/fragment1_date_sort_button"
+            android:layout_toRightOf="@id/btn_post_sort_day"
             />
         <CheckBox
             android:id="@+id/hide_done_checkbox"
@@ -84,12 +84,12 @@
             android:id="@+id/refresh_boards"
             >
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rv_board_post_item"
+                android:id="@+id/rv_board_post"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
         <Button
-            android:id="@+id/writeButton"
+            android:id="@+id/btn_research_write"
             android:layout_width="62.7dp"
             android:layout_height="62.7dp"
             android:gravity="center"

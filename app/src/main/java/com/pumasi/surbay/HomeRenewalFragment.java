@@ -2,9 +2,9 @@ package com.pumasi.surbay;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Bundle;
-
+import android.os.Handler;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -12,11 +12,11 @@ import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 
 import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 
@@ -32,6 +32,7 @@ import com.pumasi.surbay.adapter.HomeTipPagerAdapter;
 import com.pumasi.surbay.adapter.HomeVotePagerAdapter;
 import com.pumasi.surbay.classfile.Banner;
 import com.pumasi.surbay.classfile.General;
+import com.pumasi.surbay.classfile.Poll;
 import com.pumasi.surbay.classfile.Post;
 import com.pumasi.surbay.classfile.Reply;
 import com.pumasi.surbay.classfile.UserPersonalInfo;
@@ -42,6 +43,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.ref.WeakReference;
+import java.lang.reflect.Array;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -54,10 +57,8 @@ public class HomeRenewalFragment extends Fragment {
     public static int HOME_RESEARCH = 0;
     public static int HOME_VOTE = 1;
     public static int HOME_TIP = 2;
-    public static ArrayList<Banner> homeBanners = new ArrayList<>();
-    private static Context mContext;
+    public static ArrayList<Banner> homeBanners = new ArrayList<Banner>();
     private static final Integer[] IMAGES = {R.drawable.renewal_banner, R.drawable.tutorialbanner2};
-    private ArrayList<String> ImagesArray = new ArrayList<>();
     private ViewPager vp_banner;
     private static ViewPager vp_research;
     private static ViewPager vp_vote;
@@ -70,7 +71,7 @@ public class HomeRenewalFragment extends Fragment {
     private ImageButton ib_home_tip_shuffle;
     private int currentPage;
     private static View view;
-    private HomeResearchPagerAdapter homeResearchPagerAdapter;
+    private static HomeResearchPagerAdapter homeResearchPagerAdapter;
     private HomeVotePagerAdapter homeVotePagerAdapter;
     private HomeTipPagerAdapter homeTipPagerAdapter;
     private static BannerViewPagerAdapter bannerAdapter;
@@ -80,19 +81,22 @@ public class HomeRenewalFragment extends Fragment {
     private static ImageView iv_research_none;
     private static ImageView iv_vote_none;
     private static ImageView iv_tip_none;
-    public static ArrayList<Post> randomPosts;
-    public static ArrayList<General> randomVotes;
-
-
+    private ArrayList<String> ImagesArray = new ArrayList<>();
+    public static ArrayList<Post> randomPosts = new ArrayList<Post>();
+    public static ArrayList<General> randomVotes = new ArrayList<General>();
+    private boolean doneBanners = true;
+    public static boolean doneResearch = false;
+    public static boolean doneVote = false;
+    public static boolean shuffleResearchDone = false;
+    public static boolean shuffleVoteDone = false;
+    private Handler handler;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
+        doneVote = false;
+        doneBanners = false;
         view = inflater.inflate(R.layout.fragment_home_renewal, container, false);
         ((AppCompatActivity) getActivity()).getSupportActionBar().hide();
-        MainActivity.getBanners();
-        getRandomPosts();
-
         ib_shift_home_research = view.findViewById(R.id.ib_shift_home_research);
         ib_shift_home_vote = view.findViewById(R.id.ib_shift_home_vote);
         ib_shift_home_tip = view.findViewById(R.id.ib_shift_home_tip);
@@ -109,14 +113,38 @@ public class HomeRenewalFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 HomeResearchPagerAdapter.ShuffleHomeResearch();
+                homeResearchPagerAdapter = new HomeResearchPagerAdapter(getChildFragmentManager());
                 vp_research.setAdapter(homeResearchPagerAdapter);
             }
         });
         ib_home_vote_shuffle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                HomeVotePagerAdapter.ShuffleHomeVote();
-                vp_vote.setAdapter(homeVotePagerAdapter);
+                doneVote = false;
+                handler = new Handler();
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        getRandomVotes();
+
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                while (!doneVote) {
+                                    try {
+                                        Thread.sleep(100);
+                                    } catch (InterruptedException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                                Log.d("why", "run: " + randomVotes);
+                                homeVotePagerAdapter.notifyDataSetChanged();
+                                vp_vote.setAdapter(homeVotePagerAdapter);
+                            }
+                        });
+                    }
+                }).start();
+                doneVote = true;
             }
         });
         ib_home_tip_shuffle.setOnClickListener(new View.OnClickListener() {
@@ -134,7 +162,6 @@ public class HomeRenewalFragment extends Fragment {
                 bottomNavigationView.setSelectedItemId(R.id.action_research_board);
             }
         });
-
         ib_shift_home_vote.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -144,7 +171,6 @@ public class HomeRenewalFragment extends Fragment {
 
             }
         });
-
         ib_shift_home_tip.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -158,30 +184,17 @@ public class HomeRenewalFragment extends Fragment {
     }
     private void setView() {
         setVp_banner();
-        setVp_research();
         setVp_vote();
+        setVp_research();
         setVp_research_tip();
     }
     private void setVp_banner() {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (homeBanners.size() == 0) {
-                    try {
-                        Log.d("fuck", "run: ");
-                        Thread.sleep(100);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }).start();
+
         vp_banner = view.findViewById(R.id.vp_banner);
         for (int i = 0; i < homeBanners.size(); i++) ImagesArray.add(homeBanners.get(i).getImage_url());
         bannerAdapter = new BannerViewPagerAdapter(getActivity().getApplicationContext(), ImagesArray);
         vp_banner.setAdapter(bannerAdapter);
 
-        // 원리 시간 날 때 찾아볼 것!!
         vp_banner.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -198,27 +211,29 @@ public class HomeRenewalFragment extends Fragment {
 
             }
         });
+           // 원리 시간 날 때 찾아볼 것!!
         int NUM_PAGES = IMAGES.length;
 
-        final Handler handler = new Handler();
-        final Runnable Update = new Runnable() {
-            public void run() {
-                if (currentPage == NUM_PAGES) {
-                    currentPage = 0;
-                }
-                vp_banner.setCurrentItem(currentPage++, true);
-            }
-        };
-        Timer swipeTimer = new Timer();
-        swipeTimer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                handler.post(Update);
-            }
-        }, 30000, 30000);
+           final Handler handler = new Handler();
+           final Runnable Update = new Runnable() {
+               public void run() {
+                   if (currentPage == NUM_PAGES) {
+                       currentPage = 0;
+                   }
+                   vp_banner.setCurrentItem(currentPage++, true);
+               }
+           };
+           Timer swipeTimer = new Timer();
+           swipeTimer.schedule(new TimerTask() {
+               @Override
+               public void run() {
+                   handler.post(Update);
+               }
+           }, 30000, 30000);
+
+
     }
     private void setVp_research() {
-
         vp_research = view.findViewById(R.id.vp_research);
         vp_research_indicator = view.findViewById(R.id.vp_research_indicator);
 
@@ -227,15 +242,23 @@ public class HomeRenewalFragment extends Fragment {
         vp_research.setAdapter(homeResearchPagerAdapter);
         vp_research_indicator.setViewPager(vp_research);
 
+
+    }
+    private class researchHandler extends Handler {
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            super.handleMessage(msg);
+
+        }
     }
     private void setVp_vote() {
         vp_vote_indicator = view.findViewById(R.id.vp_vote_indicator);
         vp_vote = view.findViewById(R.id.vp_vote);
 
         homeVotePagerAdapter = new HomeVotePagerAdapter(getChildFragmentManager());
-
         vp_vote.setAdapter(homeVotePagerAdapter);
         vp_vote_indicator.setViewPager(vp_vote);
+
 
     }
     private void setVp_research_tip() {
@@ -280,6 +303,7 @@ public class HomeRenewalFragment extends Fragment {
     }
     public static void getRandomPosts() {
         try {
+            Log.d("getRandom", "getRandomPosts: " + UserPersonalInfo.userID);
             String requestURL = "http://ec2-3-35-152-40.ap-northeast-2.compute.amazonaws.com/api/posts/random/?user_object_id=" + UserPersonalInfo.userID;
             RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.mContext);
             JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(
@@ -383,6 +407,7 @@ public class HomeRenewalFragment extends Fragment {
                                 randomPosts.add(newPost);
                                 Log.d("어?", "getRandomPosts: ");
                             }
+
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -391,25 +416,213 @@ public class HomeRenewalFragment extends Fragment {
             });
             jsonArrayRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
             requestQueue.add(jsonArrayRequest);
+            doneResearch = true;
+
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-//    public static void getRandomVotes() {
-//        try {
-//            String requestURL = R.string.server + "/api/generals/random";
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//    }
+    public static void getRandomVotes() {
+        try {
+            String requestURL = "http://ec2-3-35-152-40.ap-northeast-2.compute.amazonaws.com/api/generals/random/?userID=" + "test@korea.ac.kr";
+            Log.d("getRandom", "getRandomVotes: " + UserPersonalInfo.email);
+            RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.mContext);
+            JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(
+                    Request.Method.GET, requestURL, null, response -> {
+                        try {
+                             HomeVotePagerAdapter.home_votes = new ArrayList<General>();
+                             JSONArray responseArray = new JSONArray(response.toString());
+                             for (int i = 0; i < responseArray.length(); i++) {
+                                 JSONObject general = responseArray.getJSONObject(i);
+                                 String id = general.getString("_id");
+                                 String title = general.getString("title");
+                                 String author = general.getString("author");
+                                 Integer author_lvl = general.getInt("author_lvl");
+                                 String content = general.getString("content");
+                                 SimpleDateFormat fm = new SimpleDateFormat("yyyy-MM-dd\'T\'kk:mm:ss.SSS");
+                                 Date date = null;
+                                 try {
+                                     date = fm.parse(general.getString("date"));
+                                 } catch (ParseException e) {
+                                     e.printStackTrace();
+                                 }
+                                 Date deadline = null;
+                                 try {
+                                     deadline = fm.parse(general.getString("deadline"));
+                                 } catch (ParseException e) {
+                                     e.printStackTrace();
+                                 }
+                                 ArrayList<Reply> comments = new ArrayList<>();
+                                 try{
+                                     JSONArray ja = (JSONArray)general.get("comments");
+                                     if (ja.length() != 0){
+                                         for (int j = 0; j<ja.length(); j++){
+                                             JSONObject reply = ja.getJSONObject(j);
+                                             String reid = reply.getString("_id");
+                                             String writer = reply.getString("writer");
+                                             String contetn = reply.getString("content");
+                                             Date datereply = null;
+                                             try {
+                                                 datereply = fm.parse(reply.getString("date"));
+                                             } catch (ParseException e) {
+                                                 e.printStackTrace();
+                                             }
+                                             Boolean replyhide = reply.getBoolean("hide");
+                                             JSONArray ua = (JSONArray)reply.get("reports");
+
+
+                                             ArrayList<String> replyreports = new ArrayList<String>();
+                                             for (int u = 0; u<ua.length(); u++){
+                                                 replyreports.add(ua.getString(u));
+                                             }
+                                             String writer_name = null;
+                                             try {
+                                                 writer_name = reply.getString("writer_name");
+                                             }catch (Exception e){
+                                                 writer_name = null;
+                                             }
+                                             Reply re = new Reply(reid, writer, contetn, datereply,replyreports,replyhide);
+                                             re.setWriter_name(writer_name);
+                                             if ((!replyhide )&& (!replyreports.contains(UserPersonalInfo.userID))){
+                                                 comments.add(re);
+                                             }
+                                         }
+                                     }
+
+                                 } catch (Exception e){
+                                     e.printStackTrace();
+                                 }
+                                 Boolean done = general.getBoolean("done");
+                                 String author_userid = general.getString("author_userid");
+                                 JSONArray ka = (JSONArray)general.get("reports");
+                                 ArrayList<String> reports = new ArrayList<String>();
+                                 for (int j = 0; j<ka.length(); j++){
+                                     reports.add(ka.getString(j));
+                                 }
+                                 Boolean multi_response = general.getBoolean("multi_response");
+                                 Integer participants = general.getInt("participants");
+                                 JSONArray ia = (JSONArray)general.get("participants_userids");
+                                 ArrayList<String> participants_userids = new ArrayList<String>();
+                                 for (int j = 0; j<ia.length(); j++){
+                                     participants_userids.add(ia.getString(j));
+                                 }
+                                 Boolean with_image = general.getBoolean("with_image");
+                                 ArrayList<Poll> polls = new ArrayList<>();
+                                 try{
+                                     JSONArray ja = (JSONArray)general.get("polls");
+                                     if (ja.length() != 0){
+                                         for (int j = 0; j<ja.length(); j++){
+                                             JSONObject poll = ja.getJSONObject(j);
+                                             String poll_id = poll.getString("_id");
+                                             String poll_content = poll.getString("content");
+                                             ArrayList<String> poll_participants_userids = new ArrayList<String>();
+                                             JSONArray ua = (JSONArray)poll.get("participants_userids");
+                                             for (int u = 0; u<ua.length(); u++){
+                                                 poll_participants_userids.add(ua.getString(u));
+                                             }
+                                             String image = poll.getString("image");
+                                             Poll newpoll = new Poll(poll_id, poll_content, poll_participants_userids, image);
+                                             polls.add(newpoll);
+                                         }
+                                     }
+
+                                 } catch (Exception e){
+                                     e.printStackTrace();
+                                 }
+
+                                 JSONArray la = (JSONArray)general.get("liked_users");
+                                 ArrayList<String> liked_users = new ArrayList<String>();
+                                 for (int j = 0; j<la.length(); j++){
+                                     liked_users.add(la.getString(j));
+                                 }
+
+                                 Integer likes = general.getInt("likes");
+
+                                 Boolean hide = general.getBoolean("hide");
+
+                                 General newGeneral = new General(id, title, author, author_lvl, content,
+                                         date, deadline, comments, done, author_userid, reports, multi_response,
+                                         participants, participants_userids, with_image, polls, liked_users, likes, hide);
+                                 HomeVotePagerAdapter.home_votes.add(newGeneral);
+                             }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+            }, error -> {
+                        error.printStackTrace();
+            });
+            Log.d("도대체 어디가 안되는 거야", "getRandomVotes: " + randomVotes);
+            jsonArrayRequest.setRetryPolicy(new DefaultRetryPolicy(20 * 1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            requestQueue.add(jsonArrayRequest);
+            doneVote = true;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+    public static boolean getBanners() {
+    try {
+        String requestURL = "http://ec2-3-35-152-40.ap-northeast-2.compute.amazonaws.com/api/banner/getbanner";
+        RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.mContext);
+        Log.d("fuck", "getBanners: " );
+        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(
+                Request.Method.GET, requestURL, null, response -> {
+            try {
+                HomeRenewalFragment.homeBanners = new ArrayList<Banner>();
+                JSONArray jsonArray = new JSONArray(response.toString());
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    JSONObject item = jsonArray.getJSONObject(i);
+                    String id = item.getString("_id");
+                    int type = item.getInt("type");
+                    boolean hide = item.getBoolean("hide");
+                    boolean done = item.getBoolean("done");
+                    String title = item.getString("title");
+                    String author = item.getString("author");
+                    String content = item.getString("content");
+                    String url = item.getString("url");
+                    String image_url = item.getString("image_url");
+                    SimpleDateFormat fm = new SimpleDateFormat("yyyy-MM-dd\'T\'kk:mm:ss.SSS");
+                    Date date = null;
+                    try {
+                        date = fm.parse(item.getString("date"));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    Banner banner = new Banner(id, type, hide, done, title, author, content, url, date, image_url);
+                    homeBanners.add(banner);
+                }
+            }
+            catch (JSONException e) {
+                e.printStackTrace();
+                Log.d("exception", "JSON error");
+
+            }
+        }, error -> {
+            error.printStackTrace();
+            Log.d("exception", "volley error");
+
+        });
+        jsonArrayRequest.setRetryPolicy(new DefaultRetryPolicy(20 * 1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        requestQueue.add(jsonArrayRequest);
+    } catch (Exception e) {
+        e.printStackTrace();
+        Log.d("exception", "failed getting response");
+
+    }
+    return true;
+
+}
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        setVp_banner();
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
     }
+
+
+
 }

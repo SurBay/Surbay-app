@@ -84,8 +84,7 @@ public class MainActivity extends AppCompatActivity {
     private static Comparator<Notice> cmpNoticeNew;
 
     public static int SORT = 1;
-
-    public static Date today;
+        public static Date today;
     private CustomDialog endDialog;
 
     @Override
@@ -124,6 +123,8 @@ public class MainActivity extends AppCompatActivity {
             getGenerals();
         }
         getPersonalInfo();
+        HomeRenewalFragment.getRandomPosts();
+        HomeRenewalFragment.getRandomVotes();
 
         cmpNoticeNew = new Comparator<Notice>() {
             @Override
@@ -247,7 +248,7 @@ public class MainActivity extends AppCompatActivity {
         this.finishAffinity();
     }
 
-    private void getPersonalInfo() {
+    public void getPersonalInfo() {
         if (UserPersonalInfo.token == null) {
             Log.d("getting info failed", "token is null");
             return;
@@ -848,50 +849,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public static void getBanners() {
-        try {
-            String requestURL = "http://ec2-3-35-152-40.ap-northeast-2.compute.amazonaws.com/api/banner/getBanner";
-            RequestQueue requestQueue = Volley.newRequestQueue(mContext);
-            JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(
-                    Request.Method.GET, requestURL, null, response -> {
-                        try {
-                            HomeRenewalFragment.homeBanners = new ArrayList<Banner>();
-                            JSONArray jsonArray = new JSONArray(response.toString());
-                            for (int i = 0; i < jsonArray.length(); i++) {
-                                JSONObject item = jsonArray.getJSONObject(i);
-                                String id = item.getString("_id");
-                                int type = item.getInt("type");
-                                boolean hide = item.getBoolean("hide");
-                                boolean done = item.getBoolean("done");
-                                String title = item.getString("title");
-                                String author = item.getString("author");
-                                String content = item.getString("content");
-                                String url = item.getString("url");
-                                String image_url = item.getString("image_url");
-                                SimpleDateFormat fm = new SimpleDateFormat(mContext.getString(R.string.date_format));
-                                Date date = null;
-                                try {
-                                    date = fm.parse(item.getString("date"));
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-                                Banner banner = new Banner(id, type, hide, done, title, author, content, url, date, image_url);
-                                HomeRenewalFragment.homeBanners.add(banner);
-                            }
-                        }
-                        catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-            }, error -> {
-                error.printStackTrace();
-            });
-            jsonArrayRequest.setRetryPolicy(new DefaultRetryPolicy(20 * 1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-            requestQueue.add(jsonArrayRequest);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-    }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {

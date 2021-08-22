@@ -68,7 +68,7 @@
             </LinearLayout>
 
             <FrameLayout
-                android:visibility="visible"
+                android:visibility="gone"
                 android:id="@+id/poll_2contents"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -107,7 +107,7 @@
                     android:src="@drawable/general_vs"></ImageView>
             </FrameLayout>
             <FrameLayout
-                android:visibility="gone"
+                android:visibility="visible"
                 android:id="@+id/poll_3contents"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

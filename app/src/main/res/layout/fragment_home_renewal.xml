@@ -138,7 +138,7 @@
                         <com.tbuonomo.viewpagerdotsindicator.DotsIndicator
                             android:id="@+id/vp_research_indicator"
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            android:layout_height="5.7dp"
                             app:dotsColor="#C4C4C4"
                             app:selectedDotColor="#484747"
                             app:dotsSize="5.7dp"
@@ -217,7 +217,7 @@
                         <com.tbuonomo.viewpagerdotsindicator.DotsIndicator
                             android:id="@+id/vp_vote_indicator"
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            android:layout_height="5.7dp"
                             app:dotsColor="#C4C4C4"
                             app:selectedDotColor="#484747"
                             app:dotsSize="5.7dp"
@@ -297,7 +297,7 @@
                         <com.tbuonomo.viewpagerdotsindicator.DotsIndicator
                             android:id="@+id/vp_tip_indicator"
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            android:layout_height="5.7dp"
                             app:dotsColor="#C4C4C4"
                             app:selectedDotColor="#484747"
                             app:dotsSize="5.7dp"

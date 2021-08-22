@@ -42,6 +42,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
 import com.google.firebase.dynamiclinks.PendingDynamicLinkData;
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.pumasi.surbay.HomeRenewalFragment;
 import com.pumasi.surbay.pages.MainActivity;
 import com.pumasi.surbay.R;
 import com.pumasi.surbay.classfile.CustomDialog;
@@ -87,6 +88,10 @@ public class LoginActivity extends AppCompatActivity {
         getSupportActionBar().hide();
 
         try {
+
+            HomeRenewalFragment.getBanners();
+            HomeRenewalFragment.getRandomPosts();
+            HomeRenewalFragment.getRandomVotes();
             MainActivity.getSurveytips();
             getPosts();
         } catch (Exception e) {
@@ -148,7 +153,6 @@ public class LoginActivity extends AppCompatActivity {
                                         } catch (Exception e) {
                                         }
                                     }
-
                                     Message message = handler.obtainMessage();
                                     handler.sendMessage(message);
                                 }
@@ -537,6 +541,7 @@ public class LoginActivity extends AppCompatActivity {
         } catch(Exception e){
             e.printStackTrace();
         }
+
     }
 
     private void change_visible(EditText v, ImageButton visibletoggle){
