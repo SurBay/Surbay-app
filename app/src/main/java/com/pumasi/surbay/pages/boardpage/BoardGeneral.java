@@ -110,7 +110,7 @@ public class BoardGeneral extends Fragment// Fragment 클래스를 상속받아�
 
         voteRecyclerViewAdapter = new VoteRecyclerViewAdapter(MainActivity.generalArrayList, context);
         rv_board_vote.setAdapter(voteRecyclerViewAdapter);
-        rv_board_vote.setLayoutManager(new LinearLayoutManager(context, RecyclerView.VERTICAL, false));
+        rv_board_vote.setLayoutManager(new LinearLayoutManager(context, RecyclerView.VERTICAL, true));
         btn_vote_new_sort.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

@@ -58,15 +58,15 @@ public class HomeVoteFragment extends Fragment {
                              Bundle savedInstanceState) {
         int poll_size = home_votes.get(VOTE_ITEM_NUM).getPolls().size();
         view = inflater.inflate(R.layout.fragment_home_vote, container, false);
-
         ll_home_vote_item = view.findViewById(R.id.ll_home_vote_item);
         tv_home_vote_item_title = view.findViewById(R.id.tv_home_vote_item_title);
         tv_home_vote_item_views = view.findViewById(R.id.tv_home_vote_item_views);
         tv_home_vote_item_comments = view.findViewById(R.id.tv_home_vote_item_comments);
+        tv_home_vote_item_comments.setText("댓글 " + home_votes.get(VOTE_ITEM_NUM).getComments().size() + "개");
         iv_home_vote_item_like = view.findViewById(R.id.iv_home_vote_item_like);
 
         for (String user : home_votes.get(VOTE_ITEM_NUM).getLiked_users()) {
-            if (user == UserPersonalInfo.email) {
+            if (user.equals(UserPersonalInfo.email)) {
                 iv_home_vote_item_like.setImageResource(R.drawable.heart_filled);
             }
         }
