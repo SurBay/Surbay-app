@@ -56,7 +56,10 @@ public class FreeBoardFragment extends Fragment {
                 switch (position) {
                     case 0:
                         return new BoardGeneral();
-                    default: return new BoardContents();
+                    case 1:
+                        return new BoardContents();
+                    default:
+                        throw new IllegalStateException("Unexpected value: " + position);
                 }
             }
 

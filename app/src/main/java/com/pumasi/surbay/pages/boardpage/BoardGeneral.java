@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Message;
 import android.os.Parcelable;
 import android.util.Log;
@@ -16,7 +17,10 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -24,6 +28,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.android.volley.AuthFailureError;
@@ -33,6 +39,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.pumasi.surbay.adapter.VoteRecyclerViewAdapter;
 import com.pumasi.surbay.pages.MainActivity;
 import com.pumasi.surbay.R;
 import com.pumasi.surbay.adapter.GeneralListViewAdapter;
@@ -61,10 +68,6 @@ import java.util.Map;
 public class BoardGeneral extends Fragment// Fragment 클래스를 상속받아야한다
 { // 게시판
 
-    private static final int NEW = 1;
-    private static final int PARTI = 2;
-    private static final int LIKE = 3;
-    private static int SORT;
     private View view;
     static final int WRITE_NEWPOST = 1;
     static final int DO_SURVEY = 2;
@@ -74,132 +77,64 @@ public class BoardGeneral extends Fragment// Fragment 클래스를 상속받아�
     static final int FIX_DONE = 3;
     static final int REPORTED = 5;
     static final int NOT_DONE = 0;
-    public static GeneralListViewAdapter generalListViewAdapter;
-    public static ListView listView;
 
     public static ArrayList<General> list;
-
-    private Comparator<General> cmpLike;
-    private Comparator<General> cmpNew;
-    private Comparator<General> cmpParti;
 
     public static Button frag2newsortbutton;
     public static ImageButton frag2likesortbutton;
     public static ImageButton frag2partisortbutton;
     private SwipeRefreshLayout mSwipeRefreshLayout;
-
     private boolean getGeneralsDone = false;
-    private BackgroundThread refreshThread;
-    private refreshHandler handler = new refreshHandler();
 
-    Parcelable state;
-
+    private Button btn_vote_new_sort;
+    private ImageButton ib_vote_like_sort;
+    private ImageButton ib_vote_many_sort;
+    private Button btn_vote_write;
+    private CheckBox cb_collect;
+    private TextView tv_collect;
+    private Context context;
+    private RecyclerView rv_board_vote;
+    private VoteRecyclerViewAdapter voteRecyclerViewAdapter;
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
-    {
-        view = inflater.inflate(R.layout.fragment_board_general,container,false);
-
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        view = inflater.inflate(R.layout.fragment_board_general, container, false);
         getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        Log.d("state", "OnCreate with sort : "+SORT);
-        listView = view.findViewById(R.id.list);
-        SORT = MainActivity.SORT;
-        cmpParti = new Comparator<General>() {
+        context = getActivity().getApplicationContext();
+
+
+        rv_board_vote = view.findViewById(R.id.rv_board_vote);
+        btn_vote_new_sort = view.findViewById(R.id.btn_vote_new_sort);
+        ib_vote_like_sort = view.findViewById(R.id.ib_vote_like_sort);
+        ib_vote_many_sort = view.findViewById(R.id.ib_vote_many_sort);
+
+        voteRecyclerViewAdapter = new VoteRecyclerViewAdapter(MainActivity.generalArrayList, context);
+        rv_board_vote.setAdapter(voteRecyclerViewAdapter);
+        rv_board_vote.setLayoutManager(new LinearLayoutManager(context, RecyclerView.VERTICAL, false));
+        btn_vote_new_sort.setOnClickListener(new View.OnClickListener() {
             @Override
-            public int compare(General o1, General o2) {
-                int ret;
-                float goal1 = ((float)o1.getParticipants());
-                float goal2 = ((float)o2.getParticipants());
-                if(goal1>goal2)
-                    ret = -1;
-                else if(goal1==goal2)
-                    ret = 0;
-                else
-                    ret = 1;
-                return ret;
-            }
-        };
-        cmpNew = new Comparator<General>() {
-            @Override
-            public int compare(General o1, General o2) {
-                int ret;
-                Date date1 = o1.getDate();
-                Date date2 = o2.getDate();
-                int compare = date1.compareTo(date2);
-                if(compare>0)
-                    ret = -1; //date2<date1
-                else if(compare==0)
-                    ret = 0;
-                else
-                    ret = 1;
-                return ret;
-            }
-        };
-        cmpLike = new Comparator<General>() {
-            @Override
-            public int compare(General o1, General o2) {
-                int ret;
-                float goal1 = ((float)o1.getLikes());
-                float goal2 = ((float)o2.getLikes());
-                if(goal1>goal2)
-                    ret = -1;
-                else if(goal1==goal2)
-                    ret = 0;
-                else
-                    ret = 1;
-                return ret;
-            }
-        };
-        list = MainActivity.generalArrayList;
-
-        switch (SORT){
-            case NEW:
-                Collections.sort(list, cmpNew);
-                break;
-            case PARTI:
-                Collections.sort(list, cmpParti);
-                break;
-            case LIKE:
-                Collections.sort(list, cmpLike);
-                break;
-            default:
-                break;
-        }
-
-        generalListViewAdapter = new GeneralListViewAdapter(list);
-
-        listView.setAdapter(generalListViewAdapter);
-        if(state != null) {
-            listView.onRestoreInstanceState(state);
-        }
-
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if(UserPersonalInfo.userID.equals("nonMember")){
-                    CustomDialog customDialog = new CustomDialog(getActivity(), null);
-                    customDialog.show();
-                    customDialog.setMessage("비회원은 자유게시판을 이용하실 수 없습니다");
-                    customDialog.setNegativeButton("확인");
-                    return;
-                }
-                General general = (General) generalListViewAdapter.getItem(position);
-                getGeneral(general.getID(), position);
-
+            public void onClick(View v) {
+                setSelected(0);
             }
         });
-
-
-        frag2newsortbutton = view.findViewById(R.id.fragment1_new_sort_button);
-        frag2partisortbutton = view.findViewById(R.id.fragment1_goal_sort_button);
-        frag2likesortbutton = view.findViewById(R.id.fragment1_date_sort_button);
-
-        TextView writeButton = view.findViewById(R.id.writeButton);
-        writeButton.setOnClickListener(
-                new View.OnClickListener(){
+        ib_vote_like_sort.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setSelected(1);
+            }
+        });
+        ib_vote_many_sort.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setSelected(2);
+            }
+        });
+        btn_vote_write = view.findViewById(R.id.btn_vote_write);
+        btn_vote_write.setOnClickListener(
+                new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if(UserPersonalInfo.userID.equals("nonMember")){
+                        if (UserPersonalInfo.userID.equals("nonMember")) {
                             CustomDialog customDialog = new CustomDialog(getActivity(), null);
                             customDialog.show();
                             customDialog.setMessage("비회원은 글을 작성하실 수 없습니다");
@@ -213,114 +148,23 @@ public class BoardGeneral extends Fragment// Fragment 클래스를 상속받아�
                 }
         );
 
-        frag2likesortbutton.setOnClickListener(new View.OnClickListener() {
+        cb_collect = view.findViewById(R.id.cb_collect);
+        tv_collect = view.findViewById(R.id.tv_collect);
+        cb_collect.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onClick(View v) {
-                Log.d("loglog", "likesort");
-                SORT = LIKE;
-                changeSort();
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    tv_collect.setTextColor(Color.parseColor("#3AD1BF"));
+                } else {
+                    tv_collect.setTextColor(Color.parseColor("#BDBDBD"));
+                }
             }
         });
-        frag2partisortbutton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                SORT = PARTI;
-                changeSort();
-            }
-        });
-        frag2newsortbutton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                SORT=NEW;
-                changeSort();
-            }
-        });
-        mSwipeRefreshLayout = view.findViewById(R.id.refresh_boards);
-
-        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                refreshThread = new BackgroundThread();
-                refreshThread.start();
-            }
-        });
-
         return view;
+
     }
 
-    @Override
-    public void onViewCreated (View view, Bundle savedInstanceState){
-        listView = view.findViewById(R.id.list);
-        SORT = MainActivity.SORT;
-        list = MainActivity.generalArrayList;
-        switch (SORT){
-            case NEW:
-                Collections.sort(list, cmpNew);
-                break;
-            case PARTI:
-                Collections.sort(list, cmpParti);
-                break;
-            case LIKE:
-                Collections.sort(list, cmpLike);
-                break;
-            default:
-                break;
-        }
 
-        generalListViewAdapter = new GeneralListViewAdapter(list);
-        listView.setAdapter(generalListViewAdapter);
-        if(state != null) {
-            listView.onRestoreInstanceState(state);
-        }
-    }
-
-    class BackgroundThread extends Thread {
-        public void run() {
-            getGenerals();
-            while(!getGeneralsDone) {
-                try {
-                    Thread.sleep(100);
-                } catch (Exception e) {}
-            }
-            Message message = handler.obtainMessage();
-            handler.sendMessage(message);
-        }
-    }
-
-    private class refreshHandler extends Handler {
-        @Override
-        public void handleMessage(@NonNull Message msg) {
-            super.handleMessage(msg);
-            list = MainActivity.generalArrayList;
-            switch (SORT){
-                case NEW:
-                    Collections.sort(list, cmpNew);
-                    frag1newselect();
-                    break;
-                case PARTI:
-                    Collections.sort(list, cmpParti);
-                    frag1goalselect();
-                    break;
-                case LIKE:
-                    Collections.sort(list, cmpLike);
-                    frag1likeselect();
-                    break;
-                default:
-                    break;
-            }
-
-            generalListViewAdapter = new GeneralListViewAdapter(list);
-            listView.setAdapter(generalListViewAdapter);
-            if(state != null) {
-                listView.onRestoreInstanceState(state);
-            }
-
-            Log.d("refreshing is", "finish");
-
-            mSwipeRefreshLayout.setRefreshing(false);
-            getGeneralsDone = false;
-        }
-    }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -328,107 +172,12 @@ public class BoardGeneral extends Fragment// Fragment 클래스를 상속받아�
         Log.d("result code is", ""+requestCode+"   "+resultCode);
 //        mSwipeRefreshLayout.refreshDrawableState();
         getPersonalInfo();
-        switch (requestCode) {
-            case WRITE_NEWPOST:
-                switch (resultCode) {
-                    case NEWPOST:
-                        Log.d("sizeisisisis", ""+MainActivity.generalArrayList.size());
-                        list = MainActivity.generalArrayList;
-                        generalListViewAdapter = new GeneralListViewAdapter(list);
-                        listView.setAdapter(generalListViewAdapter);
-                        if(state != null) {
-                            listView.onRestoreInstanceState(state);
-                        }
-                        changeSort();
-                        return;
-                    default:
-                        return;
-                }
-            case DO_SURVEY:
-                int pos;
-                switch (resultCode){
-                    case LIKE:
-                        pos= data.getIntExtra("position", -1);
-                        General general = data.getParcelableExtra("general");
-                        MainActivity.generalArrayList.set(pos, general);
-                        MainActivity.getGenerals();
-                        changeSort();
-                        generalListViewAdapter.changeItem();
-                        listView.setAdapter(generalListViewAdapter);
-                        if(state != null) {
-                            listView.onRestoreInstanceState(state);
-                        }
-                        break;
-                    case(DELETE):
-                        pos = data.getIntExtra("position", -1);
-                        if(pos!=-1) {
-                            list.remove(pos);
-                        }
-                        changeSort();
-                        generalListViewAdapter.changeItem();
-                        listView.setAdapter(generalListViewAdapter);
-                        if(state != null) {
-                            listView.onRestoreInstanceState(state);
-                        }
-                        return;
-                    case(REPORTED):
-                        int report_pos = data.getIntExtra("position", -1);
-                        if(report_pos!=-1) {
-                            list.remove(report_pos);
-                        }
-                        changeSort();
-                        generalListViewAdapter.changeItem();
-                        listView.setAdapter(generalListViewAdapter);
-                        if(state != null) {
-                            listView.onRestoreInstanceState(state);
-                        }
-                    case(DONE):
-                        MainActivity.getGenerals();
-                        changeSort();
-                        generalListViewAdapter.changeItem();
-                        listView.setAdapter(generalListViewAdapter);
-                        if(state != null) {
-                            listView.onRestoreInstanceState(state);
-                        }
-                        break;
-                }
-            default:
-                return;
-        }
     }
 
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if(mSwipeRefreshLayout!=null) {
-            mSwipeRefreshLayout.setRefreshing(false);
-            mSwipeRefreshLayout.destroyDrawingCache();
-            mSwipeRefreshLayout.clearAnimation();
-        }
-    }
 
-    @Override
-    public void onPause() {
-        super.onPause();
-        if (mSwipeRefreshLayout!=null) {
-            mSwipeRefreshLayout.setRefreshing(false);
-            mSwipeRefreshLayout.destroyDrawingCache();
-            mSwipeRefreshLayout.clearAnimation();
-        }
-        state = listView.onSaveInstanceState();
-        super.onPause();
-    }
 
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        if(refreshThread!=null) refreshThread.interrupt();
-        if (mSwipeRefreshLayout!=null) {
-            mSwipeRefreshLayout.setRefreshing(false);
-            mSwipeRefreshLayout.destroyDrawingCache();
-            mSwipeRefreshLayout.clearAnimation();
-        }
-    }
+
+
 
     private void getPersonalInfo() {
         if (UserPersonalInfo.token == null) {
@@ -528,59 +277,39 @@ public class BoardGeneral extends Fragment// Fragment 클래스를 상속받아�
         }
     }
 
-    public void changeSort(){
-        list = MainActivity.generalArrayList;
-        Log.d("inchangesort", "sortis"+SORT);
-        switch (SORT) {
-            case NEW:
-                Collections.sort(list, cmpNew);
-                frag1newselect();
+
+
+    public void setSelected(int num) {
+        switch (num) {
+            case 0:
+                btn_vote_new_sort.setBackgroundResource(R.drawable.ic_tabselect);
+                ib_vote_like_sort.setBackgroundResource(R.drawable.ic_tabnoselect);
+                ib_vote_many_sort.setBackgroundResource(R.drawable.ic_tabnoselect);
+                btn_vote_new_sort.setTextColor(Color.parseColor("#FFFFFF"));
+                ib_vote_like_sort.setColorFilter(Color.parseColor("#BDBDBD"));
+                ib_vote_many_sort.setColorFilter(Color.parseColor("#BDBDBD"));
                 break;
-            case PARTI:
-                Collections.sort(list, cmpParti);
-                frag1goalselect();
+            case 1:
+                btn_vote_new_sort.setBackgroundResource(R.drawable.ic_tabnoselect);
+                ib_vote_like_sort.setBackgroundResource(R.drawable.ic_tabselect);
+                ib_vote_many_sort.setBackgroundResource(R.drawable.ic_tabnoselect);
+                btn_vote_new_sort.setTextColor(Color.parseColor("#BDBDBD"));
+                ib_vote_like_sort.setColorFilter(Color.parseColor("#FFFFFF"));
+                ib_vote_many_sort.setColorFilter(Color.parseColor("#BDBDBD"));
                 break;
-            case LIKE:
-                Collections.sort(list, cmpLike);
-                frag1likeselect();
+            case 2:
+                btn_vote_new_sort.setBackgroundResource(R.drawable.ic_tabnoselect);
+                ib_vote_like_sort.setBackgroundResource(R.drawable.ic_tabnoselect);
+                ib_vote_many_sort.setBackgroundResource(R.drawable.ic_tabselect);
+                btn_vote_new_sort.setTextColor(Color.parseColor("#BDBDBD"));
+                ib_vote_like_sort.setColorFilter(Color.parseColor("#BDBDBD"));
+                ib_vote_many_sort.setColorFilter(Color.parseColor("#FFFFFF"));
                 break;
             default:
-                break;
-        }
-        generalListViewAdapter = new GeneralListViewAdapter(list);
-
-        listView.setAdapter(generalListViewAdapter);
-        if(state != null) {
-            listView.onRestoreInstanceState(state);
+                throw new IllegalStateException("Unexpected value: " + num);
         }
     }
 
-    public void frag1likeselect(){
-        frag2partisortbutton.setBackgroundResource(R.drawable.ic_tabnoselect);
-        frag2likesortbutton.setBackgroundResource(R.drawable.ic_tabselect);
-        frag2newsortbutton.setBackgroundResource(R.drawable.ic_tabnoselect);
-        frag2partisortbutton.setColorFilter(Color.parseColor("#BDBDBD"));
-        frag2likesortbutton.setColorFilter(Color.parseColor("#FFFFFF"));
-        frag2newsortbutton.setTextColor(Color.parseColor("#BDBDBD"));
-    }
-
-    public void frag1newselect(){
-        frag2partisortbutton.setBackgroundResource(R.drawable.ic_tabnoselect);
-        frag2likesortbutton.setBackgroundResource(R.drawable.ic_tabnoselect);
-        frag2newsortbutton.setBackgroundResource(R.drawable.ic_tabselect);
-        frag2partisortbutton.setColorFilter(Color.parseColor("#BDBDBD"));
-        frag2likesortbutton.setColorFilter(Color.parseColor("#BDBDBD"));
-        frag2newsortbutton.setTextColor(Color.parseColor("#FFFFFF"));
-    }
-
-    public void frag1goalselect(){
-        frag2partisortbutton.setBackgroundResource(R.drawable.ic_tabselect);
-        frag2likesortbutton.setBackgroundResource(R.drawable.ic_tabnoselect);
-        frag2newsortbutton.setBackgroundResource(R.drawable.ic_tabnoselect);
-        frag2partisortbutton.setColorFilter(Color.parseColor("#FFFFFF"));
-        frag2likesortbutton.setColorFilter(Color.parseColor("#BDBDBD"));
-        frag2newsortbutton.setTextColor(Color.parseColor("#BDBDBD"));
-    }
 
     private void getGenerals(){
         try{

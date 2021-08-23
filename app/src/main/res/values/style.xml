@@ -24,6 +24,9 @@
         <item name="android:background">@drawable/round_border_white</item>
         <item name="backgroundColor">#FFFFFF</item>
     </style>
+    <style name="round_border_gray_fill_10px">
+        <item name="android:background">@drawable/round_border_gray_fill_10px</item>
+    </style>
     <style name="round_border_white_fill_30px">
         <item name="android:background">@drawable/round_border_white_fill_30px</item>
     </style>

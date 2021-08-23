@@ -56,15 +56,24 @@
                     <LinearLayout
                         android:orientation="vertical"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent">
-
-                        <androidx.viewpager.widget.ViewPager
-                            android:id="@+id/vp_banner"
+                        android:layout_height="match_parent"
+                        >
+                        <LinearLayout
                             android:layout_width="374dp"
                             android:layout_height="208dp"
                             android:layout_gravity="center_horizontal"
                             android:layout_marginVertical="12dp"
-                            android:background="@drawable/round_border_white_fill" />
+                            android:background="@drawable/round_border_white_fill_30px">
+                            <androidx.viewpager.widget.ViewPager
+                                android:id="@+id/vp_banner"
+                                android:layout_width="wrap_content"
+                                android:layout_height="208dp"
+                                android:layout_gravity="center_horizontal"
+                                android:layout_marginVertical="12dp"
+                                android:background="@drawable/round_border_white_fill_30px"/>
+                        </LinearLayout>
+
+
                     </LinearLayout>
                     <RelativeLayout
                         android:layout_width="match_parent"

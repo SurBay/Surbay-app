@@ -9,6 +9,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -56,6 +59,8 @@ public class BoardPost extends Fragment {
     private PostRecyclerViewAdapter postRecyclerViewAdapter;
     private Context context;
     private ArrayList<Post> boardPostShow;
+    private CheckBox cb_hide_done;
+    private TextView tv_participated_hide;
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -64,6 +69,8 @@ public class BoardPost extends Fragment {
         btn_post_sort_new = view.findViewById(R.id.btn_post_sort_new);
         btn_post_sort_day = view.findViewById(R.id.btn_post_sort_day);
         btn_post_sort_goal = view.findViewById(R.id.btn_post_sort_goal);
+        tv_participated_hide = view.findViewById(R.id.tv_participated_hide);
+        cb_hide_done = view.findViewById(R.id.cb_hide_done);
         rv_board_post = view.findViewById(R.id.rv_board_post);
         postRecyclerViewAdapter = new PostRecyclerViewAdapter(postArrayList, context);
         rv_board_post.setLayoutManager(new LinearLayoutManager(context, RecyclerView.VERTICAL, false));
@@ -79,6 +86,16 @@ public class BoardPost extends Fragment {
             }
         });
 
+        cb_hide_done.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    tv_participated_hide.setTextColor(Color.parseColor("#3AD1BF"));
+                } else {
+                    tv_participated_hide.setTextColor(Color.parseColor("#BDBDBD"));
+                }
+            }
+        });
 
         btn_post_sort_new.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -151,6 +168,7 @@ public class BoardPost extends Fragment {
                 throw new IllegalStateException("Unexpected value: " + num);
         }
     }
+
 //    public void getInfinityPosts(int type) {
 //        try {
 //            String requestURL = "http://ec2-3-35-152-40.ap-northeast-2.compute.amazonaws.com/api/posts/random/?user_object_id=" + UserPersonalInfo.userID;
