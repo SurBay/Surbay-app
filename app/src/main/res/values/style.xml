@@ -3,15 +3,15 @@
     <style name="TabButtonNotSelect">
         <item name="android:background">@drawable/ic_tabnoselect</item>
         <item name="android:textColor">#BDBDBD</item>
-        <item name="android:textSize">10dp</item>
-        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">15dp</item>
+        <item name="android:textStyle">normal</item>
         <item name="android:minWidth">0dp</item>
         <item name="android:paddingHorizontal" tools:targetApi="o">5dp</item>
     </style>
     <style name="TabButtonSelect">
         <item name="android:background">@drawable/ic_tabselect</item>
-        <item name="android:textColor">#FFFFFF</item>
-        <item name="android:textSize">10dp</item>
+        <item name="android:textColor">#3AD1BF</item>
+        <item name="android:textSize">15dp</item>
         <item name="android:textStyle">bold</item>
         <item name="android:minWidth">0dp</item>
         <item name="android:paddingHorizontal" tools:targetApi="o">5dp</item>
@@ -114,7 +114,9 @@
         <item name="android:layout_centerHorizontal">true</item>
         <item name="android:textStyle">bold</item>
     </style>
-
+    <style name="round">
+        <item name="android:src">@drawable/round</item>
+    </style>
     <style name="back_button">
         <item name="android:src">@drawable/leftarrow2</item>
         <item name="android:layout_marginStart">20dp</item>

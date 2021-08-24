@@ -39,6 +39,7 @@ public class Post implements Parcelable{
 
 
 
+
     private String dateformat = "yyyy-MM-dd'T'kk:mm:ss.SSS";
     public String getID() {
         return id;
@@ -130,6 +131,7 @@ public class Post implements Parcelable{
     public void setReports(ArrayList<String> reports) {        this.reports = reports;    }
     public boolean isHide() {        return hide;    }
     public void setHide(boolean hide) {        this.hide = hide;    }
+
 
     public Post(String id, String title, String author, Integer author_lvl, String content, Integer participants, Integer goal_participants, String url, Date date, Date deadline, Boolean with_prize, String prize, Integer est_time, String target, Integer num_prize, ArrayList<Reply> comments, Boolean done, Integer extended, ArrayList<String> participants_userids,
                 ArrayList<String> reports, Boolean hide, String author_userid, Integer pinned, Boolean annonymous, String author_info){

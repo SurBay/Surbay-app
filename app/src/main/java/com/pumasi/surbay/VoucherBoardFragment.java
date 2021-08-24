@@ -34,7 +34,9 @@ public class VoucherBoardFragment extends Fragment {
             public Fragment createFragment(int position) {
                 switch (position) {
                     case 0: return new MobileCouponFragment();
-                    default: return new EventFragment();
+                    case 1: return new EventFragment();
+                    default:
+                        throw new IllegalStateException("Unexpected value: " + position);
                 }
             }
 

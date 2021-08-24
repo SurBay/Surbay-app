@@ -30,4 +30,5 @@
         android:enabled="true"
         android:icon="@drawable/bottom_navi_user_react"
         tools:ignore="MenuTitle" />
+
 </menu>

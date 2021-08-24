@@ -1,6 +1,7 @@
 package com.pumasi.surbay;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -17,6 +18,8 @@ import android.widget.TextView;
 import com.pumasi.surbay.adapter.HomeResearchPagerAdapter;
 import com.pumasi.surbay.classfile.Post;
 import com.pumasi.surbay.pages.boardpage.PostDetailActivity;
+
+import java.util.Date;
 
 import static com.pumasi.surbay.BoardsSearchActivity.DO_SURVEY;
 import static com.pumasi.surbay.adapter.HomeResearchPagerAdapter.home_research;
@@ -38,6 +41,8 @@ public class HomeResearchFragment extends Fragment {
     private TextView tv_target2;
     private ImageView iv_gift1;
     private ImageView iv_gift2;
+    private TextView tv_day1;
+    private TextView tv_day2;
 
     public HomeResearchFragment(int num) {
         this.RESEARCH_ITEM_NUM = num;
@@ -55,23 +60,37 @@ public class HomeResearchFragment extends Fragment {
         tv_title1 = view.findViewById(R.id.tv_title1);
         tv_target1 = view.findViewById(R.id.tv_target1);
         iv_gift1 = view.findViewById(R.id.iv_gift1);
+        tv_day1 = view.findViewById(R.id.tv_day1);
 
-        if (home_research.get(RESEARCH_ITEM_NUM * 2).getAnnonymous()) {
+        Post home_item = home_research.get(RESEARCH_ITEM_NUM * 2);
+
+        if (home_item.getAnnonymous()) {
             tv_name1.setText("익명");
         } else {
-            tv_name1.setText(home_research.get(RESEARCH_ITEM_NUM * 2).getAuthor().toString());
+            tv_name1.setText(home_item.getAuthor().toString());
         }
-        tv_title1.setText(home_research.get(RESEARCH_ITEM_NUM * 2).getTitle().toString());
-        tv_target1.setText(home_research.get(RESEARCH_ITEM_NUM * 2).getTarget().toString());
+        tv_title1.setText(home_item.getTitle().toString());
+        tv_target1.setText(home_item.getTarget().toString());
 
-        if (home_research.get(RESEARCH_ITEM_NUM * 2).getNum_prize() == 0) {
+        if (home_item.getNum_prize() == 0) {
             iv_gift1.setVisibility(View.INVISIBLE);
         }
-
+        Date date = new Date(System.currentTimeMillis());
+        if (date.getTime() - home_item.getDeadline().getTime() > 0) {
+            tv_day1.setText("종료");
+            tv_day1.setTextColor(Color.parseColor("#C4C4C4"));
+        } else if (home_item.getDeadline().getTime() - date.getTime() < 1000 * 60 * 60 * 24) {
+            tv_day1.setText("D-DAY");
+        } else if (date.getTime() - home_item.getDate().getTime() < 1000 * 60 * 60 * 24) {
+            tv_day1.setText("NEW");
+        } else {
+            long d_day = (home_item.getDeadline().getTime() - date.getTime()) / (1000 * 60 * 60 * 24) + 1;
+            tv_day1.setText("D-" + d_day);
+        }
         ll_home_research_item1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Post research = (Post) home_research.get(RESEARCH_ITEM_NUM * 2);
+                Post research = home_item;
                 Intent intent = new Intent(((AppCompatActivity) getActivity()).getApplicationContext(), PostDetailActivity.class);
                 intent.putExtra("post", research);
                 intent.putParcelableArrayListExtra("reply", research.getComments());
@@ -87,21 +106,36 @@ public class HomeResearchFragment extends Fragment {
             tv_title2 = view.findViewById(R.id.tv_title2);
             tv_target2 = view.findViewById(R.id.tv_target2);
             iv_gift2 = view.findViewById(R.id.iv_gift2);
-            if (home_research.get(RESEARCH_ITEM_NUM * 2 + 1).getAnnonymous()) {
+            tv_day2 = view.findViewById(R.id.tv_day2);
+
+            Post home_item2 = home_research.get(RESEARCH_ITEM_NUM * 2 + 1);
+
+            if (home_item2.getAnnonymous()) {
                 tv_name2.setText("익명");
             } else {
-                tv_name2.setText(home_research.get(RESEARCH_ITEM_NUM * 2 + 1).getAuthor().toString());
+                tv_name2.setText(home_item2.getAuthor().toString());
             }
-            tv_title2.setText(home_research.get(RESEARCH_ITEM_NUM * 2 + 1).getTitle().toString());
-            tv_target2.setText(home_research.get(RESEARCH_ITEM_NUM * 2 + 1).getTarget().toString());
+            tv_title2.setText(home_item2.getTitle().toString());
+            tv_target2.setText(home_item2.getTarget().toString());
 
-            if (home_research.get(RESEARCH_ITEM_NUM * 2 + 1).getNum_prize() == 0) {
+            if (home_item2.getNum_prize() == 0) {
                 iv_gift2.setVisibility(View.INVISIBLE);
+            }
+            if (date.getTime() - home_item2.getDeadline().getTime() > 0) {
+                tv_day2.setText("종료");
+                tv_day2.setTextColor(Color.parseColor("#C4C4C4"));
+            } else if (home_item2.getDeadline().getTime() - date.getTime() < 1000 * 60 * 60 * 24) {
+                tv_day2.setText("D-DAY");
+            } else if (date.getTime() - home_item2.getDate().getTime() < 1000 * 60 * 60 * 24) {
+                tv_day2.setText("NEW");
+            } else {
+                long d_day = (home_item2.getDeadline().getTime() - date.getTime()) / (1000 * 60 * 60 * 24) + 1;
+                tv_day2.setText("D-" + d_day);
             }
             ll_home_research_item2.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Post research = (Post) home_research.get(RESEARCH_ITEM_NUM * 2 + 1);
+                    Post research = home_item2;
                     Intent intent = new Intent(((AppCompatActivity) getActivity()).getApplicationContext(), PostDetailActivity.class);
                     intent.putExtra("post", research);
                     intent.putParcelableArrayListExtra("reply", research.getComments());

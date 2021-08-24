@@ -56,12 +56,13 @@
                         android:layout_toRightOf="@id/iv_research_item_character"
                         android:text="익명"
                         android:textSize="12.54dp"
-                        android:textColor="#707070" />
+                        android:textColor="#707070"
+                        android:maxLines="2"/>
                 </RelativeLayout>
                 <TextView
                     android:id="@+id/tv_research_item_title"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="40dp"
                     android:layout_marginTop="6dp"
                     android:text="온라인 강의 학생 만족도 설문 조사"
                     android:textSize="17.1dp"
@@ -137,13 +138,19 @@
                 <LinearLayout
                     android:layout_width="84.36dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="21dp"
+                    android:layout_marginTop="15dp"
                     android:layout_marginLeft="12.54dp"
                     android:gravity="right">
+                    <ImageView
+                        android:layout_width="22.8dp"
+                        android:layout_height="22.8dp"
+                        android:layout_marginBottom="6dp"
+                        android:layout_marginRight="10dp" />
                     <TextView
                         android:id="@+id/tv_research_item_participation"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
                         android:text="50"
                         android:textSize="14.82dp"
                         android:textColor="#707070"
@@ -151,6 +158,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
                         android:text=" | "
                         android:textSize="14.82dp"
                         android:textColor="@color/nav_gray"
@@ -159,6 +167,7 @@
                         android:id="@+id/tv_research_item_goal"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
                         android:text="100"
                         android:textSize="14.82dp"
                         android:textColor="@color/nav_gray"

@@ -95,13 +95,14 @@
 
         <Button
             android:id="@+id/btn_vote_write"
-            android:layout_width="59.28dp"
-            android:layout_height="59.28dp"
+            android:padding="0dp"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
             android:gravity="center"
-            android:background="@drawable/vote_add_button"
+            android:background="@drawable/btn_vote_write"
             android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true"
-            android:layout_marginRight="22.8dp"
-            android:layout_marginBottom="20dp"/>
+            android:layout_marginRight="23dp"
+            android:layout_marginBottom="17dp"/>
     </RelativeLayout>
 </LinearLayout>
