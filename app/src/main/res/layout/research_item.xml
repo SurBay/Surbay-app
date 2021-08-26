@@ -101,7 +101,7 @@
                     <TextView
                         android:id="@+id/tv_research_item_indicator"
                         android:layout_width="52.44dp"
-                        android:layout_height="17.1dp"
+                        android:layout_height="wrap_content"
                         android:text="NEW"
                         android:textSize="14.82dp"
                         android:textColor="@color/teal_200"

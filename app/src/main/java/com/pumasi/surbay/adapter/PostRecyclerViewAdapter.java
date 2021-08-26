@@ -30,7 +30,10 @@ import java.util.Calendar;
 import java.util.Date;
 
 
-public class PostRecyclerViewAdapter extends RecyclerView.Adapter<PostRecyclerViewAdapter.MyPostViewHolder> {
+public class PostRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+
+    private final int VIEW_TYPE_ITEM = 0;
+    private final int VIEW_TYPE_LOADING = 0;
 
     private PostRecyclerViewAdapter.OnItemClickListener aListener = null;
     private LayoutInflater inflater;
@@ -42,17 +45,18 @@ public class PostRecyclerViewAdapter extends RecyclerView.Adapter<PostRecyclerVi
     }
 
 
-
-
     public interface OnItemClickListener {
-        void onItemClick(View v, int position) ;
+        void onItemClick(View v, int position);
     }
+
     public void setOnItemClickListener(PostRecyclerViewAdapter.OnItemClickListener onItemClickListener) {
-        this.aListener = onItemClickListener ;
+        this.aListener = onItemClickListener;
     }
+
     public Object getItem(int position) {
         return boardPosts.get(position);
     }
+
     @NonNull
     @Override
     public MyPostViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -61,55 +65,70 @@ public class PostRecyclerViewAdapter extends RecyclerView.Adapter<PostRecyclerVi
         return holder;
     }
 
-    @SuppressLint("SetTextI18n")
     @Override
-    public void onBindViewHolder(@NonNull MyPostViewHolder holder, int position) {
-        Post boardPost = boardPosts.get(position);
-        holder.iv_research_item_check.setVisibility(View.INVISIBLE);
-        holder.iv_research_item_check2.setVisibility(View.INVISIBLE);
-        for (String user : boardPost.getParticipants_userids()) {
-            if (user.equals(UserPersonalInfo.email)) {
-                holder.iv_research_item_check.setVisibility(View.VISIBLE);
-                holder.iv_research_item_check2.setVisibility(View.VISIBLE);
-                break;
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+        if (holder instanceof MyPostViewHolder) {
+            Post boardPost = boardPosts.get(position);
+            ((MyPostViewHolder) holder).iv_research_item_check.setVisibility(View.INVISIBLE);
+            ((MyPostViewHolder) holder).iv_research_item_check2.setVisibility(View.INVISIBLE);
+            for (String user : boardPost.getParticipants_userids()) {
+                if (user.equals(UserPersonalInfo.email)) {
+                    ((MyPostViewHolder) holder).iv_research_item_check.setVisibility(View.VISIBLE);
+                    ((MyPostViewHolder) holder).iv_research_item_check2.setVisibility(View.VISIBLE);
+                    break;
+                }
             }
-        }
-        if (boardPost.getAnnonymous()) {
-            holder.tv_research_item_author.setText("익명");
-        } else {
-            holder.tv_research_item_author.setText(boardPost.getAuthor());
-        }
-        holder.tv_research_item_title.setText(boardPost.getTitle());
-        holder.tv_research_item_target.setText(boardPost.getTarget());
-        holder.tv_research_item_participation.setText(boardPost.getParticipants().toString());
-        holder.tv_research_item_goal.setText(boardPost.getGoal_participants().toString());
+            if (boardPost.getAnnonymous()) {
+                ((MyPostViewHolder) holder).tv_research_item_author.setText("익명");
+            } else {
+                ((MyPostViewHolder) holder).tv_research_item_author.setText(boardPost.getAuthor());
+            }
+            ((MyPostViewHolder) holder).tv_research_item_title.setText(boardPost.getTitle());
+            ((MyPostViewHolder) holder).tv_research_item_target.setText(boardPost.getTarget());
+            ((MyPostViewHolder) holder).tv_research_item_participation.setText(boardPost.getParticipants().toString());
+            ((MyPostViewHolder) holder).tv_research_item_goal.setText(boardPost.getGoal_participants().toString());
 
-        Date date = new Date(System.currentTimeMillis());
-        Log.d("time", "onBindViewHolder: " + boardPost.getDeadline().getTime());
-        Log.d("sub", "onBindViewHolder: " + (boardPost.getDeadline().getTime() - date.getTime()) / (1000 * 60 * 60 *24));
-        if (date.getTime() - boardPost.getDeadline().getTime() > 0) {
-            holder.tv_research_item_indicator.setText("종료");
-            holder.tv_research_item_indicator.setTextColor(Color.parseColor("#C4C4C4"));
-        } else if (boardPost.getDeadline().getTime() - date.getTime() < 1000 * 60 * 60 * 24) {
-            holder.tv_research_item_indicator.setText("D-DAY");
-        } else if (date.getTime() - boardPost.getDate().getTime() < 1000 * 60 * 60 * 24) {
-            holder.tv_research_item_indicator.setText("NEW");
-        } else {
-            long d_day = (boardPost.getDeadline().getTime() - date.getTime()) / (1000 * 60 * 60 * 24) + 1;
-            holder.tv_research_item_indicator.setText("D-" + d_day);
+            Date date = new Date(System.currentTimeMillis());
+            Log.d("time", "onBindViewHolder: " + boardPost.getDeadline().getTime());
+            Log.d("sub", "onBindViewHolder: " + (boardPost.getDeadline().getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
+            if (date.getTime() - boardPost.getDeadline().getTime() > 0) {
+                ((MyPostViewHolder) holder).tv_research_item_indicator.setText("종료");
+                ((MyPostViewHolder) holder).tv_research_item_indicator.setTextColor(Color.parseColor("#C4C4C4"));
+            } else if (boardPost.getDeadline().getTime() - date.getTime() < 1000 * 60 * 60 * 24) {
+                ((MyPostViewHolder) holder).tv_research_item_indicator.setText("D-DAY");
+                ((MyPostViewHolder) holder).tv_research_item_indicator.setTextColor(Color.parseColor("#3AD1BF"));
+
+            } else if (date.getTime() - boardPost.getDate().getTime() < 1000 * 60 * 60 * 24) {
+                ((MyPostViewHolder) holder).tv_research_item_indicator.setText("NEW");
+                ((MyPostViewHolder) holder).tv_research_item_indicator.setTextColor(Color.parseColor("#3AD1BF"));
+            } else {
+                long d_day = (boardPost.getDeadline().getTime() - date.getTime()) / (1000 * 60 * 60 * 24) + 1;
+                ((MyPostViewHolder) holder).tv_research_item_indicator.setText("D-" + d_day);
+                ((MyPostViewHolder) holder).tv_research_item_indicator.setTextColor(Color.parseColor("#3AD1BF"));
+
+            }
+            SimpleDateFormat fm_start = new SimpleDateFormat("MM.dd");
+            SimpleDateFormat fm_end = new SimpleDateFormat("MM.dd HH:mm");
+            String start = fm_start.format(boardPost.getDate());
+            String end = fm_end.format(boardPost.getDeadline());
+
+            ((MyPostViewHolder) holder).tv_research_item_start.setText(start);
+            ((MyPostViewHolder) holder).tv_research_item_end.setText("~" + end);
         }
-        SimpleDateFormat fm_start = new SimpleDateFormat("MM.dd");
-        SimpleDateFormat fm_end = new SimpleDateFormat("MM.dd HH:mm");
-        String start = fm_start.format(boardPost.getDate());
-        String end = fm_end.format(boardPost.getDeadline());
 
-        holder.tv_research_item_start.setText(start);
-        holder.tv_research_item_end.setText("~" + end);
+    }
 
+    
+    @Override
+    public int getItemViewType(int position) {
+        return boardPosts.get(position) == null ? VIEW_TYPE_LOADING : VIEW_TYPE_ITEM;
     }
 
     @Override
     public int getItemCount() {
+        if (boardPosts == null) {
+            return 0;
+        }
         return boardPosts.size();
     }
 
@@ -124,6 +143,7 @@ public class PostRecyclerViewAdapter extends RecyclerView.Adapter<PostRecyclerVi
         TextView tv_research_item_indicator;
         TextView tv_research_item_start;
         TextView tv_research_item_end;
+
         public MyPostViewHolder(@NonNull View itemView) {
             super(itemView);
             iv_research_item_check = itemView.findViewById(R.id.iv_research_item_check);
@@ -139,11 +159,11 @@ public class PostRecyclerViewAdapter extends RecyclerView.Adapter<PostRecyclerVi
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    int pos = getAdapterPosition() ;
+                    int pos = getAdapterPosition();
                     if (pos != RecyclerView.NO_POSITION) {
                         // 리스너 객체의 메서드 호출.
                         if (aListener != null) {
-                            aListener.onItemClick(v, pos) ;
+                            aListener.onItemClick(v, pos);
                         }
                     }
                 }
@@ -151,5 +171,11 @@ public class PostRecyclerViewAdapter extends RecyclerView.Adapter<PostRecyclerVi
         }
     }
 
+    private class MyPostLoadingViewHolder extends RecyclerView.ViewHolder {
 
+
+        public MyPostLoadingViewHolder(@NonNull View itemView) {
+            super(itemView);
+        }
+    }
 }

@@ -154,7 +154,7 @@ public class BoardGeneral extends Fragment// Fragment 클래스를 상속받아�
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
-                    tv_collect.setTextColor(Color.parseColor("#3AD1BF"));
+                    tv_collect.setTextColor(Color.parseColor("#50D3DD"));
                 } else {
                     tv_collect.setTextColor(Color.parseColor("#BDBDBD"));
                 }

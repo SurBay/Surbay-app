@@ -16,6 +16,22 @@
         <item name="android:minWidth">0dp</item>
         <item name="android:paddingHorizontal" tools:targetApi="o">5dp</item>
     </style>
+    <style name="TabButtonNotSelect_free">
+        <item name="android:background">@drawable/ic_tabnoselect</item>
+        <item name="android:textColor">#BDBDBD</item>
+        <item name="android:textSize">15dp</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:minWidth">0dp</item>
+        <item name="android:paddingHorizontal" tools:targetApi="o">5dp</item>
+    </style>
+    <style name="TabButtonSelect_free">
+        <item name="android:background">@drawable/ic_tabselect</item>
+        <item name="android:textColor">@color/free_theme_color</item>
+        <item name="android:textSize">15dp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:minWidth">0dp</item>
+        <item name="android:paddingHorizontal" tools:targetApi="o">5dp</item>
+    </style>
     <style name="Apptheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="colorPrimary">@color/teal_200</item>
         <item name="title">SurBay</item>

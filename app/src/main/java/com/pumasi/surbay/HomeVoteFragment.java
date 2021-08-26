@@ -112,7 +112,7 @@ public class HomeVoteFragment extends Fragment {
 
         }
 
-        tv_home_vote_item_title.setText("Q." + home_votes.get(VOTE_ITEM_NUM).getTitle());
+        tv_home_vote_item_title.setText("Q. " + home_votes.get(VOTE_ITEM_NUM).getTitle());
         tv_home_vote_item_comments.setText("댓글 " + String.valueOf(home_votes.get(VOTE_ITEM_NUM).getComments().size()) + "개");
 
         ll_home_vote_item.setOnClickListener(new View.OnClickListener() {

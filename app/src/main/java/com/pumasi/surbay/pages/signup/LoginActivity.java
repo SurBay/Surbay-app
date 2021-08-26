@@ -87,11 +87,10 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         getSupportActionBar().hide();
 
-        try {
 
+
+        try {
             HomeRenewalFragment.getBanners();
-            HomeRenewalFragment.getRandomPosts();
-            HomeRenewalFragment.getRandomVotes();
             MainActivity.getSurveytips();
             getPosts();
         } catch (Exception e) {
@@ -151,8 +150,11 @@ public class LoginActivity extends AppCompatActivity {
                                         try {
                                             Thread.sleep(100);
                                         } catch (Exception e) {
+                                            e.printStackTrace();
                                         }
                                     }
+
+                                    Log.d("repeat", "run: " + loginDone + HomeRenewalFragment.randomPosts + HomeRenewalFragment.randomVotes);
                                     Message message = handler.obtainMessage();
                                     handler.sendMessage(message);
                                 }
@@ -190,9 +192,6 @@ public class LoginActivity extends AppCompatActivity {
                 }
             }
         });
-
-
-
         nonMemberLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -209,9 +208,6 @@ public class LoginActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-
-
-
         bt_login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -232,9 +228,23 @@ public class LoginActivity extends AppCompatActivity {
                                 try {
                                     Thread.sleep(100);
                                 } catch (Exception e) {
+                                    e.printStackTrace();
                                 }
                             }
+//                            if (loginDone) {
+//                                HomeRenewalFragment.getRandomPosts();
+//                                HomeRenewalFragment.getRandomVotes();
+//                                while (!(HomeRenewalFragment.doneResearch && HomeRenewalFragment.doneVote)) {
+//                                    try {
+//                                        Thread.sleep(100);
+//                                    } catch (Exception e) {
+//                                        e.printStackTrace();
+//                                    }
+//                                }
+//
+//                            }
 
+                            Log.d("repeat", "run: " + loginDone + HomeRenewalFragment.randomPosts + HomeRenewalFragment.randomVotes);
                             Message message = handler.obtainMessage();
                             handler.sendMessage(message);
                         }
@@ -264,7 +274,6 @@ public class LoginActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-
         tv_problem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -343,6 +352,8 @@ public class LoginActivity extends AppCompatActivity {
         @Override
         public void handleMessage(@NonNull Message msg) {
             super.handleMessage(msg);
+            Log.d("1234", "handleMessage: " + HomeRenewalFragment.randomVotes + HomeRenewalFragment.randomVotes);
+
             if (UserPersonalInfo.userID != null) {
                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                 startActivity(intent);
@@ -401,7 +412,6 @@ public class LoginActivity extends AppCompatActivity {
                 DefaultRetryPolicy(20*1000,DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         requestQueue.add(jsonObjectRequest);
     }
-
     private void makeLoginRequest(String username, String password){
         try{
             String requestURL = getString(R.string.server)+"/login";

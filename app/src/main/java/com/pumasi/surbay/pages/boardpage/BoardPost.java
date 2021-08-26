@@ -58,7 +58,7 @@ public class BoardPost extends Fragment {
     private RecyclerView rv_board_post;
     private PostRecyclerViewAdapter postRecyclerViewAdapter;
     private Context context;
-    private ArrayList<Post> boardPostShow;
+    public static ArrayList<Post> boardPostShow;
     private CheckBox cb_hide_done;
     private TextView tv_participated_hide;
     @Nullable
@@ -72,7 +72,7 @@ public class BoardPost extends Fragment {
         tv_participated_hide = view.findViewById(R.id.tv_participated_hide);
         cb_hide_done = view.findViewById(R.id.cb_hide_done);
         rv_board_post = view.findViewById(R.id.rv_board_post);
-        postRecyclerViewAdapter = new PostRecyclerViewAdapter(postArrayList, context);
+        postRecyclerViewAdapter = new PostRecyclerViewAdapter(boardPostShow, context);
         rv_board_post.setLayoutManager(new LinearLayoutManager(context, RecyclerView.VERTICAL, false));
         rv_board_post.setAdapter(postRecyclerViewAdapter);
         postRecyclerViewAdapter.setOnItemClickListener(new PostRecyclerViewAdapter.OnItemClickListener() {
@@ -169,120 +169,121 @@ public class BoardPost extends Fragment {
         }
     }
 
-//    public void getInfinityPosts(int type) {
-//        try {
-//            String requestURL = "http://ec2-3-35-152-40.ap-northeast-2.compute.amazonaws.com/api/posts/random/?user_object_id=" + UserPersonalInfo.userID;
-//            RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.mContext);
-//            JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(
-//                    Request.Method.GET, requestURL, null, response -> {
-//                try {
-//                    JSONArray responseArray = new JSONArray(response.toString());
-//                    for (int i = 0; i < responseArray.length(); i++) {
-//                        JSONObject post = responseArray.getJSONObject(i);
-//                        String id = post.getString("_id");
-//                        String title = post.getString("title");
-//                        String author = post.getString("author");
-//                        Integer author_lvl = post.getInt("author_lvl");
-//                        String content = post.getString("content");
-//                        Integer participants = post.getInt("participants");
-//                        Integer goal_participants = post.getInt("goal_participants");
-//                        String url = post.getString("url");
-//                        SimpleDateFormat fm = new SimpleDateFormat("yyyy-MM-dd\'T\'kk:mm:ss.SSS");
-//                        Date date = null;
-//                        Date deadline = null;
-//                        try {
-//                            date = fm.parse(post.getString("date"));
-//                            deadline = fm.parse(post.getString("deadline"));
-//                        } catch (ParseException e) {
-//                            e.printStackTrace();
-//                        }
-//                        Boolean with_prize = post.getBoolean("with_prize");
-//                        Integer est_time = post.getInt("est_time");
-//                        String target = post.getString("target");
-//                        Boolean done = post.getBoolean("done");
-//                        Boolean hide = post.getBoolean("hide");
-//                        Integer extended = post.getInt("extended");
-//                        String author_userid = post.getString("author_userid");
-//                        String prize = "none";
-//                        Integer num_prize = 0;
-//                        if (with_prize) {
-//                            prize = post.getString("prize");
-//                            num_prize = post.getInt("num_prize");
-//                        }
-//                        Integer pinned = 0;
-//                        Boolean annonymous = false;
-//                        String author_info = "";
-//                        try {
-//                            pinned = post.getInt("pinned");
-//                            annonymous = post.getBoolean("annonymous");
-//                            author_info = post.getString("author_info");
-//                        } catch (Exception e) {
-//                            e.printStackTrace();
-//                        }
-//                        JSONArray ia = (JSONArray) post.get("participants_userids");
-//                        ArrayList<String> participants_userids = new ArrayList<String>();
-//                        for (int j = 0; j < ia.length(); j++) {
-//                            participants_userids.add(ia.getString(j));
-//                        }
-//                        JSONArray ka = (JSONArray) post.get("reports");
-//                        ArrayList<String> reports = new ArrayList<String>();
-//                        for (int j = 0; j < ka.length(); j++) {
-//                            reports.add(ka.getString(j));
-//                        }
-//                        ArrayList<Reply> comments = new ArrayList<>();
-//                        try{
-//                            JSONArray ja = (JSONArray)post.get("comments");
-//                            if (ja.length() != 0){
-//                                for (int j = 0; j<ja.length(); j++){
-//                                    JSONObject reply = ja.getJSONObject(j);
-//                                    String reid = reply.getString("_id");
-//                                    String writer = reply.getString("writer");
-//                                    String contetn = reply.getString("content");
-//                                    Date datereply = null;
-//                                    try {
-//                                        datereply = fm.parse(reply.getString("date"));
-//                                    } catch (ParseException e) {
-//                                        e.printStackTrace();
-//                                    }
-//                                    Boolean replyhide = reply.getBoolean("hide");
-//                                    JSONArray ua = (JSONArray)reply.get("reports");
-//
-//
-//                                    ArrayList<String> replyreports = new ArrayList<String>();
-//                                    for (int u = 0; u<ua.length(); u++){
-//                                        replyreports.add(ua.getString(u));
-//                                    }
-//                                    String writer_name = null;
-//                                    try {
-//                                        writer_name = reply.getString("writer_name");
-//                                    }catch (Exception e){
-//                                        writer_name = null;
-//                                    }
-//                                    Reply re = new Reply(reid, writer, contetn, datereply,replyreports,replyhide);
-//                                    re.setWriter_name(writer_name);
-//                                    if ((!replyhide )&& (!replyreports.contains(UserPersonalInfo.userID))){
-//                                        comments.add(re);
-//                                    }
-//                                }
-//                            }
-//
-//                        } catch (Exception e){
-//                            e.printStackTrace();
-//                        }
-//                        Post newPost = new Post(id, title, author, author_lvl, content, participants, goal_participants, url, date, deadline, with_prize, prize, est_time, target, num_prize, comments, done, extended, participants_userids, reports, hide, author_userid, pinned, annonymous, author_info);
-//                        boardPostShow.add(newPost);
-//                        Log.d("어?", "getRandomPosts: ");
-//                    }
-//                } catch (JSONException e) {
-//                    e.printStackTrace();
-//                }
-//            }, error -> {
-//                error.printStackTrace();
-//            });
-//            jsonArrayRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-//            requestQueue.add(jsonArrayRequest);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//    }
+    public static void getInfinityPosts() {
+        try {
+            String requestURL = "http://ec2-3-35-152-40.ap-northeast-2.compute.amazonaws.com/api/posts/infinite/?user_object_id=" + UserPersonalInfo.userID;
+            RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.mContext);
+            JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(
+                    Request.Method.GET, requestURL, null, response -> {
+                try {
+                    boardPostShow = new ArrayList<Post>();
+                    JSONArray responseArray = new JSONArray(response.toString());
+                    for (int i = 0; i < responseArray.length(); i++) {
+                        JSONObject post = responseArray.getJSONObject(i);
+                        String id = post.getString("_id");
+                        String title = post.getString("title");
+                        String author = post.getString("author");
+                        Integer author_lvl = post.getInt("author_lvl");
+                        String content = post.getString("content");
+                        Integer participants = post.getInt("participants");
+                        Integer goal_participants = post.getInt("goal_participants");
+                        String url = post.getString("url");
+                        SimpleDateFormat fm = new SimpleDateFormat("yyyy-MM-dd\'T\'kk:mm:ss.SSS");
+                        Date date = null;
+                        Date deadline = null;
+                        try {
+                            date = fm.parse(post.getString("date"));
+                            deadline = fm.parse(post.getString("deadline"));
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+                        Boolean with_prize = post.getBoolean("with_prize");
+                        Integer est_time = post.getInt("est_time");
+                        String target = post.getString("target");
+                        Boolean done = post.getBoolean("done");
+                        Boolean hide = post.getBoolean("hide");
+                        Integer extended = post.getInt("extended");
+                        String author_userid = post.getString("author_userid");
+                        String prize = "none";
+                        Integer num_prize = 0;
+                        if (with_prize) {
+                            prize = post.getString("prize");
+                            num_prize = post.getInt("num_prize");
+                        }
+                        Integer pinned = 0;
+                        Boolean annonymous = false;
+                        String author_info = "";
+                        try {
+                            pinned = post.getInt("pinned");
+                            annonymous = post.getBoolean("annonymous");
+                            author_info = post.getString("author_info");
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        JSONArray ia = (JSONArray) post.get("participants_userids");
+                        ArrayList<String> participants_userids = new ArrayList<String>();
+                        for (int j = 0; j < ia.length(); j++) {
+                            participants_userids.add(ia.getString(j));
+                        }
+                        JSONArray ka = (JSONArray) post.get("reports");
+                        ArrayList<String> reports = new ArrayList<String>();
+                        for (int j = 0; j < ka.length(); j++) {
+                            reports.add(ka.getString(j));
+                        }
+                        ArrayList<Reply> comments = new ArrayList<>();
+                        try{
+                            JSONArray ja = (JSONArray)post.get("comments");
+                            if (ja.length() != 0){
+                                for (int j = 0; j<ja.length(); j++){
+                                    JSONObject reply = ja.getJSONObject(j);
+                                    String reid = reply.getString("_id");
+                                    String writer = reply.getString("writer");
+                                    String contetn = reply.getString("content");
+                                    Date datereply = null;
+                                    try {
+                                        datereply = fm.parse(reply.getString("date"));
+                                    } catch (ParseException e) {
+                                        e.printStackTrace();
+                                    }
+                                    Boolean replyhide = reply.getBoolean("hide");
+                                    JSONArray ua = (JSONArray)reply.get("reports");
+
+
+                                    ArrayList<String> replyreports = new ArrayList<String>();
+                                    for (int u = 0; u<ua.length(); u++){
+                                        replyreports.add(ua.getString(u));
+                                    }
+                                    String writer_name = null;
+                                    try {
+                                        writer_name = reply.getString("writer_name");
+                                    }catch (Exception e){
+                                        writer_name = null;
+                                    }
+                                    Reply re = new Reply(reid, writer, contetn, datereply,replyreports,replyhide);
+                                    re.setWriter_name(writer_name);
+                                    if ((!replyhide )&& (!replyreports.contains(UserPersonalInfo.userID))){
+                                        comments.add(re);
+                                    }
+                                }
+                            }
+
+                        } catch (Exception e){
+                            e.printStackTrace();
+                        }
+                        Post newPost = new Post(id, title, author, author_lvl, content, participants, goal_participants, url, date, deadline, with_prize, prize, est_time, target, num_prize, comments, done, extended, participants_userids, reports, hide, author_userid, pinned, annonymous, author_info);
+                        boardPostShow.add(newPost);
+                        Log.d("어?", "getRandomPosts: ");
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }, error -> {
+                error.printStackTrace();
+            });
+            jsonArrayRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            requestQueue.add(jsonArrayRequest);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

@@ -31,6 +31,8 @@ public class General implements Parcelable{
     private ArrayList<String> liked_users;
     private Integer likes;
     private Boolean hide;
+    private Boolean special;
+    private Integer visit;
 
     public String getID(){return id;}
     public void setId(String id){this.id = id;}
@@ -281,5 +283,21 @@ public class General implements Parcelable{
 
     public void setHide(Boolean hide) {
         this.hide = hide;
+    }
+
+    public Boolean getSpecial() {
+        return special;
+    }
+
+    public void setSpecial(Boolean special) {
+        this.special = special;
+    }
+
+    public Integer getVisit() {
+        return visit;
+    }
+
+    public void setVisit(Integer visit) {
+        this.visit = visit;
     }
 }

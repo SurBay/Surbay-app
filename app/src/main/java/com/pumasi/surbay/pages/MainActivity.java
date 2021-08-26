@@ -31,6 +31,7 @@ import com.pumasi.surbay.ResearchBoardFragment;
 import com.pumasi.surbay.HomeRenewalFragment;
 import com.pumasi.surbay.VoucherBoardFragment;
 import com.pumasi.surbay.classfile.Banner;
+import com.pumasi.surbay.pages.boardpage.BoardPost;
 import com.pumasi.surbay.pages.homepage.NoticeActivity;
 import com.pumasi.surbay.R;
 import com.pumasi.surbay.classfile.CustomDialog;
@@ -108,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
         SimpleDateFormat fm = new SimpleDateFormat(mContext.getString(R.string.date_format));
 
         // 받지 못한 정보가 있으면 서버에서 가져오는 함수
-
+        BoardPost.getInfinityPosts();
         if(postArrayList.size() == 0 || notreportedpostArrayList.size() == 0) {
             getPosts();
         }
@@ -124,6 +125,8 @@ public class MainActivity extends AppCompatActivity {
         if(generalArrayList.size()==0){
             getGenerals();
         }
+        HomeRenewalFragment.getBanners();
+        MainActivity.getSurveytips();
         getPersonalInfo();
         HomeRenewalFragment.getRandomPosts();
         HomeRenewalFragment.getRandomVotes();

@@ -338,6 +338,9 @@ public class HomeRenewalFragment extends Fragment {
                                 Integer extended = post.getInt("extended");
                                 String author_userid = post.getString("author_userid");
                                 String prize = "none";
+                                Integer visit = post.getInt("visit");
+                                Double almost = post.getDouble("almost");
+
                                 Integer num_prize = 0;
                                 if (with_prize) {
                                     prize = post.getString("prize");
@@ -403,9 +406,9 @@ public class HomeRenewalFragment extends Fragment {
                                 } catch (Exception e){
                                     e.printStackTrace();
                                 }
-                                Post newPost = new Post(id, title, author, author_lvl, content, participants, goal_participants, url, date, deadline, with_prize, prize, est_time, target, num_prize, comments, done, extended, participants_userids, reports, hide, author_userid, pinned, annonymous, author_info);
+                                Post newPost = new Post(id, title, author, author_lvl, content, participants, goal_participants, url, date, deadline, with_prize, prize, est_time, target, num_prize, comments, done, extended, participants_userids, reports, hide, author_userid, pinned, annonymous, author_info, visit, almost);
                                 randomPosts.add(newPost);
-                                Log.d("어?", "getRandomPosts: ");
+                                Log.d("어?", "getRandomPosts: " + newPost);
                             }
 
                         } catch (JSONException e) {

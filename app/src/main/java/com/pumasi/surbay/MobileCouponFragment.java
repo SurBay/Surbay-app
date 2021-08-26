@@ -1,6 +1,7 @@
 package com.pumasi.surbay;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -13,8 +14,10 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.pumasi.surbay.adapter.SellerRecyclerViewAdapter;
+import com.pumasi.surbay.pages.MainActivity;
+import com.pumasi.surbay.pages.SellingActivity;
 
-public class MobileCouponFragment extends Fragment {
+public class    MobileCouponFragment extends Fragment {
 
     private View view;
     private Context context;
@@ -63,6 +66,8 @@ public class MobileCouponFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 setSelected(3);
+                Intent intent = new Intent(getActivity().getApplicationContext(), SellingActivity.class);
+                startActivity(intent);
             }
         });
         return view;

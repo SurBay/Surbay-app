@@ -37,7 +37,7 @@
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/E5gray">
+            android:background="@color/renewal_background">
             <LinearLayout
                 android:orientation="vertical"
                 android:layout_width="match_parent"
@@ -47,13 +47,12 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="9.12dp"
-                    android:layout_marginBottom="9.12dp"
                     android:layout_marginLeft="18.24dp"
                     android:layout_marginRight="18.24dp">
                     <ImageView
                         android:id="@+id/circle"
-                        android:layout_width="80.94dp"
-                        android:layout_height="80.94dp"
+                        android:layout_width="127.68dp"
+                        android:layout_height="127.68dp"
                         android:src="@drawable/white_circle" />
                     <LinearLayout
                         android:orientation="vertical"
@@ -63,19 +62,27 @@
                         android:layout_marginLeft="12.54dp"
                         android:layout_toRightOf="@+id/circle">
                         <TextView
-                            android:layout_width="match_parent"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="닉네임"
                             android:textSize="17.1dp"
                             android:textColor="@color/text_color48"
                             android:textStyle="bold"/>
                         <TextView
-                            android:layout_width="match_parent"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="5.7dp"
                             android:text="고려대학교"
                             android:textSize="14.82dp"
                             android:textColor="@color/text_color48" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="20.5dp"
+                            android:text="정보 수정 >"
+                            android:textSize="13.68dp"
+                            android:padding="2dp"
+                            android:clickable="true"/>
                     </LinearLayout>
 
                     <ImageView
@@ -87,11 +94,10 @@
                 </RelativeLayout>
                 <RelativeLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    style="@style/round_border_white_fill_30px"
-                    android:layout_marginTop="5.7dp"
-                    android:layout_marginLeft="18.24dp"
-                    android:layout_marginRight="18.24dp">
+                    android:layout_height="100dp"
+                    android:background="@color/white"
+                    android:layout_marginTop="9.12dp"
+                    >
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -166,11 +172,10 @@
                 </RelativeLayout>
                 <RelativeLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="9.12dp"
-                    android:layout_marginLeft="18.24dp"
-                    android:layout_marginRight="18.24dp"
-                    style="@style/round_border_white_fill_20px">
+                    android:layout_height="75.24dp"
+                    android:layout_marginTop="5.7dp"
+                    android:background="@color/white"
+                    >
                     <TextView
                         android:id="@+id/tv_research_name"
                         android:layout_width="wrap_content"
@@ -255,11 +260,9 @@
                 </RelativeLayout>
                 <RelativeLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4.56dp"
-                    android:layout_marginLeft="18.24dp"
-                    android:layout_marginRight="18.24dp"
-                    style="@style/round_border_white_fill_20px">
+                    android:layout_height="75.24dp"
+                    android:layout_marginTop="5.7dp"
+                    android:background="@color/white">
                     <TextView
                         android:id="@+id/tv_vote_name"
                         android:layout_width="wrap_content"
@@ -345,7 +348,7 @@
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_marginTop="10.26dp"
+                    android:layout_marginTop="5.7dp"
                     android:background="@color/white">
                     <RelativeLayout
                         android:layout_width="55.86dp"
@@ -425,7 +428,7 @@
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_marginTop="12.54dp">
+                    android:background="@color/white">
                     <RelativeLayout
                         android:layout_width="55.86dp"
                         android:layout_height="wrap_content"
@@ -437,7 +440,7 @@
                             android:id="@+id/ib_my_announce"
                             android:layout_width="55.86dp"
                             android:layout_height="55.86dp"
-                            android:background="@color/E5gray"
+                            android:background="@color/white"
                             android:padding="0dp"
                             android:scaleType="centerCrop"
                             android:src="@drawable/my_page_announce" />
@@ -465,7 +468,7 @@
                             android:padding="0dp"
                             android:scaleType="centerCrop"
                             android:src="@drawable/my_page_suggest"
-                            android:background="@color/E5gray" />
+                            android:background="@color/white" />
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -490,7 +493,7 @@
                             android:padding="0dp"
                             android:scaleType="centerCrop"
                             android:src="@drawable/my_page_report"
-                            android:background="@color/E5gray" />
+                            android:background="@color/white" />
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"

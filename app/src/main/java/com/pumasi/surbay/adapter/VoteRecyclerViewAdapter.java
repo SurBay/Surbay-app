@@ -44,7 +44,7 @@ public class VoteRecyclerViewAdapter extends RecyclerView.Adapter<VoteRecyclerVi
         public void onBindViewHolder(@NonNull MyVoteViewHolder holder, int position) {
             General general = boardVotes.get(position);
 
-            holder.tv_vote_item_title.setText("Q." + general.getTitle());
+            holder.tv_vote_item_title.setText("Q. " + general.getTitle());
             Date date = new Date(System.currentTimeMillis());
             if (date.getTime() - general.getDeadline().getTime() > 0) {
                 holder.tv_vote_item_progress.setText("종료");

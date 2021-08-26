@@ -35,7 +35,8 @@ public class Post implements Parcelable{
     private Integer pinned;
     private Boolean annonymous;
     private String author_info;
-
+    private Integer visit;
+    private double almost;
 
 
 
@@ -166,6 +167,37 @@ public class Post implements Parcelable{
         this.author_info = author_info;
     }
 
+    public Post(String id, String title, String author, Integer author_lvl, String content, Integer participants, Integer goal_participants, String url, Date date, Date deadline, Boolean with_prize, String prize, Integer est_time, String target, Integer num_prize, ArrayList<Reply> comments, Boolean done, Integer extended, ArrayList<String> participants_userids,
+                ArrayList<String> reports, Boolean hide, String author_userid, Integer pinned, Boolean annonymous, String author_info, Integer visit, Double almost) {
+        this.id = id;
+        this.title = title;
+        this.author = author;
+        this.author_lvl = author_lvl;
+        this.content = content;
+        this.participants = participants;
+        this.goal_participants = goal_participants;
+        this.url = url;
+        this.date = date;
+        this.deadline = deadline;
+        this.with_prize = with_prize;
+        this.prize = prize;
+        this.num_prize = num_prize;
+        this.est_time = est_time;
+        this.target = target;
+        this.comments = comments;
+        this.done = done;
+        this.extended = extended;
+        this.participants_userids = participants_userids;
+        this.reports = reports;
+        this.hide = hide;
+        this.author_userid = author_userid;
+        this.pinned = pinned;
+        this.annonymous = annonymous;
+        this.author_info = author_info;
+        this.visit = visit;
+        this.almost = almost;
+    }
+
     public Post(Parcel in){
         this.id = in.readString();
         this.title = in.readString();
@@ -289,5 +321,21 @@ public class Post implements Parcelable{
 
     public void setAuthor_info(String author_info) {
         this.author_info = author_info;
+    }
+
+    public double getAlmost() {
+        return almost;
+    }
+
+    public void setAlmost(double almost) {
+        this.almost = almost;
+    }
+
+    public Integer getVisit() {
+        return visit;
+    }
+
+    public void setVisit(Integer visit) {
+        this.visit = visit;
     }
 }
