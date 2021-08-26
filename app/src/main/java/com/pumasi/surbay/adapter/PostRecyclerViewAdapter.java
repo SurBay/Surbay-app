@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -33,7 +34,7 @@ import java.util.Date;
 public class PostRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private final int VIEW_TYPE_ITEM = 0;
-    private final int VIEW_TYPE_LOADING = 0;
+    private final int VIEW_TYPE_LOADING = 1;
 
     private PostRecyclerViewAdapter.OnItemClickListener aListener = null;
     private LayoutInflater inflater;
@@ -59,10 +60,16 @@ public class PostRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
 
     @NonNull
     @Override
-    public MyPostViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = inflater.inflate(R.layout.research_item, parent, false);
-        MyPostViewHolder holder = new MyPostViewHolder(view);
-        return holder;
+        if (viewType == VIEW_TYPE_ITEM) {
+            MyPostViewHolder holder = new MyPostViewHolder(view);
+            return holder;
+        } else if (viewType == VIEW_TYPE_LOADING) {
+            MyPostLoadingViewHolder holder = new MyPostLoadingViewHolder(view);
+            return holder;
+        }
+        return null;
     }
 
     @Override
@@ -114,6 +121,10 @@ public class PostRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
 
             ((MyPostViewHolder) holder).tv_research_item_start.setText(start);
             ((MyPostViewHolder) holder).tv_research_item_end.setText("~" + end);
+        }
+        else if (holder instanceof MyPostLoadingViewHolder) {
+            ((MyPostLoadingViewHolder) holder).loadingPanel.setVisibility(View.VISIBLE);
+            ((MyPostLoadingViewHolder) holder).cv_research_item.setVisibility(View.GONE);
         }
 
     }
@@ -172,10 +183,13 @@ public class PostRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
     }
 
     private class MyPostLoadingViewHolder extends RecyclerView.ViewHolder {
-
+        private CardView cv_research_item;
+        private RelativeLayout loadingPanel;
 
         public MyPostLoadingViewHolder(@NonNull View itemView) {
             super(itemView);
+            loadingPanel = itemView.findViewById(R.id.loadingPanel);
+            cv_research_item = itemView.findViewById(R.id.cv_research_item);
         }
     }
 }

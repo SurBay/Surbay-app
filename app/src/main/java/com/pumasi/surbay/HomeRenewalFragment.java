@@ -72,7 +72,7 @@ public class HomeRenewalFragment extends Fragment {
     private int currentPage;
     private static View view;
     private static HomeResearchPagerAdapter homeResearchPagerAdapter;
-    private HomeVotePagerAdapter homeVotePagerAdapter;
+    private static HomeVotePagerAdapter homeVotePagerAdapter;
     private HomeTipPagerAdapter homeTipPagerAdapter;
     private static BannerViewPagerAdapter bannerAdapter;
     private static DotsIndicator vp_research_indicator;
@@ -237,10 +237,7 @@ public class HomeRenewalFragment extends Fragment {
         vp_research = view.findViewById(R.id.vp_research);
         vp_research_indicator = view.findViewById(R.id.vp_research_indicator);
 
-        homeResearchPagerAdapter = new HomeResearchPagerAdapter(getChildFragmentManager());
-
-        vp_research.setAdapter(homeResearchPagerAdapter);
-        vp_research_indicator.setViewPager(vp_research);
+        getRandomPosts();
 
 
     }
@@ -255,9 +252,8 @@ public class HomeRenewalFragment extends Fragment {
         vp_vote_indicator = view.findViewById(R.id.vp_vote_indicator);
         vp_vote = view.findViewById(R.id.vp_vote);
 
-        homeVotePagerAdapter = new HomeVotePagerAdapter(getChildFragmentManager());
-        vp_vote.setAdapter(homeVotePagerAdapter);
-        vp_vote_indicator.setViewPager(vp_vote);
+        getRandomVotes();
+
 
 
     }
@@ -301,7 +297,7 @@ public class HomeRenewalFragment extends Fragment {
             vp_tip_indicator.setVisibility(View.VISIBLE);
         }
     }
-    public static void getRandomPosts() {
+    public void getRandomPosts() {
         try {
             Log.d("getRandom", "getRandomPosts: " + UserPersonalInfo.userID);
             String requestURL = "http://ec2-3-35-152-40.ap-northeast-2.compute.amazonaws.com/api/posts/random/?user_object_id=" + UserPersonalInfo.userID;
@@ -410,7 +406,10 @@ public class HomeRenewalFragment extends Fragment {
                                 randomPosts.add(newPost);
                                 Log.d("어?", "getRandomPosts: " + newPost);
                             }
+                            homeResearchPagerAdapter = new HomeResearchPagerAdapter(getChildFragmentManager());
 
+                            vp_research.setAdapter(homeResearchPagerAdapter);
+                            vp_research_indicator.setViewPager(vp_research);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -425,7 +424,7 @@ public class HomeRenewalFragment extends Fragment {
             e.printStackTrace();
         }
     }
-    public static void getRandomVotes() {
+    public void getRandomVotes() {
         try {
             String requestURL = "http://ec2-3-35-152-40.ap-northeast-2.compute.amazonaws.com/api/generals/random/?userID=" + "test@korea.ac.kr";
             Log.d("getRandom", "getRandomVotes: " + UserPersonalInfo.email);
@@ -548,6 +547,9 @@ public class HomeRenewalFragment extends Fragment {
                                          participants, participants_userids, with_image, polls, liked_users, likes, hide);
                                  HomeVotePagerAdapter.home_votes.add(newGeneral);
                              }
+                            homeVotePagerAdapter = new HomeVotePagerAdapter(getChildFragmentManager());
+                            vp_vote.setAdapter(homeVotePagerAdapter);
+                            vp_vote_indicator.setViewPager(vp_vote);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }

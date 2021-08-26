@@ -73,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
     private VoucherBoardFragment voucherBoardFragment;
     private MypageRenewalFragment mypageRenewalFragment;
 
-    public static ArrayList<Post> postArrayList = new ArrayList<>();
+    public static ArrayList<Post> postArrayList = new ArrayList<Post>();
     public static ArrayList<Post> notreportedpostArrayList = new ArrayList<>();
     public static ArrayList<Post> reportpostArrayList = new ArrayList<>();
 
@@ -109,7 +109,6 @@ public class MainActivity extends AppCompatActivity {
         SimpleDateFormat fm = new SimpleDateFormat(mContext.getString(R.string.date_format));
 
         // 받지 못한 정보가 있으면 서버에서 가져오는 함수
-        BoardPost.getInfinityPosts();
         if(postArrayList.size() == 0 || notreportedpostArrayList.size() == 0) {
             getPosts();
         }
@@ -128,8 +127,6 @@ public class MainActivity extends AppCompatActivity {
         HomeRenewalFragment.getBanners();
         MainActivity.getSurveytips();
         getPersonalInfo();
-        HomeRenewalFragment.getRandomPosts();
-        HomeRenewalFragment.getRandomVotes();
 
         cmpNoticeNew = new Comparator<Notice>() {
             @Override

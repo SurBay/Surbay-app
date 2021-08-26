@@ -1,9 +1,11 @@
 package com.pumasi.surbay.pages.boardpage;
 
+import android.os.Handler;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -19,12 +22,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.firebase.database.Transaction;
 import com.pumasi.surbay.R;
 import com.pumasi.surbay.adapter.PostRecyclerViewAdapter;
 import com.pumasi.surbay.adapter.RecyclerViewDdayAdapter;
@@ -48,6 +53,8 @@ import static com.pumasi.surbay.pages.boardpage.BoardGeneral.DO_SURVEY;
 
 
 public class BoardPost extends Fragment {
+
+    private LinearLayoutManager mLayoutManager;
     static final int WRITE_NEWPOST = 1;
     static final int DO_SURVEY = 2;
     private View view;
@@ -56,16 +63,24 @@ public class BoardPost extends Fragment {
     private Button btn_post_sort_goal;
     private Button btn_research_write;
     private RecyclerView rv_board_post;
-    private PostRecyclerViewAdapter postRecyclerViewAdapter;
+    private static PostRecyclerViewAdapter postRecyclerViewAdapter;
     private Context context;
-    public static ArrayList<Post> boardPostShow;
+    public static ArrayList<Post> boardPostShow = new ArrayList<Post>();
     private CheckBox cb_hide_done;
     private TextView tv_participated_hide;
+    private int visibleItemCount, pastVisiblesItems, totalItemCount;
+    private static boolean isLoading = false;
+    public static boolean doneInfinityPost = false;
+    private int beforeSize = -1;
+    private SwipeRefreshLayout refresh_boards;
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         context = getActivity().getApplicationContext();
+        getInfinityPosts();
+
         view = inflater.inflate(R.layout.fragment_board_post, container, false);
+        refresh_boards = view.findViewById(R.id.refresh_boards);
         btn_post_sort_new = view.findViewById(R.id.btn_post_sort_new);
         btn_post_sort_day = view.findViewById(R.id.btn_post_sort_day);
         btn_post_sort_goal = view.findViewById(R.id.btn_post_sort_goal);
@@ -73,8 +88,10 @@ public class BoardPost extends Fragment {
         cb_hide_done = view.findViewById(R.id.cb_hide_done);
         rv_board_post = view.findViewById(R.id.rv_board_post);
         postRecyclerViewAdapter = new PostRecyclerViewAdapter(boardPostShow, context);
-        rv_board_post.setLayoutManager(new LinearLayoutManager(context, RecyclerView.VERTICAL, false));
+        mLayoutManager = new LinearLayoutManager(context, RecyclerView.VERTICAL, false);
+        rv_board_post.setLayoutManager(mLayoutManager);
         rv_board_post.setAdapter(postRecyclerViewAdapter);
+        initScrollListener();
         postRecyclerViewAdapter.setOnItemClickListener(new PostRecyclerViewAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View v, int position) {
@@ -176,8 +193,8 @@ public class BoardPost extends Fragment {
             JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(
                     Request.Method.GET, requestURL, null, response -> {
                 try {
-                    boardPostShow = new ArrayList<Post>();
                     JSONArray responseArray = new JSONArray(response.toString());
+                    Log.d("getNumbers", "getInfinityPosts: " + responseArray.length());
                     for (int i = 0; i < responseArray.length(); i++) {
                         JSONObject post = responseArray.getJSONObject(i);
                         String id = post.getString("_id");
@@ -271,9 +288,14 @@ public class BoardPost extends Fragment {
                             e.printStackTrace();
                         }
                         Post newPost = new Post(id, title, author, author_lvl, content, participants, goal_participants, url, date, deadline, with_prize, prize, est_time, target, num_prize, comments, done, extended, participants_userids, reports, hide, author_userid, pinned, annonymous, author_info);
+                        Log.d("newPost", "getInfinityPosts: " + newPost);
                         boardPostShow.add(newPost);
+                        postRecyclerViewAdapter.notifyDataSetChanged();
+
                         Log.d("어?", "getRandomPosts: ");
                     }
+                    isLoading = false;
+
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -282,8 +304,52 @@ public class BoardPost extends Fragment {
             });
             jsonArrayRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
             requestQueue.add(jsonArrayRequest);
+            doneInfinityPost = true;
         } catch (Exception e) {
             e.printStackTrace();
+            doneInfinityPost = true;
         }
+    }
+    private void initScrollListener() {
+        rv_board_post.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+
+            }
+
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+
+                if (dy > 0) {
+                    visibleItemCount = mLayoutManager.getChildCount();
+                    pastVisiblesItems = mLayoutManager.findFirstVisibleItemPosition();
+                    totalItemCount = mLayoutManager.getItemCount();
+
+                    if (!isLoading) {
+                        if ((visibleItemCount + pastVisiblesItems) >= totalItemCount) {
+                            beforeSize = boardPostShow.size();
+                            isLoading = true;
+                            doneInfinityPost = false;
+                            loading();
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    private void loading() {
+        getInfinityPosts();
+
+    }
+
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        boardPostShow = new ArrayList<Post>();
+        postRecyclerViewAdapter.notifyDataSetChanged();
     }
 }
