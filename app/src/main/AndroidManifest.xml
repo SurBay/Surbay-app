@@ -21,7 +21,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SurBay"
         android:usesCleartextTraffic="true">
-        <activity android:name=".pages.SellingActivity"></activity>
+        <activity android:name=".pages.mypage.MyVote"></activity>
+        <activity android:name=".pages.mypage.MyResearch" />
+        <activity android:name=".pages.SellingActivity" />
         <activity android:name=".SurveyTipContainer" />
         <activity android:name=".pages.signup.ProblemActivity" />
 

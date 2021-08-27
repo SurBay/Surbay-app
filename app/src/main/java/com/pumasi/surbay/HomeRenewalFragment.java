@@ -19,6 +19,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
@@ -112,39 +113,13 @@ public class HomeRenewalFragment extends Fragment {
         ib_home_research_shuffle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                HomeResearchPagerAdapter.ShuffleHomeResearch();
-                homeResearchPagerAdapter = new HomeResearchPagerAdapter(getChildFragmentManager());
-                vp_research.setAdapter(homeResearchPagerAdapter);
+                getRandomPosts();
             }
         });
         ib_home_vote_shuffle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                doneVote = false;
-                handler = new Handler();
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        getRandomVotes();
-
-                        handler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                while (!doneVote) {
-                                    try {
-                                        Thread.sleep(100);
-                                    } catch (InterruptedException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                                Log.d("why", "run: " + randomVotes);
-                                homeVotePagerAdapter.notifyDataSetChanged();
-                                vp_vote.setAdapter(homeVotePagerAdapter);
-                            }
-                        });
-                    }
-                }).start();
-                doneVote = true;
+                getRandomVotes();
             }
         });
         ib_home_tip_shuffle.setOnClickListener(new View.OnClickListener() {
@@ -236,23 +211,27 @@ public class HomeRenewalFragment extends Fragment {
     private void setVp_research() {
         vp_research = view.findViewById(R.id.vp_research);
         vp_research_indicator = view.findViewById(R.id.vp_research_indicator);
-
-        getRandomPosts();
-
-
-    }
-    private class researchHandler extends Handler {
-        @Override
-        public void handleMessage(@NonNull Message msg) {
-            super.handleMessage(msg);
-
+        if (randomPosts.size() == 0) {
+            getRandomPosts();
+        } else {
+            homeResearchPagerAdapter = new HomeResearchPagerAdapter(getChildFragmentManager());
+            vp_research.setAdapter(homeResearchPagerAdapter);
+            vp_research_indicator.setViewPager(vp_research);
         }
+
+
     }
+
     private void setVp_vote() {
         vp_vote_indicator = view.findViewById(R.id.vp_vote_indicator);
         vp_vote = view.findViewById(R.id.vp_vote);
-
-        getRandomVotes();
+        if (randomVotes.size() == 0) {
+            getRandomVotes();
+        } else {
+            homeVotePagerAdapter = new HomeVotePagerAdapter(getChildFragmentManager());
+            vp_vote.setAdapter(homeVotePagerAdapter);
+            vp_vote_indicator.setViewPager(vp_vote);
+        }
 
 
 
@@ -265,6 +244,7 @@ public class HomeRenewalFragment extends Fragment {
 
         vp_tip.setAdapter(homeTipPagerAdapter);
         vp_tip_indicator.setViewPager(vp_tip);
+
 
     }
     public static void set_invisible(int pos) {
@@ -407,7 +387,6 @@ public class HomeRenewalFragment extends Fragment {
                                 Log.d("어?", "getRandomPosts: " + newPost);
                             }
                             homeResearchPagerAdapter = new HomeResearchPagerAdapter(getChildFragmentManager());
-
                             vp_research.setAdapter(homeResearchPagerAdapter);
                             vp_research_indicator.setViewPager(vp_research);
                         } catch (JSONException e) {
@@ -426,13 +405,13 @@ public class HomeRenewalFragment extends Fragment {
     }
     public void getRandomVotes() {
         try {
-            String requestURL = "http://ec2-3-35-152-40.ap-northeast-2.compute.amazonaws.com/api/generals/random/?userID=" + "test@korea.ac.kr";
+            String requestURL = "http://ec2-3-35-152-40.ap-northeast-2.compute.amazonaws.com/api/generals/random/?userID=" + UserPersonalInfo.email;
             Log.d("getRandom", "getRandomVotes: " + UserPersonalInfo.email);
             RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.mContext);
             JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(
                     Request.Method.GET, requestURL, null, response -> {
                         try {
-                             HomeVotePagerAdapter.home_votes = new ArrayList<General>();
+                             randomVotes = new ArrayList<General>();
                              JSONArray responseArray = new JSONArray(response.toString());
                              for (int i = 0; i < responseArray.length(); i++) {
                                  JSONObject general = responseArray.getJSONObject(i);
@@ -545,7 +524,7 @@ public class HomeRenewalFragment extends Fragment {
                                  General newGeneral = new General(id, title, author, author_lvl, content,
                                          date, deadline, comments, done, author_userid, reports, multi_response,
                                          participants, participants_userids, with_image, polls, liked_users, likes, hide);
-                                 HomeVotePagerAdapter.home_votes.add(newGeneral);
+                                 randomVotes.add(newGeneral);
                              }
                             homeVotePagerAdapter = new HomeVotePagerAdapter(getChildFragmentManager());
                             vp_vote.setAdapter(homeVotePagerAdapter);

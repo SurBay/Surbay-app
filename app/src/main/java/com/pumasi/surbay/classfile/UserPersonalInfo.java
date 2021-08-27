@@ -1,5 +1,6 @@
 package com.pumasi.surbay.classfile;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class UserPersonalInfo {
@@ -10,10 +11,12 @@ public class UserPersonalInfo {
     public static String userPassword;
     public static Integer points, level, gender, yearBirth;
     public static ArrayList<String> participations, prizes;
+    public static ArrayList<String> general_participations;
+    public static ArrayList<String> my_generals;
+    public static ArrayList<String> my_posts;
     public static ArrayList<Notification> notifications;
     public static Boolean notificationAllow;
     public static Integer prize_check;
-
     public static void clearInfo(){
         token = null;
         userID = null;
@@ -29,5 +32,8 @@ public class UserPersonalInfo {
         notifications = null;
         notificationAllow = true;
         prize_check = 0;
+        general_participations = null;
+        my_generals = null;
+        my_posts = null;
     }
 }

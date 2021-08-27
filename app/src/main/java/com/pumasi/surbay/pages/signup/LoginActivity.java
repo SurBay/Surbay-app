@@ -204,6 +204,9 @@ public class LoginActivity extends AppCompatActivity {
                 UserPersonalInfo.participations = new ArrayList<>();
                 UserPersonalInfo.prizes = new ArrayList<>();
                 UserPersonalInfo.prize_check = 0;
+                UserPersonalInfo.general_participations = new ArrayList<>();
+                UserPersonalInfo.my_generals = new ArrayList<>();
+                UserPersonalInfo.my_posts = new ArrayList<>();
                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                 startActivity(intent);
             }
@@ -457,6 +460,7 @@ public class LoginActivity extends AppCompatActivity {
                                         prizearray.add(ja2.getString(j));
                                     }
                                     UserPersonalInfo.prizes = prizearray;
+
                                     ArrayList<Notification> notifications = new ArrayList<>();
                                     try{
                                         SimpleDateFormat fm = new SimpleDateFormat(getString(R.string.date_format));

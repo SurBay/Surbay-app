@@ -21,10 +21,14 @@ import java.util.HashMap;
 public class HomeVotePagerAdapter extends FragmentPagerAdapter {
     public static int HOME_VOTE_COUNT;
     public static ArrayList<General> home_votes;
+    public static void setVotes() {
+        home_votes = HomeRenewalFragment.randomVotes;
+    }
 
 
     public HomeVotePagerAdapter(@NonNull FragmentManager fm) {
         super(fm);
+        setVotes();
         if (home_votes == null) {
             HOME_VOTE_COUNT = 0;
         } else {

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".pages.mypage.MyVote">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="51.3dp"
+        android:background="@color/white">
+        <ImageButton
+            android:id="@+id/ib_back"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_centerVertical="true"
+            android:padding="0dp"
+            android:layout_marginLeft="17.1dp"
+            android:src="@drawable/leftarrow2"
+            android:background="@color/white"
+            android:scaleType="centerCrop"/>
+        <TextView
+            android:id="@+id/tv_user_vote_head"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="투표"
+            android:textSize="20.5dp"
+            android:textStyle="bold"
+            android:textColor="@color/text_color48"/>
+        <ImageButton
+            android:id="@+id/ib_user_vote_query"
+            android:layout_width="19.38dp"
+            android:layout_height="19.38dp"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
+            android:padding="0dp"
+            android:layout_marginRight="17.1dp"
+            android:src="@drawable/search_icon"
+            android:background="@color/white"
+            android:scaleType="centerCrop" />
+    </RelativeLayout>
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_user_vote"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/renewal_background"/>
+</LinearLayout>

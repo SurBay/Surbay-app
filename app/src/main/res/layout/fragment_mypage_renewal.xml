@@ -195,6 +195,7 @@
                         android:layout_marginRight="36.48dp"
                         android:layout_below="@id/tv_research_name">
                         <LinearLayout
+                            android:id="@+id/ll_my_research_uploaded"
                             android:orientation="horizontal"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content">
@@ -225,6 +226,7 @@
                                 android:src="@drawable/leftarrow" />
                         </LinearLayout>
                         <LinearLayout
+                            android:id="@+id/ll_my_research_participated"
                             android:orientation="horizontal"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -282,6 +284,7 @@
                         android:layout_marginRight="36.48dp"
                         android:layout_below="@id/tv_vote_name">
                         <LinearLayout
+                            android:id="@+id/ll_my_vote_uploaded"
                             android:orientation="horizontal"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content">
@@ -312,6 +315,7 @@
                                 android:src="@drawable/leftarrow" />
                         </LinearLayout>
                         <LinearLayout
+                            android:id="@+id/ll_my_vote_participated"
                             android:orientation="horizontal"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
