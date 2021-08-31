@@ -13,7 +13,7 @@ import com.pumasi.surbay.R;
 import com.pumasi.surbay.adapter.VoteRecyclerViewAdapter;
 import com.pumasi.surbay.pages.MainActivity;
 
-public class MyVote extends AppCompatActivity {
+public class MyVoteActivity extends AppCompatActivity {
 
     private TextView tv_user_vote_head;
     private ImageButton ib_back;

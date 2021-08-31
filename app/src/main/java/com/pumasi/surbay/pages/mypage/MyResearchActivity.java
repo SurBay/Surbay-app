@@ -13,7 +13,7 @@ import com.pumasi.surbay.R;
 import com.pumasi.surbay.adapter.PostRecyclerViewAdapter;
 import com.pumasi.surbay.pages.MainActivity;
 
-public class MyResearch extends AppCompatActivity {
+public class MyResearchActivity extends AppCompatActivity {
 
     private TextView tv_user_research_head;
     private ImageButton ib_back;

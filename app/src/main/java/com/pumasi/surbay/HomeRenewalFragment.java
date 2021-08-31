@@ -36,6 +36,7 @@ import com.pumasi.surbay.classfile.General;
 import com.pumasi.surbay.classfile.Poll;
 import com.pumasi.surbay.classfile.Post;
 import com.pumasi.surbay.classfile.Reply;
+import com.pumasi.surbay.classfile.Surveytip;
 import com.pumasi.surbay.classfile.UserPersonalInfo;
 import com.pumasi.surbay.pages.MainActivity;
 import com.tbuonomo.viewpagerdotsindicator.DotsIndicator;
@@ -85,6 +86,7 @@ public class HomeRenewalFragment extends Fragment {
     private ArrayList<String> ImagesArray = new ArrayList<>();
     public static ArrayList<Post> randomPosts = new ArrayList<Post>();
     public static ArrayList<General> randomVotes = new ArrayList<General>();
+    public static ArrayList<Surveytip> fullSurveytips = new ArrayList<Surveytip>();
     private boolean doneBanners = true;
     public static boolean doneResearch = false;
     public static boolean doneVote = false;
@@ -239,11 +241,14 @@ public class HomeRenewalFragment extends Fragment {
     private void setVp_research_tip() {
         vp_tip_indicator = view.findViewById(R.id.vp_tip_indicator);
         vp_tip = view.findViewById(R.id.vp_tip);
-
         homeTipPagerAdapter = new HomeTipPagerAdapter(getChildFragmentManager());
-
         vp_tip.setAdapter(homeTipPagerAdapter);
         vp_tip_indicator.setViewPager(vp_tip);
+
+        if (fullSurveytips.size() == 0) {
+            getSurveytips();
+        }
+
 
 
     }
@@ -404,8 +409,15 @@ public class HomeRenewalFragment extends Fragment {
         }
     }
     public void getRandomVotes() {
+
         try {
-            String requestURL = "http://ec2-3-35-152-40.ap-northeast-2.compute.amazonaws.com/api/generals/random/?userID=" + UserPersonalInfo.email;
+            String param_email;
+            if (UserPersonalInfo.userID.equals("nonMember")) {
+                param_email = "null";
+            } else {
+                param_email = UserPersonalInfo.email;
+            }
+            String requestURL = "http://ec2-3-35-152-40.ap-northeast-2.compute.amazonaws.com/api/generals/random/?userID=" + param_email;
             Log.d("getRandom", "getRandomVotes: " + UserPersonalInfo.email);
             RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.mContext);
             JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(
@@ -544,6 +556,80 @@ public class HomeRenewalFragment extends Fragment {
         }
 
     }
+    public void getSurveytips(){
+        try{
+            String requestURL = "http://ec2-3-35-152-40.ap-northeast-2.compute.amazonaws.com/api/surveytips";
+            RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.mContext);
+            JsonArrayRequest jsonArrayRequest = new JsonArrayRequest
+                    (Request.Method.GET, requestURL, null, response -> {
+
+                        try {
+                            JSONArray resultArr = new JSONArray(response.toString());
+                            Log.d("response is", ""+response);
+
+                            for (int i = 0; i < resultArr.length(); i++) {
+                                JSONObject post = resultArr.getJSONObject(i);
+                                String id = post.getString("_id");
+                                String title = post.getString("title");
+                                String author = post.getString("author");
+                                Integer author_lvl = post.getInt("author_lvl");
+                                String content = post.getString("content");
+                                SimpleDateFormat fm = new SimpleDateFormat("yyyy-MM-dd\'T\'kk:mm:ss.SSS");
+                                Date date = null;
+                                try {
+                                    date = fm.parse(post.getString("date"));
+                                } catch (ParseException e) {
+                                    e.printStackTrace();
+                                }
+                                String category = post.getString("category");
+                                Integer likes = post.getInt("likes");
+                                JSONArray ja = (JSONArray)post.get("liked_users");
+
+                                ArrayList<String> liked_users = new ArrayList<String>();
+                                for (int j = 0; j<ja.length(); j++){
+                                    liked_users.add(ja.getString(j));
+                                }
+                                JSONArray images = (JSONArray)post.get("image_urls");
+                                ArrayList<String> imagearray = new ArrayList<>();
+                                if(images!=null) {
+                                    imagearray = new ArrayList<String>();
+                                    for (int j = 0; j < images.length(); j++) {
+                                        imagearray.add(images.getString(j));
+                                    }
+                                }
+
+
+
+                                String author_userid = post.getString("author_userid");
+
+
+
+                                Surveytip newSurveytip = new Surveytip(id, title, author, author_lvl, content,  date, category, likes, liked_users);
+                                newSurveytip.setAuthor_userid(author_userid);
+                                if(images!=null){
+                                    newSurveytip.setImage_uris(imagearray);
+                                }
+                                fullSurveytips.add(newSurveytip);
+
+                            }
+                            homeTipPagerAdapter.notifyDataSetChanged();
+
+                        } catch (JSONException e) {
+                            Log.d("exception", "JSON error");
+                            e.printStackTrace();
+                        }
+                    }, error -> {
+                        Log.d("exception", "volley error");
+                        error.printStackTrace();
+                    });
+            jsonArrayRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            requestQueue.add(jsonArrayRequest);
+        } catch (Exception e){
+            Log.d("exception", "failed getting response");
+            e.printStackTrace();
+        }
+    }
+
     public static boolean getBanners() {
     try {
         String requestURL = "http://ec2-3-35-152-40.ap-northeast-2.compute.amazonaws.com/api/banner/getbanner";

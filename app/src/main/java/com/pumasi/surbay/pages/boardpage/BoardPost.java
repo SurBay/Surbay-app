@@ -14,6 +14,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -73,14 +74,20 @@ public class BoardPost extends Fragment {
     public static boolean doneInfinityPost = false;
     private int beforeSize = -1;
     private SwipeRefreshLayout refresh_boards;
+    private String check = "";
+    private String beforePost = "";
+    private RelativeLayout rl_progress;
+    private static int type = 1;
+    private static boolean isParticipated = false;
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         context = getActivity().getApplicationContext();
-        getInfinityPosts();
+        getInfinityPosts(beforePost, type, isParticipated);
 
         view = inflater.inflate(R.layout.fragment_board_post, container, false);
         refresh_boards = view.findViewById(R.id.refresh_boards);
+        rl_progress = view.findViewById(R.id.rl_progress);
         btn_post_sort_new = view.findViewById(R.id.btn_post_sort_new);
         btn_post_sort_day = view.findViewById(R.id.btn_post_sort_day);
         btn_post_sort_goal = view.findViewById(R.id.btn_post_sort_goal);
@@ -108,9 +115,17 @@ public class BoardPost extends Fragment {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
                     tv_participated_hide.setTextColor(Color.parseColor("#3AD1BF"));
+                    isParticipated = true;
+
                 } else {
                     tv_participated_hide.setTextColor(Color.parseColor("#BDBDBD"));
+                    isParticipated = false;
+
                 }
+                check = "";
+                beforePost = "";
+                boardPostShow.clear();
+                getInfinityPosts(beforePost, type, isParticipated);
             }
         });
 
@@ -156,6 +171,19 @@ public class BoardPost extends Fragment {
         return view;
     }
     private void setSelected(int num) {
+        type = num;
+        check = "";
+        beforePost = "";
+        boardPostShow.clear();
+        getInfinityPosts(beforePost, type, isParticipated);
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (boardPostShow.size() == 0) {
+                    rv_board_post.scrollToPosition(0);
+                }
+            }
+        }, 200);
         switch (num) {
             case 0:
                 btn_post_sort_new.setBackgroundResource(R.drawable.ic_tabselect);
@@ -186,9 +214,11 @@ public class BoardPost extends Fragment {
         }
     }
 
-    public static void getInfinityPosts() {
+    public void getInfinityPosts(String object, int type, boolean isParticipated) {
+        check = object;
+        isLoading = true;
         try {
-            String requestURL = "http://ec2-3-35-152-40.ap-northeast-2.compute.amazonaws.com/api/posts/infinite/?user_object_id=" + UserPersonalInfo.userID;
+            String requestURL = "http://ec2-3-35-152-40.ap-northeast-2.compute.amazonaws.com/api/posts/infinite/?userID=" + UserPersonalInfo.userID + "&type=" + String.valueOf(type) + "&post_object_id=" + object + "&participate=" + isParticipated;
             RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.mContext);
             JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(
                     Request.Method.GET, requestURL, null, response -> {
@@ -290,11 +320,19 @@ public class BoardPost extends Fragment {
                         Post newPost = new Post(id, title, author, author_lvl, content, participants, goal_participants, url, date, deadline, with_prize, prize, est_time, target, num_prize, comments, done, extended, participants_userids, reports, hide, author_userid, pinned, annonymous, author_info);
                         Log.d("newPost", "getInfinityPosts: " + newPost);
                         boardPostShow.add(newPost);
-                        postRecyclerViewAdapter.notifyDataSetChanged();
 
                         Log.d("어?", "getRandomPosts: ");
                     }
-                    isLoading = false;
+                    boardPostShow.remove(null);
+                    postRecyclerViewAdapter.notifyItemRemoved(boardPostShow.size());
+                    if (boardPostShow == null || boardPostShow.size() == 0) {
+                        beforePost = "";
+                    } else if (boardPostShow.get(boardPostShow.size() - 1) != null) {
+                        beforePost = boardPostShow.get(boardPostShow.size() - 1).getID();
+                    }
+
+                    postRecyclerViewAdapter.notifyDataSetChanged();
+                    setClickable(true);
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -304,7 +342,10 @@ public class BoardPost extends Fragment {
             });
             jsonArrayRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
             requestQueue.add(jsonArrayRequest);
+            Log.d("TAG", "getInfinityPosts: " + beforePost);
             doneInfinityPost = true;
+            isLoading = false;
+
         } catch (Exception e) {
             e.printStackTrace();
             doneInfinityPost = true;
@@ -330,7 +371,6 @@ public class BoardPost extends Fragment {
                     if (!isLoading) {
                         if ((visibleItemCount + pastVisiblesItems) >= totalItemCount) {
                             beforeSize = boardPostShow.size();
-                            isLoading = true;
                             doneInfinityPost = false;
                             loading();
                         }
@@ -341,10 +381,26 @@ public class BoardPost extends Fragment {
     }
 
     private void loading() {
-        getInfinityPosts();
-
+        if (!check.equals(beforePost)) {
+            setClickable(false);
+            boardPostShow.add(null);
+            postRecyclerViewAdapter.notifyItemInserted(boardPostShow.size() - 1);
+            getInfinityPosts(beforePost, type, isParticipated);
+        }
+        Log.d("TAG", "loading: " + check + beforePost);
     }
+    private void setClickable(boolean clickable) {
+        btn_post_sort_new.setEnabled(clickable);
+        btn_post_sort_goal.setEnabled(clickable);
+        btn_post_sort_day.setEnabled(clickable);
+        if (!clickable) {
+            rl_progress.setVisibility(View.VISIBLE);
 
+        } else {
+            rl_progress.setVisibility(View.GONE);
+            rv_board_post.setVisibility(View.VISIBLE);
+        }
+    }
 
     @Override
     public void onDestroyView() {

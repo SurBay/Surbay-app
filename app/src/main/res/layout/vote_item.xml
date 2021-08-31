@@ -1,19 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/item_container"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/gray"
     android:paddingHorizontal="15dp">
+
     <androidx.cardview.widget.CardView
+        android:id="@+id/cv_vote_item"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:cardCornerRadius="11.4dp"
         android:layout_marginVertical="5.7dp"
         >
+
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="378dp"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
@@ -29,8 +32,9 @@
                     android:id="@+id/tv_vote_item_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
                     android:layout_centerVertical="true"
+                    android:layout_marginLeft="5dp"
+                    android:layout_weight="1"
                     android:ellipsize="end"
                     android:lines="1"
                     android:maxLines="1"
@@ -38,7 +42,6 @@
                     android:textColor="@color/text_black"
                     android:textSize="17.1dp"
                     android:textStyle="bold"
-                    android:layout_marginLeft="5dp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
@@ -47,33 +50,34 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="진행중"
+                    android:textColor="#50D3DD"
                     android:textSize="15dp"
-                    android:textStyle="bold"
-                    android:textColor="#50D3DD" />
+                    android:textStyle="bold" />
 
             </LinearLayout>
 
             <FrameLayout
-                android:visibility="gone"
                 android:id="@+id/fl_vote_poll2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="20dp"
                 android:layout_marginTop="16.25dp"
                 android:layout_marginBottom="6dp"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:visibility="gone">
+
                 <TextView
                     android:id="@+id/tv_vote_content2_1"
                     android:layout_width="140dp"
                     android:layout_height="90dp"
                     android:layout_gravity="center"
                     android:layout_marginRight="72dp"
-                    android:text="둘(사진있음)"
+                    android:background="@drawable/round_border_general_poll_primary"
                     android:gravity="center"
-                    android:textStyle="bold"
-                    android:textSize="15sp"
+                    android:text="둘(사진있음)"
                     android:textColor="@color/text_black"
-                    android:background="@drawable/round_border_general_poll_primary"></TextView>
+                    android:textSize="15sp"
+                    android:textStyle="bold"></TextView>
 
                 <TextView
                     android:id="@+id/tv_vote_content2_2"
@@ -87,62 +91,69 @@
                     android:textColor="@color/text_black"
                     android:textSize="15sp"
                     android:textStyle="bold"></TextView>
+
                 <ImageView
                     android:layout_width="32dp"
                     android:layout_height="32dp"
                     android:layout_gravity="center"
                     android:src="@drawable/general_vs"></ImageView>
             </FrameLayout>
+
             <FrameLayout
-                android:visibility="gone"
                 android:id="@+id/fl_vote_poll3"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="20dp"
                 android:layout_marginTop="16.25dp"
                 android:layout_marginBottom="6dp"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:visibility="gone">
+
                 <TextView
                     android:id="@+id/tv_vote_content3_1"
                     android:layout_width="90dp"
                     android:layout_height="90dp"
                     android:layout_gravity="center"
                     android:layout_marginRight="94dp"
-                    android:text="소주"
+                    android:background="@drawable/round_border_general_poll_primary"
                     android:gravity="center"
-                    android:textStyle="bold"
-                    android:textSize="15sp"
+                    android:text="소주"
                     android:textColor="@color/text_black"
-                    android:background="@drawable/round_border_general_poll_primary"></TextView>
+                    android:textSize="15sp"
+                    android:textStyle="bold"></TextView>
+
                 <TextView
                     android:id="@+id/tv_vote_content3_2"
                     android:layout_width="90dp"
                     android:layout_height="90dp"
                     android:layout_gravity="center"
-                    android:text="맥주"
+                    android:background="@drawable/round_border_general_poll_secondary"
                     android:gravity="center"
-                    android:textStyle="bold"
-                    android:textSize="15sp"
+                    android:text="맥주"
                     android:textColor="@color/text_black"
-                    android:background="@drawable/round_border_general_poll_secondary"></TextView>
+                    android:textSize="15sp"
+                    android:textStyle="bold"></TextView>
+
                 <TextView
                     android:id="@+id/tv_vote_content3_3"
                     android:layout_width="90dp"
                     android:layout_height="90dp"
                     android:layout_gravity="center"
                     android:layout_marginLeft="94dp"
-                    android:text="와인"
+                    android:background="@drawable/round_border_general_poll_primary"
                     android:gravity="center"
-                    android:textStyle="bold"
-                    android:textSize="15sp"
+                    android:text="와인"
                     android:textColor="@color/text_black"
-                    android:background="@drawable/round_border_general_poll_primary"></TextView>
+                    android:textSize="15sp"
+                    android:textStyle="bold"></TextView>
+
                 <ImageView
                     android:layout_width="32dp"
                     android:layout_height="32dp"
                     android:layout_gravity="center"
                     android:layout_marginRight="47dp"
                     android:src="@drawable/general_vs"></ImageView>
+
                 <ImageView
                     android:layout_width="32dp"
                     android:layout_height="32dp"
@@ -150,16 +161,19 @@
                     android:layout_marginLeft="47dp"
                     android:src="@drawable/general_vs"></ImageView>
             </FrameLayout>
+
             <FrameLayout
-                android:visibility="gone"
                 android:id="@+id/fl_vote_poll4"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="18dp"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:visibility="gone">
+
                 <View
                     android:layout_width="wrap_content"
                     android:layout_height="100dp"></View>
+
                 <TextView
                     android:id="@+id/tv_vote_content4_1"
                     android:layout_width="140dp"
@@ -167,12 +181,13 @@
                     android:layout_gravity="center"
                     android:layout_marginRight="72dp"
                     android:layout_marginBottom="26.5dp"
-                    android:text="마라탕"
+                    android:background="@drawable/round_border_general_poll_primary"
                     android:gravity="center"
-                    android:textStyle="bold"
-                    android:textSize="15sp"
+                    android:text="마라탕"
                     android:textColor="@color/text_color48"
-                    android:background="@drawable/round_border_general_poll_primary"></TextView>
+                    android:textSize="15sp"
+                    android:textStyle="bold"></TextView>
+
                 <TextView
                     android:id="@+id/tv_vote_content4_2"
                     android:layout_width="140dp"
@@ -180,25 +195,27 @@
                     android:layout_gravity="center"
                     android:layout_marginLeft="72dp"
                     android:layout_marginBottom="26.5dp"
-                    android:text="파스타"
+                    android:background="@drawable/round_border_general_poll_secondary"
                     android:gravity="center"
-                    android:textStyle="bold"
-                    android:textSize="15sp"
+                    android:text="파스타"
                     android:textColor="@color/text_color48"
-                    android:background="@drawable/round_border_general_poll_secondary"></TextView>
+                    android:textSize="15sp"
+                    android:textStyle="bold"></TextView>
+
                 <TextView
                     android:id="@+id/tv_vote_content4_3"
                     android:layout_width="140dp"
                     android:layout_height="50.16dp"
                     android:layout_gravity="center"
-                    android:layout_marginRight="72dp"
                     android:layout_marginTop="26.5dp"
-                    android:text="떢볶이"
+                    android:layout_marginRight="72dp"
+                    android:background="@drawable/round_border_general_poll_secondary"
                     android:gravity="center"
-                    android:textStyle="bold"
-                    android:textSize="15sp"
+                    android:text="떢볶이"
                     android:textColor="@color/text_color48"
-                    android:background="@drawable/round_border_general_poll_secondary"></TextView>
+                    android:textSize="15sp"
+                    android:textStyle="bold"></TextView>
+
                 <TextView
                     android:id="@+id/tv_vote_content4_4"
                     android:layout_width="140dp"
@@ -206,37 +223,38 @@
                     android:layout_gravity="center"
                     android:layout_marginLeft="72dp"
                     android:layout_marginTop="26.5dp"
-                    android:text="돈까스"
+                    android:background="@drawable/round_border_general_poll_primary"
                     android:gravity="center"
-                    android:textStyle="bold"
-                    android:textSize="15sp"
+                    android:text="돈까스"
                     android:textColor="@color/text_color48"
-                    android:background="@drawable/round_border_general_poll_primary"></TextView>
+                    android:textSize="15sp"
+                    android:textStyle="bold"></TextView>
 
                 <ImageView
                     android:layout_width="32dp"
                     android:layout_height="32dp"
                     android:layout_gravity="center"
                     android:src="@drawable/general_vs"></ImageView>
+
                 <TextView
                     android:id="@+id/tv_vote_content4_extra"
                     android:layout_width="40dp"
                     android:layout_height="30.5dp"
                     android:layout_gravity="center_horizontal|bottom"
                     android:layout_marginLeft="165dp"
-                    android:text="+7"
+                    android:background="@drawable/round_border_general_extra_poll_secondary"
                     android:gravity="center"
-                    android:textStyle="bold"
+                    android:text="+7"
                     android:textSize="15sp"
-                    android:background="@drawable/round_border_general_extra_poll_secondary"></TextView>
+                    android:textStyle="bold"></TextView>
             </FrameLayout>
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:layout_marginTop="10dp"
                 android:layout_marginHorizontal="17.1dp"
-                android:background="#C4C4C4"/>
+                android:layout_marginTop="10dp"
+                android:background="#C4C4C4" />
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -244,6 +262,7 @@
                 android:layout_marginStart="17.1dp"
                 android:layout_marginEnd="17.1dp"
                 android:layout_marginBottom="8dp">
+
                 <TextView
                     android:id="@+id/tv_vote_item_votes_comments"
                     android:layout_width="wrap_content"
@@ -251,28 +270,41 @@
                     android:layout_marginTop="8dp"
                     android:layout_marginBottom="4.5dp"
                     android:text="투표 10개 | 댓글 0개"
+                    android:textColor="@color/text_color70"
                     android:textSize="13.68dp"
-                    android:textStyle="bold"
-                    android:textColor="@color/text_color70" />
+                    android:textStyle="bold" />
+
                 <ImageView
                     android:id="@+id/iv_vote_item_like"
                     android:layout_width="22.8dp"
                     android:layout_height="22.8dp"
                     android:layout_marginTop="6.7dp"
-                    android:background="@drawable/heart_empty"
-                    android:layout_toLeftOf="@id/tv_vote_item_more" />
+                    android:layout_toLeftOf="@id/tv_vote_item_more"
+                    android:background="@drawable/heart_empty" />
+
                 <TextView
                     android:id="@+id/tv_vote_item_more"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
-                    android:layout_marginTop="8dp"
                     android:layout_marginLeft="5dp"
+                    android:layout_marginTop="8dp"
                     android:text="+3"
+                    android:textColor="@color/text_color70"
                     android:textSize="14.25dp"
-                    android:textStyle="bold"
-                    android:textColor="@color/text_color70"/>
+                    android:textStyle="bold" />
             </RelativeLayout>
         </LinearLayout>
     </androidx.cardview.widget.CardView>
-</LinearLayout>
+    <RelativeLayout
+        android:id="@+id/loadingPanel"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:visibility="gone">
+        <ProgressBar
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"/>
+    </RelativeLayout>
+</RelativeLayout>

@@ -1,11 +1,13 @@
 package com.pumasi.surbay.classfile;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.ArrayList;
 import java.util.Date;
 
-public class Coupon {
+public class Coupon implements Parcelable {
     private String id;
-    private ArrayList<String> user;
     private boolean hide;
     private ArrayList<String> image_urls;
     private String title;
@@ -15,9 +17,8 @@ public class Coupon {
     private Integer cost;
     private Date date;
 
-    public Coupon(String id, ArrayList<String> user, boolean hide, ArrayList<String> image_urls, String title, String content, String author, String category, Integer cost, Date date) {
+    public Coupon(String id, boolean hide, ArrayList<String> image_urls, String title, String content, String author, String category, Integer cost, Date date) {
         this.id = id;
-        this.user = user;
         this.hide = hide;
         this.image_urls = image_urls;
         this.title = title;
@@ -28,20 +29,40 @@ public class Coupon {
         this.date = date;
     }
 
+
+    protected Coupon(Parcel in) {
+        id = in.readString();
+        hide = in.readByte() != 0;
+        image_urls = in.createStringArrayList();
+        title = in.readString();
+        content = in.readString();
+        author = in.readString();
+        category = in.readString();
+        if (in.readByte() == 0) {
+            cost = null;
+        } else {
+            cost = in.readInt();
+        }
+    }
+
+    public static final Creator<Coupon> CREATOR = new Creator<Coupon>() {
+        @Override
+        public Coupon createFromParcel(Parcel in) {
+            return new Coupon(in);
+        }
+
+        @Override
+        public Coupon[] newArray(int size) {
+            return new Coupon[size];
+        }
+    };
+
     public String getId() {
         return id;
     }
 
     public void setId(String id) {
         this.id = id;
-    }
-
-    public ArrayList<String> getUser() {
-        return user;
-    }
-
-    public void setUser(ArrayList<String> user) {
-        this.user = user;
     }
 
     public boolean isHide() {
@@ -106,5 +127,27 @@ public class Coupon {
 
     public void setDate(Date date) {
         this.date = date;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(id);
+        dest.writeByte((byte) (hide ? 1 : 0));
+        dest.writeStringList(image_urls);
+        dest.writeString(title);
+        dest.writeString(content);
+        dest.writeString(author);
+        dest.writeString(category);
+        if (cost == null) {
+            dest.writeByte((byte) 0);
+        } else {
+            dest.writeByte((byte) 1);
+            dest.writeInt(cost);
+        }
     }
 }

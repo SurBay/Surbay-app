@@ -44,6 +44,7 @@
         android:layout_height="46.5dp"
         android:background="@color/gray_FB">
         <TextView
+            android:id="@+id/tv_coupon_selling_head"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="전체 보기"

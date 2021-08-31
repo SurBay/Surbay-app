@@ -253,6 +253,7 @@
                                     android:textSize="17dp"
                                     android:textStyle="bold"/>
                                 <ImageButton
+                                    android:visibility="gone"
                                     android:id="@+id/ib_home_tip_shuffle"
                                     android:layout_width="66.12dp"
                                     android:layout_height="13.68dp"

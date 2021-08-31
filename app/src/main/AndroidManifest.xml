@@ -21,8 +21,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SurBay"
         android:usesCleartextTraffic="true">
-        <activity android:name=".pages.mypage.MyVote"></activity>
-        <activity android:name=".pages.mypage.MyResearch" />
+        <activity android:name=".SellingDetailActivity"></activity>
+        <activity android:name=".MyExchangeActivity" />
+        <activity android:name=".pages.mypage.MyVoteActivity" />
+        <activity android:name=".pages.mypage.MyResearchActivity" />
         <activity android:name=".pages.SellingActivity" />
         <activity android:name=".SurveyTipContainer" />
         <activity android:name=".pages.signup.ProblemActivity" />
@@ -177,7 +179,8 @@
         <activity
             android:name=".pages.MainActivity"
             android:exported="false"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:usesCleartextTraffic="true">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>

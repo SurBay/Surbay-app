@@ -6,13 +6,13 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".pages.mypage.MyResearchActivity">
+    tools:context=".MyExchangeActivity">
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="51.3dp"
         android:background="@color/white">
         <ImageButton
-            android:id="@+id/ib_back"
+            android:id="@+id/btn_back"
             android:layout_width="25dp"
             android:layout_height="25dp"
             android:layout_centerVertical="true"
@@ -22,16 +22,15 @@
             android:background="@color/white"
             android:scaleType="centerCrop"/>
         <TextView
-            android:id="@+id/tv_user_research_head"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:text="리서치"
+            android:text="보유한 교환권"
             android:textSize="20.5dp"
             android:textStyle="bold"
             android:textColor="@color/text_color48"/>
         <ImageButton
-            android:id="@+id/ib_user_research_query"
+            android:id="@+id/ib_user_exchange_query"
             android:layout_width="19.38dp"
             android:layout_height="19.38dp"
             android:layout_centerVertical="true"
@@ -43,7 +42,7 @@
             android:scaleType="centerCrop" />
     </RelativeLayout>
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_user_research"
+        android:id="@+id/rv_user_exchange"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/renewal_background"/>

@@ -112,9 +112,6 @@ public class MainActivity extends AppCompatActivity {
         if(postArrayList.size() == 0 || notreportedpostArrayList.size() == 0) {
             getPosts();
         }
-        if(surveytipArrayList.size()==0) {
-            getSurveytips();
-        }
         if(feedbackArrayList.size()==0) {
             getFeedbacks();
         }

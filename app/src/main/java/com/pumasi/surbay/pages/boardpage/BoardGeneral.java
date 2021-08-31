@@ -68,6 +68,7 @@ import java.util.Map;
 public class BoardGeneral extends Fragment// Fragment 클래스를 상속받아야한다
 { // 게시판
 
+    private LinearLayoutManager mLayoutManager;
     private View view;
     static final int WRITE_NEWPOST = 1;
     static final int DO_SURVEY = 2;
@@ -77,12 +78,15 @@ public class BoardGeneral extends Fragment// Fragment 클래스를 상속받아�
     static final int FIX_DONE = 3;
     static final int REPORTED = 5;
     static final int NOT_DONE = 0;
-
+    private int type = 0;
+    private static boolean isOriginal = false;
+    private int visibleItemCount, pastVisiblesItems, totalItemCount;
     public static Button frag2newsortbutton;
     public static ImageButton frag2likesortbutton;
     public static ImageButton frag2partisortbutton;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private boolean getGeneralsDone = false;
+    private boolean isLoading = false;
 
     private Button btn_vote_new_sort;
     private ImageButton ib_vote_like_sort;
@@ -93,6 +97,10 @@ public class BoardGeneral extends Fragment// Fragment 클래스를 상속받아�
     private Context context;
     private RecyclerView rv_board_vote;
     private VoteRecyclerViewAdapter voteRecyclerViewAdapter;
+    public static ArrayList<General> boardVoteShow = new ArrayList<General>();
+
+    private String check = "";
+    private String beforeVote = "";
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -100,15 +108,17 @@ public class BoardGeneral extends Fragment// Fragment 클래스를 상속받아�
         getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         context = getActivity().getApplicationContext();
 
-
+        getInfinityVotes(beforeVote, type, isOriginal);
         rv_board_vote = view.findViewById(R.id.rv_board_vote);
         btn_vote_new_sort = view.findViewById(R.id.btn_vote_new_sort);
         ib_vote_like_sort = view.findViewById(R.id.ib_vote_like_sort);
         ib_vote_many_sort = view.findViewById(R.id.ib_vote_many_sort);
 
-        voteRecyclerViewAdapter = new VoteRecyclerViewAdapter(MainActivity.generalArrayList, context);
+        voteRecyclerViewAdapter = new VoteRecyclerViewAdapter(boardVoteShow, context);
         rv_board_vote.setAdapter(voteRecyclerViewAdapter);
-        rv_board_vote.setLayoutManager(new LinearLayoutManager(context, RecyclerView.VERTICAL, true));
+        mLayoutManager = new LinearLayoutManager(context, RecyclerView.VERTICAL, false);
+        rv_board_vote.setLayoutManager(mLayoutManager);
+        initScrollListener();
         btn_vote_new_sort.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -153,9 +163,15 @@ public class BoardGeneral extends Fragment// Fragment 클래스를 상속받아�
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
                     tv_collect.setTextColor(Color.parseColor("#50D3DD"));
+                    isOriginal = true;
                 } else {
                     tv_collect.setTextColor(Color.parseColor("#BDBDBD"));
+                    isOriginal = false;
                 }
+                check = "";
+                beforeVote = "";
+                boardVoteShow.clear();
+                getInfinityVotes(beforeVote, type, isOriginal);
             }
         });
         return view;
@@ -171,10 +187,6 @@ public class BoardGeneral extends Fragment// Fragment 클래스를 상속받아�
 //        mSwipeRefreshLayout.refreshDrawableState();
         getPersonalInfo();
     }
-
-
-
-
 
 
     private void getPersonalInfo() {
@@ -278,6 +290,20 @@ public class BoardGeneral extends Fragment// Fragment 클래스를 상속받아�
 
 
     public void setSelected(int num) {
+        setClickable(false);
+        type = num;
+        check = "";
+        beforeVote = "";
+        boardVoteShow.clear();
+        getInfinityVotes(beforeVote, type, isOriginal);
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (boardVoteShow.size() == 0) {
+                    rv_board_vote.scrollToPosition(0);
+                }
+            }
+        }, 200);
         switch (num) {
             case 0:
                 btn_vote_new_sort.setBackgroundResource(R.drawable.ic_tabselect);
@@ -307,6 +333,200 @@ public class BoardGeneral extends Fragment// Fragment 클래스를 상속받아�
                 throw new IllegalStateException("Unexpected value: " + num);
         }
     }
+    public void getInfinityVotes(String object, int type, boolean isOriginal) {
+        check = object;
+        isLoading = true;
+        try {
+            String requestURL = "http://ec2-3-35-152-40.ap-northeast-2.compute.amazonaws.com/api/generals/infinite/?userID=" + UserPersonalInfo.email + "&general_object_id=" + object + "&type=" + type + "&original=" + isOriginal;
+            RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.mContext);
+            JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(
+                    Request.Method.GET, requestURL, null, response -> {
+                        try {
+                            JSONArray responseArray = new JSONArray(response.toString());
+                            Log.d("voteInfinityCount", "getInfinityVotes: " + response.length());
+                            for (int i = 0; i < responseArray.length(); i++) {
+                                JSONObject general = responseArray.getJSONObject(i);
+                                String id = general.getString("_id");
+                                String title = general.getString("title");
+                                String author = general.getString("author");
+                                Integer author_lvl = general.getInt("author_lvl");
+                                String content = general.getString("content");
+                                SimpleDateFormat fm = new SimpleDateFormat("yyyy-MM-dd\'T\'kk:mm:ss.SSS");
+                                Date date = null;
+                                try {
+                                    date = fm.parse(general.getString("date"));
+                                    Log.d("note excepted", "getInfinityVotes: " + date);
+                                } catch (ParseException e) {
+                                    e.printStackTrace();
+                                    Log.d("date excepted", "getInfinityVotes: " + date);
+                                }
+                                Date deadline = null;
+                                try {
+                                    deadline = fm.parse(general.getString("deadline"));
+                                } catch (ParseException e) {
+                                    e.printStackTrace();
+                                }
+                                ArrayList<Reply> comments = new ArrayList<>();
+                                try{
+                                    JSONArray ja = (JSONArray)general.get("comments");
+                                    if (ja.length() != 0){
+                                        for (int j = 0; j<ja.length(); j++){
+                                            JSONObject reply = ja.getJSONObject(j);
+                                            String reid = reply.getString("_id");
+                                            String writer = reply.getString("writer");
+                                            String contetn = reply.getString("content");
+                                            Date datereply = null;
+                                            try {
+                                                datereply = fm.parse(reply.getString("date"));
+                                            } catch (ParseException e) {
+                                                e.printStackTrace();
+                                            }
+                                            Boolean replyhide = reply.getBoolean("hide");
+                                            JSONArray ua = (JSONArray)reply.get("reports");
+
+
+                                            ArrayList<String> replyreports = new ArrayList<String>();
+                                            for (int u = 0; u<ua.length(); u++){
+                                                replyreports.add(ua.getString(u));
+                                            }
+                                            String writer_name = null;
+                                            try {
+                                                writer_name = reply.getString("writer_name");
+                                            }catch (Exception e){
+                                                writer_name = null;
+                                            }
+                                            Reply re = new Reply(reid, writer, contetn, datereply,replyreports,replyhide);
+                                            re.setWriter_name(writer_name);
+                                            if ((!replyhide )&& (!replyreports.contains(UserPersonalInfo.userID))){
+                                                comments.add(re);
+                                            }
+                                        }
+                                    }
+
+                                } catch (Exception e){
+                                    e.printStackTrace();
+                                }
+                                Boolean done = general.getBoolean("done");
+                                String author_userid = general.getString("author_userid");
+                                JSONArray ka = (JSONArray)general.get("reports");
+                                ArrayList<String> reports = new ArrayList<String>();
+                                for (int j = 0; j<ka.length(); j++){
+                                    reports.add(ka.getString(j));
+                                }
+                                Boolean multi_response = general.getBoolean("multi_response");
+                                Integer participants = general.getInt("participants");
+                                JSONArray ia = (JSONArray)general.get("participants_userids");
+                                ArrayList<String> participants_userids = new ArrayList<String>();
+                                for (int j = 0; j<ia.length(); j++){
+                                    participants_userids.add(ia.getString(j));
+                                }
+                                Boolean with_image = general.getBoolean("with_image");
+                                ArrayList<Poll> polls = new ArrayList<>();
+                                try{
+                                    JSONArray ja = (JSONArray)general.get("polls");
+                                    if (ja.length() != 0){
+                                        for (int j = 0; j<ja.length(); j++){
+                                            JSONObject poll = ja.getJSONObject(j);
+                                            String poll_id = poll.getString("_id");
+                                            String poll_content = poll.getString("content");
+                                            ArrayList<String> poll_participants_userids = new ArrayList<String>();
+                                            JSONArray ua = (JSONArray)poll.get("participants_userids");
+                                            for (int u = 0; u<ua.length(); u++){
+                                                poll_participants_userids.add(ua.getString(u));
+                                            }
+                                            String image = poll.getString("image");
+                                            Poll newpoll = new Poll(poll_id, poll_content, poll_participants_userids, image);
+                                            polls.add(newpoll);
+                                        }
+                                    }
+
+                                } catch (Exception e){
+                                    e.printStackTrace();
+                                }
+
+                                JSONArray la = (JSONArray)general.get("liked_users");
+                                ArrayList<String> liked_users = new ArrayList<String>();
+                                for (int j = 0; j<la.length(); j++){
+                                    liked_users.add(la.getString(j));
+                                }
+
+                                Integer likes = general.getInt("likes");
+
+                                Boolean hide = general.getBoolean("hide");
+
+                                General newGeneral = new General(id, title, author, author_lvl, content,
+                                        date, deadline, comments, done, author_userid, reports, multi_response,
+                                        participants, participants_userids, with_image, polls, liked_users, likes, hide);
+                                boardVoteShow.add(newGeneral);
+                            }
+
+
+                            boardVoteShow.remove(null);
+                            voteRecyclerViewAdapter.notifyItemRemoved(boardVoteShow.size());
+                            if (boardVoteShow == null || boardVoteShow.size() == 0) {
+                                beforeVote = "";
+                            } else if (boardVoteShow.get(boardVoteShow.size() - 1) != null) {
+                                beforeVote = boardVoteShow.get(boardVoteShow.size() - 1).getID();
+                            }
+                            voteRecyclerViewAdapter.notifyDataSetChanged();
+                            setClickable(true);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+            }, error -> {
+                        error.printStackTrace();
+            });
+            jsonArrayRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            requestQueue.add(jsonArrayRequest);
+            isLoading = false;
+
+        } catch (Exception e) {
+
+        }
+    }
+    private void initScrollListener() {
+        rv_board_vote.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+            }
+
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+
+                if (dy > 0) {
+                    visibleItemCount = mLayoutManager.getChildCount();
+                    pastVisiblesItems = mLayoutManager.findFirstVisibleItemPosition();
+                    totalItemCount = mLayoutManager.getItemCount();
+
+                    if (!isLoading) {
+                        if ((visibleItemCount + pastVisiblesItems) >= totalItemCount) {
+                            loading();
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    private void loading() {
+        if (!check.equals(beforeVote)) {
+            setClickable(false);
+            boardVoteShow.add(null);
+            voteRecyclerViewAdapter.notifyItemInserted(boardVoteShow.size() - 1);
+            getInfinityVotes(beforeVote, type, isOriginal);
+        }
+
+    }
+
+    private void setClickable(boolean clickable) {
+        btn_vote_new_sort.setEnabled(clickable);
+        ib_vote_like_sort.setEnabled(clickable);
+        ib_vote_many_sort.setEnabled(clickable);
+
+    }
 
     private void getGeneral(String general_id, Integer position){
         try{
@@ -321,7 +541,7 @@ public class BoardGeneral extends Fragment// Fragment 클래스를 상속받아�
                             String author = general.getString("author");
                             Integer author_lvl = general.getInt("author_lvl");
                             String content = general.getString("content");
-                            SimpleDateFormat fm = new SimpleDateFormat(getActivity().getString(R.string.date_format));
+                            SimpleDateFormat fm = new SimpleDateFormat("yyyy-MM-dd\\'T\\'kk:mm:ss.SSS");
                             Date date = null;
                             try {
                                 date = fm.parse(general.getString("date"));

@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".SellingDetailActivity">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="51.3dp"
+        android:background="@color/white">
+        <ImageButton
+            android:id="@+id/ib_back"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="17dp"
+            android:padding="0dp"
+            android:scaleType="centerCrop"
+            android:background="@color/white"
+            android:src="@drawable/leftarrow2" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="카페 A"
+            android:textSize="20.5dp"
+            android:textColor="@color/text_color48"
+            android:textStyle="bold" />
+
+    </RelativeLayout>
+    <ImageView
+        android:layout_width="376dp"
+        android:layout_height="376dp"
+        android:layout_gravity="center_horizontal"
+        android:background="#EBEBEB" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="39dp"
+        android:layout_marginTop="15dp"
+        android:text="카페 A 아이스 아메리카노"
+        android:textSize="20.5dp"
+        android:textStyle="bold"
+        android:textColor="@color/text_color48"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="39dp"
+        android:layout_marginTop="3dp"
+        android:text="사용 기한 ~2022.10.31"
+        android:textSize="17dp"
+        android:textColor="@color/text_color48"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right"
+        android:layout_marginRight="34dp"
+        android:text="100 크레딧"
+        android:textSize="20.5dp"
+        android:textStyle="bold"
+        android:textColor="@color/text_color70" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="13dp"
+        android:background="#C4C4C4"
+        android:layout_marginHorizontal="36dp" />
+    <RelativeLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp">
+        <ImageButton
+            android:layout_width="27dp"
+            android:layout_height="27dp"
+            android:src="@drawable/add"
+            android:background="@color/white"
+            android:scaleType="centerCrop"
+            android:layout_marginTop="4.5dp"
+            android:layout_marginBottom="15dp"
+            android:layout_marginLeft="42dp" />
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="수량 2개"
+                android:textSize="17dp"
+                android:textColor="@color/text_color48" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="200 크레딧"
+                android:textSize="20.5dp"
+                android:textStyle="bold"
+                android:textColor="@color/text_color3A" />
+        </LinearLayout>
+
+
+        <ImageButton
+            android:layout_width="27dp"
+            android:layout_height="27dp"
+            android:src="@drawable/minus"
+            android:background="@color/white"
+            android:scaleType="centerCrop"
+            android:layout_alignParentRight="true"
+            android:layout_marginTop="4.5dp"
+            android:layout_marginBottom="15dp"
+            android:layout_marginRight="42dp" />
+
+    </RelativeLayout>
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="45.6dp"
+        android:layout_marginTop="14dp"
+        android:layout_marginHorizontal="18dp"
+        android:text="교환하기" />
+
+
+</LinearLayout>

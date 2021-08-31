@@ -3,7 +3,6 @@ package com.pumasi.surbay;
 import android.content.Intent;
 import android.os.Bundle;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
@@ -12,8 +11,8 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 
-import com.pumasi.surbay.pages.mypage.MyResearch;
-import com.pumasi.surbay.pages.mypage.MyVote;
+import com.pumasi.surbay.pages.mypage.MyResearchActivity;
+import com.pumasi.surbay.pages.mypage.MyVoteActivity;
 import com.pumasi.surbay.pages.mypage.MypageSettingMain;
 
 public class MypageRenewalFragment extends Fragment {
@@ -43,6 +42,13 @@ public class MypageRenewalFragment extends Fragment {
         view = inflater.inflate(R.layout.fragment_mypage_renewal, container, false);
         ib_my_setting = view.findViewById(R.id.ib_my_setting);
         ib_my_exchange = view.findViewById(R.id.ib_my_exchange);
+        ib_my_exchange.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity().getApplicationContext(), MyExchangeActivity.class);
+                startActivity(intent);
+            }
+        });
         ib_my_gift = view.findViewById(R.id.ib_my_gift);
         ib_my_note = view.findViewById(R.id.ib_my_note);
         ib_my_announce = view.findViewById(R.id.ib_my_announce);
@@ -57,7 +63,7 @@ public class MypageRenewalFragment extends Fragment {
         ll_my_research_uploaded.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getActivity().getApplicationContext(), MyResearch.class);
+                Intent intent = new Intent(getActivity().getApplicationContext(), MyResearchActivity.class);
                 intent.putExtra("type", UPLOADED);
                 startActivity(intent);
             }
@@ -65,7 +71,7 @@ public class MypageRenewalFragment extends Fragment {
         ll_my_research_participated.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getActivity().getApplicationContext(), MyResearch.class);
+                Intent intent = new Intent(getActivity().getApplicationContext(), MyResearchActivity.class);
                 intent.putExtra("type", PARTICIPATED);
                 startActivity(intent);
             }
@@ -73,7 +79,7 @@ public class MypageRenewalFragment extends Fragment {
         ll_my_vote_uploaded.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getActivity().getApplicationContext(), MyVote.class);
+                Intent intent = new Intent(getActivity().getApplicationContext(), MyVoteActivity.class);
                 intent.putExtra("type", UPLOADED);
                 startActivity(intent);
             }
@@ -81,7 +87,7 @@ public class MypageRenewalFragment extends Fragment {
         ll_my_vote_participated.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getActivity().getApplicationContext(), MyVote.class);
+                Intent intent = new Intent(getActivity().getApplicationContext(), MyVoteActivity.class);
                 intent.putExtra("type", PARTICIPATED);
                 startActivity(intent);
             }
@@ -93,6 +99,7 @@ public class MypageRenewalFragment extends Fragment {
                 startActivity(intent);
             }
         });
+
 
         return view;
     }

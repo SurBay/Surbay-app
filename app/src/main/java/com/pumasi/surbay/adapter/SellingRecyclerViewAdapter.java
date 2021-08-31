@@ -1,6 +1,8 @@
 package com.pumasi.surbay.adapter;
 
 import com.pumasi.surbay.R;
+import com.pumasi.surbay.classfile.Coupon;
+
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,9 +11,14 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.ArrayList;
+
 public class SellingRecyclerViewAdapter extends RecyclerView.Adapter<SellingRecyclerViewAdapter.MySellingHolder> {
+
     LayoutInflater inflater;
-    public SellingRecyclerViewAdapter(Context ctx) {
+    ArrayList<Coupon> selling;
+    public SellingRecyclerViewAdapter(ArrayList<Coupon> selling, Context ctx) {
+        this.selling = selling;
         inflater = LayoutInflater.from(ctx);
     }
     @NonNull
@@ -29,7 +36,7 @@ public class SellingRecyclerViewAdapter extends RecyclerView.Adapter<SellingRecy
 
     @Override
     public int getItemCount() {
-        return 10;
+        return selling == null ? 0 : selling.size();
     }
 
     public class MySellingHolder extends RecyclerView.ViewHolder {

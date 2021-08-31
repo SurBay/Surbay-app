@@ -6,7 +6,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".pages.mypage.MyVote">
+    tools:context=".pages.mypage.MyVoteActivity">
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="51.3dp"
