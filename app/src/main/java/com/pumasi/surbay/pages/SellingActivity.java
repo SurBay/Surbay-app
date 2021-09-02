@@ -1,6 +1,8 @@
 package com.pumasi.surbay.pages;
 
 import com.pumasi.surbay.R;
+import com.pumasi.surbay.SellingDetailActivity;
+import com.pumasi.surbay.adapter.RecyclerViewDdayAdapter;
 import com.pumasi.surbay.adapter.SellingRecyclerViewAdapter;
 import com.pumasi.surbay.classfile.Coupon;
 import com.pumasi.surbay.classfile.Store;
@@ -10,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.view.View;
@@ -52,5 +55,14 @@ public class SellingActivity extends AppCompatActivity {
         rv_selling.setAdapter(sellingRecyclerViewAdapter);
         rv_selling.setLayoutManager(new LinearLayoutManager(getApplicationContext(), RecyclerView.VERTICAL, false));
 
+        sellingRecyclerViewAdapter.setOnItemClickListener(new RecyclerViewDdayAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View v, int position) {
+                Coupon coupon = (Coupon) sellingRecyclerViewAdapter.getItem(position);
+                Intent intent = new Intent(context, SellingDetailActivity.class);
+                intent.putExtra("coupon", coupon);
+                startActivity(intent);
+            }
+        });
     }
 }

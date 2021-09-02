@@ -44,7 +44,6 @@ import com.pumasi.surbay.classfile.PostNonSurvey;
 import com.pumasi.surbay.classfile.Reply;
 import com.pumasi.surbay.classfile.Surveytip;
 import com.pumasi.surbay.classfile.UserPersonalInfo;
-import com.pumasi.surbay.pages.mypage.MypageFragment;
 import com.pumasi.surbay.pages.mypage.NotificationsActivity;
 import com.pumasi.surbay.pages.signup.SplashActivity;
 

@@ -3,25 +3,32 @@ package com.pumasi.surbay.classfile;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
 public class Coupon implements Parcelable {
+
+    private String dateformat = "yyyy-MM-dd'T'kk:mm:ss.SSS";
+
     private String id;
     private boolean hide;
     private ArrayList<String> image_urls;
-    private String title;
+    private String store;
+    private String menu;
     private String content;
     private String author;
     private String category;
     private Integer cost;
     private Date date;
 
-    public Coupon(String id, boolean hide, ArrayList<String> image_urls, String title, String content, String author, String category, Integer cost, Date date) {
+    public Coupon(String id, boolean hide, ArrayList<String> image_urls, String store, String menu, String content, String author, String category, Integer cost, Date date) {
         this.id = id;
         this.hide = hide;
         this.image_urls = image_urls;
-        this.title = title;
+        this.store = store;
+        this.menu = menu;
         this.content = content;
         this.author = author;
         this.category = category;
@@ -34,7 +41,8 @@ public class Coupon implements Parcelable {
         id = in.readString();
         hide = in.readByte() != 0;
         image_urls = in.createStringArrayList();
-        title = in.readString();
+        store = in.readString();
+        menu = in.readString();
         content = in.readString();
         author = in.readString();
         category = in.readString();
@@ -42,6 +50,11 @@ public class Coupon implements Parcelable {
             cost = null;
         } else {
             cost = in.readInt();
+        }
+        try {
+            this.date = new SimpleDateFormat(dateformat).parse(in.readString());
+        } catch (ParseException e) {
+            e.printStackTrace();
         }
     }
 
@@ -81,12 +94,12 @@ public class Coupon implements Parcelable {
         this.image_urls = image_urls;
     }
 
-    public String getTitle() {
-        return title;
+    public String getStore() {
+        return store;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public void setStore(String store) {
+        this.store = store;
     }
 
     public String getContent() {
@@ -129,6 +142,15 @@ public class Coupon implements Parcelable {
         this.date = date;
     }
 
+    public String getMenu() {
+        return menu;
+    }
+
+    public void setMenu(String menu) {
+        this.menu = menu;
+    }
+
+
     @Override
     public int describeContents() {
         return 0;
@@ -139,7 +161,8 @@ public class Coupon implements Parcelable {
         dest.writeString(id);
         dest.writeByte((byte) (hide ? 1 : 0));
         dest.writeStringList(image_urls);
-        dest.writeString(title);
+        dest.writeString(store);
+        dest.writeString(menu);
         dest.writeString(content);
         dest.writeString(author);
         dest.writeString(category);
@@ -149,5 +172,7 @@ public class Coupon implements Parcelable {
             dest.writeByte((byte) 1);
             dest.writeInt(cost);
         }
+        dest.writeString(new SimpleDateFormat(dateformat).format(this.date));
+
     }
 }

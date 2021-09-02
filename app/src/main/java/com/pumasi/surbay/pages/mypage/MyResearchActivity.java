@@ -11,7 +11,10 @@ import android.widget.TextView;
 
 import com.pumasi.surbay.R;
 import com.pumasi.surbay.adapter.PostRecyclerViewAdapter;
+import com.pumasi.surbay.classfile.Post;
 import com.pumasi.surbay.pages.MainActivity;
+
+import java.util.ArrayList;
 
 public class MyResearchActivity extends AppCompatActivity {
 
@@ -21,7 +24,8 @@ public class MyResearchActivity extends AppCompatActivity {
     private RecyclerView rv_user_research;
     private int type;
     private PostRecyclerViewAdapter postRecyclerViewAdapter;
-
+    private ArrayList<Post> myPosts = new ArrayList<Post>();
+    private ArrayList<Post> partPosts = new ArrayList<Post>();
     private final int UPLOADED = 0;
     private final int PARTICIPATED = 1;
     @Override
@@ -36,8 +40,14 @@ public class MyResearchActivity extends AppCompatActivity {
         type = getIntent().getIntExtra("type", UPLOADED);
         if (type == UPLOADED) {
             tv_user_research_head.setText("업로드한 리서치");
+            postRecyclerViewAdapter = new PostRecyclerViewAdapter(myPosts, getApplicationContext());
+            rv_user_research.setAdapter(postRecyclerViewAdapter);
+            rv_user_research.setLayoutManager(new LinearLayoutManager(getApplicationContext(), RecyclerView.VERTICAL, false));
         } else if (type == PARTICIPATED) {
             tv_user_research_head.setText("참여한 리서치");
+            postRecyclerViewAdapter = new PostRecyclerViewAdapter(partPosts, getApplicationContext());
+            rv_user_research.setAdapter(postRecyclerViewAdapter);
+            rv_user_research.setLayoutManager(new LinearLayoutManager(getApplicationContext(), RecyclerView.VERTICAL, false));
         }
         ib_back.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -46,8 +56,13 @@ public class MyResearchActivity extends AppCompatActivity {
             }
         });
 
-        postRecyclerViewAdapter = new PostRecyclerViewAdapter(MainActivity.postArrayList, getApplicationContext());
-        rv_user_research.setAdapter(postRecyclerViewAdapter);
-        rv_user_research.setLayoutManager(new LinearLayoutManager(getApplicationContext(), RecyclerView.VERTICAL, false));
+
+    }
+
+    public void getMyResearches() {
+
+    }
+    public void getPartResearches() {
+
     }
 }

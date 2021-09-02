@@ -16,6 +16,7 @@
             android:layout_height="match_parent"
             android:background="@drawable/round_border_white_fill">
             <ImageView
+                android:id="@+id/iv_coupon_selling_item_image"
                 android:layout_width="91.2dp"
                 android:layout_height="91.2dp"
                 android:src="@color/gray2"
@@ -29,6 +30,7 @@
                 android:layout_marginTop="28.5dp">
 
                 <TextView
+                    android:id="@+id/tv_coupon_selling_item_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="카페 A 아이스 카페라떼"
@@ -36,6 +38,7 @@
                     android:textSize="17.1dp"
                     android:maxLines="1" />
                 <TextView
+                    android:id="@+id/tv_coupon_selling_item_due"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="5dp"
@@ -44,6 +47,7 @@
                     android:textSize="15dp"
                     android:maxLines="1"/>
                 <TextView
+                    android:id="@+id/tv_coupon_selling_item_price"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="5dp"

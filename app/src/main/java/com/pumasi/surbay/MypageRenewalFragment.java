@@ -1,5 +1,6 @@
 package com.pumasi.surbay;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -14,10 +15,13 @@ import android.widget.LinearLayout;
 import com.pumasi.surbay.pages.mypage.MyResearchActivity;
 import com.pumasi.surbay.pages.mypage.MyVoteActivity;
 import com.pumasi.surbay.pages.mypage.MypageSettingMain;
+import com.pumasi.surbay.pages.mypage.SettingFeedbacks;
+import com.pumasi.surbay.pages.mypage.SettingReport;
 
 public class MypageRenewalFragment extends Fragment {
 
     private View view;
+    private Context context;
     private ImageButton ib_my_setting;
 
     private LinearLayout ll_my_research_uploaded;
@@ -40,6 +44,7 @@ public class MypageRenewalFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         view = inflater.inflate(R.layout.fragment_mypage_renewal, container, false);
+        context = getActivity().getApplicationContext();
         ib_my_setting = view.findViewById(R.id.ib_my_setting);
         ib_my_exchange = view.findViewById(R.id.ib_my_exchange);
         ib_my_exchange.setOnClickListener(new View.OnClickListener() {
@@ -96,6 +101,21 @@ public class MypageRenewalFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity().getApplicationContext(), MypageSettingMain.class);
+                startActivity(intent);
+            }
+        });
+
+        ib_my_suggest.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, SettingFeedbacks.class);
+                startActivity(intent);
+            }
+        });
+        ib_my_report.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, SettingReport.class);
                 startActivity(intent);
             }
         });

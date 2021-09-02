@@ -445,14 +445,34 @@ public class LoginActivity extends AppCompatActivity {
                                     UserPersonalInfo.userPassword = user.getString("userPassword");
                                     UserPersonalInfo.gender = user.getInt("gender");
                                     UserPersonalInfo.yearBirth = user.getInt("yearBirth");
+
                                     JSONArray ja = (JSONArray)user.get("participations");
-
-                                    ArrayList<String> partiarray = new ArrayList<String>();
+                                    ArrayList<String> partiResearch = new ArrayList<String>();
                                     for (int j = 0; j<ja.length(); j++){
-                                        partiarray.add(ja.getString(j));
+                                        partiResearch.add(ja.getString(j));
                                     }
+                                    UserPersonalInfo.participations = partiResearch;
 
-                                    UserPersonalInfo.participations = partiarray;
+                                    JSONArray ja3 = (JSONArray)user.get("my_posts");
+                                    ArrayList<String> userResearch = new ArrayList<String>();
+                                    for (int j = 0; j < ja3.length(); j++) {
+                                        userResearch.add(ja3.getString(j));
+                                    }
+                                    UserPersonalInfo.my_posts = userResearch;
+
+                                    JSONArray ja4 = (JSONArray)user.get("general_participations");
+                                    ArrayList<String> partiGeneral = new ArrayList<String>();
+                                    for (int j = 0; j <ja4.length(); j++) {
+                                        partiGeneral.add(ja4.getString(j));
+                                    }
+                                    UserPersonalInfo.general_participations = partiGeneral;
+
+                                    JSONArray ja5 = (JSONArray)user.get("my_generals");
+                                    ArrayList<String> userGeneral = new ArrayList<String>();
+                                    for (int j = 0; j <ja5.length(); j++) {
+                                        userGeneral.add(ja5.getString(j));
+                                    }
+                                    UserPersonalInfo.my_generals = userGeneral;
 
                                     JSONArray ja2 = (JSONArray)user.get("prizes");
                                     ArrayList<String> prizearray = new ArrayList<String>();

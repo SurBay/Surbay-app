@@ -161,9 +161,6 @@
             android:name=".pages.homepage.NoticeActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".pages.mypage.Mypage_uploadNParti"
-            android:screenOrientation="portrait" />
-        <activity
             android:name=".BoardsSearchActivity"
             android:screenOrientation="portrait" />
         <activity

@@ -11,7 +11,10 @@ import android.widget.TextView;
 
 import com.pumasi.surbay.R;
 import com.pumasi.surbay.adapter.VoteRecyclerViewAdapter;
+import com.pumasi.surbay.classfile.General;
 import com.pumasi.surbay.pages.MainActivity;
+
+import java.util.ArrayList;
 
 public class MyVoteActivity extends AppCompatActivity {
 
@@ -21,6 +24,8 @@ public class MyVoteActivity extends AppCompatActivity {
     private RecyclerView rv_user_vote;
     private int type;
     private VoteRecyclerViewAdapter voteRecyclerViewAdapter;
+    private ArrayList<General> myVotes = new ArrayList<General>();
+    private ArrayList<General> partVotes = new ArrayList<General>();
     private final int UPLOADED = 0;
     private final int PARTICIPATED = 1;
 
@@ -36,8 +41,14 @@ public class MyVoteActivity extends AppCompatActivity {
         type = getIntent().getIntExtra("type", UPLOADED);
         if (type == UPLOADED) {
             tv_user_vote_head.setText("업로드한 투표");
+            voteRecyclerViewAdapter = new VoteRecyclerViewAdapter(myVotes, getApplicationContext());
+            rv_user_vote.setAdapter(voteRecyclerViewAdapter);
+            rv_user_vote.setLayoutManager(new LinearLayoutManager(getApplicationContext(), RecyclerView.VERTICAL, false));
         } else if (type == PARTICIPATED) {
             tv_user_vote_head.setText("참여한 투표");
+            voteRecyclerViewAdapter = new VoteRecyclerViewAdapter(partVotes, getApplicationContext());
+            rv_user_vote.setAdapter(voteRecyclerViewAdapter);
+            rv_user_vote.setLayoutManager(new LinearLayoutManager(getApplicationContext(), RecyclerView.VERTICAL, false));
         }
 
 
@@ -48,9 +59,14 @@ public class MyVoteActivity extends AppCompatActivity {
             }
         });
 
-        voteRecyclerViewAdapter = new VoteRecyclerViewAdapter(MainActivity.generalArrayList, getApplicationContext());
-        rv_user_vote.setAdapter(voteRecyclerViewAdapter);
-        rv_user_vote.setLayoutManager(new LinearLayoutManager(getApplicationContext(), RecyclerView.VERTICAL, false));
+
+
+    }
+
+    public void getMyVotes() {
+
+    }
+    public void getPartVotes() {
 
     }
 }

@@ -10,12 +10,14 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.graphics.drawable.ColorDrawable;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -63,6 +65,7 @@ public class BoardPost extends Fragment {
     private Button btn_post_sort_day;
     private Button btn_post_sort_goal;
     private Button btn_research_write;
+    private RelativeLayout loadingPanel;
     private RecyclerView rv_board_post;
     private static PostRecyclerViewAdapter postRecyclerViewAdapter;
     private Context context;
@@ -76,29 +79,31 @@ public class BoardPost extends Fragment {
     private SwipeRefreshLayout refresh_boards;
     private String check = "";
     private String beforePost = "";
-    private RelativeLayout rl_progress;
     private static int type = 1;
     private static boolean isParticipated = false;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        context = getActivity().getApplicationContext();
-        getInfinityPosts(beforePost, type, isParticipated);
 
         view = inflater.inflate(R.layout.fragment_board_post, container, false);
-        refresh_boards = view.findViewById(R.id.refresh_boards);
-        rl_progress = view.findViewById(R.id.rl_progress);
-        btn_post_sort_new = view.findViewById(R.id.btn_post_sort_new);
-        btn_post_sort_day = view.findViewById(R.id.btn_post_sort_day);
-        btn_post_sort_goal = view.findViewById(R.id.btn_post_sort_goal);
-        tv_participated_hide = view.findViewById(R.id.tv_participated_hide);
-        cb_hide_done = view.findViewById(R.id.cb_hide_done);
-        rv_board_post = view.findViewById(R.id.rv_board_post);
+        getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        context = getActivity().getApplicationContext();
+
+        setComponents();
+
+        setLoading(true);
+        setClickable(false);
+
+
         postRecyclerViewAdapter = new PostRecyclerViewAdapter(boardPostShow, context);
         mLayoutManager = new LinearLayoutManager(context, RecyclerView.VERTICAL, false);
-        rv_board_post.setLayoutManager(mLayoutManager);
         rv_board_post.setAdapter(postRecyclerViewAdapter);
+        rv_board_post.setLayoutManager(mLayoutManager);
+
         initScrollListener();
+        getInfinityPosts(beforePost, type, isParticipated);
+
         postRecyclerViewAdapter.setOnItemClickListener(new PostRecyclerViewAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View v, int position) {
@@ -110,24 +115,19 @@ public class BoardPost extends Fragment {
             }
         });
 
-        cb_hide_done.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    tv_participated_hide.setTextColor(Color.parseColor("#3AD1BF"));
-                    isParticipated = true;
+        return view;
+    }
+    private void setComponents() {
+        rv_board_post = view.findViewById(R.id.rv_board_post);
+        refresh_boards = view.findViewById(R.id.refresh_boards);
+        btn_post_sort_new = view.findViewById(R.id.btn_post_sort_new);
+        btn_post_sort_day = view.findViewById(R.id.btn_post_sort_day);
+        btn_post_sort_goal = view.findViewById(R.id.btn_post_sort_goal);
 
-                } else {
-                    tv_participated_hide.setTextColor(Color.parseColor("#BDBDBD"));
-                    isParticipated = false;
-
-                }
-                check = "";
-                beforePost = "";
-                boardPostShow.clear();
-                getInfinityPosts(beforePost, type, isParticipated);
-            }
-        });
+        cb_hide_done = view.findViewById(R.id.cb_hide_done);
+        tv_participated_hide = view.findViewById(R.id.tv_participated_hide);
+        btn_research_write = view.findViewById(R.id.btn_research_write);
+        loadingPanel = view.findViewById(R.id.loadingPanel);
 
         btn_post_sort_new.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -150,7 +150,26 @@ public class BoardPost extends Fragment {
             }
         });
 
-        btn_research_write = view.findViewById(R.id.btn_research_write);
+        cb_hide_done.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    tv_participated_hide.setTextColor(Color.parseColor("#3AD1BF"));
+                    setClickable(false);
+                    isParticipated = true;
+                } else {
+                    tv_participated_hide.setTextColor(Color.parseColor("#BDBDBD"));
+                    setClickable(false);
+                    isParticipated = false;
+                }
+                check = "";
+                beforePost = "";
+                boardPostShow.clear();
+                postRecyclerViewAdapter.notifyDataSetChanged();
+                getInfinityPosts(beforePost, type, isParticipated);
+                setTop();
+            }
+        });
         btn_research_write.setOnClickListener(
                 new View.OnClickListener(){
                     @Override
@@ -168,46 +187,41 @@ public class BoardPost extends Fragment {
                     }
                 }
         );
-        return view;
     }
     private void setSelected(int num) {
+        setClickable(false);
+        setLoading(true);
         type = num;
         check = "";
         beforePost = "";
         boardPostShow.clear();
+        postRecyclerViewAdapter.notifyDataSetChanged();
         getInfinityPosts(beforePost, type, isParticipated);
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if (boardPostShow.size() == 0) {
-                    rv_board_post.scrollToPosition(0);
-                }
-            }
-        }, 200);
+        setTop();
         switch (num) {
             case 0:
-                btn_post_sort_new.setBackgroundResource(R.drawable.ic_tabselect);
-                btn_post_sort_day.setBackgroundResource(R.drawable.ic_tabnoselect);
-                btn_post_sort_goal.setBackgroundResource(R.drawable.ic_tabnoselect);
-                btn_post_sort_new.setTextColor(Color.parseColor("#FFFFFF"));
-                btn_post_sort_day.setTextColor(Color.parseColor("#BDBDBD"));
-                btn_post_sort_goal.setTextColor(Color.parseColor("#BDBDBD"));
+                btn_post_sort_new.setBackgroundResource(R.drawable.round_border_teal_list);
+                btn_post_sort_day.setBackgroundResource(R.drawable.round_border_gray_list);
+                btn_post_sort_goal.setBackgroundResource(R.drawable.round_border_gray_list);
+                btn_post_sort_new.setTextColor(getResources().getColor(R.color.teal_200));
+                btn_post_sort_day.setTextColor(getResources().getColor(R.color.BDBDBD));
+                btn_post_sort_goal.setTextColor(getResources().getColor(R.color.BDBDBD));
                 break;
             case 1:
-                btn_post_sort_new.setBackgroundResource(R.drawable.ic_tabnoselect);
-                btn_post_sort_day.setBackgroundResource(R.drawable.ic_tabselect);
-                btn_post_sort_goal.setBackgroundResource(R.drawable.ic_tabnoselect);
-                btn_post_sort_new.setTextColor(Color.parseColor("#BDBDBD"));
-                btn_post_sort_day.setTextColor(Color.parseColor("#FFFFFF"));
-                btn_post_sort_goal.setTextColor(Color.parseColor("#BDBDBD"));
+                btn_post_sort_new.setBackgroundResource(R.drawable.round_border_gray_list);
+                btn_post_sort_day.setBackgroundResource(R.drawable.round_border_teal_list);
+                btn_post_sort_goal.setBackgroundResource(R.drawable.round_border_gray_list);
+                btn_post_sort_new.setTextColor(getResources().getColor(R.color.BDBDBD));
+                btn_post_sort_day.setTextColor(getResources().getColor(R.color.teal_200));
+                btn_post_sort_goal.setTextColor(getResources().getColor(R.color.BDBDBD));
                 break;
             case 2:
-                btn_post_sort_new.setBackgroundResource(R.drawable.ic_tabnoselect);
-                btn_post_sort_day.setBackgroundResource(R.drawable.ic_tabnoselect);
-                btn_post_sort_goal.setBackgroundResource(R.drawable.ic_tabselect);
-                btn_post_sort_new.setTextColor(Color.parseColor("#BDBDBD"));
-                btn_post_sort_day.setTextColor(Color.parseColor("#BDBDBD"));
-                btn_post_sort_goal.setTextColor(Color.parseColor("#FFFFFF"));
+                btn_post_sort_new.setBackgroundResource(R.drawable.round_border_gray_list);
+                btn_post_sort_day.setBackgroundResource(R.drawable.round_border_gray_list);
+                btn_post_sort_goal.setBackgroundResource(R.drawable.round_border_teal_list);
+                btn_post_sort_new.setTextColor(getResources().getColor(R.color.BDBDBD));
+                btn_post_sort_day.setTextColor(getResources().getColor(R.color.BDBDBD));
+                btn_post_sort_goal.setTextColor(getResources().getColor(R.color.teal_200));
                 break;
             default:
                 throw new IllegalStateException("Unexpected value: " + num);
@@ -332,6 +346,7 @@ public class BoardPost extends Fragment {
                     }
 
                     postRecyclerViewAdapter.notifyDataSetChanged();
+                    setLoading(false);
                     setClickable(true);
 
                 } catch (JSONException e) {
@@ -393,15 +408,26 @@ public class BoardPost extends Fragment {
         btn_post_sort_new.setEnabled(clickable);
         btn_post_sort_goal.setEnabled(clickable);
         btn_post_sort_day.setEnabled(clickable);
-        if (!clickable) {
-            rl_progress.setVisibility(View.VISIBLE);
+        cb_hide_done.setEnabled(clickable);
 
-        } else {
-            rl_progress.setVisibility(View.GONE);
-            rv_board_post.setVisibility(View.VISIBLE);
+    }
+    private void setLoading(boolean show) {
+        if (show) {
+            loadingPanel.setVisibility(View.VISIBLE);
+        } else if (!show) {
+            loadingPanel.setVisibility(View.GONE);
         }
     }
-
+    private void setTop() {
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (boardPostShow.size() == 0) {
+                    rv_board_post.scrollToPosition(0);
+                }
+            }
+        }, 200);
+    }
     @Override
     public void onDestroyView() {
         super.onDestroyView();

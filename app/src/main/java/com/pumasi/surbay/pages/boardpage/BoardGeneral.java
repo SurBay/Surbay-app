@@ -4,7 +4,10 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -22,11 +25,15 @@ import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import androidx.annotation.ColorRes;
+import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -81,9 +88,6 @@ public class BoardGeneral extends Fragment// Fragment 클래스를 상속받아�
     private int type = 0;
     private static boolean isOriginal = false;
     private int visibleItemCount, pastVisiblesItems, totalItemCount;
-    public static Button frag2newsortbutton;
-    public static ImageButton frag2likesortbutton;
-    public static ImageButton frag2partisortbutton;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private boolean getGeneralsDone = false;
     private boolean isLoading = false;
@@ -95,6 +99,7 @@ public class BoardGeneral extends Fragment// Fragment 클래스를 상속받아�
     private CheckBox cb_collect;
     private TextView tv_collect;
     private Context context;
+    private RelativeLayout loadingPanel;
     private RecyclerView rv_board_vote;
     private VoteRecyclerViewAdapter voteRecyclerViewAdapter;
     public static ArrayList<General> boardVoteShow = new ArrayList<General>();
@@ -108,17 +113,44 @@ public class BoardGeneral extends Fragment// Fragment 클래스를 상속받아�
         getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         context = getActivity().getApplicationContext();
 
+        setComponents();
+
+        setLoading(true);
+        setClickable(false);
+
+
+        voteRecyclerViewAdapter = new VoteRecyclerViewAdapter(boardVoteShow, context);
+        mLayoutManager = new LinearLayoutManager(context, RecyclerView.VERTICAL, false);
+        rv_board_vote.setAdapter(voteRecyclerViewAdapter);
+        rv_board_vote.setLayoutManager(mLayoutManager);
+
+        initScrollListener();
         getInfinityVotes(beforeVote, type, isOriginal);
+
+        return view;
+    }
+
+
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Log.d("result code is", ""+requestCode+"   "+resultCode);
+//        mSwipeRefreshLayout.refreshDrawableState();
+        getPersonalInfo();
+    }
+
+    private void setComponents() {
         rv_board_vote = view.findViewById(R.id.rv_board_vote);
         btn_vote_new_sort = view.findViewById(R.id.btn_vote_new_sort);
         ib_vote_like_sort = view.findViewById(R.id.ib_vote_like_sort);
         ib_vote_many_sort = view.findViewById(R.id.ib_vote_many_sort);
 
-        voteRecyclerViewAdapter = new VoteRecyclerViewAdapter(boardVoteShow, context);
-        rv_board_vote.setAdapter(voteRecyclerViewAdapter);
-        mLayoutManager = new LinearLayoutManager(context, RecyclerView.VERTICAL, false);
-        rv_board_vote.setLayoutManager(mLayoutManager);
-        initScrollListener();
+        cb_collect = view.findViewById(R.id.cb_collect);
+        tv_collect = view.findViewById(R.id.tv_collect);
+        btn_vote_write = view.findViewById(R.id.btn_vote_write);
+        loadingPanel = view.findViewById(R.id.loadingPanel);
+
         btn_vote_new_sort.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -137,7 +169,28 @@ public class BoardGeneral extends Fragment// Fragment 클래스를 상속받아�
                 setSelected(2);
             }
         });
-        btn_vote_write = view.findViewById(R.id.btn_vote_write);
+
+        cb_collect.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    tv_collect.setTextColor(Color.parseColor("#50D3DD"));
+                    isOriginal = true;
+                } else {
+                    tv_collect.setTextColor(Color.parseColor("#BDBDBD"));
+                    isOriginal = false;
+                }
+                setLoading(true);
+                setClickable(false);
+                check = "";
+                beforeVote = "";
+                boardVoteShow.clear();
+                voteRecyclerViewAdapter.notifyDataSetChanged();
+                getInfinityVotes(beforeVote, type, isOriginal);
+            }
+        });
+
+
         btn_vote_write.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
@@ -156,39 +209,8 @@ public class BoardGeneral extends Fragment// Fragment 클래스를 상속받아�
                 }
         );
 
-        cb_collect = view.findViewById(R.id.cb_collect);
-        tv_collect = view.findViewById(R.id.tv_collect);
-        cb_collect.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    tv_collect.setTextColor(Color.parseColor("#50D3DD"));
-                    isOriginal = true;
-                } else {
-                    tv_collect.setTextColor(Color.parseColor("#BDBDBD"));
-                    isOriginal = false;
-                }
-                check = "";
-                beforeVote = "";
-                boardVoteShow.clear();
-                getInfinityVotes(beforeVote, type, isOriginal);
-            }
-        });
-        return view;
 
     }
-
-
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        Log.d("result code is", ""+requestCode+"   "+resultCode);
-//        mSwipeRefreshLayout.refreshDrawableState();
-        getPersonalInfo();
-    }
-
-
     private void getPersonalInfo() {
         if (UserPersonalInfo.token == null) {
             return;
@@ -291,43 +313,41 @@ public class BoardGeneral extends Fragment// Fragment 클래스를 상속받아�
 
     public void setSelected(int num) {
         setClickable(false);
+        setLoading(true);
         type = num;
         check = "";
         beforeVote = "";
         boardVoteShow.clear();
+        voteRecyclerViewAdapter.notifyDataSetChanged();
         getInfinityVotes(beforeVote, type, isOriginal);
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if (boardVoteShow.size() == 0) {
-                    rv_board_vote.scrollToPosition(0);
-                }
-            }
-        }, 200);
+        setTop();
+
         switch (num) {
             case 0:
-                btn_vote_new_sort.setBackgroundResource(R.drawable.ic_tabselect);
-                ib_vote_like_sort.setBackgroundResource(R.drawable.ic_tabnoselect);
-                ib_vote_many_sort.setBackgroundResource(R.drawable.ic_tabnoselect);
-                btn_vote_new_sort.setTextColor(Color.parseColor("#FFFFFF"));
-                ib_vote_like_sort.setColorFilter(Color.parseColor("#BDBDBD"));
-                ib_vote_many_sort.setColorFilter(Color.parseColor("#BDBDBD"));
+                btn_vote_new_sort.setBackgroundResource(R.drawable.round_border_teal_list);
+                ib_vote_like_sort.setBackgroundResource(R.drawable.round_border_gray_list);
+                ib_vote_many_sort.setBackgroundResource(R.drawable.round_border_gray_list);
+                btn_vote_new_sort.setTextColor(getResources().getColor(R.color.teal_200));
+                ib_vote_like_sort.setImageDrawable(getTintedDrawable(getResources(), R.drawable.general_likes, R.color.BDBDBD));
+                ib_vote_many_sort.setImageDrawable(getTintedDrawable(getResources(), R.drawable.general_participants, R.color.BDBDBD));
                 break;
             case 1:
-                btn_vote_new_sort.setBackgroundResource(R.drawable.ic_tabnoselect);
-                ib_vote_like_sort.setBackgroundResource(R.drawable.ic_tabselect);
-                ib_vote_many_sort.setBackgroundResource(R.drawable.ic_tabnoselect);
-                btn_vote_new_sort.setTextColor(Color.parseColor("#BDBDBD"));
-                ib_vote_like_sort.setColorFilter(Color.parseColor("#FFFFFF"));
-                ib_vote_many_sort.setColorFilter(Color.parseColor("#BDBDBD"));
+                btn_vote_new_sort.setBackgroundResource(R.drawable.round_border_gray_list);
+                ib_vote_like_sort.setBackgroundResource(R.drawable.round_border_teal_list);
+                ib_vote_many_sort.setBackgroundResource(R.drawable.round_border_gray_list);
+                btn_vote_new_sort.setTextColor(getResources().getColor(R.color.BDBDBD));
+                ib_vote_like_sort.setImageDrawable(getTintedDrawable(getResources(), R.drawable.general_likes, R.color.teal_200));
+                ib_vote_many_sort.setImageDrawable(getTintedDrawable(getResources(), R.drawable.general_participants, R.color.BDBDBD));
+
                 break;
             case 2:
-                btn_vote_new_sort.setBackgroundResource(R.drawable.ic_tabnoselect);
-                ib_vote_like_sort.setBackgroundResource(R.drawable.ic_tabnoselect);
-                ib_vote_many_sort.setBackgroundResource(R.drawable.ic_tabselect);
-                btn_vote_new_sort.setTextColor(Color.parseColor("#BDBDBD"));
-                ib_vote_like_sort.setColorFilter(Color.parseColor("#BDBDBD"));
-                ib_vote_many_sort.setColorFilter(Color.parseColor("#FFFFFF"));
+                btn_vote_new_sort.setBackgroundResource(R.drawable.round_border_gray_list);
+                ib_vote_like_sort.setBackgroundResource(R.drawable.round_border_gray_list);
+                ib_vote_many_sort.setBackgroundResource(R.drawable.round_border_teal_list);
+                btn_vote_new_sort.setTextColor(getResources().getColor(R.color.BDBDBD));
+                ib_vote_like_sort.setImageDrawable(getTintedDrawable(getResources(), R.drawable.general_likes, R.color.BDBDBD));
+                ib_vote_many_sort.setImageDrawable(getTintedDrawable(getResources(), R.drawable.general_participants, R.color.teal_200));
+
                 break;
             default:
                 throw new IllegalStateException("Unexpected value: " + num);
@@ -470,6 +490,7 @@ public class BoardGeneral extends Fragment// Fragment 클래스를 상속받아�
                             }
                             voteRecyclerViewAdapter.notifyDataSetChanged();
                             setClickable(true);
+                            setLoading(false);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -482,7 +503,7 @@ public class BoardGeneral extends Fragment// Fragment 클래스를 상속받아�
             isLoading = false;
 
         } catch (Exception e) {
-
+            e.printStackTrace();
         }
     }
     private void initScrollListener() {
@@ -525,9 +546,32 @@ public class BoardGeneral extends Fragment// Fragment 클래스를 상속받아�
         btn_vote_new_sort.setEnabled(clickable);
         ib_vote_like_sort.setEnabled(clickable);
         ib_vote_many_sort.setEnabled(clickable);
-
+        cb_collect.setEnabled(clickable);
     }
-
+    private void setLoading(boolean show) {
+        if (show) {
+            loadingPanel.setVisibility(View.VISIBLE);
+        } else if (!show) {
+            loadingPanel.setVisibility(View.GONE);
+        }
+    }
+    private void setTop() {
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (boardVoteShow.size() == 0) {
+                    rv_board_vote.scrollToPosition(0);
+                }
+            }
+        }, 200);
+    }
+    public Drawable getTintedDrawable(Resources res,
+                                      @DrawableRes int drawableResId, @ColorRes int colorResId) {
+        Drawable drawable = res.getDrawable(drawableResId);
+        int color = res.getColor(colorResId);
+        drawable.setColorFilter(color, PorterDuff.Mode.SRC_IN);
+        return drawable;
+    }
     private void getGeneral(String general_id, Integer position){
         try{
             String requestURL = "http://ec2-3-35-152-40.ap-northeast-2.compute.amazonaws.com/api/generals/getpost/"+general_id;

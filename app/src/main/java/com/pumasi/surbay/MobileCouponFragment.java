@@ -56,6 +56,7 @@ public class MobileCouponFragment extends Fragment {
 
         view = inflater.inflate(R.layout.fragment_mobile_coupon, container, false);
         context = getActivity().getApplicationContext();
+        getCoupons();
         getStores(type);
         getCategories();
         rv_coupon_seller_supplier = view.findViewById(R.id.rv_coupon_seller_supplier);
@@ -72,7 +73,6 @@ public class MobileCouponFragment extends Fragment {
                 intent.putExtra("position", position);
                 Log.d("isClicked", "onItemClick: " + "true");
                 startActivity(intent);
-
             }
         });
 
@@ -85,6 +85,7 @@ public class MobileCouponFragment extends Fragment {
                 Log.d("category", "onItemClick: " + "clicked");
                 boardStores.clear();
                 type = position;
+                getCoupons();
                 getStores(type);
                 Toast.makeText(context, "It works", Toast.LENGTH_SHORT).show();
             }
@@ -154,7 +155,6 @@ public class MobileCouponFragment extends Fragment {
         }
     }
     public void getStores(int type) {
-        boardStores.add(new Store("all", false, null, null, "전체", "all"));
         try {
             String requestURL = "http://ec2-3-35-152-40.ap-northeast-2.compute.amazonaws.com/api/store/getstores/?type=" + type;
             RequestQueue requestQueue = Volley.newRequestQueue(context);
@@ -191,7 +191,8 @@ public class MobileCouponFragment extends Fragment {
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
-                                String title_ = responseCoupon.getString("title");
+                                String store_ = responseCoupon.getString("store");
+                                String menu_  = responseCoupon.getString("menu");
                                 String content_ = responseCoupon.getString("content");
                                 String author_ = responseCoupon.getString("author");
                                 String category_ = responseCoupon.getString("category");
@@ -203,7 +204,7 @@ public class MobileCouponFragment extends Fragment {
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
-                                Coupon resultCoupon = new Coupon(id_, hide_, img_urls_, title_, content_, author_, category_, cost_, date_);
+                                Coupon resultCoupon = new Coupon(id_, hide_, img_urls_, store_, menu_, content_, author_, category_, cost_, date_);
                                 coupons_list.add(resultCoupon);
                             }
                         } catch (Exception e) {
@@ -220,6 +221,60 @@ public class MobileCouponFragment extends Fragment {
                     e.printStackTrace();
                 }
             }, error ->  {
+                        error.printStackTrace();
+            });
+            jsonArrayRequest.setRetryPolicy(new DefaultRetryPolicy(20 * 1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            requestQueue.add(jsonArrayRequest);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    public void getCoupons() {
+        boardStores.add(new Store("all", false, null, null, "전체", "all"));
+        try {
+            String requestURL = "http://ec2-3-35-152-40.ap-northeast-2.compute.amazonaws.com/api/coupon";
+            RequestQueue requestQueue = Volley.newRequestQueue(context);
+            JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(
+                    Request.Method.GET, requestURL, null, response -> {
+                try {
+                    ArrayList<Coupon> allCoupons = new ArrayList<Coupon>();
+                    JSONArray responseArray = new JSONArray(response.toString());
+                    for (int i = 0; i < responseArray.length(); i++) {
+                        JSONObject responseCoupon = (JSONObject) responseArray.get(i);
+                        String id = responseCoupon.getString("_id");
+                        boolean hide = responseCoupon.getBoolean("hide");
+                        ArrayList<String> image_urls = new ArrayList<String>();
+                        try {
+                            JSONArray uua = (JSONArray) responseCoupon.get("image_urls");
+                            for (int uu = 0; uu < uua.length(); uu++) {
+                                image_urls.add(uua.getString(uu));
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        String store = responseCoupon.getString("store");
+                        String menu = responseCoupon.getString("menu");
+                        String content = responseCoupon.getString("content");
+                        String author = responseCoupon.getString("author");
+                        String category = responseCoupon.getString("category");
+                        int cost = responseCoupon.getInt("cost");
+                        SimpleDateFormat fm = new SimpleDateFormat("yyyy-MM-dd\'T\'kk:mm:ss.SSS");
+
+                        Date date = null;
+                        try {
+                            date = fm.parse(responseCoupon.getString("date"));
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        Coupon newCoupon = new Coupon(id, hide, image_urls, store, menu, content, author, category, cost, date);
+                        allCoupons.add(newCoupon);
+                    }
+                    boardStores.get(0).setCoupons_list(allCoupons);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }, error -> {
                         error.printStackTrace();
             });
             jsonArrayRequest.setRetryPolicy(new DefaultRetryPolicy(20 * 1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
