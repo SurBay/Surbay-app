@@ -50,7 +50,7 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.pumasi.surbay.R;
 import com.pumasi.surbay.SurveyWebActivity;
-import com.pumasi.surbay.adapter.ReplyListViewAdapter;
+import com.pumasi.surbay.adapter.ReplyRecyclerViewAdapter;
 import com.pumasi.surbay.classfile.CustomDialog;
 import com.pumasi.surbay.classfile.Notification;
 import com.pumasi.surbay.classfile.Post;
@@ -112,9 +112,9 @@ public class PostDetailActivity extends AppCompatActivity {
     private Post post;
     private int position;
     String surveyURL;
+    public static Context context;
 
-
-    private static ReplyListViewAdapter detail_reply_Adapter;
+    private static ReplyRecyclerViewAdapter detail_reply_Adapter;
     private static RecyclerView detail_reply_listView;
     private static ArrayList<Reply> replyArrayList;
 
@@ -141,6 +141,7 @@ public class PostDetailActivity extends AppCompatActivity {
 
     RelativeLayout loading;
 
+    private String replyId = "";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -152,7 +153,7 @@ public class PostDetailActivity extends AppCompatActivity {
         getSupportActionBar().setElevation(0);
 
         Intent intent = getIntent();
-
+        context = getApplicationContext();
         today = new Date();
 
         author = findViewById(R.id.author);
@@ -187,7 +188,7 @@ public class PostDetailActivity extends AppCompatActivity {
         position = intent.getIntExtra("position", -1);
         loading_detail(post);
         replyArrayList = post.getComments();
-        detail_reply_Adapter = new ReplyListViewAdapter(PostDetailActivity.this, replyArrayList);
+        detail_reply_Adapter = new ReplyRecyclerViewAdapter(PostDetailActivity.this, replyArrayList);
         detail_reply_Adapter.setPost(post);
         mLayoutManager = new LinearLayoutManager(this);
         detail_reply_listView.setLayoutManager(mLayoutManager);
@@ -364,7 +365,7 @@ public class PostDetailActivity extends AppCompatActivity {
                                     fm.setTimeZone(TimeZone.getTimeZone("Asia/Seoul"));
                                     Date realdate = fm.parse(utc_date);
                                     String writer_name = UserPersonalInfo.name;
-                                    Reply re = new Reply(id, UserPersonalInfo.userID, reply, realdate, new ArrayList<>(), false);
+                                    Reply re = new Reply(id, UserPersonalInfo.userID, reply, realdate, new ArrayList<>(), false, writer_name);
                                     re.setWriter_name(writer_name);
                                     replyArrayList.add(re);
                                     postReplyDone = true;
@@ -1152,7 +1153,7 @@ public class PostDetailActivity extends AppCompatActivity {
                 case REFRESH:
                     loading_detail(post);
                     Log.d("replylistis", ""+replyArrayList.size());
-                    detail_reply_Adapter = new ReplyListViewAdapter(PostDetailActivity.this, replyArrayList);
+                    detail_reply_Adapter = new ReplyRecyclerViewAdapter(PostDetailActivity.this, replyArrayList);
                     detail_reply_Adapter.setPost(post);
                     detail_reply_Adapter.notifyDataSetChanged();
                     detail_reply_listView.setAdapter(detail_reply_Adapter);
@@ -1161,7 +1162,7 @@ public class PostDetailActivity extends AppCompatActivity {
                     mSwipeRefreshLayout.setRefreshing(false);
                     break;
                 case REPLY:
-                    detail_reply_Adapter = new ReplyListViewAdapter(PostDetailActivity.this, replyArrayList);
+                    detail_reply_Adapter = new ReplyRecyclerViewAdapter(PostDetailActivity.this, replyArrayList);
                     detail_reply_Adapter.setPost(post);
                     detail_reply_Adapter.notifyDataSetChanged();
                     detail_reply_listView.setAdapter(detail_reply_Adapter);
@@ -1268,7 +1269,7 @@ public class PostDetailActivity extends AppCompatActivity {
                                         }catch (Exception e){
                                             writer_name = null;
                                         }
-                                        Reply re = new Reply(reid, writer, contetn, datereply,replyreports,replyhide);
+                                        Reply re = new Reply(reid, writer, contetn, datereply,replyreports,replyhide, writer_name);
                                         re.setWriter_name(writer_name);
                                         if (!replyhide && !replyreports.contains(UserPersonalInfo.userID)){
                                             comments.add(re);

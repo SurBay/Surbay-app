@@ -15,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.android.volley.DefaultRetryPolicy;
@@ -42,23 +43,25 @@ import java.util.Locale;
 public class MobileCouponFragment extends Fragment {
 
     private View view;
+    private int pos = 0;
     private Context context;
     private SellerRecyclerViewAdapter sellerRecyclerViewAdapter;
     private StoreCategoryRecyclerViewAdapter storeCategoryRecyclerViewAdapter;
     private RecyclerView rv_coupon_seller_category;
     private RecyclerView rv_coupon_seller_supplier;
     private int type = 0;
+    private ArrayList<Integer> clicked = new ArrayList<Integer>();
     private ArrayList<StoreCategory> boardStoreCategories = new ArrayList<StoreCategory>();
     private ArrayList<Store> boardStores = new ArrayList<Store>();
+    private RelativeLayout loadingPanel;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
         view = inflater.inflate(R.layout.fragment_mobile_coupon, container, false);
         context = getActivity().getApplicationContext();
-        getCoupons();
-        getStores(type);
-        getCategories();
+        loadingPanel  = view.findViewById(R.id.loadingPanel);
+
         rv_coupon_seller_supplier = view.findViewById(R.id.rv_coupon_seller_supplier);
         rv_coupon_seller_category = view.findViewById(R.id.rv_coupon_seller_category);
         sellerRecyclerViewAdapter = new SellerRecyclerViewAdapter(boardStores, context);
@@ -76,53 +79,29 @@ public class MobileCouponFragment extends Fragment {
             }
         });
 
-        storeCategoryRecyclerViewAdapter = new StoreCategoryRecyclerViewAdapter(boardStoreCategories, context);
+        storeCategoryRecyclerViewAdapter = new StoreCategoryRecyclerViewAdapter(boardStoreCategories, clicked, context);
         rv_coupon_seller_category.setAdapter(storeCategoryRecyclerViewAdapter);
         rv_coupon_seller_category.setLayoutManager(new LinearLayoutManager(context, RecyclerView.HORIZONTAL, false));
         storeCategoryRecyclerViewAdapter.setOnItemClickListener(new StoreCategoryRecyclerViewAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View v, int position) {
                 Log.d("category", "onItemClick: " + "clicked");
+                clicked.set(type, 0);
+                clicked.set(position, 1);
                 boardStores.clear();
+                sellerRecyclerViewAdapter.notifyDataSetChanged();
+                storeCategoryRecyclerViewAdapter.notifyDataSetChanged();
                 type = position;
                 getCoupons();
                 getStores(type);
-                Toast.makeText(context, "It works", Toast.LENGTH_SHORT).show();
             }
         });
+        getCoupons();
+        getStores(type);
+        getCategories();
         return view;
     }
 
-//    public void setSelected(int num) {
-//        btn_coupon_seller_filter_all.setTextAppearance(R.style.TabButtonNotSelect);
-//        btn_coupon_seller_filter_all.setBackgroundResource(R.drawable.ic_tabnoselect);
-//        btn_coupon_seller_filter_cafe.setTextAppearance(R.style.TabButtonNotSelect);
-//        btn_coupon_seller_filter_cafe.setBackgroundResource(R.drawable.ic_tabnoselect);
-//        btn_coupon_seller_filter_food.setTextAppearance(R.style.TabButtonNotSelect);
-//        btn_coupon_seller_filter_food.setBackgroundResource(R.drawable.ic_tabnoselect);
-//        btn_coupon_seller_filter_etc.setTextAppearance(R.style.TabButtonNotSelect);
-//        btn_coupon_seller_filter_etc.setBackgroundResource(R.drawable.ic_tabnoselect);
-//        switch (num) {
-//            case 0:
-//                btn_coupon_seller_filter_all.setBackgroundResource(R.drawable.ic_tabselect);
-//                btn_coupon_seller_filter_all.setTextAppearance(R.style.TabButtonSelect);
-//                break;
-//            case 1:
-//                btn_coupon_seller_filter_cafe.setBackgroundResource(R.drawable.ic_tabselect);
-//                btn_coupon_seller_filter_cafe.setTextAppearance(R.style.TabButtonSelect);
-//                break;
-//            case 2:
-//                btn_coupon_seller_filter_food.setBackgroundResource(R.drawable.ic_tabselect);
-//                btn_coupon_seller_filter_food.setTextAppearance(R.style.TabButtonSelect);
-//                break;
-//            case 3:
-//                btn_coupon_seller_filter_etc.setBackgroundResource(R.drawable.ic_tabselect);
-//                btn_coupon_seller_filter_etc.setTextAppearance(R.style.TabButtonSelect);
-//                break;
-//            default:
-//                throw new IllegalStateException("Unexpected value: " + num);
-//        }
-//    }
 
     public void getCategories() {
         try {
@@ -138,7 +117,9 @@ public class MobileCouponFragment extends Fragment {
                         String category = responseCategory.getString("category");
                         StoreCategory resultStoreCategory = new StoreCategory(type, category);
                         boardStoreCategories.add(resultStoreCategory);
+                        clicked.add(0);
                     }
+                    clicked.set(type, 1);
                     storeCategoryRecyclerViewAdapter.notifyDataSetChanged();
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -216,6 +197,7 @@ public class MobileCouponFragment extends Fragment {
                         boardStores.add(resultStore);
                     }
                     sellerRecyclerViewAdapter.notifyDataSetChanged();
+                    setLoading(false);
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -230,6 +212,7 @@ public class MobileCouponFragment extends Fragment {
         }
     }
     public void getCoupons() {
+        setLoading(true);
         boardStores.add(new Store("all", false, null, null, "전체", "all"));
         try {
             String requestURL = "http://ec2-3-35-152-40.ap-northeast-2.compute.amazonaws.com/api/coupon";
@@ -281,6 +264,15 @@ public class MobileCouponFragment extends Fragment {
             requestQueue.add(jsonArrayRequest);
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+    public void setLoading(boolean show) {
+        if (show) {
+            rv_coupon_seller_supplier.setVisibility(View.GONE);
+            loadingPanel.setVisibility(View.VISIBLE);
+        } else if (!show) {
+            rv_coupon_seller_supplier.setVisibility(View.VISIBLE);
+            loadingPanel.setVisibility(View.GONE);
         }
     }
 }

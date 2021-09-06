@@ -21,6 +21,7 @@
             android:background="@color/white"
             android:src="@drawable/leftarrow2" />
         <TextView
+            android:id="@+id/tv_coupon_selling_detail_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
@@ -31,6 +32,7 @@
 
     </RelativeLayout>
     <ImageView
+        android:id="@+id/iv_coupon_selling_detail_img"
         android:layout_width="376dp"
         android:layout_height="376dp"
         android:layout_gravity="center_horizontal"

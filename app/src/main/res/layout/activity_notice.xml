@@ -6,26 +6,28 @@
     android:background="@color/gray">
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="30dp">
-        <ImageView
+        android:layout_height="51.3dp"
+        android:background="@color/white">
+        <ImageButton
+            android:id="@+id/notice_back"
             android:layout_width="24dp"
             android:layout_height="24dp"
-            style="@style/back_button"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="17dp"
             android:src="@drawable/leftarrow2"
-            android:scaleType="centerInside"
-            android:id="@+id/notice_back"
+            android:padding="0dp"
+            android:background="@color/white"
+            android:scaleType="centerCrop"
             android:clickable="true"
             />
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textStyle="bold"
-            android:layout_centerHorizontal="true"
+            android:layout_centerInParent="true"
             android:text="공지 게시판"
-            android:layout_marginTop="27dp"
             android:textColor="@color/text_black"
-            android:textSize="17.5dp"></TextView>
+            android:textSize="20.5dp"
+            android:textStyle="bold" />
     </RelativeLayout>
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/notice_swipe_container"

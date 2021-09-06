@@ -23,15 +23,15 @@
                 android:layout_marginEnd="20dp"
                 android:orientation="vertical">
                 <TextView
-                    android:id="@+id/non_cate"
+                    android:id="@+id/tv_tip_item_category"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="앱 구동 불편 사항"
-                    android:textColor="@color/text_black"
+                    android:textColor="@color/teal_200"
                     android:textSize="13sp"
                     />
                 <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/non_title"
+                    android:id="@+id/tv_tip_item_title"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
@@ -54,33 +54,33 @@
                 <ImageView
                     android:layout_width="37.5dp"
                     android:layout_height="37.5dp"
-                    android:id="@+id/non_profile"
+                    android:id="@+id/iv_tip_item_profile"
                     android:background="@drawable/rectangle_rounded"
                     android:backgroundTint="@color/gray"
                     android:layout_marginRight="10dp"
                     />
                 <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/non_author"
+                    android:id="@+id/tv_tip_item_author"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_toRightOf="@id/non_profile"
-                    android:layout_below="@id/non_date"
+                    android:layout_toRightOf="@id/iv_tip_item_profile"
+                    android:layout_below="@id/tv_tip_item_date"
                     android:text="익명"
                     android:textSize="12.5sp"
                     android:textColor="@color/text_black_70"/>
                 <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/non_date"
+                    android:id="@+id/tv_tip_item_date"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_toRightOf="@id/non_profile"
-                    android:layout_alignTop="@id/non_profile"
+                    android:layout_toRightOf="@id/iv_tip_item_profile"
+                    android:layout_alignTop="@id/iv_tip_item_profile"
                     android:text="날짜"
                     android:textSize="12.5sp"
                     android:textColor="@color/text_black_70"/>
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignBottom="@id/non_profile"
+                    android:layout_alignBottom="@id/iv_tip_item_profile"
                     android:layout_alignParentRight="true"
                     >
                     <ImageView
@@ -92,7 +92,7 @@
                         android:id="@+id/non_recomimage"
                         />
                     <TextView
-                        android:id="@+id/non_recom"
+                        android:id="@+id/tv_tip_item_likes"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="5dp"

@@ -33,12 +33,15 @@ import com.pumasi.surbay.adapter.HomeTipPagerAdapter;
 import com.pumasi.surbay.adapter.HomeVotePagerAdapter;
 import com.pumasi.surbay.classfile.Banner;
 import com.pumasi.surbay.classfile.General;
+import com.pumasi.surbay.classfile.Notice;
+import com.pumasi.surbay.classfile.Notification;
 import com.pumasi.surbay.classfile.Poll;
 import com.pumasi.surbay.classfile.Post;
 import com.pumasi.surbay.classfile.Reply;
 import com.pumasi.surbay.classfile.Surveytip;
 import com.pumasi.surbay.classfile.UserPersonalInfo;
 import com.pumasi.surbay.pages.MainActivity;
+import com.pumasi.surbay.pages.homepage.NoticeActivity;
 import com.tbuonomo.viewpagerdotsindicator.DotsIndicator;
 
 import org.json.JSONArray;
@@ -83,6 +86,7 @@ public class HomeRenewalFragment extends Fragment {
     private static ImageView iv_research_none;
     private static ImageView iv_vote_none;
     private static ImageView iv_tip_none;
+    private ImageView ib_bell;
     private ArrayList<String> ImagesArray = new ArrayList<>();
     public static ArrayList<Post> randomPosts = new ArrayList<Post>();
     public static ArrayList<General> randomVotes = new ArrayList<General>();
@@ -100,6 +104,15 @@ public class HomeRenewalFragment extends Fragment {
         doneBanners = false;
         view = inflater.inflate(R.layout.fragment_home_renewal, container, false);
         ((AppCompatActivity) getActivity()).getSupportActionBar().hide();
+
+        ib_bell = view.findViewById(R.id.ib_bell);
+        ib_bell.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity().getApplicationContext(), NoticeActivity.class);
+                startActivity(intent);
+            }
+        });
         ib_shift_home_research = view.findViewById(R.id.ib_shift_home_research);
         ib_shift_home_vote = view.findViewById(R.id.ib_shift_home_vote);
         ib_shift_home_tip = view.findViewById(R.id.ib_shift_home_tip);
@@ -376,7 +389,7 @@ public class HomeRenewalFragment extends Fragment {
                                             }catch (Exception e){
                                                 writer_name = null;
                                             }
-                                            Reply re = new Reply(reid, writer, contetn, datereply,replyreports,replyhide);
+                                            Reply re = new Reply(reid, writer, contetn, datereply,replyreports,replyhide, writer_name);
                                             re.setWriter_name(writer_name);
                                             if ((!replyhide )&& (!replyreports.contains(UserPersonalInfo.userID))){
                                                 comments.add(re);
@@ -474,7 +487,7 @@ public class HomeRenewalFragment extends Fragment {
                                              }catch (Exception e){
                                                  writer_name = null;
                                              }
-                                             Reply re = new Reply(reid, writer, contetn, datereply,replyreports,replyhide);
+                                             Reply re = new Reply(reid, writer, contetn, datereply,replyreports,replyhide, writer_name);
                                              re.setWriter_name(writer_name);
                                              if ((!replyhide )&& (!replyreports.contains(UserPersonalInfo.userID))){
                                                  comments.add(re);

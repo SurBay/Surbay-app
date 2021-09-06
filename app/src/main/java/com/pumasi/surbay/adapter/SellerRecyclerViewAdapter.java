@@ -4,11 +4,13 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.pumasi.surbay.classfile.Post;
 
 import java.util.ArrayList;
@@ -20,12 +22,14 @@ import com.pumasi.surbay.classfile.Store;
 
 public class SellerRecyclerViewAdapter extends RecyclerView.Adapter<SellerRecyclerViewAdapter.MySellerViewHolder> {
 
+    private Context context;
     LayoutInflater inflater;
     private ArrayList<Store> boardStores = new ArrayList<Store>();
     private SellerRecyclerViewAdapter.OnItemClickListener aListener = null;
 
     public SellerRecyclerViewAdapter(ArrayList<Store> boardStores, Context ctx) {
         this.boardStores = boardStores;
+        this.context = ctx;
         inflater = LayoutInflater.from(ctx);
     }
 
@@ -51,6 +55,9 @@ public class SellerRecyclerViewAdapter extends RecyclerView.Adapter<SellerRecycl
     public void onBindViewHolder(@NonNull MySellerViewHolder holder, int position) {
         Store store = boardStores.get(position);
         holder.tv_coupon_seller_item_name.setText(store.getName());
+        if (!(store.getImg_urls() == null || store.getImg_urls().size() == 0)) {
+            Glide.with(context).load(store.getImg_urls().get(0)).into(holder.iv_coupon_seller_item_show);
+        }
 
     }
 
@@ -61,10 +68,12 @@ public class SellerRecyclerViewAdapter extends RecyclerView.Adapter<SellerRecycl
 
     public class MySellerViewHolder extends RecyclerView.ViewHolder {
         private final TextView tv_coupon_seller_item_name;
+        private final ImageView iv_coupon_seller_item_show;
 
         public MySellerViewHolder(@NonNull View itemView) {
             super(itemView);
             tv_coupon_seller_item_name = itemView.findViewById(R.id.tv_coupon_seller_item_name);
+            iv_coupon_seller_item_show = itemView.findViewById(R.id.iv_coupon_seller_item_show);
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

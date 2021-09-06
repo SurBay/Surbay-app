@@ -9,79 +9,82 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="49dp"
-        android:orientation="horizontal"
         android:background="#FBFBFB"
+        android:orientation="horizontal"
         android:padding="5dp">
+
         <Button
+            android:id="@+id/btn_post_sort_new"
             style="@style/Widget.AppCompat.Button.Borderless"
             android:layout_width="53.58dp"
             android:layout_height="27dp"
-            android:layout_marginRight="5.7dp"
-            android:layout_marginTop="6dp"
-            android:padding="0dp"
-            android:background="@drawable/round_border_teal_list"
-            android:text="NEW"
-            android:textSize="13dp"
-            android:textColor="@color/teal_200"
             android:layout_marginLeft="17.1dp"
+            android:layout_marginTop="6dp"
+            android:layout_marginRight="5.7dp"
             android:layout_marginBottom="6dp"
-            android:id="@+id/btn_post_sort_new"
-            />
+            android:background="@drawable/round_border_teal_list"
+            android:padding="0dp"
+            android:text="NEW"
+            android:textColor="@color/teal_200"
+            android:textSize="13dp" />
+
         <Button
+            android:id="@+id/btn_post_sort_day"
             style="@style/Widget.AppCompat.Button.Borderless"
             android:layout_width="55.86dp"
             android:layout_height="27dp"
-            android:layout_marginRight="5.7dp"
             android:layout_marginTop="6dp"
+            android:layout_marginRight="5.7dp"
             android:layout_marginBottom="6dp"
-            android:padding="0dp"
-            android:background="@drawable/round_border_gray_list"
-            android:text="D-Day"
-            android:textSize="13dp"
-            android:textColor="@color/nav_gray"
-            android:id="@+id/btn_post_sort_day"
             android:layout_toRightOf="@id/btn_post_sort_new"
-            />
+            android:background="@drawable/round_border_gray_list"
+            android:padding="0dp"
+            android:text="D-Day"
+            android:textColor="@color/nav_gray"
+            android:textSize="13dp" />
+
         <Button
+            android:id="@+id/btn_post_sort_goal"
             style="@style/Widget.AppCompat.Button.Borderless"
             android:layout_width="68.4dp"
             android:layout_height="27dp"
             android:layout_marginTop="6dp"
             android:layout_marginBottom="6dp"
-            android:padding="0dp"
-            android:background="@drawable/round_border_gray_list"
-            android:text="Almost"
-            android:textSize="13dp"
-            android:textColor="@color/nav_gray"
-            android:gravity="center"
-            android:id="@+id/btn_post_sort_goal"
             android:layout_toRightOf="@id/btn_post_sort_day"
-            />
+            android:background="@drawable/round_border_gray_list"
+            android:gravity="center"
+            android:padding="0dp"
+            android:text="Almost"
+            android:textColor="@color/nav_gray"
+            android:textSize="13dp" />
+
         <CheckBox
             android:id="@+id/cb_hide_done"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toStartOf="@id/tv_participated_hide"
+            android:buttonTint="@drawable/done_checkbox_selector_research"
+            android:gravity="center"
             android:minWidth="0dp"
             android:minHeight="0dp"
-            android:padding="0dp"
-            android:layout_toStartOf="@id/tv_participated_hide"
-            android:layout_centerVertical="true"
-            android:gravity="center"
-            android:buttonTint="@drawable/done_checkbox_selector_research"/>
+            android:padding="0dp" />
+
         <TextView
             android:id="@+id/tv_participated_hide"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:gravity="center"
-            android:text="참여 설문 숨김"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:textColor="@color/nav_gray"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
-            android:layout_marginRight="11dp" />
+            android:layout_marginRight="11dp"
+            android:gravity="center"
+            android:text="참여 설문 숨김"
+            android:textColor="@color/nav_gray"
+            android:textSize="14sp"
+            android:textStyle="bold" />
 
     </RelativeLayout>
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

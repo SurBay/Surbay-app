@@ -19,8 +19,9 @@ public class Reply implements Parcelable {
     private ArrayList<String> reports;
     private boolean hide;
     private String writer_name;
+    private ArrayList<ReReply> reply;
 
-    public Reply(String id, String writer, String content, Date date, ArrayList<String> reports, Boolean hide){
+    public Reply(String id, String writer, String content, Date date, ArrayList<String> reports, Boolean hide, String writer_name){
         this.id = id;
         this.writer = writer;
         this.content = content;
@@ -29,6 +30,7 @@ public class Reply implements Parcelable {
         this.date = seoul_date;
         this.reports = new ArrayList<>(reports);
         this.hide = hide;
+        this.writer_name = writer_name;
     }
     public String getID() {
         return id;

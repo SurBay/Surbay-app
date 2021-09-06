@@ -274,7 +274,7 @@ public class BoardFeedback extends Fragment {
                                     }catch (Exception e){
                                         writer_name = null;
                                     }
-                                    Reply re = new Reply(reid, writer, contetn, datereply,replyreports,replyhide);
+                                    Reply re = new Reply(reid, writer, contetn, datereply,replyreports,replyhide, writer_name);
                                     re.setWriter_name(writer_name);
                                     comments.add(re);
                                 }

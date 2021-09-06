@@ -46,12 +46,12 @@ public class SurveyTipListViewAdapter extends BaseAdapter {
             convertView = inflater.inflate(R.layout.non_survey_list_item, parent, false);
         }
         // 화면에 표시될 View(Layout이 inflate된)으로부터 위젯에 대한 참조 획득
-        TextView titleTextView = (TextView) convertView.findViewById(R.id.non_title);
-        TextView dateTextView = (TextView) convertView.findViewById(R.id.non_date);
-        TextView authorTextView = (TextView) convertView.findViewById(R.id.non_author);
-        TextView likesTextView = (TextView) convertView.findViewById(R.id.non_recom);
-        TextView categoryTextView = (TextView) convertView.findViewById(R.id.non_cate);
-        ImageView profileView = (ImageView) convertView.findViewById(R.id.non_profile);
+        TextView titleTextView = (TextView) convertView.findViewById(R.id.tv_tip_item_title);
+        TextView dateTextView = (TextView) convertView.findViewById(R.id.tv_tip_item_date);
+        TextView authorTextView = (TextView) convertView.findViewById(R.id.tv_tip_item_author);
+        TextView likesTextView = (TextView) convertView.findViewById(R.id.tv_tip_item_likes);
+        TextView categoryTextView = (TextView) convertView.findViewById(R.id.tv_tip_item_category);
+        ImageView profileView = (ImageView) convertView.findViewById(R.id.iv_tip_item_profile);
 
         // Data Set(listViewItemList)에서 position에 위치한 데이터 참조 획득
         SimpleDateFormat fm = new SimpleDateFormat("MM.dd");

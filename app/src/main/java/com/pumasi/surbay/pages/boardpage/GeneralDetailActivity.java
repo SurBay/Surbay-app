@@ -457,7 +457,7 @@ public class GeneralDetailActivity extends AppCompatActivity {
                                     fm.setTimeZone(TimeZone.getTimeZone("Asia/Seoul"));
                                     Date realdate = fm.parse(utc_date);
                                     String writer_name = UserPersonalInfo.name;
-                                    Reply re = new Reply(id, UserPersonalInfo.userID, reply, realdate, new ArrayList<>(), false);
+                                    Reply re = new Reply(id, UserPersonalInfo.userID, reply, realdate, new ArrayList<>(), false, writer_name);
                                     re.setWriter_name(writer_name);
                                     replyArrayList.add(re);
                                     postReplyDone = true;
@@ -1059,7 +1059,7 @@ public class GeneralDetailActivity extends AppCompatActivity {
                                         }catch (Exception e){
                                             writer_name = null;
                                         }
-                                        Reply re = new Reply(reid, writer, contetn, datereply,replyreports,replyhide);
+                                        Reply re = new Reply(reid, writer, contetn, datereply,replyreports,replyhide, writer_name);
                                         re.setWriter_name(writer_name);
                                         if ((!replyhide )&& (!replyreports.contains(UserPersonalInfo.userID))){
                                             comments.add(re);

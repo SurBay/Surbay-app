@@ -32,12 +32,24 @@ public class VoteRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
     private final int VIEW_TYPE_ITEM = 0;
     private final int VIEW_TYPE_LOADING = 1;
 
+    private VoteRecyclerViewAdapter.OnItemClickListener aListener = null;
+
     private LayoutInflater inflater;
     private ArrayList<General> boardVotes;
 
     public VoteRecyclerViewAdapter(ArrayList<General> boardVotes, Context ctx) {
         this.boardVotes = boardVotes;
         inflater = LayoutInflater.from(ctx);
+    }
+    public interface OnItemClickListener {
+        void onItemClick(View v, int position);
+    }
+
+    public void setOnItemClickListener(VoteRecyclerViewAdapter.OnItemClickListener onItemClickListener) {
+        this.aListener = onItemClickListener;
+    }
+    public Object getItem(int position) {
+        return boardVotes.get(position);
     }
 
     @NonNull
@@ -175,6 +187,19 @@ public class VoteRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
             tv_vote_content4_3 = itemView.findViewById(R.id.tv_vote_content4_3);
             tv_vote_content4_4 = itemView.findViewById(R.id.tv_vote_content4_4);
             tv_vote_content4_extra = itemView.findViewById(R.id.tv_vote_content4_extra);
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int pos = getAdapterPosition();
+                    if (pos != RecyclerView.NO_POSITION) {
+                        // 리스너 객체의 메서드 호출.
+                        if (aListener != null) {
+                            aListener.onItemClick(v, pos);
+                        }
+                    }
+                }
+            });
 
 
         }

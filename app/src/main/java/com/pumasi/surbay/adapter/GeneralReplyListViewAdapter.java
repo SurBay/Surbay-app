@@ -42,7 +42,7 @@ import java.util.Arrays;
 import java.util.Locale;
 
 public class GeneralReplyListViewAdapter extends RecyclerView.Adapter<GeneralReplyListViewAdapter.MyViewHolder> {
-    private static ReplyListViewAdapter.OnItemClickListener mListener = null ;
+    private static ReplyRecyclerViewAdapter.OnItemClickListener mListener = null ;
     private ArrayList<Reply> listViewItemList = new ArrayList<Reply>();
     private General post;
     final private static String[] report = {"욕설","비하상업적 광고 및 판매낚시","놀람/도배/사기","게시판 성격에 부적절함기타"};

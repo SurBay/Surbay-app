@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 
+import com.pumasi.surbay.pages.homepage.NoticeActivity;
 import com.pumasi.surbay.pages.mypage.MyResearchActivity;
 import com.pumasi.surbay.pages.mypage.MyVoteActivity;
 import com.pumasi.surbay.pages.mypage.MypageSettingMain;
@@ -104,7 +105,13 @@ public class MypageRenewalFragment extends Fragment {
                 startActivity(intent);
             }
         });
-
+        ib_my_announce.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, NoticeActivity.class);
+                startActivity(intent);
+            }
+        });
         ib_my_suggest.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

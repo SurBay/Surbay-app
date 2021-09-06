@@ -415,7 +415,7 @@ public class BoardGeneral extends Fragment// Fragment 클래스를 상속받아�
                                             }catch (Exception e){
                                                 writer_name = null;
                                             }
-                                            Reply re = new Reply(reid, writer, contetn, datereply,replyreports,replyhide);
+                                            Reply re = new Reply(reid, writer, contetn, datereply,replyreports,replyhide, writer_name);
                                             re.setWriter_name(writer_name);
                                             if ((!replyhide )&& (!replyreports.contains(UserPersonalInfo.userID))){
                                                 comments.add(re);
@@ -627,7 +627,7 @@ public class BoardGeneral extends Fragment// Fragment 클래스를 상속받아�
                                         }catch (Exception e){
                                             writer_name = null;
                                         }
-                                        Reply re = new Reply(reid, writer, contetn, datereply,replyreports,replyhide);
+                                        Reply re = new Reply(reid, writer, contetn, datereply,replyreports,replyhide, writer_name);
                                         re.setWriter_name(writer_name);
                                         if ((!replyhide )&& (!replyreports.contains(UserPersonalInfo.userID))){
                                             comments.add(re);

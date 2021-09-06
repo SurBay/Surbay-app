@@ -1,5 +1,6 @@
 package com.pumasi.surbay.adapter;
 
+import com.bumptech.glide.Glide;
 import com.pumasi.surbay.R;
 import com.pumasi.surbay.classfile.Coupon;
 
@@ -21,11 +22,13 @@ import java.util.ArrayList;
 
 public class SellingRecyclerViewAdapter extends RecyclerView.Adapter<SellingRecyclerViewAdapter.MySellingHolder> {
 
+    private Context context;
     LayoutInflater inflater;
     ArrayList<Coupon> selling;
     private RecyclerViewDdayAdapter.OnItemClickListener aListener = null;
     public SellingRecyclerViewAdapter(ArrayList<Coupon> selling, Context ctx) {
         this.selling = selling;
+        this.context = ctx;
         inflater = LayoutInflater.from(ctx);
     }
     @NonNull
@@ -59,7 +62,9 @@ public class SellingRecyclerViewAdapter extends RecyclerView.Adapter<SellingRecy
         }
 
         holder.tv_coupon_selling_item_price.setText(coupon.getCost() + " 크레딧");
-
+        if (!(coupon.getImage_urls() == null || coupon.getImage_urls().size() == 0)) {
+            Glide.with(context).load(coupon.getImage_urls().get(0)).into(holder.iv_coupon_selling_item_image);
+        }
 
     }
 

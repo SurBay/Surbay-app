@@ -1,5 +1,6 @@
 package com.pumasi.surbay.adapter;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
@@ -11,6 +12,7 @@ import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -43,8 +45,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Locale;
 
-public class ReplyListViewAdapter extends RecyclerView.Adapter<ReplyListViewAdapter.MyViewHolder> {
-    private static ReplyListViewAdapter.OnItemClickListener mListener = null ;
+public class ReplyRecyclerViewAdapter extends RecyclerView.Adapter<ReplyRecyclerViewAdapter.MyViewHolder> {
+    private ReReplyRecyclerViewAdapter reReplyRecyclerViewAdapter;
+    private static ReplyRecyclerViewAdapter.OnItemClickListener mListener = null ;
     private ArrayList<Reply> listViewItemList = new ArrayList<Reply>();
     private Post post;
     final private static String[] report = {"욕설","비하상업적 광고 및 판매낚시","놀람/도배/사기","게시판 성격에 부적절함기타"};
@@ -55,9 +58,9 @@ public class ReplyListViewAdapter extends RecyclerView.Adapter<ReplyListViewAdap
     deleteHandler handler = new deleteHandler();
     private View loading;
 
-    public ReplyListViewAdapter(Context ctx, ArrayList<Reply> listViewItemList) {
+    public ReplyRecyclerViewAdapter(Context ctx, ArrayList<Reply> listViewItemList) {
         inflater = LayoutInflater.from(ctx);
-        context = ctx;
+        this.context = ctx;
         this.listViewItemList = listViewItemList;
     }
     public void setPost(Post post){
@@ -68,18 +71,17 @@ public class ReplyListViewAdapter extends RecyclerView.Adapter<ReplyListViewAdap
         void onItemClick(View v, int position) ;
     }
     @Override
-    public ReplyListViewAdapter.MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ReplyRecyclerViewAdapter.MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
         View view = inflater.inflate(R.layout.detail_reply_list_item, parent, false);
-        ReplyListViewAdapter.MyViewHolder holder = new ReplyListViewAdapter.MyViewHolder(view);
-
-
+        ReplyRecyclerViewAdapter.MyViewHolder holder = new ReplyRecyclerViewAdapter.MyViewHolder(view);
         return holder;
     }
 
     @Override
-    public void onBindViewHolder(ReplyListViewAdapter.MyViewHolder holder, int position) {
+    public void onBindViewHolder(ReplyRecyclerViewAdapter.MyViewHolder holder, int position) {
 
+        reReplyRecyclerViewAdapter = new ReReplyRecyclerViewAdapter();
 
         SimpleDateFormat fm = new SimpleDateFormat("MM.dd kk:mm", Locale.KOREA);
         Reply reply = listViewItemList.get(position);
@@ -218,7 +220,35 @@ public class ReplyListViewAdapter extends RecyclerView.Adapter<ReplyListViewAdap
             });
         }
 
+        holder.reply_reply.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                reReply(reply.getID(), "안녕하세요");
+            }
+        });
+
     }
+    public void reReply(String post_comment_id, String content) {
+        try {
+            JSONObject params = new JSONObject();
+            params.put("userID", UserPersonalInfo.userID);
+            params.put("postcomment_object_id", post_comment_id);
+            params.put("content", content);
+            String requestURL = "http://ec2-3-35-152-40.ap-northeast-2.compute.amazonaws.com/api/posts/comment/postreply";
+            RequestQueue requestQueue = Volley.newRequestQueue(PostDetailActivity.context);
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
+                    Request.Method.PUT, requestURL, params, response -> {
+
+            }, error -> {
+                error.printStackTrace();
+            });
+            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, 2, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            requestQueue.add(jsonObjectRequest);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 
     @Override
     public int getItemCount() {
@@ -234,15 +264,19 @@ public class ReplyListViewAdapter extends RecyclerView.Adapter<ReplyListViewAdap
         TextView replydateview;
         ShowMoreTextView replycontentview;
         ImageView replymenu;
+        private ImageView reply_reply;
         LinearLayout comment;
         TextView replywriter;
+        private RecyclerView rv_reply_reply;
 
         public MyViewHolder(View itemView) {
             super(itemView);
 
+            rv_reply_reply = itemView.findViewById(R.id.rv_reply_reply);
             replydateview = (TextView)itemView.findViewById(R.id.reply_date);
             replycontentview = (ShowMoreTextView) itemView.findViewById(R.id.reply_context);
             replymenu = (ImageView)itemView.findViewById(R.id.reply_menu);
+            reply_reply = itemView.findViewById(R.id.reply_reply);
             comment = (LinearLayout)itemView.findViewById(R.id.comment_holder);
             replywriter = (TextView) itemView.findViewById(R.id.reply_name);
 

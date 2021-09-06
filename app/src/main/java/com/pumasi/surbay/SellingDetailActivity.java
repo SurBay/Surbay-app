@@ -16,6 +16,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.bumptech.glide.Glide;
 import com.pumasi.surbay.classfile.Coupon;
 import com.pumasi.surbay.classfile.UserPersonalInfo;
 
@@ -29,6 +30,8 @@ import static android.icu.lang.UCharacter.GraphemeClusterBreak.V;
 public class SellingDetailActivity extends AppCompatActivity {
 
     private ImageButton ib_back;
+    private TextView tv_coupon_selling_detail_title;
+    private ImageView iv_coupon_selling_detail_img;
     private TextView tv_coupon_selling_detail_name;
     private TextView tv_coupon_selling_detail_due;
     private TextView tv_coupon_selling_detail_price;
@@ -50,6 +53,8 @@ public class SellingDetailActivity extends AppCompatActivity {
         Coupon coupon = getIntent().getParcelableExtra("coupon");
         context = getApplicationContext();
         ib_back = findViewById(R.id.ib_back);
+        iv_coupon_selling_detail_img = findViewById(R.id.iv_coupon_selling_detail_img);
+        tv_coupon_selling_detail_title = findViewById(R.id.tv_coupon_selling_detail_title);
         tv_coupon_selling_detail_name = findViewById(R.id.tv_coupon_selling_detail_name);
         tv_coupon_selling_detail_due = findViewById(R.id.tv_coupon_selling_detail_due);
         tv_coupon_selling_detail_price = findViewById(R.id.tv_coupon_selling_detail_price);
@@ -60,6 +65,10 @@ public class SellingDetailActivity extends AppCompatActivity {
         ib_coupon_selling_detail_increase.setEnabled(true);
         ib_coupon_selling_detail_decrease.setEnabled(false);
         btn_coupon_selling_detail_exchange = findViewById(R.id.btn_coupon_selling_detail_exchange);
+        if (!(coupon.getImage_urls() == null || coupon.getImage_urls().size() == 0)) {
+            Glide.with(context).load(coupon.getImage_urls().get(0)).into(iv_coupon_selling_detail_img);
+        }
+        tv_coupon_selling_detail_title.setText(coupon.getStore());
         tv_coupon_selling_detail_name.setText(coupon.getStore() + " " + coupon.getMenu());
         SimpleDateFormat fm = new SimpleDateFormat("yyyy-MM-dd");
         String date = "";

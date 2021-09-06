@@ -30,17 +30,31 @@
                     android:id="@+id/rv_coupon_seller_category"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
+                    android:layout_marginLeft="11dp"
                     android:layout_marginVertical="10dp"/>
 
             </RelativeLayout>
             <androidx.recyclerview.widget.RecyclerView
+                android:visibility="visible"
                 android:id="@+id/rv_coupon_seller_supplier"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="20dp"
                 android:layout_marginVertical="9.12dp"/>
+            <RelativeLayout
+                android:visibility="gone"
+                android:id="@+id/loadingPanel"
+                android:layout_width="match_parent"
+                android:layout_height="400dp">
+                <ProgressBar
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:layout_centerInParent="true"/>
+            </RelativeLayout>
         </LinearLayout>
+
     </ScrollView>
+
 
 
 </FrameLayout>
