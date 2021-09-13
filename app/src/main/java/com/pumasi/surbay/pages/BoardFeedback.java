@@ -24,6 +24,7 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.Volley;
+import com.pumasi.surbay.classfile.ReReply;
 import com.pumasi.surbay.pages.mypage.FeedbackWrite;
 import com.pumasi.surbay.pages.mypage.Feedbackdetail;
 import com.pumasi.surbay.pages.MainActivity;
@@ -251,10 +252,10 @@ public class BoardFeedback extends Fragment {
                                 ArrayList<Reply> comments = new ArrayList<>();
                                 JSONArray ja = (JSONArray)post.get("comments");
                                 for (int j = 0; j<ja.length(); j++){
-                                    JSONObject reply = ja.getJSONObject(j);
-                                    String reid = reply.getString("_id");
-                                    String writer = reply.getString("writer");
-                                    String contetn = reply.getString("content");
+                                    JSONObject comment = ja.getJSONObject(j);
+                                    String reid = comment.getString("_id");
+                                    String writer = comment.getString("writer");
+                                    String contetn = comment.getString("content");
                                     Date datereply = null;
                                     try {
                                         datereply = fm.parse(post.getString("date"));
@@ -262,7 +263,7 @@ public class BoardFeedback extends Fragment {
                                         e.printStackTrace();
                                     }
                                     Boolean replyhide = post.getBoolean("hide");
-                                    JSONArray ua = (JSONArray)reply.get("reports");
+                                    JSONArray ua = (JSONArray)comment.get("reports");
 
                                     ArrayList<String> replyreports = new ArrayList<String>();
                                     for (int u = 0; u<ua.length(); u++){
@@ -270,11 +271,41 @@ public class BoardFeedback extends Fragment {
                                     }
                                     String writer_name = null;
                                     try {
-                                        writer_name = reply.getString("writer_name");
+                                        writer_name = comment.getString("writer_name");
                                     }catch (Exception e){
                                         writer_name = null;
                                     }
-                                    Reply re = new Reply(reid, writer, contetn, datereply,replyreports,replyhide, writer_name);
+                                    ArrayList<ReReply> reReplies = new ArrayList<>();
+                                    try {
+                                        JSONArray jk = (JSONArray) comment.get("reply");
+                                        if (jk.length() != 0) {
+                                            for (int k = 0; k < jk.length(); k++) {
+                                                JSONObject reReply = jk.getJSONObject(k);
+                                                String id_ = reReply.getString("_id");
+                                                ArrayList<String> reports_ = new ArrayList<>();
+                                                JSONArray jb = (JSONArray) reReply.get("reports");
+                                                for (int b = 0; b < jb.length(); b++) {
+                                                    reports_.add(jb.getString(b));
+                                                }
+                                                ArrayList<String> report_reasons_ = new ArrayList<>();
+                                                JSONArray jc = (JSONArray) reReply.get("report_reasons");
+                                                for (int c = 0; c < jc.length(); c++) {
+                                                    report_reasons_.add(jc.getString(c));
+                                                }
+                                                boolean hide_ = reReply.getBoolean("hide");
+                                                String writer_ = reReply.getString("writer");
+                                                String content_ = reReply.getString("content");
+                                                Date date_ = fm.parse(reReply.getString("date"));
+                                                String replyID_ = reReply.getString("replyID");
+
+                                                ReReply newReReply = new ReReply(id_, reports_, report_reasons_, hide_, writer_, content_, date_, replyID_);
+                                                reReplies.add(newReReply);
+                                            }
+                                        }
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+                                    Reply re = new Reply(reid, writer, contetn, datereply,replyreports,replyhide, writer_name, reReplies);
                                     re.setWriter_name(writer_name);
                                     comments.add(re);
                                 }

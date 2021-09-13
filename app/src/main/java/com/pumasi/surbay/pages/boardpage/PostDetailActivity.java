@@ -54,6 +54,7 @@ import com.pumasi.surbay.adapter.ReplyRecyclerViewAdapter;
 import com.pumasi.surbay.classfile.CustomDialog;
 import com.pumasi.surbay.classfile.Notification;
 import com.pumasi.surbay.classfile.Post;
+import com.pumasi.surbay.classfile.ReReply;
 import com.pumasi.surbay.classfile.Reply;
 import com.pumasi.surbay.classfile.UserPersonalInfo;
 
@@ -193,6 +194,8 @@ public class PostDetailActivity extends AppCompatActivity {
         mLayoutManager = new LinearLayoutManager(this);
         detail_reply_listView.setLayoutManager(mLayoutManager);
         detail_reply_listView.setAdapter(detail_reply_Adapter);
+
+
 
 
 
@@ -365,7 +368,7 @@ public class PostDetailActivity extends AppCompatActivity {
                                     fm.setTimeZone(TimeZone.getTimeZone("Asia/Seoul"));
                                     Date realdate = fm.parse(utc_date);
                                     String writer_name = UserPersonalInfo.name;
-                                    Reply re = new Reply(id, UserPersonalInfo.userID, reply, realdate, new ArrayList<>(), false, writer_name);
+                                    Reply re = new Reply(id, UserPersonalInfo.userID, reply, realdate, new ArrayList<>(), false, writer_name, new ArrayList<ReReply>());
                                     re.setWriter_name(writer_name);
                                     replyArrayList.add(re);
                                     postReplyDone = true;
@@ -1246,18 +1249,18 @@ public class PostDetailActivity extends AppCompatActivity {
                                 JSONArray ja = (JSONArray)res.get("comments");
                                 if (ja.length() != 0){
                                     for (int j = 0; j<ja.length(); j++){
-                                        JSONObject reply = ja.getJSONObject(j);
-                                        String reid = reply.getString("_id");
-                                        String writer = reply.getString("writer");
-                                        String contetn = reply.getString("content");
+                                        JSONObject comment = ja.getJSONObject(j);
+                                        String reid = comment.getString("_id");
+                                        String writer = comment.getString("writer");
+                                        String contetn = comment.getString("content");
                                         Date datereply = null;
                                         try {
-                                            datereply = fm.parse(reply.getString("date"));
+                                            datereply = fm.parse(comment.getString("date"));
                                         } catch (ParseException e) {
                                             e.printStackTrace();
                                         }
-                                        Boolean replyhide = reply.getBoolean("hide");
-                                        JSONArray ua = (JSONArray)reply.get("reports");
+                                        Boolean replyhide = comment.getBoolean("hide");
+                                        JSONArray ua = (JSONArray)comment.get("reports");
 
                                         ArrayList<String> replyreports = new ArrayList<String>();
                                         for (int u = 0; u<ua.length(); u++){
@@ -1265,11 +1268,41 @@ public class PostDetailActivity extends AppCompatActivity {
                                         }
                                         String writer_name = null;
                                         try {
-                                            writer_name = reply.getString("writer_name");
+                                            writer_name = comment.getString("writer_name");
                                         }catch (Exception e){
                                             writer_name = null;
                                         }
-                                        Reply re = new Reply(reid, writer, contetn, datereply,replyreports,replyhide, writer_name);
+                                        ArrayList<ReReply> reReplies = new ArrayList<>();
+                                        try {
+                                            JSONArray jk = (JSONArray) comment.get("reply");
+                                            if (jk.length() != 0) {
+                                                for (int k = 0; k < jk.length(); k++) {
+                                                    JSONObject reReply = jk.getJSONObject(k);
+                                                    String id_ = reReply.getString("_id");
+                                                    ArrayList<String> reports_ = new ArrayList<>();
+                                                    JSONArray jb = (JSONArray) reReply.get("reports");
+                                                    for (int b = 0; b < jb.length(); b++) {
+                                                        reports_.add(jb.getString(b));
+                                                    }
+                                                    ArrayList<String> report_reasons_ = new ArrayList<>();
+                                                    JSONArray jc = (JSONArray) reReply.get("report_reasons");
+                                                    for (int c = 0; c < jc.length(); c++) {
+                                                        report_reasons_.add(jc.getString(c));
+                                                    }
+                                                    boolean hide_ = reReply.getBoolean("hide");
+                                                    String writer_ = reReply.getString("writer");
+                                                    String content_ = reReply.getString("content");
+                                                    Date date_ = fm.parse(reReply.getString("date"));
+                                                    String replyID_ = reReply.getString("replyID");
+
+                                                    ReReply newReReply = new ReReply(id_, reports_, report_reasons_, hide_, writer_, content_, date_, replyID_);
+                                                    reReplies.add(newReReply);
+                                                }
+                                            }
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                        }
+                                        Reply re = new Reply(reid, writer, contetn, datereply,replyreports,replyhide, writer_name, reReplies);
                                         re.setWriter_name(writer_name);
                                         if (!replyhide && !replyreports.contains(UserPersonalInfo.userID)){
                                             comments.add(re);

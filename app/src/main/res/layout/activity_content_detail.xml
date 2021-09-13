@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    tools:context=".ContentDetailActivity">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="51.3dp">
+        <ImageButton
+            android:id="@+id/ib_back"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:padding="0dp"
+            android:scaleType="centerCrop"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="17dp"
+            android:src="@drawable/leftarrow2"
+            android:background="@color/white" />
+    </RelativeLayout>
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1">
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <TextView
+                    android:id="@+id/tv_content_detail_date"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="7dp"
+                    android:layout_marginLeft="41dp"
+                    android:text="09.01"
+                    android:textSize="13.5dp"
+                    android:textColor="@color/text_color70"/>
+                <TextView
+                    android:id="@+id/tv_content_detail_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="9dp"
+                    android:layout_marginHorizontal="41dp"
+                    android:text="[기획 리서치 3탄] 환경 보호에 대한 MZ의 생각"
+                    android:textSize="17.1dp"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_color48" />
+
+            </LinearLayout>
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp" >
+
+                <androidx.viewpager2.widget.ViewPager2
+                    android:id="@+id/vp_content_detail"
+                    android:layout_width="match_parent"
+                    android:layout_height="410dp"
+                    android:layout_centerInParent="true"/>
+                <TextView
+                    android:id="@+id/tv_content_indicator"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingVertical="3dp"
+                    android:paddingHorizontal="10dp"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginTop="12.5dp"
+                    android:layout_marginRight="17dp"
+                    android:background="@drawable/content_indicator"
+                    android:text="1/10"
+                    android:textSize="13.5dp"
+                    android:textStyle="bold"
+                    android:textColor="@color/white" />
+            </RelativeLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_content_detail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="10dp"/>
+
+            <TextView
+                android:id="@+id/tv_content_detail_content"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="38dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="35dp"
+                android:text="SurBay와 함께 알아보는 사회 문제! 기획 리서치 3탄: 환경 보호에 대한 MZ의 생각 -카페편으로 돌아왔습니다 :)"
+                android:textSize="15dp"
+                android:textColor="@color/text_color48" />
+        </LinearLayout>
+
+
+    </ScrollView>
+
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="57dp"
+        android:background="#FCFCFC">
+        <ImageButton
+            android:id="@+id/ib_content_detail_like"
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:padding="0dp"
+            android:scaleType="centerCrop"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="17dp"
+            android:src="@drawable/heart_empty"
+            android:background="#FCFCFC" />
+        <TextView
+            android:id="@+id/tv_content_detail_like"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="6dp"
+            android:layout_marginTop="18dp"
+            android:text="4"
+            android:textSize="14dp"
+            android:textStyle="bold"
+            android:textColor="#50D3D3" />
+        <ImageButton
+            android:id="@+id/ib_content_detail_comment"
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:padding="0dp"
+            android:scaleType="centerCrop"
+            android:layout_marginLeft="13dp"
+            android:layout_marginTop="15dp"
+            android:src="@drawable/reply_teal_empty"
+            android:background="#FCFCFC"/>
+        <TextView
+            android:id="@+id/tv_content_detail_comment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="6dp"
+            android:layout_marginTop="18dp"
+            android:text="4"
+            android:textSize="14dp"
+            android:textStyle="bold"
+            android:textColor="@color/text_color70" />
+    </LinearLayout>
+
+</LinearLayout>

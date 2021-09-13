@@ -43,6 +43,8 @@ import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
 import com.google.firebase.dynamiclinks.PendingDynamicLinkData;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.pumasi.surbay.HomeRenewalFragment;
+import com.pumasi.surbay.classfile.ReReply;
+import com.pumasi.surbay.classfile.MyCoupon;
 import com.pumasi.surbay.pages.MainActivity;
 import com.pumasi.surbay.R;
 import com.pumasi.surbay.classfile.CustomDialog;
@@ -207,6 +209,7 @@ public class LoginActivity extends AppCompatActivity {
                 UserPersonalInfo.general_participations = new ArrayList<>();
                 UserPersonalInfo.my_generals = new ArrayList<>();
                 UserPersonalInfo.my_posts = new ArrayList<>();
+                UserPersonalInfo.prizes = new ArrayList<>();
                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                 startActivity(intent);
             }
@@ -423,6 +426,7 @@ public class LoginActivity extends AppCompatActivity {
             JSONObject params = new JSONObject();
             params.put("userID", username);
             params.put("userPassword", password);
+            Log.d("logintoken", username + ", " + password);
             Log.d("logintoken", "" + fcm_token);
             params.put("fcm_token", fcm_token);
 
@@ -509,7 +513,48 @@ public class LoginActivity extends AppCompatActivity {
                                     UserPersonalInfo.notifications = notifications;
                                     UserPersonalInfo.notificationAllow = user.getBoolean("notification_allow");
                                     UserPersonalInfo.prize_check = user.getInt("prize_check");
+                                    
+                                    try {
+                                        ArrayList<MyCoupon> myCoupons = new ArrayList<>();
+                                        JSONArray ja6 = (JSONArray) user.get("coupons");
+                                        Log.d("ja6", "makeLoginRequest: " + ja6);
+                                        for (int j = 0; j < ja6.length(); j++) {
+                                            JSONObject coupon= ja6.getJSONObject(j);
+                                            String coupon__id = coupon.getString("_id");
+                                            String coupon_id = coupon.getString("coupon_id");
+                                            boolean coupon_used = coupon.getBoolean("used");
+                                            SimpleDateFormat fm = new SimpleDateFormat(getResources().getString(R.string.date_format));
+                                            Date coupon_used_date = null;
+                                            Date coupon_date = null;
+                                            try {
+                                                coupon_used_date = fm.parse(coupon.getString("used_date"));
+                                            } catch (ParseException e) {
+                                                e.printStackTrace();
+                                            }
+                                            try {
+                                                coupon_date = fm.parse(coupon.getString("date"));
 
+                                            } catch (ParseException e) {
+                                                coupon_date = null;
+
+                                            }
+                                            ArrayList<String> coupon_image_urls = new ArrayList<>();
+                                            JSONArray ka = coupon.getJSONArray("image_urls");
+                                            for (int k = 0; k < ka.length(); k++) {
+                                                coupon_image_urls.add(ka.getString(k));
+                                            }
+                                            String coupon_store = coupon.getString("store");
+                                            String coupon_menu = coupon.getString("menu");
+                                            String coupon_content = coupon.getString("content");
+                                            myCoupons.add(new MyCoupon(coupon__id, coupon_id, coupon_used, coupon_used_date, coupon_date, coupon_image_urls, coupon_store, coupon_menu, coupon_content));
+                                        }
+                                        UserPersonalInfo.coupons = myCoupons;
+                                        Log.d("userCoupons", "makeLoginRequest: " + myCoupons);
+
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+                                    
                                     if (cb_auto_login.isChecked()){
                                         SharedPreferences auto = getSharedPreferences("auto", Activity.MODE_PRIVATE);
                                         SharedPreferences.Editor autoLogin = auto.edit();
@@ -661,18 +706,18 @@ public class LoginActivity extends AppCompatActivity {
                                     JSONArray ja = (JSONArray)post.get("comments");
                                     if (ja.length() != 0){
                                         for (int j = 0; j<ja.length(); j++){
-                                            JSONObject reply = ja.getJSONObject(j);
-                                            String reid = reply.getString("_id");
-                                            String writer = reply.getString("writer");
-                                            String contetn = reply.getString("content");
+                                            JSONObject comment = ja.getJSONObject(j);
+                                            String reid = comment.getString("_id");
+                                            String writer = comment.getString("writer");
+                                            String contetn = comment.getString("content");
                                             Date datereply = null;
                                             try {
-                                                datereply = fm.parse(reply.getString("date"));
+                                                datereply = fm.parse(comment.getString("date"));
                                             } catch (ParseException e) {
                                                 e.printStackTrace();
                                             }
-                                            Boolean replyhide = reply.getBoolean("hide");
-                                            JSONArray ua = (JSONArray)reply.get("reports");
+                                            Boolean replyhide = comment.getBoolean("hide");
+                                            JSONArray ua = (JSONArray)comment.get("reports");
 
                                             ArrayList<String> replyreports = new ArrayList<String>();
                                             for (int u = 0; u<ua.length(); u++){
@@ -680,11 +725,41 @@ public class LoginActivity extends AppCompatActivity {
                                             }
                                             String writer_name = null;
                                             try {
-                                                writer_name = reply.getString("writer_name");
+                                                writer_name = comment.getString("writer_name");
                                             }catch (Exception e){
                                                 writer_name = null;
                                             }
-                                            Reply re = new Reply(reid, writer, contetn, datereply,replyreports,replyhide, writer_name);
+                                            ArrayList<ReReply> reReplies = new ArrayList<>();
+                                            try {
+                                                JSONArray jk = (JSONArray) comment.get("reply");
+                                                if (jk.length() != 0) {
+                                                    for (int k = 0; k < jk.length(); k++) {
+                                                        JSONObject reReply = jk.getJSONObject(k);
+                                                        String id_ = reReply.getString("_id");
+                                                        ArrayList<String> reports_ = new ArrayList<>();
+                                                        JSONArray jb = (JSONArray) reReply.get("reports");
+                                                        for (int b = 0; b < jb.length(); b++) {
+                                                            reports_.add(jb.getString(b));
+                                                        }
+                                                        ArrayList<String> report_reasons_ = new ArrayList<>();
+                                                        JSONArray jc = (JSONArray) reReply.get("report_reasons");
+                                                        for (int c = 0; c < jc.length(); c++) {
+                                                            report_reasons_.add(jc.getString(c));
+                                                        }
+                                                        boolean hide_ = reReply.getBoolean("hide");
+                                                        String writer_ = reReply.getString("writer");
+                                                        String content_ = reReply.getString("content");
+                                                        Date date_ = fm.parse(reReply.getString("date"));
+                                                        String replyID_ = reReply.getString("replyID");
+
+                                                        ReReply newReReply = new ReReply(id_, reports_, report_reasons_, hide_, writer_, content_, date_, replyID_);
+                                                        reReplies.add(newReReply);
+                                                    }
+                                                }
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
+                                            }
+                                            Reply re = new Reply(reid, writer, contetn, datereply,replyreports,replyhide, writer_name, reReplies);
                                             re.setWriter_name(writer_name);
                                             if (!replyhide && !replyreports.contains(UserPersonalInfo.userID)){
                                                 comments.add(re);

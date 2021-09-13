@@ -22,6 +22,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.DefaultRetryPolicy;
@@ -46,7 +47,7 @@ import java.util.Arrays;
 import java.util.Locale;
 
 public class ReplyRecyclerViewAdapter extends RecyclerView.Adapter<ReplyRecyclerViewAdapter.MyViewHolder> {
-    private ReReplyRecyclerViewAdapter reReplyRecyclerViewAdapter;
+    public ReReplyRecyclerViewAdapter reReplyRecyclerViewAdapter;
     private static ReplyRecyclerViewAdapter.OnItemClickListener mListener = null ;
     private ArrayList<Reply> listViewItemList = new ArrayList<Reply>();
     private Post post;
@@ -81,12 +82,15 @@ public class ReplyRecyclerViewAdapter extends RecyclerView.Adapter<ReplyRecycler
     @Override
     public void onBindViewHolder(ReplyRecyclerViewAdapter.MyViewHolder holder, int position) {
 
-        reReplyRecyclerViewAdapter = new ReReplyRecyclerViewAdapter();
 
         SimpleDateFormat fm = new SimpleDateFormat("MM.dd kk:mm", Locale.KOREA);
         Reply reply = listViewItemList.get(position);
         String date = fm.format(reply.getDate());
 
+        reReplyRecyclerViewAdapter = new ReReplyRecyclerViewAdapter(reply.getReply(), context);
+        holder.rv_reply_reply.setAdapter(reReplyRecyclerViewAdapter);
+        holder.rv_reply_reply.setLayoutManager(new LinearLayoutManager(context, RecyclerView.VERTICAL, false));
+        reReplyRecyclerViewAdapter.notifyDataSetChanged();
         holder.replydateview.setText(date);
         holder.replycontentview.setText(reply.getContent());
         String[] adminsList = {"SurBay_Admin", "SurBay_dev", "SurBay_dev2", "SurBay_des", "djrobort", "surbaying"};

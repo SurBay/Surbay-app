@@ -21,7 +21,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SurBay"
         android:usesCleartextTraffic="true">
-        <activity android:name=".SellingDetailActivity"></activity>
+        <activity android:name=".ContentDetailCommentsActivity"></activity>
+        <activity android:name=".ContentDetailActivity" />
+        <activity android:name=".MyNoteDetailActivity" />
+        <activity android:name=".MyNoteActivity" />
+        <activity android:name=".MyExchangeDetailActivity" />
+        <activity android:name=".SellingDetailActivity" />
         <activity android:name=".MyExchangeActivity" />
         <activity android:name=".pages.mypage.MyVoteActivity" />
         <activity android:name=".pages.mypage.MyResearchActivity" />

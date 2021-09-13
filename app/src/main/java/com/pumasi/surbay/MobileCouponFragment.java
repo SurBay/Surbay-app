@@ -270,7 +270,7 @@ public class MobileCouponFragment extends Fragment {
         if (show) {
             rv_coupon_seller_supplier.setVisibility(View.GONE);
             loadingPanel.setVisibility(View.VISIBLE);
-        } else if (!show) {
+        } else {
             rv_coupon_seller_supplier.setVisibility(View.VISIBLE);
             loadingPanel.setVisibility(View.GONE);
         }

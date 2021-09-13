@@ -7,6 +7,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MyExchangeActivity">
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="51.3dp"
@@ -40,6 +41,37 @@
             android:src="@drawable/search_icon"
             android:background="@color/white"
             android:scaleType="centerCrop" />
+    </RelativeLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="46.74dp"
+        android:background="#FBFBFB">
+        <Button
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:id="@+id/btn_user_exchange_available"
+            android:layout_width="75dp"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="9dp"
+            android:layout_marginLeft="17dp"
+            android:background="@drawable/round_border_teal_list"
+            android:text="사용 가능"
+            android:textSize="15dp"
+            android:textColor="@color/text_color3A" />
+        <Button
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:id="@+id/btn_user_exchange_unavailable"
+            android:layout_width="75dp"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="9dp"
+            android:layout_marginLeft="7dp"
+            android:layout_toRightOf="@id/btn_user_exchange_available"
+            android:background="@drawable/round_border_gray_list"
+            android:text="사용 완료"
+            android:textSize="15dp"
+            android:textColor="@color/BDBDBD" />
+
+
+
     </RelativeLayout>
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_user_exchange"

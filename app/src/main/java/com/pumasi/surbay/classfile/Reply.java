@@ -11,17 +11,18 @@ import java.util.ArrayList;
 import java.util.Date;
 
 public class Reply implements Parcelable {
+    private String dateformat = "yyyy-MM-dd'T'kk:mm:ss.SSS";
+
     private String id;
     private String writer;
     private String content;
     private Date date;
-    private String dateformat = "yyyy-MM-dd'T'kk:mm:ss.SSS";
     private ArrayList<String> reports;
     private boolean hide;
     private String writer_name;
     private ArrayList<ReReply> reply;
 
-    public Reply(String id, String writer, String content, Date date, ArrayList<String> reports, Boolean hide, String writer_name){
+    public Reply(String id, String writer, String content, Date date, ArrayList<String> reports, Boolean hide, String writer_name, ArrayList<ReReply> reply){
         this.id = id;
         this.writer = writer;
         this.content = content;
@@ -31,6 +32,7 @@ public class Reply implements Parcelable {
         this.reports = new ArrayList<>(reports);
         this.hide = hide;
         this.writer_name = writer_name;
+        this.reply = reply;
     }
     public String getID() {
         return id;
@@ -102,5 +104,13 @@ public class Reply implements Parcelable {
 
     public void setWriter_name(String writer_name) {
         this.writer_name = writer_name;
+    }
+
+    public ArrayList<ReReply> getReply() {
+        return reply;
+    }
+
+    public void setReply(ArrayList<ReReply> reply) {
+        this.reply = reply;
     }
 }

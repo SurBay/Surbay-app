@@ -22,7 +22,7 @@ import com.pumasi.surbay.pages.boardpage.BoardGeneral;
 public class FreeBoardFragment extends Fragment {
 
     private ImageButton btn_query_free_board;
-    public ViewPager2 vp_free_board;
+    public static ViewPager2 vp_free_board;
     private TabLayout tl_free_board;
     public static FragmentStateAdapter adapter2;
     public static int free_position;
@@ -89,7 +89,6 @@ public class FreeBoardFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        vp_free_board.setCurrentItem(free_position);
     }
 
 }

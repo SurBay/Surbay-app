@@ -6,11 +6,13 @@
     android:orientation="vertical"
     android:id="@+id/comment_holder">
     <LinearLayout
+        android:id="@+id/ll_re_reply"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="1dp"
         android:orientation="vertical"
-        android:background="@drawable/round_border_white_fill"
-        android:layout_marginVertical="3dp">
+        android:background="@color/white">
+
         <RelativeLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
@@ -18,7 +20,7 @@
             android:layout_marginTop="10dp"
             >
             <ImageView
-                android:id="@+id/reply_fix"
+                android:id="@+id/iv_re_reply_reply"
                 android:layout_width="18dp"
                 android:layout_height="17dp"
                 android:layout_marginLeft="30dp"
@@ -29,10 +31,10 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/reply_name"
+                android:id="@+id/tv_re_reply_name"
                 android:layout_marginLeft="7dp"
                 android:layout_marginTop="3.5dp"
-                android:layout_toRightOf="@id/reply_fix"
+                android:layout_toRightOf="@id/iv_re_reply_reply"
                 android:text="익명"
                 android:textSize="12.5sp"
                 android:textColor="@color/text_black_70" />
@@ -44,10 +46,10 @@
                 android:layout_marginTop="3.5dp"
                 android:textSize="12.5sp"
                 android:textColor="@color/text_black_70"
-                android:layout_toRightOf="@id/reply_name"
+                android:layout_toRightOf="@id/tv_re_reply_name"
                 />
             <TextView
-                android:id="@+id/reply_date"
+                android:id="@+id/tv_re_reply_date"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="3.5dp"
@@ -56,15 +58,17 @@
                 android:textColor="@color/text_black_70"
                 android:layout_toRightOf="@id/reply_slash"
                 />
+
             <ImageView
+                android:id="@+id/iv_re_reply_menu"
+                android:clickable="true"
                 android:layout_width="20dp"
                 android:layout_height="20dp"
-                android:padding="2dp"
-                android:id="@+id/reply_menu"
-                android:src="@drawable/menu"
-                android:scaleType="fitCenter"
                 android:layout_alignParentRight="true"
-                android:layout_marginRight="10dp" />
+                android:layout_marginRight="10dp"
+                android:padding="2dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/menu" />
         </RelativeLayout>
 
 
@@ -75,10 +79,9 @@
             android:layout_marginTop="4dp"
             android:layout_marginLeft="52dp"
             android:layout_marginRight="30dp"
-            android:layout_marginBottom="14dp"
             android:text="url 연결이 안돼요ㅠㅠ url 한 번만 확인 부탁드립니다. 제발제발 부탁드려요"
             android:textSize="15sp"
             android:textColor="@color/text_color48"
-            android:id="@+id/reply_context" />
+            android:id="@+id/tv_re_reply_text"/>
     </LinearLayout>
 </LinearLayout>

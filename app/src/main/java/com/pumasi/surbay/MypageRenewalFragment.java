@@ -51,15 +51,44 @@ public class MypageRenewalFragment extends Fragment {
         ib_my_exchange.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getActivity().getApplicationContext(), MyExchangeActivity.class);
+                Intent intent = new Intent(context, MyExchangeActivity.class);
                 startActivity(intent);
             }
         });
         ib_my_gift = view.findViewById(R.id.ib_my_gift);
+
         ib_my_note = view.findViewById(R.id.ib_my_note);
+        ib_my_note.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, MyNoteActivity.class);
+                startActivity(intent);
+            }
+        });
         ib_my_announce = view.findViewById(R.id.ib_my_announce);
+        ib_my_announce.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, NoticeActivity.class);
+                startActivity(intent);
+            }
+        });
         ib_my_suggest = view.findViewById(R.id.ib_my_suggest);
+        ib_my_suggest.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, SettingFeedbacks.class);
+                startActivity(intent);
+            }
+        });
         ib_my_report = view.findViewById(R.id.ib_my_report);
+        ib_my_report.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, SettingReport.class);
+                startActivity(intent);
+            }
+        });
 
 
         ll_my_research_uploaded = view.findViewById(R.id.ll_my_research_uploaded);
@@ -69,7 +98,7 @@ public class MypageRenewalFragment extends Fragment {
         ll_my_research_uploaded.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getActivity().getApplicationContext(), MyResearchActivity.class);
+                Intent intent = new Intent(context, MyResearchActivity.class);
                 intent.putExtra("type", UPLOADED);
                 startActivity(intent);
             }
@@ -77,7 +106,7 @@ public class MypageRenewalFragment extends Fragment {
         ll_my_research_participated.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getActivity().getApplicationContext(), MyResearchActivity.class);
+                Intent intent = new Intent(context, MyResearchActivity.class);
                 intent.putExtra("type", PARTICIPATED);
                 startActivity(intent);
             }
@@ -85,7 +114,7 @@ public class MypageRenewalFragment extends Fragment {
         ll_my_vote_uploaded.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getActivity().getApplicationContext(), MyVoteActivity.class);
+                Intent intent = new Intent(context, MyVoteActivity.class);
                 intent.putExtra("type", UPLOADED);
                 startActivity(intent);
             }
@@ -93,7 +122,7 @@ public class MypageRenewalFragment extends Fragment {
         ll_my_vote_participated.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getActivity().getApplicationContext(), MyVoteActivity.class);
+                Intent intent = new Intent(context, MyVoteActivity.class);
                 intent.putExtra("type", PARTICIPATED);
                 startActivity(intent);
             }
@@ -101,31 +130,13 @@ public class MypageRenewalFragment extends Fragment {
         ib_my_setting.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getActivity().getApplicationContext(), MypageSettingMain.class);
+                Intent intent = new Intent(context, MypageSettingMain.class);
                 startActivity(intent);
             }
         });
-        ib_my_announce.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(context, NoticeActivity.class);
-                startActivity(intent);
-            }
-        });
-        ib_my_suggest.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(context, SettingFeedbacks.class);
-                startActivity(intent);
-            }
-        });
-        ib_my_report.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(context, SettingReport.class);
-                startActivity(intent);
-            }
-        });
+
+
+
 
 
         return view;

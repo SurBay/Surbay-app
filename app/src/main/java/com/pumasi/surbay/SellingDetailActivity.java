@@ -11,18 +11,26 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.NetworkResponse;
+import com.android.volley.ParseError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.JsonRequest;
 import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.Glide;
 import com.pumasi.surbay.classfile.Coupon;
 import com.pumasi.surbay.classfile.UserPersonalInfo;
+import com.pumasi.surbay.pages.MainActivity;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 
 import static android.icu.lang.UCharacter.GraphemeClusterBreak.V;
@@ -40,7 +48,7 @@ public class SellingDetailActivity extends AppCompatActivity {
     private ImageButton ib_coupon_selling_detail_increase;
     private ImageButton ib_coupon_selling_detail_decrease;
     private Button btn_coupon_selling_detail_exchange;
-
+    private boolean couponDone = false;
     private int count = 1;
     private Context context;
 
@@ -108,11 +116,17 @@ public class SellingDetailActivity extends AppCompatActivity {
         btn_coupon_selling_detail_exchange.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                try {
-                    buyCoupon(coupon.getId());
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            buyCoupon(coupon.getId());
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }).start();
+
             }
         });
 
@@ -120,6 +134,7 @@ public class SellingDetailActivity extends AppCompatActivity {
         ib_back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                MainActivity.getPersonalInfo();
                 finish();
             }
         });
@@ -130,17 +145,26 @@ public class SellingDetailActivity extends AppCompatActivity {
         params.put("userID", UserPersonalInfo.userID);
         params.put("num", count);
         try {
-            String requestURL = "http://ec2-3-35-152-40.ap-northeast-2.compute.amazonaws.com/api/coupon/buy/:coupon_id=" + couponId;
+            String requestURL = "http://ec2-3-35-152-40.ap-northeast-2.compute.amazonaws.com/api/coupon/buy/" + couponId;
             RequestQueue requestQueue = Volley.newRequestQueue(context);
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
-                    Request.Method.POST, requestURL, params, response -> {
+                    Request.Method.PUT, requestURL, params, response -> {
+
+
             }, error -> {
                     error.printStackTrace();
             });
-            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20 * 1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
             requestQueue.add(jsonObjectRequest);
+            couponDone = true;
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        MainActivity.getPersonalInfo();
     }
 }

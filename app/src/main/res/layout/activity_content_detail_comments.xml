@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ContentDetailCommentsActivity">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="51.3dp"
+        android:background="@color/white">
+        <ImageButton
+            android:id="@+id/ib_back"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:padding="0dp"
+            android:scaleType="centerCrop"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="17dp"
+            android:src="@drawable/leftarrow2"
+            android:background="@color/white" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="댓글"
+            android:textSize="20.5dp"
+            android:textStyle="bold"
+            android:textColor="@color/text_color48" />
+    </RelativeLayout>
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_content_detail_comment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:background="@color/renewal_background"/>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/round_border_white_fill"
+        android:orientation="horizontal"
+        android:layout_marginLeft="15dp"
+        android:paddingHorizontal="10dp"
+        android:layout_marginTop="5dp"
+        android:paddingVertical="5dp"
+        android:layout_marginBottom="10dp">
+        
+        <ImageView
+            android:id="@+id/iv_content_detail_comment_reply"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_centerVertical="true"
+            android:src="@drawable/reply_teal" />
+
+        <EditText
+            android:id="@+id/et_content_detail_comment_reply"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@id/iv_content_detail_comment_reply"
+            android:layout_toLeftOf="@id/ib_content_detail_comment_reply"
+            android:background="@color/transparent"
+            android:hint="닉네임으로 댓글 달기"
+            android:paddingStart="5dp"
+            android:inputType="none"
+            android:maxLines="5"
+            android:scrollbars="vertical"
+            android:scrollbarStyle="insideInset"
+            android:scrollbarThumbVertical="@color/poll_color_secondary_B6"
+            android:textColor="@color/text_black"
+            android:textColorHint="@color/nav_gray"
+            android:textSize="15sp" />
+        <ImageButton
+            android:id="@+id/ib_content_detail_comment_reply"
+            android:layout_marginRight="5dp"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:adjustViewBounds="true"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/send"
+            android:scaleType="centerInside"
+            android:background="@color/white" />
+
+    </RelativeLayout>
+</LinearLayout>

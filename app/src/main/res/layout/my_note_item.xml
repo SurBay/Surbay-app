@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/renewal_background">
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="18dp"
+        android:layout_marginVertical="2dp"
+        android:background="@drawable/round_border_white_fill">
+        <TextView
+            android:id="@+id/tv_my_note_item_counter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="17dp"
+            android:layout_marginTop="12.5dp"
+            android:text="룰루"
+            android:textColor="@color/text_color48"
+            android:textSize="13.5dp"
+            android:textStyle="bold"/>
+        <TextView
+            android:id="@+id/tv_my_note_item_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="17dp"
+            android:layout_marginTop="2dp"
+            android:text="안녕하세요 ‘반려동물에 대한 인식 조사’ 설문조사 관련하여 연락드립..."
+            android:textColor="@color/text_color48"
+            android:textSize="11.4dp" />
+        <TextView
+            android:id="@+id/tv_my_note_item_date"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="17dp"
+            android:layout_marginBottom="8dp"
+            android:text="05.20 14:30"
+            android:textColor="@color/text_color70"
+            android:textSize="11.4dp" />
+
+    </LinearLayout>
+</LinearLayout>
