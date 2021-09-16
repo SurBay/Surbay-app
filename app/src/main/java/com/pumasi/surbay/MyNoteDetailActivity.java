@@ -18,6 +18,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -112,7 +113,9 @@ public class MyNoteDetailActivity extends AppCompatActivity {
         rv_my_note_detail = findViewById(R.id.rv_my_note_detail);
         myChatRecyclerViewAdapter = new MyChatRecyclerViewAdapter(messageContents, context);
         rv_my_note_detail.setAdapter(myChatRecyclerViewAdapter);
-        rv_my_note_detail.setLayoutManager(new LinearLayoutManager(context, RecyclerView.VERTICAL, false));
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(context, RecyclerView.VERTICAL, false);
+        linearLayoutManager.setStackFromEnd(true);
+        rv_my_note_detail.setLayoutManager(linearLayoutManager);
         reloadChat();
 
         et_my_note_reply = findViewById(R.id.et_my_note_reply);
@@ -126,6 +129,7 @@ public class MyNoteDetailActivity extends AppCompatActivity {
                 messageContents.add(new MessageContent("mock", false, UserPersonalInfo.email, reply, new Date(SystemClock.currentThreadTimeMillis())));
                 myChatRecyclerViewAdapter.setItem(messageContents);
                 myChatRecyclerViewAdapter.notifyItemChanged(messageContents.size() - 1);
+                rv_my_note_detail.scrollToPosition(myChatRecyclerViewAdapter.getItemCount() - 1);
                 postReply(reply);
             }
         });
@@ -143,7 +147,6 @@ public class MyNoteDetailActivity extends AppCompatActivity {
             RequestQueue requestQueue = Volley.newRequestQueue(context);
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
                     Request.Method.POST, requestURL, params, response -> {
-
             }, error -> {
                         error.printStackTrace();
             });
@@ -187,6 +190,7 @@ public class MyNoteDetailActivity extends AppCompatActivity {
                         }
                         myChatRecyclerViewAdapter.setItem(messageContents);
                         myChatRecyclerViewAdapter.notifyDataSetChanged();
+                        rv_my_note_detail.scrollToPosition(myChatRecyclerViewAdapter.getItemCount() - 1);
                         Log.d("reload", "reloadChat: " + messageContents);
                 } catch (JSONException e) {
                     e.printStackTrace();

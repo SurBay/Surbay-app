@@ -22,6 +22,7 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.toolbox.HttpHeaderParser;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.JsonRequest;
 import com.android.volley.toolbox.Volley;
 import com.pumasi.surbay.adapter.ContentRecyclerViewAdapter;
@@ -68,10 +69,8 @@ public class BoardContents extends Fragment {
         contentRecyclerViewAdapter.setOnItemClickListener(new ContentRecyclerViewAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View v, int position) {
-                Intent intent = new Intent(context, ContentDetailActivity.class);
-                Content content = (Content) contentRecyclerViewAdapter.getItem(position);
-                intent.putExtra("content", content);
-                startActivity(intent);
+                Content tmp = (Content) contentRecyclerViewAdapter.getItem(position);
+                getContent(tmp.getId());
             }
         });
 
@@ -182,6 +181,109 @@ public class BoardContents extends Fragment {
             });
             customJsonArrayRequest.setRetryPolicy(new DefaultRetryPolicy(20 * 1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
             requestQueue.add(customJsonArrayRequest);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    public void getContent(String content_object_id) {
+        try {
+            String requestURL = context.getResources().getString(R.string.server) + "/api/content/getcontent/" + content_object_id;
+            RequestQueue requestQueue = Volley.newRequestQueue(context);
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
+                    Request.Method.GET, requestURL, null, response -> {
+                try {
+                    JSONObject responseContent = new JSONObject(response.toString());
+                    String id = responseContent.getString("_id");
+                    ArrayList<String> image_urls = new ArrayList<>();
+                    JSONArray ja = responseContent.getJSONArray("image_urls");
+                    for (int j = 0; j < ja.length(); j++) {
+                        image_urls.add(ja.getString(j));
+                    }
+                    int likes = responseContent.getInt("likes");
+                    int visit = responseContent.getInt("visit");
+                    boolean hide = responseContent.getBoolean("hide");
+                    String title = responseContent.getString("title");
+                    String author = responseContent.getString("author");
+                    String content_ = responseContent.getString("content");
+                    SimpleDateFormat fm = new SimpleDateFormat(getResources().getString(R.string.date_format));
+                    Date date = null;
+                    try {
+                        date = fm.parse(responseContent.getString("date"));
+                    } catch (ParseException e) {
+                        date = null;
+                    }
+                    ArrayList<String> liked_users = new ArrayList<>();
+                    JSONArray ja2 = responseContent.getJSONArray("liked_users");;
+                    for (int j = 0; j < ja2.length(); j++) {
+                        liked_users.add(ja.getString(j));
+                    }
+                    ArrayList<ContentReply> comments = new ArrayList<>();
+                    JSONArray responseComments = responseContent.getJSONArray("comments");
+                    for (int j = 0; j < responseComments.length(); j++) {
+                        JSONObject responseComment = (JSONObject) responseComments.get(j);
+                        String _id = responseComment.getString("_id");
+                        ArrayList<ContentReReply> contentReplies = new ArrayList<>();
+                        JSONArray responseReplies = (JSONArray) responseComment.get("reply");
+                        for (int k = 0; k < responseReplies.length(); k++) {
+                            JSONObject responseReply = (JSONObject) responseReplies.get(k);
+                            String __id = responseReply.getString("_id");
+                            ArrayList<String> __reports = new ArrayList<>();
+                            JSONArray ua = responseReply.getJSONArray("reports");
+                            for (int u = 0; u < ua.length(); u++) {
+                                __reports.add(ua.getString(u));
+                            }
+                            boolean __hide = responseReply.getBoolean("hide");
+                            ArrayList<String> __report_reasons = new ArrayList<>();
+                            JSONArray ua2 = responseReply.getJSONArray("report_reasons");
+                            for (int u = 0; u < ua2.length(); u++) {
+                                __report_reasons.add(ua.getString(u));
+                            }
+                            String __writer = responseReply.getString("writer");
+                            String __writer_name = responseReply.getString("writer_name");
+                            String __replyID = responseReply.getString("replyID");
+                            String __content = responseReply.getString("content");
+                            Date __date = null;
+                            try {
+                                __date = fm.parse(responseReply.getString("date"));
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
+                            contentReplies.add(new ContentReReply(__id, __reports, __hide, __report_reasons, __writer, __writer_name, __replyID, __content, __date));
+
+                        }
+                        boolean _hide = responseComment.getBoolean("hide");
+                        ArrayList<String> _report_reasons = new ArrayList<>();
+                        JSONArray ka = responseComment.getJSONArray("report_reasons");
+                        for (int k = 0; k < ka.length(); k++) {
+                            _report_reasons.add(ka.getString(k));
+                        }
+                        String _writer = responseComment.getString("writer");
+                        String _writer_name = responseComment.getString("writer_name");
+                        Date _date = null;
+                        try {
+                            _date = fm.parse(responseComment.getString("date"));
+                        } catch (ParseException e) {
+                            _date = null;
+                        }
+                        String _content = responseComment.getString("content");
+
+                        comments.add(new ContentReply(_id, contentReplies, _hide, _report_reasons, _writer, _writer_name, _date, _content));
+                    }
+                    Intent intent = new Intent(context, ContentDetailActivity.class);
+                    Content content = new Content(id, image_urls, likes, visit, hide, title, author, content_, date, comments, liked_users);
+                    intent.putExtra("content", content);
+                    intent.putExtra("id", content.getId());
+                    startActivity(intent);
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }, error -> {
+                error.printStackTrace();
+            });
+            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20 * 1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            requestQueue.add(jsonObjectRequest);
         } catch (Exception e) {
             e.printStackTrace();
         }

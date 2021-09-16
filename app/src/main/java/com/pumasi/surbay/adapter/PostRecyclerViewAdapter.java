@@ -57,6 +57,9 @@ public class PostRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
     public Object getItem(int position) {
         return boardPosts.get(position);
     }
+    public void setItem(ArrayList<Post> boardPosts) {
+        this.boardPosts = boardPosts;
+    }
 
     @NonNull
     @Override

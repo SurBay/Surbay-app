@@ -1,5 +1,6 @@
 package com.pumasi.surbay;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -23,13 +24,18 @@ import com.android.volley.toolbox.Volley;
 import com.pumasi.surbay.adapter.ContentDetailRecyclerViewAdapter;
 import com.pumasi.surbay.adapter.SimpleImagePagerAdapter;
 import com.pumasi.surbay.classfile.Content;
+import com.pumasi.surbay.classfile.ContentReReply;
+import com.pumasi.surbay.classfile.ContentReply;
 import com.pumasi.surbay.classfile.UserPersonalInfo;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class ContentDetailActivity extends AppCompatActivity {
     private Context context;
@@ -62,6 +68,11 @@ public class ContentDetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_content_detail);
         getSupportActionBar().hide();
         context = getApplicationContext();
+
+        setView();
+
+    }
+    public void setView() {
         content = getIntent().getParcelableExtra("content");
         like_count = content.getLikes();
         imageRecycler = content.getImage_urls();
@@ -136,11 +147,12 @@ public class ContentDetailActivity extends AppCompatActivity {
                 Intent intent = new Intent(context, ContentDetailCommentsActivity.class);
                 intent.putExtra("content_id", content.getId());
                 intent.putExtra("comments", content.getComments());
-                startActivity(intent);
+                startActivityForResult(intent, 0);
             }
         });
         tv_content_detail_comment.setText(String.valueOf(content.getComments().size()));
     }
+
     public void setLike(String content_object_id) {
         try {
             like_state = like_state == 0 ? 1 : 0;
@@ -183,5 +195,14 @@ public class ContentDetailActivity extends AppCompatActivity {
             ib_content_detail_like.setBackgroundResource(R.drawable.heart_filled);
         }
         tv_content_detail_like.setText(String.valueOf(like_count));
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == 0) {
+            tv_content_detail_comment.setText(String.valueOf(resultCode));
+        }
     }
 }

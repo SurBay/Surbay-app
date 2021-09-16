@@ -561,20 +561,21 @@ public class GeneralDetailActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()){
             case android.R.id.home:
-                if(ORIGIN_LIKE==LIKED && LIKE_CHANGE==DISLIKED){
-                    dislikepost();
-                    general.setLikes(general.getLikes()-1);
-                    general.getLiked_users().remove(UserPersonalInfo.userID);
-                }
-                else if(ORIGIN_LIKE==DISLIKED && LIKE_CHANGE==LIKED){
-                    likepost();
-                    general.setLikes(general.getLikes()+1);
-                    general.getLiked_users().add(UserPersonalInfo.userID);
-                }
-                Intent intent = new Intent(GeneralDetailActivity.this, BoardGeneral.class);
-                intent.putExtra("position", position);
-                intent.putExtra("general", general);
-                setResult(LIKE, intent);
+//                if(ORIGIN_LIKE==LIKED && LIKE_CHANGE==DISLIKED){
+//                    dislikepost();
+//                    general.setLikes(general.getLikes()-1);
+//                    general.getLiked_users().remove(UserPersonalInfo.userID);
+//                }
+//                else if(ORIGIN_LIKE==DISLIKED && LIKE_CHANGE==LIKED){
+//                    likepost();
+//                    general.setLikes(general.getLikes()+1);
+//                    general.getLiked_users().add(UserPersonalInfo.userID);
+//                }
+//                Intent intent = new Intent(GeneralDetailActivity.this, BoardGeneral.class);
+//                intent.putExtra("position", position);
+//                intent.putExtra("general", general);
+//                setResult(LIKE, intent);
+                setResult(position);
                 if(reply_enter.getText().toString().length()>0){
                     customDialog = new CustomDialog(GeneralDetailActivity.this, new View.OnClickListener() {
                         @Override
@@ -878,22 +879,22 @@ public class GeneralDetailActivity extends AppCompatActivity {
     }
     @Override
     public void onBackPressed() {
-        if(ORIGIN_LIKE==LIKED && LIKE_CHANGE==DISLIKED){
-            dislikepost();
-            general.setLikes(general.getLikes()-1);
-            general.getLiked_users().remove(UserPersonalInfo.userID);
-        }
-        else if(ORIGIN_LIKE==DISLIKED && LIKE_CHANGE==LIKED){
-            likepost();
-            general.setLikes(general.getLikes()+1);
-            general.getLiked_users().add(UserPersonalInfo.userID);
-        }
-        Intent intent = new Intent(GeneralDetailActivity.this, BoardGeneral.class);
-        intent.putExtra("position", position);
-        intent.putExtra("general", general);
-
-        setResult(LIKE, intent);
-//        finish();
+//        if(ORIGIN_LIKE==LIKED && LIKE_CHANGE==DISLIKED){
+//            dislikepost();
+//            general.setLikes(general.getLikes()-1);
+//            general.getLiked_users().remove(UserPersonalInfo.userID);
+//        }
+//        else if(ORIGIN_LIKE==DISLIKED && LIKE_CHANGE==LIKED){
+//            likepost();
+//            general.setLikes(general.getLikes()+1);
+//            general.getLiked_users().add(UserPersonalInfo.userID);
+//        }
+//        Intent intent = new Intent(GeneralDetailActivity.this, BoardGeneral.class);
+//        intent.putExtra("position", position);
+//        intent.putExtra("general", general);
+//
+//        setResult(LIKE, intent);
+        setResult(position);
         if(reply_enter.getText().toString().length()>0){
 
             customDialog = new CustomDialog(GeneralDetailActivity.this, new View.OnClickListener() {

@@ -51,7 +51,9 @@ public class VoteRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
     public Object getItem(int position) {
         return boardVotes.get(position);
     }
-
+    public void setItem(ArrayList<General> boardVotes) {
+        this.boardVotes = boardVotes;
+    }
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -214,6 +216,18 @@ public class VoteRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
 
             cv_vote_item = itemView.findViewById(R.id.cv_vote_item);
             loadingPanel = itemView.findViewById(R.id.loadingPanel);
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int pos = getAdapterPosition();
+                    if (pos != RecyclerView.NO_POSITION) {
+                        // 리스너 객체의 메서드 호출.
+                        if (aListener != null) {
+                            aListener.onItemClick(v, pos);
+                        }
+                    }
+                }
+            });
         }
     }
 }

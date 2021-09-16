@@ -2,9 +2,11 @@ package com.pumasi.surbay.adapter;
 
 import android.content.Context;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -12,11 +14,23 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+import com.pumasi.surbay.ContentDetailActivity;
 import com.pumasi.surbay.ContentDetailCommentsActivity;
+import com.pumasi.surbay.ContentDetailCommentsActivity.BackgroundReplyDeleteThread;
 import com.pumasi.surbay.R;
+import com.pumasi.surbay.classfile.ContentReReply;
 import com.pumasi.surbay.classfile.ContentReply;
+import com.pumasi.surbay.classfile.CustomDialog;
 import com.pumasi.surbay.classfile.UserPersonalInfo;
 
+import org.json.JSONObject;
+
+import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
@@ -24,6 +38,7 @@ public class ContentReplyRecyclerViewAdapter extends RecyclerView.Adapter<Conten
 
     private Context context;
     private LayoutInflater inflater;
+    private CustomDialog customDialog;
     private ArrayList<ContentReply> contentReplies = new ArrayList<>();
     private ContentReplyRecyclerViewAdapter.OnReplyClickListener aListener= null;
     private ContentReplyRecyclerViewAdapter.OnMenuClickListener bListener= null;
@@ -67,7 +82,7 @@ public class ContentReplyRecyclerViewAdapter extends RecyclerView.Adapter<Conten
     public void onBindViewHolder(@NonNull ContentReplyRecyclerViewAdapter.ContentReplyViewHolder holder, int position) {
         SimpleDateFormat fm = new SimpleDateFormat("MM.dd hh:mm");
         ContentReply contentReply = contentReplies.get(position);
-        holder.reply_name.setText(UserPersonalInfo.name);
+        holder.reply_name.setText(contentReply.getWriter_name());
         holder.reply_date.setText(fm.format(contentReply.getDate()));
         holder.reply_context.setText(contentReply.getContent());
         contentReReplyRecyclerViewAdapter = new ContentReReplyRecyclerViewAdapter(contentReply.getReply(), context);
@@ -75,8 +90,40 @@ public class ContentReplyRecyclerViewAdapter extends RecyclerView.Adapter<Conten
         holder.rv_reply_reply.setLayoutManager(new LinearLayoutManager(context, RecyclerView.VERTICAL, false));
         contentReReplyRecyclerViewAdapter.setOnItemClickListener(new OnMenuClickListener() {
             @Override
-            public void onMenuClick(View v, int position) {
-                Toast.makeText(context, "대댓글 메뉴 clicked", Toast.LENGTH_SHORT).show();
+            public void onMenuClick(View v, int re_position) {
+                PopupMenu popupMenu = new PopupMenu(context, v);
+                popupMenu.getMenuInflater().inflate(R.menu.content_reply_popup_menu, popupMenu.getMenu());
+                popupMenu.show();
+                popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        switch (item.getItemId()) {
+                            case R.id.delete:
+                                customDialog = new CustomDialog(context,  new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        ContentReReply contentReReply = contentReply.getReply().get(re_position);
+                                        Toast.makeText(context , "삭제", Toast.LENGTH_SHORT).show();
+                                        customDialog.dismiss();
+                                    }
+                                });
+                                customDialog.show();
+                                customDialog.setMessage("댓글을 삭제하겠습니까?");
+                                customDialog.setPositiveButton("삭제");
+                                customDialog.setNegativeButton("취소");
+                                return true;
+                            case R.id.report:
+                                customDialog = new CustomDialog(context,  new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        customDialog.dismiss();
+                                    }
+                                });
+                                return true;
+                        }
+                        return false;
+                    }
+                });
             }
         });
     }
@@ -128,4 +175,6 @@ public class ContentReplyRecyclerViewAdapter extends RecyclerView.Adapter<Conten
             });
         }
     }
+
+
 }

@@ -34,6 +34,7 @@
         android:id="@+id/rv_content_detail_comment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginHorizontal="10dp"
         android:layout_weight="1"
         android:background="@color/renewal_background"/>
     <RelativeLayout
