@@ -3,8 +3,10 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="161.88dp"
-    android:background="#E5E5E5">
+    android:layout_height="wrap_content"
+    android:paddingVertical="5dp"
+
+    android:background="@color/renewal_background">
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cv_research_item"
@@ -12,19 +14,19 @@
         android:layout_height="match_parent"
         android:layout_marginLeft="18.24dp"
         android:layout_marginRight="18.24dp"
-        android:layout_marginTop="5dp"
-        android:layout_marginBottom="5dp"
         app:cardCornerRadius="11.4dp">
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+
             >
 
             <LinearLayout
                 android:orientation="vertical"
-                android:layout_width="240.84dp"
-                android:layout_height="125.4dp"
+                android:layout_weight="2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="8.12dp"
                 android:layout_marginLeft="14.56dp">
                 <RelativeLayout
@@ -64,50 +66,58 @@
                 <TextView
                     android:id="@+id/tv_research_item_title"
                     android:layout_width="match_parent"
-                    android:layout_height="40dp"
+                    android:layout_height="wrap_content"
                     android:layout_marginTop="6dp"
                     android:text="온라인 강의 학생 만족도 설문 조사"
                     android:textSize="17.1dp"
                     android:textColor="#484747"
                     android:textStyle="bold"
-                    android:lineHeight="17.1dp"
-                    android:maxLines="2" />
+                    android:lineHeight="19.3dp"
+                    android:lines="2" />
                 <TextView
                     android:id="@+id/tv_research_item_target"
-                    android:layout_width="226.86dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="13dp"
                     android:text="온라인 강의를 들은 경험이 있는 대학생들 모두"
                     android:textSize="14.82dp"
                     android:textColor="#707070"
                     android:lineHeight="17.1dp"
-                    android:maxLines="2"/>
+                    android:lines="2"/>
             </LinearLayout>
             <View
                 android:layout_width="1dp"
-                android:layout_height="120.84dp"
+                android:layout_height="match_parent"
                 android:background="@color/gray2"
                 android:layout_marginLeft="3.42dp"
+                android:layout_marginVertical="15dp"
                 android:layout_gravity="center_vertical" />
 
             <LinearLayout
                 android:orientation="vertical"
-                android:layout_width="96.9dp"
-                android:layout_height="107.16dp"
-                android:layout_marginTop="17.1dp"
-                android:layout_marginLeft="3.42dp">
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="17dp"
+                android:layout_marginBottom="23dp">
                 <LinearLayout
                     android:orientation="horizontal"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="9.12dp">
+                    android:layout_marginLeft="11dp"
+                    android:layout_marginRight="15dp">
                     <TextView
                         android:id="@+id/tv_research_item_indicator"
-                        android:layout_width="52.44dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="NEW"
                         android:textSize="14.82dp"
                         android:textColor="@color/teal_200"
                         android:textStyle="bold" />
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1" />
                     <ImageView
                         android:id="@+id/iv_research_item_check2"
                         android:layout_width="33.06dp"
@@ -117,50 +127,58 @@
                 </LinearLayout>
                 <LinearLayout
                     android:orientation="vertical"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
+                    android:layout_marginRight="15dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="17.1dp">
+                    android:layout_marginTop="20dp">
                     <TextView
                         android:id="@+id/tv_research_item_start"
-                        android:layout_width="67.26dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="9.12dp"
                         android:text="08.05"
-                        android:textSize="12.54dp"
+                        android:textSize="13dp"
                         android:textColor="#707070" />
                     <TextView
                         android:id="@+id/tv_research_item_end"
-                        android:layout_width="96.9dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="~ 08.12 19:29"
-                        android:textSize="12.54dp"
+                        android:text="~  08.12 19:29"
+                        android:textSize="13dp"
                         android:textColor="#707070"
-                        android:gravity="right" />
+                        android:layout_gravity="right"/>
                 </LinearLayout>
-                <LinearLayout
-                    android:layout_width="84.36dp"
+                <RelativeLayout
+                    android:orientation="horizontal"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="15dp"
-                    android:layout_marginLeft="12.54dp"
-                    android:gravity="right">
+                    android:layout_marginTop="23dp"
+                    android:layout_marginLeft="11dp"
+                    android:layout_marginRight="14dp">
                     <ImageView
+                        android:id="@+id/iv_research_item_gift"
                         android:layout_width="22.8dp"
                         android:layout_height="22.8dp"
-                        android:layout_marginBottom="6dp"
-                        android:layout_marginRight="10dp" />
+                        android:layout_alignParentLeft="true"
+                        android:src="@drawable/gift_research"/>
                     <TextView
                         android:id="@+id/tv_research_item_participation"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="5dp"
-                        android:text="50"
+                        android:layout_marginTop="2dp"
+                        android:layout_toLeftOf="@id/fix2"
+                        android:layout_gravity="right"
+                        android:text="20"
                         android:textSize="14.82dp"
                         android:textColor="#707070"
                         android:textStyle="bold"/>
                     <TextView
+                        android:id="@+id/fix2"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="5dp"
+                        android:layout_marginTop="2dp"
+                        android:layout_gravity="right"
+                        android:layout_toLeftOf="@id/tv_research_item_goal"
                         android:text=" | "
                         android:textSize="14.82dp"
                         android:textColor="@color/nav_gray"
@@ -169,12 +187,16 @@
                         android:id="@+id/tv_research_item_goal"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="5dp"
-                        android:text="100"
+                        android:layout_marginTop="2dp"
+                        android:layout_alignParentRight="true"
+                        android:layout_gravity="right"
+                        android:gravity="right"
+                        android:text="999+"
                         android:textSize="14.82dp"
                         android:textColor="@color/nav_gray"
                         android:textStyle="bold"/>
-                </LinearLayout>
+
+                </RelativeLayout>
 
 
             </LinearLayout>

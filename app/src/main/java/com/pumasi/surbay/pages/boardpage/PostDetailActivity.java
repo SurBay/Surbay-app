@@ -1,5 +1,6 @@
 package com.pumasi.surbay.pages.boardpage;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.ClipData;
@@ -26,8 +27,10 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.PopupMenu;
 import android.widget.RelativeLayout;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
@@ -48,10 +51,14 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.pumasi.surbay.ContentDetailCommentsActivity;
+import com.pumasi.surbay.MyNoteActivity;
 import com.pumasi.surbay.R;
 import com.pumasi.surbay.SurveyWebActivity;
+import com.pumasi.surbay.Tools;
 import com.pumasi.surbay.adapter.ReplyRecyclerViewAdapter;
 import com.pumasi.surbay.classfile.CustomDialog;
+import com.pumasi.surbay.classfile.MessageDialog;
 import com.pumasi.surbay.classfile.Notification;
 import com.pumasi.surbay.classfile.Post;
 import com.pumasi.surbay.classfile.ReReply;
@@ -68,6 +75,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -76,6 +84,12 @@ import java.util.Map;
 import java.util.TimeZone;
 
 public class PostDetailActivity extends AppCompatActivity {
+    private Context context;
+    private Tools tools = new Tools();
+    private final int COMMENT = 0;
+    private final int REPLY = 1;
+    private final int EDIT = 2;
+
     static final int START_SURVEY = 1;
     static final int DONE = 1;
     static final int NOT_DONE = 0;
@@ -84,7 +98,14 @@ public class PostDetailActivity extends AppCompatActivity {
     static final int REPORTED = 5;
 
     static final int REFRESH = 0;
-    static final int REPLY = 1;
+
+    private String reply_id;
+    private String reply_content;
+    private int reply_mode;
+    private boolean reply_done = false;
+    private boolean report_done = false;
+    private boolean delete_done = false;
+    private boolean block_done = false;
 
     private TextView participants;
     private TextView participants_percent;
@@ -97,7 +118,8 @@ public class PostDetailActivity extends AppCompatActivity {
     TextView est_time;
     TextView deadline;
     TextView dday;
-    EditText reply_enter;
+    private EditText et_post_detail_reply;
+    private LinearLayout ll_post_detail_reply;
     LinearLayout prizeLayout;
     TextView prize;
 
@@ -108,14 +130,15 @@ public class PostDetailActivity extends AppCompatActivity {
 
     private AlertDialog dialog;
     private CustomDialog customDialog;
-    ImageButton reply_enter_button;
+    private MessageDialog messageDialog;
+    private ImageView iv_post_detail_reply;
+    private ImageButton reply_enter_button;
 
     private Post post;
     private int position;
     String surveyURL;
-    public static Context context;
 
-    private static ReplyRecyclerViewAdapter detail_reply_Adapter;
+    private ReplyRecyclerViewAdapter replyRecyclerViewAdapter;
     private static RecyclerView detail_reply_listView;
     private static ArrayList<Reply> replyArrayList;
 
@@ -137,12 +160,8 @@ public class PostDetailActivity extends AppCompatActivity {
     postDetailHandler handler = new postDetailHandler();
     private boolean getPostDone = false;
 
-    String newReply = null;
-    private boolean postReplyDone = false;
-
     RelativeLayout loading;
 
-    private String replyId = "";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -152,9 +171,8 @@ public class PostDetailActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayShowCustomEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setElevation(0);
-
         Intent intent = getIntent();
-        context = getApplicationContext();
+        context = PostDetailActivity.this;
         today = new Date();
 
         author = findViewById(R.id.author);
@@ -169,7 +187,10 @@ public class PostDetailActivity extends AppCompatActivity {
         participants = findViewById(R.id.participants);
         participants_percent = findViewById(R.id.participants_percent);
 
-        reply_enter = findViewById(R.id.reply_enter);
+        ll_post_detail_reply = findViewById(R.id.ll_post_detail_reply);
+        if (UserPersonalInfo.userID.equals("nonMember")) ll_post_detail_reply.setVisibility(View.GONE);
+        iv_post_detail_reply = findViewById(R.id.iv_post_detail_reply);
+        et_post_detail_reply = findViewById(R.id.et_post_detail_reply);
         reply_enter_button = findViewById(R.id.reply_enter_button);
 
         surveyButton = findViewById(R.id.surveyButton);
@@ -187,13 +208,131 @@ public class PostDetailActivity extends AppCompatActivity {
 
         post = (Post)intent.getParcelableExtra("post");
         position = intent.getIntExtra("position", -1);
+
+        new BackgroundThread().start();
+
         loading_detail(post);
         replyArrayList = post.getComments();
-        detail_reply_Adapter = new ReplyRecyclerViewAdapter(PostDetailActivity.this, replyArrayList);
-        detail_reply_Adapter.setPost(post);
+        replyRecyclerViewAdapter = new ReplyRecyclerViewAdapter(PostDetailActivity.this, replyArrayList);
+        replyRecyclerViewAdapter.setPost(post);
+        replyRecyclerViewAdapter.setOnItemClickListener(new ReplyRecyclerViewAdapter.OnReplyClickListener() {
+            @Override
+            public void onReplyClick(View v, int position) {
+                if (UserPersonalInfo.userID.equals("nonMember")) {
+                    customDialog = new CustomDialog(PostDetailActivity.this, null);
+                    customDialog.show();
+                    customDialog.setMessage("비회원은 이용할 수 없는 기능입니다.");
+                    customDialog.setNegativeButton("확인");
+                } else {
+                    Reply reply = (Reply) replyRecyclerViewAdapter.getItem(position);
+                    replyRecyclerViewAdapter.Click(position);
+                    reply_id = reply.getID();
+                    reply_mode = 1;
+                    setReplyVisible(true);
+                }
+            }
+        });
+        replyRecyclerViewAdapter.setOnItemClickListener(new ReplyRecyclerViewAdapter.OnMenuClickListener() {
+            @Override
+            public void onMenuClick(View v, int position) {
+                if (UserPersonalInfo.userID.equals("nonMember")) {
+                    customDialog = new CustomDialog(PostDetailActivity.this, null);
+                    customDialog.show();
+                    customDialog.setMessage("비회원은 이용할 수 없는 기능입니다.");
+                    customDialog.setNegativeButton("확인");
+                } else {
+                    Reply reply = (Reply) replyRecyclerViewAdapter.getItem(position);
+                    PopupMenu popupMenu = new PopupMenu(context, v);
+                    popupMenu.getMenuInflater().inflate(R.menu.reply_pop_menu, popupMenu.getMenu());
+                    popupMenu.show();
+                    popupMenu.getMenu().getItem(2).setVisible(false);
+                    popupMenu.getMenu().getItem(2).setEnabled(false);
+                    if (UserPersonalInfo.email.equals(reply.getWriter())) {
+                        popupMenu.getMenu().getItem(1).setVisible(false);
+                        popupMenu.getMenu().getItem(1).setEnabled(false);
+                        popupMenu.getMenu().getItem(3).setVisible(false);
+                        popupMenu.getMenu().getItem(3).setEnabled(false);
+                    } else {
+                        popupMenu.getMenu().getItem(0).setVisible(false);
+                        popupMenu.getMenu().getItem(0).setEnabled(false);
+
+                    }
+                    popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                        @Override
+                        public boolean onMenuItemClick(MenuItem item) {
+                            switch (item.getItemId()) {
+                                case R.id.delete:
+                                    customDialog = new CustomDialog(PostDetailActivity.this, new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            BackgroundDeleteThread backgroundDeleteThread = new BackgroundDeleteThread(reply.getID());
+                                            backgroundDeleteThread.start();
+                                            customDialog.dismiss();
+                                        }
+                                    });
+                                    customDialog.show();
+                                    customDialog.setMessage("댓글을 삭제하겠습니까?");
+                                    customDialog.setPositiveButton("삭제");
+                                    customDialog.setNegativeButton("취소");
+                                    return true;
+                                case R.id.report:
+                                    customDialog = new CustomDialog(context, new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            ArrayList<String> reports = new ArrayList<>(Arrays.asList("욕설/비하", "상업적 광고 및 판매", "낚시/놀람/도배/사기", "게시판 성격에 부적절함", "기타"));
+                                            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                                            builder.setTitle("신고 사유");
+                                            builder.setItems(R.array.reportreason, new DialogInterface.OnClickListener() {
+                                                @Override
+                                                public void onClick(DialogInterface dialog, int which) {
+                                                    BackgroundReportThread backgroundReportThread = new BackgroundReportThread(reply.getID(), reports.get(which));
+                                                    backgroundReportThread.start();
+                                                    Toast.makeText(PostDetailActivity.this, "신고가 접수되었습니다", Toast.LENGTH_SHORT).show();
+                                                }
+                                            });
+                                            Dialog dialog = builder.create();
+                                            dialog.show();
+                                            customDialog.dismiss();
+
+                                        }
+                                    });
+                                    customDialog.show();
+                                    customDialog.setMessage("댓글을 신고하시겠습니까?");
+                                    customDialog.setPositiveButton("신고");
+                                    customDialog.setNegativeButton("취소");
+                                    return true;
+                                case R.id.edit:
+                                    et_post_detail_reply.requestFocus();
+                                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                                    imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
+                                    reply_mode = EDIT;
+                                    reply_id = reply.getID();
+                                    setReplyVisible(false);
+                                case R.id.block:
+                                    customDialog = new CustomDialog(context, new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            BackgroundBlockThread backgroundBlockThread = new BackgroundBlockThread(reply.getWriter());
+                                            backgroundBlockThread.start();
+                                            customDialog.dismiss();
+                                        }
+                                    });
+                                    customDialog.show();
+                                    customDialog.setMessage("상대를 차단하겠습니까?\n상대를 차단하시면 더 이상 상대방이 보낸 쪽지를 볼 수 없습니다.");
+                                    customDialog.setPositiveButton("차단");
+                                    customDialog.setNegativeButton("취소");
+                                    return true;
+                            }
+                            return false;
+                        }
+                    });
+                }
+
+            }
+        });
         mLayoutManager = new LinearLayoutManager(this);
         detail_reply_listView.setLayoutManager(mLayoutManager);
-        detail_reply_listView.setAdapter(detail_reply_Adapter);
+        detail_reply_listView.setAdapter(replyRecyclerViewAdapter);
 
 
 
@@ -212,10 +351,10 @@ public class PostDetailActivity extends AppCompatActivity {
 
         setbuttonunable();
 
-        reply_enter.setOnTouchListener(new View.OnTouchListener() {
+        et_post_detail_reply.setOnTouchListener(new View.OnTouchListener() {
             public boolean onTouch(View view, MotionEvent event) {
                 // TODO Auto-generated method stub
-                if (view.getId() == R.id.reply_enter) {
+                if (view.getId() == R.id.et_post_detail_reply) {
                     view.getParent().requestDisallowInterceptTouchEvent(true);
                     switch (event.getAction()&MotionEvent.ACTION_MASK){
                         case MotionEvent.ACTION_UP:
@@ -237,8 +376,10 @@ public class PostDetailActivity extends AppCompatActivity {
                     customDialog.setNegativeButton("확인");
                     return;
                 }
-                newReply = reply_enter.getText().toString();
-                if (newReply.length() > 0 ){
+                reply_content = et_post_detail_reply.getText().toString();
+                et_post_detail_reply.getText().clear();
+
+                if (reply_content.length() > 0 ){
                     loading.setVisibility(View.VISIBLE);
                     BackgroundReplyThread replyThread = new BackgroundReplyThread();
                     replyThread.start();
@@ -246,7 +387,7 @@ public class PostDetailActivity extends AppCompatActivity {
             }
         });
 
-        reply_enter.setOnClickListener(new View.OnClickListener() {
+        et_post_detail_reply.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(UserPersonalInfo.userID.equals("nonMember")){
@@ -299,11 +440,6 @@ public class PostDetailActivity extends AppCompatActivity {
     class BackgroundThread extends Thread{
         public void run() {
             getPost(post.getID());
-            try {
-                Thread.sleep(300);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
             while(!(getPostDone)) {
                 try {
                     Thread.sleep(100);
@@ -318,11 +454,39 @@ public class PostDetailActivity extends AppCompatActivity {
     }
     class BackgroundReplyThread extends Thread{
         public void run() {
-            postReply(newReply);
-            while(!(postReplyDone)) {
+            switch (reply_mode) {
+                case COMMENT:
+                    postReply(reply_content);
+                    break;
+                case REPLY:
+                    postPostReReply(reply_id, reply_content);
+                    break;
+                case EDIT:
+                    postEditComment(reply_id, reply_content);
+                    break;
+            }
+            while(!(reply_done)) {
                 try {
                     Thread.sleep(100);
                 } catch (Exception e) {}
+            }
+            new BackgroundThread().start();
+        }
+    }
+
+    class BackgroundDeleteThread extends Thread{
+        private String id;
+        public BackgroundDeleteThread(String id) {
+            this.id = id;
+        }
+        public void run() {
+            postDeleteComment(id);
+            while (!delete_done) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
             getPost(post.getID());
             while(!(getPostDone)) {
@@ -332,11 +496,58 @@ public class PostDetailActivity extends AppCompatActivity {
             }
             Message message = handler.obtainMessage();
             Bundle bundle = new Bundle();
-            bundle.putInt("thread", REPLY);
+            bundle.putInt("thread", 3);
             message.setData(bundle);
             handler.sendMessage(message);
         }
     }
+    class BackgroundReportThread extends Thread{
+        private String id;
+        private String report_reason;
+        public BackgroundReportThread(String id, String report_reason) {
+            this.id = id;
+            this.report_reason = report_reason;
+        }
+        public void run() {
+            postReportComment(id, report_reason);
+            while (!report_done) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            getPost(post.getID());
+            while(!(getPostDone)) {
+                try {
+                    Thread.sleep(100);
+                } catch (Exception e) {}
+            }
+            Message message = handler.obtainMessage();
+            Bundle bundle = new Bundle();
+            bundle.putInt("thread", 3);
+            message.setData(bundle);
+            handler.sendMessage(message);
+        }
+    }
+    class BackgroundBlockThread extends Thread{
+        private String counter;
+        public BackgroundBlockThread(String counter) {
+            this.counter = counter;
+        }
+        public void run() {
+            blockUser(counter);
+            while (!block_done) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            new BackgroundThread().start();
+        }
+    }
+
 
 
     private void postReply(String reply) {
@@ -371,7 +582,7 @@ public class PostDetailActivity extends AppCompatActivity {
                                     Reply re = new Reply(id, UserPersonalInfo.userID, reply, realdate, new ArrayList<>(), false, writer_name, new ArrayList<ReReply>());
                                     re.setWriter_name(writer_name);
                                     replyArrayList.add(re);
-                                    postReplyDone = true;
+                                    reply_done = true;
 
                                 } else {
                                     Toast.makeText(PostDetailActivity.this, "오류가 발생했습니다", Toast.LENGTH_SHORT).show();
@@ -403,7 +614,7 @@ public class PostDetailActivity extends AppCompatActivity {
         } catch (Exception e){
             Log.d("exception", "failed posting");
             e.printStackTrace();
-            postReplyDone = true;
+            reply_done = true;
         }
     }
 
@@ -446,6 +657,17 @@ public class PostDetailActivity extends AppCompatActivity {
                 setResult(FIX_DONE, resultIntent);
                 finish();
         }
+    }
+    public void setReplyVisible(boolean visible) {
+        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) iv_post_detail_reply.getLayoutParams();
+        if (visible) {
+            params.width = (int) (context.getResources().getDisplayMetrics().density * 23);
+            params.height = (int) (context.getResources().getDisplayMetrics().density * 23);
+        } else {
+            params.width = 0;
+            params.height = 0;
+        }
+        iv_post_detail_reply.setLayoutParams(params);
     }
     private void getPersonalInfo() {
         if (UserPersonalInfo.token == null) {
@@ -561,8 +783,6 @@ public class PostDetailActivity extends AppCompatActivity {
         updateUserParticipation(post.getID());
         getPersonalInfo();
     }
-
-
     private void updateReports() throws Exception {
         String requestURL = getString(R.string.server) + "/api/posts/report/" + post.getID();
         try {
@@ -579,7 +799,7 @@ public class PostDetailActivity extends AppCompatActivity {
                                 Intent intent = new Intent(PostDetailActivity.this, BoardPost.class);
                                 setResult(REPORTED, intent);
                                 intent.putExtra("position", position);
-                                Toast.makeText(PostDetailActivity.this, "설문이 신고되었습니다", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(PostDetailActivity.this, "리서치가 신고되었습니다", Toast.LENGTH_SHORT).show();
                                 finish();
                             } else {
                                 if(res.getString("message").startsWith("cannot report this post")){
@@ -613,13 +833,16 @@ public class PostDetailActivity extends AppCompatActivity {
 
             menu.getItem(3).setVisible(true);
             menu.getItem(4).setVisible(true);
+            menu.getItem(5).setVisible(false);
         } else {
             menu.getItem(0).setVisible(true);
-            menu.getItem(1).setVisible(false);
+            menu.getItem(1).setVisible(true);
             menu.getItem(2).setVisible(false);
 
             menu.getItem(3).setVisible(false);
             menu.getItem(4).setVisible(false);
+            menu.getItem(5).setVisible(true);
+
         }
         return super.onCreateOptionsMenu(menu);
     }
@@ -628,7 +851,7 @@ public class PostDetailActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()){
             case android.R.id.home:
-                if(reply_enter.getText().toString().length()>0){
+                if(et_post_detail_reply.getText().toString().length()>0){
                     customDialog = new CustomDialog(PostDetailActivity.this, new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -649,27 +872,60 @@ public class PostDetailActivity extends AppCompatActivity {
                 ShareDialog();
                 break;
             case R.id.report:
-                //select back button
-                ReportDialog();
+                if (UserPersonalInfo.userID.equals("nonMember")) {
+                    customDialog = new CustomDialog(PostDetailActivity.this, null);
+                    customDialog.show();
+                    customDialog.setMessage("비회원은 이용할 수 없는 기능입니다.");
+                    customDialog.setNegativeButton("확인");
+                } else {
+                    ReportDialog();
+                }
                 break;
             case R.id.fix:
                 Date now = new Date();
-                if((!post.isDone()) || !(now.after(post.getDeadline()))) {
+                if((!post.isDone()) || !(now.after(new Date(tools.toLocal(post.getDeadline().getTime()))))) {
                     Intent intent = new Intent(this, PostWriteActivity.class);
                     intent.putExtra("purpose", FIX);
                     intent.putExtra("post", post);
                     startActivityForResult(intent, FIX);
                 }else{
-                    Toast.makeText(PostDetailActivity.this, "마감된 설문은 수정이 불가합니다", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(PostDetailActivity.this, "마감된 리서치는 수정이 불가합니다", Toast.LENGTH_SHORT).show();
                 }
                 break;
             case R.id.remove:
                 RemoveDialog();
                 break;
             case R.id.note:
+                if (UserPersonalInfo.userID.equals("nonMember")) {
+                    customDialog = new CustomDialog(PostDetailActivity.this, null);
+                    customDialog.show();
+                    customDialog.setMessage("비회원은 이용할 수 없는 기능입니다.");
+                    customDialog.setNegativeButton("확인");
+                } else {
+                    messageDialog = new MessageDialog(context, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        messageDialog.setClickable(false);
+                        setNote(messageDialog.note);
+
+                        }
+                    });
+                    messageDialog.show();
+                }
                 break;
             case R.id.resultrequest:
                 break;
+            case R.id.block:
+                if (UserPersonalInfo.userID.equals("nonMember")) {
+                    customDialog = new CustomDialog(PostDetailActivity.this, null);
+                    customDialog.show();
+                    customDialog.setMessage("비회원은 이용할 수 없는 기능입니다.");
+                    customDialog.setNegativeButton("확인");
+                } else {
+                    BackgroundBlockThread backgroundBlockThread = new BackgroundBlockThread(post.getAuthor_userid());
+                    backgroundBlockThread.start();
+                }
+
 
         }
         return super.onOptionsItemSelected(item);
@@ -685,9 +941,9 @@ public class PostDetailActivity extends AppCompatActivity {
         else if (UserPersonalInfo.userID.equals(post.getAuthor_userid())){
             partilayout.setVisibility(View.GONE);
             authorlayout.setVisibility(View.VISIBLE);
-        }else if(now.after(post.getDeadline())){
+        }else if(now.after(new Date(tools.toLocal(post.getDeadline().getTime())))){
             surveyButton.setClickable(false);
-            surveyButton.setText("종료된 설문입니다");
+            surveyButton.setText("종료된 리서치입니다");
             surveyButton.setBackgroundResource(R.drawable.not_round_gray_fill);
         }else if (UserPersonalInfo.participations.contains(post.getID())){
             surveyButton.setClickable(false);
@@ -732,7 +988,8 @@ public class PostDetailActivity extends AppCompatActivity {
                     }, error -> {
                         Log.d("exception", "volley error");
                         error.printStackTrace();
-                    }){
+                    })
+            {
                 @Override
                 public Map<String, String> getHeaders() throws AuthFailureError {
                     HashMap<String, String> headers = new HashMap<String, String>();
@@ -763,22 +1020,23 @@ public class PostDetailActivity extends AppCompatActivity {
         }
 
         est_time.setText(spinner_esttime[post.getEst_time()]);
-        Log.d("deadline is", ""+post.getDeadline());
-        Log.d("formatted deadline is", ""+new SimpleDateFormat("MM.dd a K시", Locale.KOREA).format(post.getDeadline()));
 
-        deadline.setText(new SimpleDateFormat("MM.dd").format(post.getDate()) + " - " + new SimpleDateFormat("MM.dd a K시", Locale.KOREA).format(post.getDeadline()));
-        int dday_count = calc_dday(post.getDeadline());
+        deadline.setText(tools.convertTimeZone(context, post.getDate(), "MM.dd") + " - " + tools.convertTimeZone(context, post.getDeadline(), "MM.dd. a K시"));
+        int dday_count = calc_dday(new Date(tools.toLocal(post.getDeadline().getTime())));
         Date now = new Date();
-        if(now.after(post.getDeadline()) || post.isDone()){
+        if(now.after(new Date(tools.toLocal(post.getDeadline().getTime()))) || post.isDone()){
             dday.setVisibility(View.VISIBLE);
             dday.setText("종료");
-        }if (dday_count <= 3 && dday_count >= 0 ){
-            if (dday_count==0){
-                dday.setVisibility(View.VISIBLE);
-                dday.setText("D-Day");
-            } else {
-                dday.setVisibility(View.VISIBLE);
-                dday.setText("D-"+dday_count);
+        } else if (dday_count <= 3 && dday_count >= 0 ){
+            switch (dday_count) {
+                case 0:
+                    dday.setVisibility(View.VISIBLE);
+                    dday.setText("D-Day");
+                    break;
+                default:
+                    dday.setVisibility(View.VISIBLE);
+                    dday.setText("D-" + dday_count);
+                    break;
             }
         }
         String goalpart, realpart;
@@ -903,7 +1161,7 @@ public class PostDetailActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 today = new Date();
-                long diff = (today.getTime() - post.getDate().getTime()) / (60*1000);
+                long diff = (today.getTime() - new Tools().toLocal(post.getDate().getTime())) / (60*1000);
                 int mindiff = (int)diff;
                 Log.d("todat", mindiff+ "  "+ diff + "  " + today + post.getDate());
                 if (mindiff<10){
@@ -915,9 +1173,6 @@ public class PostDetailActivity extends AppCompatActivity {
                         finish();
                         e.printStackTrace();
                     }
-//                            setResult(4);
-//                            Toast.makeText(PostDetailActivity.this, "설문이 삭제되었습니다", Toast.LENGTH_SHORT).show();
-//                            finish();
 
                 } else {
 
@@ -930,13 +1185,14 @@ public class PostDetailActivity extends AppCompatActivity {
             }
         });
         customDialog.show();
-        customDialog.setMessage("설문을 삭제하더라도 설문 작성 가능 횟수는\n늘어나지 않습니다.\n설문을 삭제하겠습니까?");
+        customDialog.setMessage("리서치를 삭제하더라도 리서치 작성 \n가능 횟수는 늘어나지 않습니다.\n리서치를 삭제하겠습니까?");
         customDialog.setPositiveButton("삭제");
         customDialog.setNegativeButton("취소");
     }
 
     public void SurveyEndDialog(){
         customDialog = new CustomDialog(PostDetailActivity.this, new View.OnClickListener() {
+            @SuppressLint("SetTextI18n")
             @Override
             public void onClick(View v) {
                 partilayout.setVisibility(View.VISIBLE);
@@ -946,7 +1202,7 @@ public class PostDetailActivity extends AppCompatActivity {
                 surveyButton.setText("마감되었습니다");
                 post.setDone(true);
 
-                deadline.setText(new SimpleDateFormat("MM.dd").format(post.getDate()) + " - " + new SimpleDateFormat("MM.dd a H시", Locale.KOREA).format(post.getDeadline()));
+                deadline.setText(tools.convertTimeZone(context, post.getDate(), "MM.dd") + " - " + tools.convertTimeZone(context, post.getDeadline(), "MM.dd. a K시"));
                 try {
                     updateDeadlinePost(today);
                 } catch (Exception e) {
@@ -958,8 +1214,8 @@ public class PostDetailActivity extends AppCompatActivity {
             }
         });
         customDialog.show();
-        customDialog.setMessage("설문을 마감하면 더 이상 설문 참여를 받을 수 없으며, 참여 보상이 있는 경우 설문 참여자들에게 추첨을 통해 자동으로 지급됩니다.");
-        customDialog.setPositiveButton("설문 마감");
+        customDialog.setMessage("리서치를 마감하면 더 이상 리서치 참여를 받을 수 없으며, 참여 보상이 있는 경우 리서치 참여자들에게 추첨을 통해 자동으로 지급됩니다.");
+        customDialog.setPositiveButton("리서치 마감");
         customDialog.setNegativeButton("취소");
     }
 
@@ -973,8 +1229,8 @@ public class PostDetailActivity extends AppCompatActivity {
             }
         });
         customDialog.show();
-        customDialog.setMessage("설문을 1회(24시간) 연장하면 1크레딧이\n" +"차감됩니다.\n"+"설문을 연장하겠습니까?");
-        customDialog.setPositiveButton("설문 연장");
+        customDialog.setMessage("리서치를 1회(24시간) 연장하면 1크레딧이\n" +"차감됩니다.\n"+"리서치를 연장하겠습니까?");
+        customDialog.setPositiveButton("리서치 연장");
         customDialog.setNegativeButton("취소");
     }
 
@@ -1025,8 +1281,6 @@ public class PostDetailActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
-
-
     private void deletePost() throws Exception{
         String requestURL =getString(R.string.server)+ "/api/posts/deletepost/" + post.getID();
         try{
@@ -1037,7 +1291,7 @@ public class PostDetailActivity extends AppCompatActivity {
                             Intent intent = new Intent(PostDetailActivity.this, BoardPost.class);
                             intent.putExtra("position", position);
                             setResult(4, intent);
-                            Toast.makeText(PostDetailActivity.this, "설문이 삭제되었습니다", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(PostDetailActivity.this, "리서치가 삭제되었습니다", Toast.LENGTH_SHORT).show();
                             finish();
                         }, error -> {
                         Log.d("exception", "volley error");
@@ -1051,8 +1305,22 @@ public class PostDetailActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
+    private void nonMemberSurvey() {
+        try {
+            String requestURL = context.getResources().getString(R.string.server) + "/api/posts/nonmembersurvey/" + post.getID();
+            RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
+                    Request.Method.PUT, requestURL, null, response -> {
 
-
+            }, error -> {
+                        error.printStackTrace();
+            });
+            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            requestQueue.add(jsonObjectRequest);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
     private void extendPost() {
         String token = UserPersonalInfo.token;
         try{
@@ -1075,7 +1343,7 @@ public class PostDetailActivity extends AppCompatActivity {
                                     Toast.makeText(PostDetailActivity.this, "연장 크레딧이 부족합니다", Toast.LENGTH_SHORT).show();
 
                                 }else {
-                                    Toast.makeText(PostDetailActivity.this, "설문기간 연장에 실패하였습니다", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(PostDetailActivity.this, "리서치 기간 연장에 실패하였습니다", Toast.LENGTH_SHORT).show();
                                 }
                             }
                         } catch (JSONException e) {
@@ -1100,7 +1368,6 @@ public class PostDetailActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
-
     public void extendView(String dl){
 
         Log.d("todat",dl);
@@ -1113,7 +1380,7 @@ public class PostDetailActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        deadline.setText(new SimpleDateFormat("MM.dd").format(post.getDate()) + " - " + new SimpleDateFormat("MM.dd a H시", Locale.KOREA).format(new_deadline));
+        deadline.setText(tools.convertTimeZone(context, post.getDate(), "MM.dd") + " - " + tools.convertTimeZone(context, post.getDeadline(), "MM.dd. a K시"));
         int dday_count = calc_dday(new_deadline);
         if (dday_count <= 2 && dday_count >= 0 ){
             if (dday_count==0){
@@ -1124,28 +1391,37 @@ public class PostDetailActivity extends AppCompatActivity {
                 dday.setText("D-"+(dday_count+1));
             }
         }
-        Toast.makeText(PostDetailActivity.this, "설문이 연장되었습니다", Toast.LENGTH_SHORT).show();
+        Toast.makeText(PostDetailActivity.this, "리서치가 연장되었습니다", Toast.LENGTH_SHORT).show();
     }
     @Override
     public void onBackPressed() {
-        if(reply_enter.getText().toString().length()>0){
+        setResult(position);
+        if (reply_mode == COMMENT) {
+            if(et_post_detail_reply.getText().toString().length()>0){
 
-            customDialog = new CustomDialog(PostDetailActivity.this, new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    finish();
+                customDialog = new CustomDialog(PostDetailActivity.this, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        finish();
+                        customDialog.dismiss();
+                    }
+                });
+                customDialog.show();
+                customDialog.setMessage("댓글 작성을 취소하겠습니까?");
+                customDialog.setPositiveButton("확인");
+                customDialog.setNegativeButton("취소");
+            } else {
+                finish();
+            }
+        } else if (reply_mode == REPLY) {
+            reply_mode = COMMENT;
+            setReplyVisible(false);
+            replyRecyclerViewAdapter.Click(-1);
+        } else if (reply_mode == EDIT) {
+            reply_mode = COMMENT;
+            Toast.makeText(context, "수정 모드가 종료되었습니다.", Toast.LENGTH_SHORT).show();
+        }
 
-                    customDialog.dismiss();
-                }
-            });
-            customDialog.show();
-            customDialog.setMessage("댓글 작성을 취소하겠습니까?");
-            customDialog.setPositiveButton("확인");
-            customDialog.setNegativeButton("취소");
-        }
-        else{
-            finish();
-        }
     }
 
     private class postDetailHandler extends Handler {
@@ -1156,26 +1432,41 @@ public class PostDetailActivity extends AppCompatActivity {
                 case REFRESH:
                     loading_detail(post);
                     Log.d("replylistis", ""+replyArrayList.size());
-                    detail_reply_Adapter = new ReplyRecyclerViewAdapter(PostDetailActivity.this, replyArrayList);
-                    detail_reply_Adapter.setPost(post);
-                    detail_reply_Adapter.notifyDataSetChanged();
-                    detail_reply_listView.setAdapter(detail_reply_Adapter);
+                    replyRecyclerViewAdapter.setItem(replyArrayList);
+                    replyRecyclerViewAdapter.notifyDataSetChanged();
 
                     getPostDone = false;
+                    block_done = false;
+                    delete_done = false;
+                    reply_done = false;
+                    report_done = false;
                     mSwipeRefreshLayout.setRefreshing(false);
+                    try {
+                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                        imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+                    } catch (Exception e) {
+
+                    }
+                    if (reply_mode == EDIT) {
+                        reply_mode = COMMENT;
+                    }
+                    loading.setVisibility(View.GONE);
                     break;
                 case REPLY:
-                    detail_reply_Adapter = new ReplyRecyclerViewAdapter(PostDetailActivity.this, replyArrayList);
-                    detail_reply_Adapter.setPost(post);
-                    detail_reply_Adapter.notifyDataSetChanged();
-                    detail_reply_listView.setAdapter(detail_reply_Adapter);
+                    replyRecyclerViewAdapter.setItem(replyArrayList);
+                    replyRecyclerViewAdapter.notifyDataSetChanged();
                     InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
                     loading.setVisibility(View.GONE);
-                    postReplyDone = false;
-                    newReply = null;
-                    reply_enter.setText(null);
+                    reply_done = false;
                     break;
+                case 3:
+                    replyRecyclerViewAdapter.setItem(replyArrayList);
+                    replyRecyclerViewAdapter.notifyDataSetChanged();
+                    report_done = false;
+                    delete_done = false;
+                    block_done = false;
+                    getPostDone = false;
                 default:
                     break;
             }
@@ -1291,11 +1582,17 @@ public class PostDetailActivity extends AppCompatActivity {
                                                     }
                                                     boolean hide_ = reReply.getBoolean("hide");
                                                     String writer_ = reReply.getString("writer");
+                                                    String writer_name_ = "";
+                                                    try {
+                                                        writer_name_ = reReply.getString("writer_name");
+                                                    } catch (Exception e) {
+                                                        writer_name_ = "익명";
+                                                    }
                                                     String content_ = reReply.getString("content");
                                                     Date date_ = fm.parse(reReply.getString("date"));
                                                     String replyID_ = reReply.getString("replyID");
 
-                                                    ReReply newReReply = new ReReply(id_, reports_, report_reasons_, hide_, writer_, content_, date_, replyID_);
+                                                    ReReply newReReply = new ReReply(id_, reports_, report_reasons_, hide_, writer_, writer_name_, content_, date_, replyID_);
                                                     reReplies.add(newReReply);
                                                 }
                                             }
@@ -1344,4 +1641,141 @@ public class PostDetailActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
+    public void postPostReReply(String postcomment_object_id, String content) {
+        try {
+            String requestURL = context.getResources().getString(R.string.server) + "/api/posts/comment/postreply";
+            JSONObject params = new JSONObject();
+            params.put("userID", UserPersonalInfo.email);
+            params.put("postcomment_object_id", postcomment_object_id);
+            params.put("content", content);
+            RequestQueue requestQueue = Volley.newRequestQueue(context);
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
+                    Request.Method.PUT, requestURL, params, response -> {
+                        reply_done = true;
+            }, error -> {
+               error.printStackTrace();
+            });
+            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20 * 1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            requestQueue.add(jsonObjectRequest);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    public void postDeleteComment(String postcomment_object_id) {
+        try {
+            String requestURL = context.getResources().getString(R.string.server) + "/api/posts/deletecomment";
+            JSONObject params = new JSONObject();
+            params.put("userID", UserPersonalInfo.email);
+            params.put("postcomment_object_id", postcomment_object_id);
+            RequestQueue requestQueue = Volley.newRequestQueue(context);
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
+                    Request.Method.PUT, requestURL, params, response -> {
+                        delete_done = true;
+            }, error -> {
+                error.printStackTrace();
+            });
+            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20 * 1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            requestQueue.add(jsonObjectRequest);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    public void postReportComment(String postcomment_object_id, String reason) {
+        try {
+            String requestURL = context.getResources().getString(R.string.server) + "/api/posts/reportcomment";
+            JSONObject params = new JSONObject();
+            params.put("userID", UserPersonalInfo.email);
+            params.put("postcomment_object_id", postcomment_object_id);
+            params.put("reason", reason);
+            RequestQueue requestQueue = Volley.newRequestQueue(context);
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
+                    Request.Method.PUT, requestURL, params, response -> {
+                        report_done = true;
+            }, error -> {
+               error.printStackTrace();
+            });
+            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20 * 1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            requestQueue.add(jsonObjectRequest);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void postEditComment(String postcomment_object_id, String content) {
+        Log.d("edit", "postEditComment: " + postcomment_object_id + ", " + content);
+        try {
+            String requestURL = context.getResources().getString(R.string.server) + "/api/posts/updatecomment";
+            JSONObject params = new JSONObject();
+            params.put("userID", UserPersonalInfo.email);
+            params.put("postcomment_object_id", postcomment_object_id);
+            params.put("content", content);
+            RequestQueue requestQueue = Volley.newRequestQueue(context);
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
+                    Request.Method.PUT, requestURL, params, response -> {
+                reply_done = true;
+            }, error -> {
+                error.printStackTrace();
+            });
+            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20 * 1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            requestQueue.add(jsonObjectRequest);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void setNote(String content) {
+        try {
+            String requestURL = context.getResources().getString(R.string.server) + "/api/messages/postmessage";
+            JSONObject params = new JSONObject();
+            params.put("from_userID", UserPersonalInfo.email);
+            params.put("to_userID", post.getAuthor_userid());
+            params.put("content", content);
+            RequestQueue requestQueue = Volley.newRequestQueue(context);
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
+                    Request.Method.POST, requestURL, params, response -> {
+                        Intent intent = new Intent(context, MyNoteActivity.class);
+                        messageDialog.dismiss();
+                        startActivity(intent);
+            }, error -> {
+                error.printStackTrace();
+            });
+            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20 * 1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            requestQueue.add(jsonObjectRequest);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void blockUser(String counter) {
+        Log.d("counter", "blockUser: " + counter);
+        String token = UserPersonalInfo.token;
+        try {
+            String requestURL = context.getResources().getString(R.string.server) + "/api/users/blockuser";
+            JSONObject params = new JSONObject();
+            params.put("userID", counter);
+            RequestQueue requestQueue = Volley.newRequestQueue(context);
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
+                    Request.Method.PUT, requestURL, params, response -> {
+                block_done = true;
+            }, error -> {
+                error.printStackTrace();
+            })
+            {
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    HashMap<String, String> headers = new HashMap<String, String>();
+                    headers.put("Authorization", "Bearer " + token);
+                    return headers;
+                }
+            };
+
+            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20 * 1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            requestQueue.add(jsonObjectRequest);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 }

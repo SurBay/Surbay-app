@@ -1,32 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/renewal_background"
     android:orientation="vertical">
     <RelativeLayout
+        android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="80dp"
-        android:orientation="horizontal">
+        android:layout_height="51.3dp"
+        android:background="@color/white">
     <ImageButton
-        android:id="@+id/btnBack"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
+        android:id="@+id/ib_back"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
         android:layout_marginLeft="30dp"
         android:layout_centerVertical="true"
         android:background="@drawable/leftarrow2"
-        android:scaleType="fitCenter"></ImageButton>
+        android:scaleType="fitCenter" />
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textStyle="bold"
         android:text="알림"
-        android:textSize="25dp"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:textColor="@color/black"></TextView>
+        android:textSize="20.5dp"
+        android:layout_centerInParent="true"
+        android:textColor="@color/black" />
     </RelativeLayout>
     <androidx.recyclerview.widget.RecyclerView
-        android:layout_marginTop="15dp"
         android:id="@+id/notification_recyclerview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">

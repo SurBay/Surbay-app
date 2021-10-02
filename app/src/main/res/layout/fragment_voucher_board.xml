@@ -9,11 +9,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
+        android:layout_marginBottom="10dp"
         android:background="@color/white"
         >
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
             android:text="교환 페이지"
             android:textSize="20dp"
             android:textColor="@color/black"
@@ -23,9 +25,11 @@
 
 
         <ImageButton
+            android:visibility="gone"
             android:id="@+id/btn_query_voucher_board"
             android:layout_width="26dp"
             android:layout_height="26dp"
+            android:layout_centerVertical="true"
             android:layout_alignParentRight="true"
             android:layout_marginRight="15dp"
             android:background="#FFFFFF"
@@ -34,11 +38,14 @@
             android:src="@drawable/magnifiyingglass" />
     </RelativeLayout>
     <com.google.android.material.tabs.TabLayout
+        android:visibility="gone"
         android:id="@+id/tl_voucher_board"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:tabSelectedTextColor="@color/teal_200"
-        app:tabTextAppearance="@android:style/TextAppearance.Widget.TabWidget"
+        app:tabTextAppearance="@style/tabLayout_free"
+        app:tabIndicatorHeight="2.5dp"
+        app:tabIndicatorColor="@color/teal_200"
         app:tabMode="fixed"
         app:tabGravity="fill"
         app:tabTextColor="@color/gray2"/>

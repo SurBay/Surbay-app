@@ -31,6 +31,7 @@
             android:textStyle="bold"
             android:textColor="@color/text_color48"/>
         <ImageButton
+            android:visibility="gone"
             android:id="@+id/ib_user_exchange_query"
             android:layout_width="19.38dp"
             android:layout_height="19.38dp"

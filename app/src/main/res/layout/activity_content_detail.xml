@@ -139,6 +139,7 @@
             android:layout_marginTop="15dp"
             android:src="@drawable/reply_teal_empty"
             android:background="#FCFCFC"/>
+
         <TextView
             android:id="@+id/tv_content_detail_comment"
             android:layout_width="wrap_content"
@@ -146,9 +147,9 @@
             android:layout_marginLeft="6dp"
             android:layout_marginTop="18dp"
             android:text="4"
+            android:textColor="#50D3D3"
             android:textSize="14dp"
-            android:textStyle="bold"
-            android:textColor="@color/text_color70" />
+            android:textStyle="bold" />
     </LinearLayout>
 
 </LinearLayout>

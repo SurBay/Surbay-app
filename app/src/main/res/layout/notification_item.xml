@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/renewal_background">
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="18dp"
+        android:layout_marginVertical="6dp"
+        android:background="@drawable/round_border_white_fill">
+        <RelativeLayout
+            android:orientation="horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="17dp"
+            android:layout_marginLeft="20.5dp"
+            android:layout_marginRight="16dp">
+            <TextView
+                android:id="@+id/tv_my_notification_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="내가 등록한 리서치가 마감되었어요"
+                android:textSize="15dp"
+                android:textStyle="bold"
+                android:textColor="@color/text_color48"/>
+            <ImageButton
+                android:id="@+id/ib_my_notification_cancel"
+                android:layout_width="13.5dp"
+                android:layout_height="13.5dp"
+                android:padding="0dp"
+                android:scaleType="centerCrop"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:src="@drawable/cancel" />
+        </RelativeLayout>
+        <TextView
+            android:id="@+id/tv_my_notification_content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginLeft="20.5dp"
+            android:text="참여 보상은 리서치 참여자들에게 추첨을 통해 지급됩니다"
+            android:textSize="13dp"
+            android:textColor="@color/text_color70" />
+        <TextView
+            android:id="@+id/tv_my_notification_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:layout_marginBottom="12.5dp"
+            android:layout_marginLeft="20.5dp"
+            android:text="08.31 16:00"
+            android:textSize="11.5dp"
+            android:textColor="@color/text_color70" />
+
+    </LinearLayout>
+</LinearLayout>

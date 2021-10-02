@@ -26,12 +26,12 @@ public class PollWriteAdapter extends RecyclerView.Adapter<PollWriteAdapter.MyVi
     // OnItemClickListener 리스너 객체 참조를 어댑터에 전달하는 메서드
 
     private LayoutInflater inflater;
-    private Context ctx;
+    private Context context;
     private ArrayList<String> contents = new ArrayList<>();
 
     public PollWriteAdapter(Context ctx){
         inflater = LayoutInflater.from(ctx);
-        this.ctx = ctx;
+        this.context = ctx;
     }
 
     public interface OnItemClickListener {
@@ -53,19 +53,19 @@ public class PollWriteAdapter extends RecyclerView.Adapter<PollWriteAdapter.MyVi
     @Override
     public void onBindViewHolder(PollWriteAdapter.MyViewHolder holder, int position) {
         if(GeneralWriteActivity.image_uris.get(position)!=null){
-            DisplayMetrics displayMetrics = ctx.getResources().getDisplayMetrics();
+            DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
             holder.add_pic.setLayoutParams(new LinearLayout.LayoutParams(
                     Math.round(63 * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT)),
                     Math.round(63 * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT))));
             holder.add_pic.setImageURI(GeneralWriteActivity.image_uris.get(position));
         }else{
-            holder.add_pic.setImageDrawable(ctx.getDrawable(R.drawable.poll_add_pic));
+            holder.add_pic.setImageDrawable(context.getDrawable(R.drawable.poll_add_pic));
         }
 
         holder.add_pic.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                GeneralWriteActivity.goToAlbum(ctx, position);
+                GeneralWriteActivity.goToAlbum(context, position);
             }
         });
         Log.d("arrayis", ""+GeneralWriteActivity.write_polls);
@@ -94,6 +94,8 @@ public class PollWriteAdapter extends RecyclerView.Adapter<PollWriteAdapter.MyVi
                     GeneralWriteActivity.image_uris.remove(position);
                     notifyItemRemoved(position);
                     notifyItemRangeChanged(position, getItemCount());
+                    ((GeneralWriteActivity) context).addPollBtn.setVisibility(View.VISIBLE);
+                    ((GeneralWriteActivity) context).poll_count--;
                 }catch (Exception e) {
                     e.printStackTrace();
                 }

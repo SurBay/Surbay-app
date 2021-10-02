@@ -14,7 +14,7 @@ public class MyCoupon implements Parcelable {
     private String coupon_id;
     private Boolean used;
     private Date used_date;
-    private Date date;
+    private String date;
     private ArrayList<String> image_urls;
     private String store;
     private String menu;
@@ -22,7 +22,7 @@ public class MyCoupon implements Parcelable {
 
     private String dateformat = "yyyy-MM-dd'T'kk:mm:ss.SSS";
 
-    public MyCoupon(String id, String coupon_id, Boolean used, Date used_date, Date date, ArrayList<String> image_urls, String store, String menu, String content) {
+    public MyCoupon(String id, String coupon_id, Boolean used, Date used_date, String date, ArrayList<String> image_urls, String store, String menu, String content) {
         this.id = id;
         this.coupon_id = coupon_id;
         this.used = used;
@@ -67,11 +67,11 @@ public class MyCoupon implements Parcelable {
         this.used_date = used_date;
     }
 
-    public Date getDate() {
+    public String getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(String date) {
         this.date = date;
     }
 
@@ -120,13 +120,7 @@ public class MyCoupon implements Parcelable {
         store = in.readString();
         menu = in.readString();
         content = in.readString();
-        if (this.date != null) {
-            try {
-                this.date = new SimpleDateFormat(dateformat).parse(in.readString());
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-        }
+        date = in.readString();
         if (this.used_date != null) {
             try {
                 this.used_date = new SimpleDateFormat(dateformat).parse(in.readString());
@@ -164,11 +158,9 @@ public class MyCoupon implements Parcelable {
         dest.writeString(store);
         dest.writeString(menu);
         dest.writeString(content);
+        dest.writeString(date);
         if (this.used_date != null) {
             dest.writeString(new SimpleDateFormat(dateformat).format(this.used_date));
-        }
-        if (this.date != null) {
-            dest.writeString(new SimpleDateFormat(dateformat).format(this.date));
         }
 
     }

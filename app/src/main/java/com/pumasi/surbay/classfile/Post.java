@@ -144,12 +144,8 @@ public class Post implements Parcelable{
         this.participants = participants;
         this.goal_participants = goal_participants;
         this.url = url;
-        Date seoul_date = date;
-        seoul_date.setTime(seoul_date.getTime()+(9*60*60*1000));
-        this.date = seoul_date;
-        Date seoul_deadline = deadline;
-        seoul_deadline.setTime(seoul_deadline.getTime()+(9*60*60*1000));
-        this.deadline = seoul_deadline;
+        this.date = date;
+        this.deadline = deadline;
         this.with_prize = with_prize;
         this.prize = prize;
         this.est_time = est_time;

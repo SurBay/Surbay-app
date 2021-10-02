@@ -15,16 +15,18 @@ public class ContentReply implements Parcelable {
     private String id;
     private ArrayList<ContentReReply> reply;
     private Boolean hide;
+    private ArrayList<String> reports;
     private ArrayList<String> report_reasons;
     private String writer;
     private String writer_name;
     private Date date;
     private String content;
 
-    public ContentReply(String id, ArrayList<ContentReReply> reply, Boolean hide, ArrayList<String> report_reasons, String writer, String writer_name, Date date, String content) {
+    public ContentReply(String id, ArrayList<ContentReReply> reply, Boolean hide, ArrayList<String> reports, ArrayList<String> report_reasons, String writer, String writer_name, Date date, String content) {
         this.id = id;
         this.reply = reply;
         this.hide = hide;
+        this.reports = reports;
         this.report_reasons = report_reasons;
         this.writer = writer;
         this.writer_name = writer_name;
@@ -37,6 +39,7 @@ public class ContentReply implements Parcelable {
         reply = in.createTypedArrayList(ContentReReply.CREATOR);
         byte tmpHide = in.readByte();
         hide = tmpHide == 0 ? null : tmpHide == 1;
+        reports = in.createStringArrayList();
         report_reasons = in.createStringArrayList();
         writer = in.readString();
         writer_name = in.readString();
@@ -124,6 +127,14 @@ public class ContentReply implements Parcelable {
         this.content = content;
     }
 
+    public ArrayList<String> getReports() {
+        return reports;
+    }
+
+    public void setReports(ArrayList<String> reports) {
+        this.reports = reports;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -134,6 +145,7 @@ public class ContentReply implements Parcelable {
         dest.writeString(id);
         dest.writeTypedList(reply);
         dest.writeByte((byte) (hide == null ? 0 : hide ? 1 : 2));
+        dest.writeStringList(reports);
         dest.writeStringList(report_reasons);
         dest.writeString(writer);
         dest.writeString(writer_name);

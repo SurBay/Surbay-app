@@ -15,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
@@ -29,6 +30,7 @@ import com.pumasi.surbay.adapter.StoreCategoryRecyclerViewAdapter;
 import com.pumasi.surbay.classfile.Coupon;
 import com.pumasi.surbay.classfile.Store;
 import com.pumasi.surbay.classfile.StoreCategory;
+import com.pumasi.surbay.pages.MainActivity;
 import com.pumasi.surbay.pages.SellingActivity;
 
 import org.json.JSONArray;
@@ -67,6 +69,8 @@ public class MobileCouponFragment extends Fragment {
         sellerRecyclerViewAdapter = new SellerRecyclerViewAdapter(boardStores, context);
         rv_coupon_seller_supplier.setAdapter(sellerRecyclerViewAdapter);
         rv_coupon_seller_supplier.setLayoutManager(new GridLayoutManager(context, 3));
+        LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) rv_coupon_seller_supplier.getLayoutParams();
+        layoutParams.setMargins((int) (MainActivity.screen_width_px / 20.55), (int) (MainActivity.screen_width_px / 45.0657894737), (int) (MainActivity.screen_width_px / 20.55), (int) (MainActivity.screen_width_px / 45.0657894737));
         sellerRecyclerViewAdapter.setOnItemClickListener(new SellerRecyclerViewAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View v, int position) {

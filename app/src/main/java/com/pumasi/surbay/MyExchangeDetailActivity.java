@@ -21,7 +21,11 @@ import com.journeyapps.barcodescanner.BarcodeEncoder;
 import com.pumasi.surbay.classfile.MyCoupon;
 import com.pumasi.surbay.classfile.UserPersonalInfo;
 
+import java.sql.Time;
 import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 
 public class MyExchangeDetailActivity extends AppCompatActivity {
 
@@ -44,7 +48,10 @@ public class MyExchangeDetailActivity extends AppCompatActivity {
         context = getApplicationContext();
 
         MyCoupon myCoupon = getIntent().getParcelableExtra("myCoupon");
+        String date = new Tools().convertTimeZone(context, myCoupon.getDate(), "yyyy.MM.dd");
+
         ib_back = findViewById(R.id.ib_back);
+
         ib_back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -55,19 +62,15 @@ public class MyExchangeDetailActivity extends AppCompatActivity {
         tv_my_coupon_detail_name = findViewById(R.id.tv_my_coupon_detail_name);
         tv_my_coupon_detail_due = findViewById(R.id.tv_my_coupon_detail_due);
         tv_my_coupon_detail_date = findViewById(R.id.tv_my_coupon_detail_date);
+        tv_my_coupon_detail_save = findViewById(R.id.tv_my_coupon_detail_save);
         tv_my_coupon_detail_name.setText(myCoupon.getMenu());
-        SimpleDateFormat fm = new SimpleDateFormat("yyyy.MM.dd");
-        if (myCoupon.getDate() != null) {
-            tv_my_coupon_detail_date.setText("사용기한 ~" + fm.format(myCoupon.getDate()));
-            tv_my_coupon_detail_date.setText(fm.format(myCoupon.getDate()));
-        } else {
-            Log.d("Dateis?", "onCreate: " + myCoupon.getDate());
-        }
+
+        tv_my_coupon_detail_date.setText(date);
+        Log.d("Dateis?", "onCreate: " + date);
 
         iv_my_coupon_detail_qr = findViewById(R.id.iv_my_coupon_detail_qr);
 
         qrURL = "https://main.d18xbudboby48i.amplifyapp.com/?id=" + UserPersonalInfo.email + "&id=" + myCoupon.getId();
-        Log.d("qrURL", "onCreate: " + qrURL);
         MultiFormatWriter multiFormatWriter = new MultiFormatWriter();
         try {
             BitMatrix bitMatrix = multiFormatWriter.encode(qrURL, BarcodeFormat.QR_CODE, 200, 200);

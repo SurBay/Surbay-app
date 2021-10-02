@@ -285,9 +285,6 @@ public class MypageSettingAccount extends AppCompatActivity {
                             tempWriteedit.commit();
 
                             UserPersonalInfo.clearInfo();
-                            MainActivity.notreportedpostArrayList = new ArrayList<>();
-                            MainActivity.postArrayList = new ArrayList<>();
-                            MainActivity.reportpostArrayList = new ArrayList<>();
                             MainActivity.surveytipArrayList = new ArrayList<>();
                             MainActivity.feedbackArrayList = new ArrayList<>();
                             MainActivity.NoticeArrayList = new ArrayList<>();

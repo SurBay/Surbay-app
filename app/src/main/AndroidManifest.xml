@@ -21,7 +21,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SurBay"
         android:usesCleartextTraffic="true">
-        <activity android:name=".ContentDetailCommentsActivity"></activity>
+        <activity android:name=".ContentDetailCommentsActivity" />
         <activity android:name=".ContentDetailActivity" />
         <activity android:name=".MyNoteDetailActivity" />
         <activity android:name=".MyNoteActivity" />
@@ -63,6 +63,9 @@
         <meta-data
             android:name="firebase_analytics_collection_enabled"
             android:value="true" />
+        <meta-data
+            android:name="android.max_aspect"
+            android:value="2.4" />
 
         <service
             android:name=".classfile.MyFirebaseMessagingService"
@@ -181,6 +184,7 @@
         <activity
             android:name=".pages.MainActivity"
             android:exported="false"
+            android:maxAspectRatio="2.4"
             android:screenOrientation="portrait"
             android:usesCleartextTraffic="true">
             <intent-filter>

@@ -9,16 +9,21 @@ public class ReReply {
     private ArrayList<String> report_reasons;
     private boolean hide;
     private String writer;
+
+
+
+    private String writer_name;
     private String content;
     private Date date;
     private String replyID;
 
-    public ReReply(String id, ArrayList<String> reports, ArrayList<String> report_reasons, boolean hide, String writer, String content, Date date, String replyID) {
+    public ReReply(String id, ArrayList<String> reports, ArrayList<String> report_reasons, boolean hide, String writer, String writer_name, String content, Date date, String replyID) {
         this.id = id;
         this.reports = reports;
         this.report_reasons = report_reasons;
         this.hide = hide;
         this.writer = writer;
+        this.writer_name = writer_name;
         this.content = content;
         this.date = date;
         this.replyID = replyID;
@@ -86,5 +91,12 @@ public class ReReply {
 
     public void setReplyID(String replyID) {
         this.replyID = replyID;
+    }
+    public String getWriter_name() {
+        return writer_name;
+    }
+
+    public void setWriter_name(String writer_name) {
+        this.writer_name = writer_name;
     }
 }

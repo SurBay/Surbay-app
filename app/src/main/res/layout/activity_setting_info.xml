@@ -31,15 +31,9 @@
             android:textSize="20dp"
             />
     </RelativeLayout>
-    <ScrollView
+    <WebView
+        android:id="@+id/wv_info"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="10dp"
-        >
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/setting_info_content"
-            />
-    </ScrollView>
+        android:layout_marginTop="10dp" />
 </LinearLayout>

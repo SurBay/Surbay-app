@@ -5,12 +5,15 @@
     <item
         android:id="@+id/report"
         android:title="신고하기" />
+
+    <item
+        android:id="@+id/block"
+        android:title="차단하기" />
+
     <item
         android:id="@+id/resultrequest"
-        android:title="설문 결과 공유 요청" />
-    <item
-        android:id="@+id/note"
-        android:title="작성자에게 쪽지보내기" />
+        android:title="리서치 결과 공유 요청" />
+
     <item
         android:id="@+id/fix"
         android:title="수정하기"
@@ -19,9 +22,15 @@
         android:id="@+id/remove"
         android:title="삭제하기"
         app:showAsAction=""/>
+
+    <item
+        android:id="@+id/note"
+        android:title="작성자에게 쪽지보내기" />
     <item
         android:id="@+id/share"
         android:title="공유"
         android:icon="@drawable/shrae_menu"
         app:showAsAction="always" />
+
+
 </menu>

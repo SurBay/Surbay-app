@@ -52,7 +52,7 @@
             android:layout_height="wrap_content"
             android:textSize="12.5sp"
             android:textColor="@color/text_black_70"
-            android:text="설문 대상" />
+            android:text="리서치 대상" />
         <TextView
             android:id="@+id/target"
             android:layout_marginLeft="7dp"
@@ -133,8 +133,8 @@
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
                 android:textColor="@color/text_black_70"
-                android:text="설문 기한"
-                android:textSize="12.5sp"
+                android:text="라서치 기한"
+                android:textSize="11.5sp"
                 android:id="@+id/detail_surb_date_text">
             </TextView>
             <TextView
@@ -170,8 +170,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@color/text_black_70"
-                android:text="설문 진행"
-                android:textSize="12.5sp"
+                android:text="리서치 진행"
+                android:textSize="11.5sp"
                 android:id="@+id/detail_surb_parti_text"
                 android:layout_centerHorizontal="true">
             </TextView>
@@ -211,7 +211,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_margin="10dp"
-            android:text="설문 참여하기"
+            android:text="리서치 참여하기"
             android:paddingHorizontal="25dp"
             android:textSize="15sp"
             android:textStyle="bold"
@@ -237,14 +237,14 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:paddingHorizontal="25dp"
-            android:textSize="15sp"
+            android:textSize="14sp"
             android:textStyle="bold"
             android:paddingTop="11dp"
             android:paddingBottom="10dp"
             android:minHeight="0dp"
             android:minWidth="0dp"
             android:layout_margin="10dp"
-            android:text="설문 연장하기"
+            android:text="리서치 연장하기"
             android:background="@drawable/round_border_teal_fill"
             android:textColor="@color/white"
             />
@@ -260,7 +260,7 @@
             android:minHeight="0dp"
             android:minWidth="0dp"
             android:layout_margin="10dp"
-            android:text="설문 마감하기"
+            android:text="리서치 마감하기"
             android:textStyle="bold"
             android:background="@drawable/round_border_teal_list"
             android:textColor="@color/teal_200"
@@ -331,6 +331,7 @@
         </androidx.core.widget.NestedScrollView>
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
     <LinearLayout
+        android:id="@+id/ll_post_detail_reply"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/gray"
@@ -345,6 +346,12 @@
             android:paddingHorizontal="10dp"
             android:paddingVertical="5dp"
             android:layout_marginBottom="10dp">
+            <ImageView
+                android:id="@+id/iv_post_detail_reply"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_centerVertical="true"
+                android:src="@drawable/reply_teal" />
             <EditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -354,12 +361,13 @@
                 android:textColor="@color/text_black"
                 android:textColorHint="@color/text_black_70"
                 android:paddingStart="5dp"
-                android:id="@+id/reply_enter"
+                android:id="@+id/et_post_detail_reply"
                 android:inputType="none"
                 android:maxLines="5"
                 android:scrollbars="vertical"
                 android:scrollbarThumbVertical="@color/poll_color_secondary_B6"
                 android:scrollbarStyle="insideInset"
+                android:layout_toRightOf="@id/iv_post_detail_reply"
                 android:layout_toLeftOf="@id/reply_enter_button"
                 android:layout_centerVertical="true"
                 />

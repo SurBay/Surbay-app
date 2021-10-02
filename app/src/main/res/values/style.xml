@@ -32,6 +32,10 @@
         <item name="android:minWidth">0dp</item>
         <item name="android:paddingHorizontal" tools:targetApi="o">5dp</item>
     </style>
+    <style name="tabLayout_free" parent="TextAppearance.Design.Tab">
+        <item name="android:textSize">17dp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
     <style name="Apptheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="colorPrimary">@color/teal_200</item>
         <item name="title">SurBay</item>

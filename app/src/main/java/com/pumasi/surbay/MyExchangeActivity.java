@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -20,6 +21,9 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class MyExchangeActivity extends AppCompatActivity {
+    private Context context;
+    Tools tools = new Tools();
+
     private int type = 0;
     private final int ON_CLICK_AVAILABLE = 0;
     private final int ON_CLICK_UNAVAILABLE = 1;
@@ -42,6 +46,7 @@ public class MyExchangeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_my_exchange);
         getSupportActionBar().hide();
 
+        context = getApplicationContext();
         for (MyCoupon myCoupon : UserPersonalInfo.coupons) {
             if (!myCoupon.getUsed()) {
                 myAvailableCoupons.add(myCoupon);
@@ -93,8 +98,10 @@ public class MyExchangeActivity extends AppCompatActivity {
         myExchangeRecyclerViewAdapter.setOnItemClickListener(new MyExchangeRecyclerViewAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View v, int position) {
+                MyCoupon myCoupon = (MyCoupon) myExchangeRecyclerViewAdapter.getItem(position);
                 Intent intent = new Intent(getApplicationContext(), MyExchangeDetailActivity.class);
                 intent.putExtra("myCoupon", (Parcelable) myExchangeRecyclerViewAdapter.getItem(position));
+                intent.putExtra("date", tools.convertTimeZone(context, myCoupon.getDate(), "yyyy.MM.dd"));
                 startActivity(intent);
             }
         });

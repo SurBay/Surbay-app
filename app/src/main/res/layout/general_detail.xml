@@ -147,11 +147,12 @@
                     android:layout_marginStart="26dp"
                     android:textSize="12.5sp"
                     android:textColor="@color/text_black_70"
-                    android:text="@string/check_votes"></TextView>
+                    android:text="@string/check_votes" />
                 <Button
                     android:id="@+id/surveyButton"
                     android:layout_width="120dp"
                     android:layout_height="wrap_content"
+                    android:layout_marginVertical="2dp"
                     android:layout_gravity="center"
                     android:text="다시 투표하기"
                     android:paddingHorizontal="3dp"
@@ -165,27 +166,43 @@
                     android:textColor="@color/white"
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    />
+                    app:layout_constraintTop_toTopOf="parent" />
+
                 <Button
-                    style="@style/Widget.AppCompat.Button.Borderless"
-                    android:id="@+id/likeButton"
-                    android:layout_width="wrap_content"
+                    android:id="@+id/btn_general_detail_end"
+                    android:visibility="gone"
+                    android:layout_width="120dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="26dp"
-                    android:text="공감 99+"
-                    android:paddingHorizontal="17dp"
+                    android:text="설문 마감됨"
+                    android:background="@drawable/border_gray_fill"
                     android:textSize="15sp"
                     android:textStyle="bold"
                     android:paddingTop="9dp"
                     android:paddingBottom="8dp"
                     android:minHeight="0dp"
                     android:minWidth="0dp"
+                    android:textColor="@color/gray"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+                <Button
+                    android:id="@+id/btn_general_detail_like"
+                    style="@style/Widget.AppCompat.Button.Borderless"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="26dp"
                     android:background="@drawable/round_border_gray_list"
+                    android:minWidth="0dp"
+                    android:minHeight="0dp"
+                    android:paddingHorizontal="17dp"
+                    android:paddingTop="9dp"
+                    android:paddingBottom="8dp"
+                    android:text="공감 99+"
                     android:textColor="@color/nav_gray"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    />
+                    app:layout_constraintTop_toTopOf="parent" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <LinearLayout
@@ -207,7 +224,7 @@
                             <androidx.recyclerview.widget.RecyclerView
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent"
-                                android:id="@+id/detail_reply_list"
+                                android:id="@+id/rv_vote_detail_comment"
                                 />
                         </LinearLayout>
                     </LinearLayout>
@@ -231,13 +248,19 @@
                 android:layout_marginTop="5dp"
                 android:paddingVertical="5dp"
                 android:layout_marginBottom="10dp">
-
+                <ImageView
+                    android:id="@+id/iv_vote_detail_reply"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/reply_teal" />
                 <EditText
-                    android:id="@+id/reply_enter"
+                    android:id="@+id/et_vote_detail_reply"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
                     android:layout_toLeftOf="@id/reply_enter_button"
+                    android:layout_toRightOf="@id/iv_vote_detail_reply"
                     android:background="@color/transparent"
                     android:hint="닉네임으로 댓글 달기"
                     android:paddingStart="5dp"

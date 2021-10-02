@@ -10,6 +10,8 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -20,6 +22,8 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -38,8 +42,9 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.pumasi.surbay.ContentDetailCommentsActivity;
 import com.pumasi.surbay.R;
-import com.pumasi.surbay.adapter.GeneralReplyListViewAdapter;
+import com.pumasi.surbay.adapter.GeneralReplyRecyclerViewAdapter;
 import com.pumasi.surbay.adapter.PollAdapter;
 import com.pumasi.surbay.adapter.PollAdapterWImage;
 import com.pumasi.surbay.adapter.PollDoneAdapter;
@@ -62,6 +67,7 @@ import java.net.URLConnection;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
@@ -69,6 +75,10 @@ import java.util.Map;
 import java.util.TimeZone;
 
 public class GeneralDetailActivity extends AppCompatActivity {
+    private final int COMMENT = 0;
+    private final int REPLY = 1;
+    private final int EDIT = 2;
+
     static final int START_SURVEY = 1;
     static final int DONE = 1;
     static final int NOT_DONE = 0;
@@ -77,9 +87,17 @@ public class GeneralDetailActivity extends AppCompatActivity {
     static final int REPORTED = 5;
 
     static final int REFRESH = 0;
-    static final int REPLY = 1;
     static final int SURVEY = 2;
 
+    private String reply_id;
+    private String reply_content;
+    private int reply_mode = 0;
+    private boolean reply_done = false;
+    private boolean report_done = false;
+    private boolean delete_done = false;
+    private boolean block_done = false;
+
+    private Context context;
     private TextView participants;
     private TextView participants_percent;
     TextView author;
@@ -93,11 +111,13 @@ public class GeneralDetailActivity extends AppCompatActivity {
     RecyclerView poll_done_recyclerview;
     TextView check_results;
 
-    Button likes;
+    Button btn_general_detail_like;
 
     private AlertDialog dialog;
     private CustomDialog customDialog;
-    ImageButton reply_enter_button;
+    private ImageView iv_vote_detail_reply;
+    private ImageButton reply_enter_button;
+    private Button btn_general_detail_end;
 
     private General general;
     private int position;
@@ -107,9 +127,9 @@ public class GeneralDetailActivity extends AppCompatActivity {
 
 
 
-    private static GeneralReplyListViewAdapter detail_reply_Adapter;
-    private static RecyclerView detail_reply_listView;
-    private static ArrayList<Reply> replyArrayList;
+    private GeneralReplyRecyclerViewAdapter generalReplyRecyclerViewAdapter;
+    private RecyclerView rv_vote_detail_comment;
+    private ArrayList<Reply> replyArrayList;
 
     private static PollAdapter pollAdapter;
     private static PollAdapterWImage pollAdapterWImage;
@@ -122,9 +142,7 @@ public class GeneralDetailActivity extends AppCompatActivity {
     generalDetailHandler handler = new generalDetailHandler();
     private boolean getGeneralDone = false;
 
-    EditText reply_enter;
-    String newReply = null;
-    private boolean postReplyDone = false;
+    private EditText et_vote_detail_reply;
     private PollDoneAdapter pollDoneAdapter;
     private PollDoneAdapterWImage pollDoneAdapterWImage;
     private LinearLayoutManager mLayoutManager;
@@ -152,7 +170,9 @@ public class GeneralDetailActivity extends AppCompatActivity {
         getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getColor(R.color.gray_FB)));
 
         Intent intent = getIntent();
+        context = GeneralDetailActivity.this;
         images = new ArrayList<>();
+        btn_general_detail_end = findViewById(R.id.btn_general_detail_end);
 
         author = findViewById(R.id.author);
         level = findViewById(R.id.author_info);
@@ -161,39 +181,165 @@ public class GeneralDetailActivity extends AppCompatActivity {
         date = findViewById(R.id.date);
         deadline = findViewById(R.id.deadline);
         participants = findViewById(R.id.participants);
-        likes = findViewById(R.id.likeButton);
+        btn_general_detail_like = findViewById(R.id.btn_general_detail_like);
         multi_response = findViewById(R.id.multi_response);
         check_results = findViewById(R.id.check_results);
 
-        reply_enter = findViewById(R.id.reply_enter);
+        iv_vote_detail_reply = findViewById(R.id.iv_vote_detail_reply);
+        et_vote_detail_reply = findViewById(R.id.et_vote_detail_reply);
         reply_enter_button = findViewById(R.id.reply_enter_button);
 
         surveyButton = findViewById(R.id.surveyButton);
-        detail_reply_listView = findViewById(R.id.detail_reply_list);
+        rv_vote_detail_comment = findViewById(R.id.rv_vote_detail_comment);
 
         loading = findViewById(R.id.loadingPanel);
-
         poll_recyclerview = findViewById(R.id.polls);
         poll_done_recyclerview = findViewById(R.id.polls_done);
 
         mSwipeRefreshLayout = findViewById(R.id.general_detail_swipe_container);
 
-
         general = (General) intent.getParcelableExtra("general");
         position = intent.getIntExtra("position", -1);
+
+        new BackgroundThread().start();
 
         Date now = new Date();
         if(general.getDone()==true || now.after(general.getDeadline())){
             setPollsDone();
-            surveyButton.setEnabled(false);
+            surveyButton.setVisibility(View.GONE);
+            btn_general_detail_end.setVisibility(View.VISIBLE);
         }
 
         replyArrayList = general.getComments();
-        detail_reply_Adapter = new GeneralReplyListViewAdapter(GeneralDetailActivity.this, replyArrayList);
-        detail_reply_Adapter.setPost(general);
+        generalReplyRecyclerViewAdapter = new GeneralReplyRecyclerViewAdapter(GeneralDetailActivity.this, replyArrayList, general.getID());
+        generalReplyRecyclerViewAdapter.setPost(general);
+        generalReplyRecyclerViewAdapter.setOnItemClickListener(new GeneralReplyRecyclerViewAdapter.OnReplyClickListener() {
+            @Override
+            public void onReplyClick(View v, int position) {
+                if (UserPersonalInfo.userID.equals("nonMember")) {
+                    customDialog = new CustomDialog(GeneralDetailActivity.this, null);
+                    customDialog.show();
+                    customDialog.setMessage("비회원은 이용할 수 없는 기능입니다.");
+                    customDialog.setNegativeButton("확인");
+                } else {
+                    generalReplyRecyclerViewAdapter.Click(position);
+                    Reply reply = (Reply) generalReplyRecyclerViewAdapter.getItem(position);
+                    reply_id = reply.getID();
+                    et_vote_detail_reply.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            et_vote_detail_reply.setFocusableInTouchMode(true);
+                            et_vote_detail_reply.requestFocus();
+                            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                            imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
+                        }
+                    });
+                    reply_mode = REPLY;
+                    setReplyVisible(true);
+                }
+
+            }
+        });
+        generalReplyRecyclerViewAdapter.setOnItemClickListener(new GeneralReplyRecyclerViewAdapter.OnMenuClickListener() {
+            @Override
+            public void onMenuClick(View v, int position) {
+                if (UserPersonalInfo.userID.equals("nonMember")) {
+                    customDialog = new CustomDialog(GeneralDetailActivity.this, null);
+                    customDialog.show();
+                    customDialog.setMessage("비회원은 이용할 수 없는 기능입니다.");
+                    customDialog.setNegativeButton("확인");
+                } else {
+                    Reply reply = (Reply) generalReplyRecyclerViewAdapter.getItem(position);
+                PopupMenu popupMenu = new PopupMenu(context, v);
+                popupMenu.getMenuInflater().inflate(R.menu.reply_pop_menu, popupMenu.getMenu());
+                popupMenu.show();
+                popupMenu.getMenu().getItem(2).setVisible(false);
+                popupMenu.getMenu().getItem(2).setEnabled(false);
+                if (UserPersonalInfo.email.equals(reply.getWriter())) {
+                    popupMenu.getMenu().getItem(1).setVisible(false);
+                    popupMenu.getMenu().getItem(1).setEnabled(false);
+                    popupMenu.getMenu().getItem(3).setVisible(false);
+                    popupMenu.getMenu().getItem(3).setEnabled(false);
+                } else {
+                    popupMenu.getMenu().getItem(0).setVisible(false);
+                    popupMenu.getMenu().getItem(0).setEnabled(false);
+                }
+                popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        switch (item.getItemId()) {
+                            case R.id.delete:
+                                customDialog = new CustomDialog(context, new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        BackgroundDeleteThread backgroundDeleteThread = new BackgroundDeleteThread(reply.getID());
+                                        backgroundDeleteThread.start();
+                                        customDialog.dismiss();
+                                    }
+                                });
+                                customDialog.show();
+                                customDialog.setMessage("댓글을 삭제하겠습니까?");
+                                customDialog.setPositiveButton("삭제");
+                                customDialog.setNegativeButton("취소");
+                                return true;
+                            case R.id.report:
+                                customDialog = new CustomDialog(context, new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        ArrayList<String> reports = new ArrayList<>(Arrays.asList("욕설/비하", "상업적 광고 및 판매", "낚시/놀람/도배/사기", "게시판 성격에 부적절함", "기타"));
+                                        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                                        builder.setTitle("신고 사유");
+                                        builder.setItems(R.array.reportreason, new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                BackgroundReportThread backgroundReportThread = new BackgroundReportThread(reply.getID(), reports.get(which));
+                                                backgroundReportThread.start();
+                                                Toast.makeText(GeneralDetailActivity.this, "신고가 접수되었습니다", Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
+                                        Dialog dialog = builder.create();
+                                        dialog.show();
+                                        customDialog.dismiss();
+
+                                    }
+                                });
+                                customDialog.show();
+                                customDialog.setMessage("댓글을 신고하시겠습니까?");
+                                customDialog.setPositiveButton("신고");
+                                customDialog.setNegativeButton("취소");
+                                return true;
+                            case R.id.edit:
+                                et_vote_detail_reply.requestFocus();
+                                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
+                                reply_mode = EDIT;
+                                reply_id = reply.getID();
+                                setReplyVisible(false);
+                            case R.id.block:
+                                customDialog = new CustomDialog(context, new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        BackgroundBlockThread backgroundBlockThread = new BackgroundBlockThread(reply.getWriter());
+                                        backgroundBlockThread.start();
+                                        customDialog.dismiss();
+                                    }
+                                });
+                                customDialog.show();
+                                customDialog.setMessage("상대를 차단하겠습니까?\n상대를 차단하시면 더 이상 상대방이 보낸 쪽지를 볼 수 없습니다.");
+                                customDialog.setPositiveButton("차단");
+                                customDialog.setNegativeButton("취소");
+                                return true;
+                        }
+                        return false;
+                    }
+                });
+                }
+
+            }
+        });
         mLayoutManager = new LinearLayoutManager(this);
-        detail_reply_listView.setLayoutManager(mLayoutManager);
-        detail_reply_listView.setAdapter(detail_reply_Adapter);
+        rv_vote_detail_comment.setLayoutManager(mLayoutManager);
+        rv_vote_detail_comment.setAdapter(generalReplyRecyclerViewAdapter);
 
         polls = general.getPolls();
         bitArray = new ArrayList<>();
@@ -217,10 +363,10 @@ public class GeneralDetailActivity extends AppCompatActivity {
         });
 
 
-        reply_enter.setOnTouchListener(new View.OnTouchListener() {
+        et_vote_detail_reply.setOnTouchListener(new View.OnTouchListener() {
             public boolean onTouch(View view, MotionEvent event) {
                 // TODO Auto-generated method stub
-                if (view.getId() == R.id.reply_enter) {
+                if (view.getId() == R.id.et_vote_detail_reply) {
                     view.getParent().requestDisallowInterceptTouchEvent(true);
                     switch (event.getAction()&MotionEvent.ACTION_MASK){
                         case MotionEvent.ACTION_UP:
@@ -232,13 +378,34 @@ public class GeneralDetailActivity extends AppCompatActivity {
             }
         });
 
+        et_vote_detail_reply.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                reply_content = et_vote_detail_reply.getText().toString();
+            }
+        });
 
         reply_enter_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                newReply = reply_enter.getText().toString();
-                if (newReply.length() > 0 ){
+                Log.d("reply_enter_button", "onClick: " + reply_content);
+                String save = et_vote_detail_reply.getText().toString();
+                reply_content = et_vote_detail_reply.getText().toString();
+                et_vote_detail_reply.getText().clear();
+                reply_content = save;
+                if (reply_content.length() > 0 ){
                     loading.setVisibility(View.VISIBLE);
+                    Log.d("reply_enter_button", "onClick: " );
                     BackgroundReplyThread replyThread = new BackgroundReplyThread();
                     replyThread.start();
                 }
@@ -261,7 +428,7 @@ public class GeneralDetailActivity extends AppCompatActivity {
 
         saveLikes = general.getLikes();
 
-        likes.setOnClickListener(new View.OnClickListener() {
+        btn_general_detail_like.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(UserPersonalInfo.userID.equals("nonMember")){
@@ -281,27 +448,22 @@ public class GeneralDetailActivity extends AppCompatActivity {
 
                 }
                 if(general.getLikes()>99){
-                    likes.setText("공감 99+");
+                    btn_general_detail_like.setText("공감 99+");
                 }else {
-                    likes.setText("공감 " + (saveLikes));
+                    btn_general_detail_like.setText("공감 " + (saveLikes));
                 }
                 likedselected = !likedselected;
+
+                if (likedselected) {
+                    likepost();
+                } else {
+                    dislikepost();
+                }
+
                 setLikesbutton();
             }
         });
 
-//        dialogItemList = new ArrayList<>();
-
-//        for(int i=0;i<image.length;i++)
-//        {
-//            Map<String, Object> itemMap = new HashMap<>();
-//            itemMap.put(TAG_IMAGE, image[i]);
-//            itemMap.put(TAG_TEXT, text[i]);
-//
-//            dialogItemList.add(itemMap);
-//        }
-
-        Log.d("reports", general.getReports().toString());
 
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -357,21 +519,16 @@ public class GeneralDetailActivity extends AppCompatActivity {
 
     public void setLikesbutton(){
         if (likedselected){
-            likes.setBackgroundResource(R.drawable.round_border_teal_list);
-            likes.setTextColor(getColor(R.color.teal_200));
+            btn_general_detail_like.setBackgroundResource(R.drawable.round_border_teal_list);
+            btn_general_detail_like.setTextColor(getColor(R.color.teal_200));
         } else {
-            likes.setBackgroundResource(R.drawable.round_border_gray_list);
-            likes.setTextColor(getColor(R.color.nav_gray));
+            btn_general_detail_like.setBackgroundResource(R.drawable.round_border_gray_list);
+            btn_general_detail_like.setTextColor(getColor(R.color.nav_gray));
         }
     }
     class BackgroundThread extends Thread{
         public void run() {
             getGeneral(general.getID());
-            try {
-                Thread.sleep(300);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
             while(!(getGeneralDone)) {
                 try {
                     Thread.sleep(100);
@@ -386,23 +543,101 @@ public class GeneralDetailActivity extends AppCompatActivity {
     }
     class BackgroundReplyThread extends Thread{
         public void run() {
-            postGeneralReply(newReply);
-            while(!(postReplyDone)) {
+            Log.d("run", "run: " + reply_mode + ", " + reply_id + ", " + reply_content);
+            switch (reply_mode) {
+                case COMMENT:
+                    postGeneralReply(reply_content);
+                    break;
+                case REPLY:
+                    postGeneralReReply(reply_id, reply_content);
+                    break;
+                case EDIT:
+                    postEditComment(reply_id, reply_content);
+                    break;
+            }
+            while(!(reply_done)) {
                 try {
                     Thread.sleep(100);
                 } catch (Exception e) {}
             }
-            getGeneral(general.getID());
-            while(!(getGeneralDone)) {
+            new BackgroundThread().start();
+        }
+    }
+    class BackgroundDeleteThread extends Thread{
+        private String id;
+        public BackgroundDeleteThread(String id) {
+            this.id = id;
+        }
+        public void run() {
+            generalDeleteComment(id);
+            while (!delete_done) {
                 try {
                     Thread.sleep(100);
-                } catch (Exception e) {}
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            getGeneral(general.getID());
+            while (!getGeneralDone) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
             Message message = handler.obtainMessage();
             Bundle bundle = new Bundle();
-            bundle.putInt("thread", REPLY);
+            bundle.putInt("thread", 3);
             message.setData(bundle);
             handler.sendMessage(message);
+        }
+    }
+    class BackgroundReportThread extends Thread{
+        private String id;
+        private String report_reason;
+        public BackgroundReportThread(String id, String report_reason) {
+            this.id = id;
+            this.report_reason = report_reason;
+        }
+        public void run() {
+            generalReportComment(id, report_reason);
+            while (!report_done) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            getGeneral(general.getID());
+            while (!getGeneralDone) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            Message message = handler.obtainMessage();
+            Bundle bundle = new Bundle();
+            bundle.putInt("thread", 3);
+            message.setData(bundle);
+            handler.sendMessage(message);
+        }
+    }
+    class BackgroundBlockThread extends Thread{
+        private String counter;
+        public BackgroundBlockThread(String counter) {
+            this.counter = counter;
+        }
+        public void run() {
+            blockUser(counter);
+            while (!block_done) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            new BackgroundThread().start();
         }
     }
     class BackgroundSurveyThread extends Thread{
@@ -461,7 +696,7 @@ public class GeneralDetailActivity extends AppCompatActivity {
                                     Reply re = new Reply(id, UserPersonalInfo.userID, reply, realdate, new ArrayList<>(), false, writer_name, new ArrayList<ReReply>());
                                     re.setWriter_name(writer_name);
                                     replyArrayList.add(re);
-                                    postReplyDone = true;
+                                    reply_done = true;
 
                                 } else {
                                     Toast.makeText(GeneralDetailActivity.this, "오류가 발생했습니다", Toast.LENGTH_SHORT).show();
@@ -493,17 +728,15 @@ public class GeneralDetailActivity extends AppCompatActivity {
         } catch (Exception e){
             Log.d("exception", "failed posting");
             e.printStackTrace();
-            postReplyDone = true;
+            reply_done = true;
         }
     }
-
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         if(getCurrentFocus()!=null)imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
         return true;
     }
-
     private void updateReports(){
         String requestURL = getString(R.string.server) + "/api/generals/report/" + general.getID();
         try {
@@ -541,7 +774,6 @@ public class GeneralDetailActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater menuInflater = getMenuInflater();
@@ -556,27 +788,13 @@ public class GeneralDetailActivity extends AppCompatActivity {
         }
         return super.onCreateOptionsMenu(menu);
     }
-
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()){
             case android.R.id.home:
-//                if(ORIGIN_LIKE==LIKED && LIKE_CHANGE==DISLIKED){
-//                    dislikepost();
-//                    general.setLikes(general.getLikes()-1);
-//                    general.getLiked_users().remove(UserPersonalInfo.userID);
-//                }
-//                else if(ORIGIN_LIKE==DISLIKED && LIKE_CHANGE==LIKED){
-//                    likepost();
-//                    general.setLikes(general.getLikes()+1);
-//                    general.getLiked_users().add(UserPersonalInfo.userID);
-//                }
-//                Intent intent = new Intent(GeneralDetailActivity.this, BoardGeneral.class);
-//                intent.putExtra("position", position);
-//                intent.putExtra("general", general);
-//                setResult(LIKE, intent);
+
                 setResult(position);
-                if(reply_enter.getText().toString().length()>0){
+                if(et_vote_detail_reply.getText().toString().length()>0){
                     customDialog = new CustomDialog(GeneralDetailActivity.this, new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -604,7 +822,6 @@ public class GeneralDetailActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
-
     private void done_general_survey(ArrayList<Integer> bitArray){
         String requestURL = getString(R.string.server)+"/api/generals/survey/"+general.getID();
         try{
@@ -635,8 +852,6 @@ public class GeneralDetailActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
-
-
     public void loading_detail(General general){
         author.setText(general.getAuthor());
         level.setText("(Lv "+general.getAuthor_lvl()+")");
@@ -653,22 +868,22 @@ public class GeneralDetailActivity extends AppCompatActivity {
         title.setText("Q. "+ general.getTitle());
         content.setText(general.getContent());
         if(general.getLikes()>99){
-            likes.setText("공감 99+");
+            btn_general_detail_like.setText("공감 99+");
         }else{
-            likes.setText("공감 "+general.getLikes());
+            btn_general_detail_like.setText("공감 "+general.getLikes());
         }
         if(ORIGIN_LIKE==LIKED && LIKE_CHANGE==DISLIKED){
             if(general.getLikes()>99){
-            likes.setText("공감 99+");
+                btn_general_detail_like.setText("공감 99+");
             }else{
-                likes.setText("공감 "+(general.getLikes()-1));
+                btn_general_detail_like.setText("공감 "+(general.getLikes()-1));
             }
         }
         else if(ORIGIN_LIKE==DISLIKED && LIKE_CHANGE==LIKED) {
             if(general.getLikes()>99){
-                likes.setText("공감 99+");
+                btn_general_detail_like.setText("공감 99+");
             }else {
-                likes.setText("공감 " + (general.getLikes() + 1));
+                btn_general_detail_like.setText("공감 " + (general.getLikes() + 1));
             }
         }
         Log.d("liked", ""+likedselected);
@@ -688,12 +903,22 @@ public class GeneralDetailActivity extends AppCompatActivity {
         }
 
     }
-
+    public void setReplyVisible(boolean visible) {
+        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) iv_vote_detail_reply.getLayoutParams();
+        if (visible) {
+            params.width = (int) (context.getResources().getDisplayMetrics().density * 23);
+            params.height = (int) (context.getResources().getDisplayMetrics().density * 23);
+        } else {
+            params.width = 0;
+            params.height = 0;
+        }
+        iv_vote_detail_reply.setLayoutParams(params);
+    }
     public void setPollsNotDone(){
         check_results.setVisibility(View.VISIBLE);
         poll_done_recyclerview.setVisibility(View.GONE);
         poll_recyclerview.setVisibility(View.VISIBLE);
-        if(general.getWith_image()==false) {
+        if(!general.getWith_image()) {
             pollAdapter = new PollAdapter(GeneralDetailActivity.this, general.getPolls(), bitArray, general.getMulti_response());
             poll_recyclerview.setLayoutManager(new LinearLayoutManager(this));
             poll_recyclerview.setAdapter(pollAdapter);
@@ -753,7 +978,6 @@ public class GeneralDetailActivity extends AppCompatActivity {
                 }
         );
     }
-
     public void ReportDialog(){
         if (general.getReports().contains(UserPersonalInfo.userID)){
             Toast.makeText(GeneralDetailActivity.this, "이미 신고하셨습니다", Toast.LENGTH_SHORT).show();
@@ -804,55 +1028,6 @@ public class GeneralDetailActivity extends AppCompatActivity {
         customDialog.setPositiveButton("삭제");
         customDialog.setNegativeButton("취소");
     }
-//
-//    private void updateDeadlinePost(Date deadline) throws Exception{
-//        String requestURL = getString(R.string.server)+"/api/posts/updatepost/" + post.getID();
-//        Log.d("fix", UserPersonalInfo.name);
-//        try{
-//            RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
-//            JSONObject params = new JSONObject();
-//            SimpleDateFormat fm = new SimpleDateFormat("yyyy-MM-dd'T'kk:mm:ss.SSS");
-//            fm.setTimeZone(TimeZone.getTimeZone("UTC"));
-//            params.put("deadline", fm.format(deadline));
-//            Log.d("fix", UserPersonalInfo.name + params.toString());
-//            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
-//                    (Request.Method.PUT, requestURL, params, response -> {
-//                        Log.d("fix is", ""+response);
-//                    }, error -> {
-//                        Log.d("exception", "volley error");
-//                        error.printStackTrace();
-//                    });
-//            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-//            requestQueue.add(jsonObjectRequest);
-//            Log.d("fix", UserPersonalInfo.name);
-//        } catch (Exception e){
-//            Log.d("exception", "failed posting");
-//            e.printStackTrace();
-//        }
-//    }
-//
-//
-//    public void donepost(){
-//        String requestURL = getString(R.string.server)+"/api/posts/done/"+post.getID();
-//        try{
-//            RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
-//            JSONObject params = new JSONObject();
-//            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
-//                    (Request.Method.PUT, requestURL, params, response -> {
-//                        Log.d("response is", ""+response);
-//                    }, error -> {
-//                        Log.d("exception", "volley error");
-//                        error.printStackTrace();
-//                    });
-//            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-//            requestQueue.add(jsonObjectRequest);
-//        } catch (Exception e){
-//            Log.d("exception", "failed posting");
-//            e.printStackTrace();
-//        }
-//    }
-//
-//
     private void deletePost() throws Exception{
         String requestURL =getString(R.string.server)+ "/api/generals/deletepost/" + general.getID();
         try{
@@ -879,40 +1054,33 @@ public class GeneralDetailActivity extends AppCompatActivity {
     }
     @Override
     public void onBackPressed() {
-//        if(ORIGIN_LIKE==LIKED && LIKE_CHANGE==DISLIKED){
-//            dislikepost();
-//            general.setLikes(general.getLikes()-1);
-//            general.getLiked_users().remove(UserPersonalInfo.userID);
-//        }
-//        else if(ORIGIN_LIKE==DISLIKED && LIKE_CHANGE==LIKED){
-//            likepost();
-//            general.setLikes(general.getLikes()+1);
-//            general.getLiked_users().add(UserPersonalInfo.userID);
-//        }
-//        Intent intent = new Intent(GeneralDetailActivity.this, BoardGeneral.class);
-//        intent.putExtra("position", position);
-//        intent.putExtra("general", general);
-//
-//        setResult(LIKE, intent);
         setResult(position);
-        if(reply_enter.getText().toString().length()>0){
+        if (reply_mode == COMMENT) {
+            if (et_vote_detail_reply.getText().toString().length() > 0) {
+                customDialog = new CustomDialog(GeneralDetailActivity.this, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        finish();
 
-            customDialog = new CustomDialog(GeneralDetailActivity.this, new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    finish();
+                        customDialog.dismiss();
+                    }
+                });
+                customDialog.show();
+                customDialog.setMessage("댓글 작성을 취소하겠습니까?");
+                customDialog.setPositiveButton("확인");
+                customDialog.setNegativeButton("취소");
+            } else {
+                finish();
+            }
+        } else if (reply_mode == REPLY) {
+            reply_mode = COMMENT;
+            generalReplyRecyclerViewAdapter.Click(-1);
+            setReplyVisible(false);
+        } else if (reply_mode == EDIT) {
+            reply_mode = COMMENT;
+            Toast.makeText(context, "수정 모드가 종료되었습니다.", Toast.LENGTH_SHORT).show();
+        }
 
-                    customDialog.dismiss();
-                }
-            });
-            customDialog.show();
-            customDialog.setMessage("댓글 작성을 취소하겠습니까?");
-            customDialog.setPositiveButton("확인");
-            customDialog.setNegativeButton("취소");
-        }
-        else{
-            finish();
-        }
     }
     public void likepost(){
         String requestURL = getString(R.string.server)+"/api/generals/like/"+general.getID();
@@ -935,7 +1103,6 @@ public class GeneralDetailActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
-
     public void dislikepost(){
         String requestURL = getString(R.string.server)+"/api/generals/dislike/"+general.getID();
         try{
@@ -974,25 +1141,35 @@ public class GeneralDetailActivity extends AppCompatActivity {
                     Log.d("bitarrayis", ""+bitArray);
                     loading_detail(general);
                     Log.d("replylistis", ""+replyArrayList.size());
-                    detail_reply_Adapter = new GeneralReplyListViewAdapter(GeneralDetailActivity.this, replyArrayList);
-                    detail_reply_Adapter.setPost(general);
-                    detail_reply_Adapter.notifyDataSetChanged();
-                    detail_reply_listView.setAdapter(detail_reply_Adapter);
-
+                    generalReplyRecyclerViewAdapter.setItem(replyArrayList);
+                    generalReplyRecyclerViewAdapter.notifyDataSetChanged();
+                    loading.setVisibility(View.GONE);
+                    reply_done = false;
                     getGeneralDone = false;
+                    delete_done = false;
+                    block_done = false;
                     mSwipeRefreshLayout.setRefreshing(false);
+                    try {
+                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                        imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+                    } catch (Exception e) {
+
+                    }
+
+                    if (reply_mode == EDIT) {
+                        reply_mode = COMMENT;
+                    }
                     break;
                 case REPLY:
-                    detail_reply_Adapter = new GeneralReplyListViewAdapter(GeneralDetailActivity.this, replyArrayList);
-                    detail_reply_Adapter.setPost(general);
-                    detail_reply_Adapter.notifyDataSetChanged();
-                    detail_reply_listView.setAdapter(detail_reply_Adapter);
-                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+
+                    generalReplyRecyclerViewAdapter.setItem(replyArrayList);
+                    generalReplyRecyclerViewAdapter.notifyDataSetChanged();
+                    InputMethodManager imm2 = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm2.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
                     loading.setVisibility(View.GONE);
-                    postReplyDone = false;
-                    newReply = null;
-                    reply_enter.setText(null);
+                    reply_done = false;
+                    reply_content = null;
+                    et_vote_detail_reply.setText(null);
                     break;
                 case SURVEY:
                     loading_detail(general);
@@ -1000,6 +1177,14 @@ public class GeneralDetailActivity extends AppCompatActivity {
                     done_survey = false;
                     getGeneralDone = false;
                     setPollsDone();
+                    break;
+                case 3:
+                    generalReplyRecyclerViewAdapter.setItem(replyArrayList);
+                    generalReplyRecyclerViewAdapter.notifyDataSetChanged();
+                    report_done = false;
+                    delete_done = false;
+                    getGeneralDone = false;
+                    break;
                 default:
                     break;
             }
@@ -1080,11 +1265,17 @@ public class GeneralDetailActivity extends AppCompatActivity {
                                                     }
                                                     boolean hide_ = reReply.getBoolean("hide");
                                                     String writer_ = reReply.getString("writer");
+                                                    String writer_name_ = "";
+                                                    try {
+                                                        writer_name_ = reReply.getString("writer_name");
+                                                    } catch (Exception e) {
+                                                        writer_name_ = "익명";
+                                                    }
                                                     String content_ = reReply.getString("content");
                                                     Date date_ = fm.parse(reReply.getString("date"));
                                                     String replyID_ = reReply.getString("replyID");
 
-                                                    ReReply newReReply = new ReReply(id_, reports_, report_reasons_, hide_, writer_, content_, date_, replyID_);
+                                                    ReReply newReReply = new ReReply(id_, reports_, report_reasons_, hide_, writer_, writer_name_, content_, date_, replyID_);
                                                     reReplies.add(newReReply);
                                                 }
                                             }
@@ -1155,6 +1346,8 @@ public class GeneralDetailActivity extends AppCompatActivity {
 
                             general = newGeneral;
                             replyArrayList = comments;
+                            generalReplyRecyclerViewAdapter.setItem(replyArrayList);
+                            generalReplyRecyclerViewAdapter.notifyDataSetChanged();
                             getGeneralDone = true;
 
                         } catch (JSONException e) {
@@ -1169,6 +1362,118 @@ public class GeneralDetailActivity extends AppCompatActivity {
             requestQueue.add(jsonObjectRequest);
         } catch (Exception e){
             Log.d("exception", "failed getting response");
+            e.printStackTrace();
+        }
+    }
+    public void postGeneralReReply(String generalcomment_object_id, String content) {
+        try {
+            String requestURL = context.getResources().getString(R.string.server) + "/api/generals/comment/postreply";
+            JSONObject params = new JSONObject();
+            params.put("userID", UserPersonalInfo.email);
+            params.put("generalcomment_object_id", generalcomment_object_id);
+            params.put("content", content);
+            RequestQueue requestQueue = Volley.newRequestQueue(context);
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
+                    Request.Method.PUT, requestURL, params, response -> {
+                        reply_done = true;
+            }, error -> {
+                error.printStackTrace();
+            });
+            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20 * 1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            requestQueue.add(jsonObjectRequest);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    public void generalDeleteComment(String generalcomment_object_id) {
+        try {
+            String requestURL = context.getResources().getString(R.string.server) + "/api/generals/deletecomment";
+            JSONObject params = new JSONObject();
+            params.put("userID", UserPersonalInfo.email);
+            params.put("generalcomment_object_id", generalcomment_object_id);
+            RequestQueue requestQueue = Volley.newRequestQueue(context);
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
+                    Request.Method.PUT, requestURL, params, response -> {
+                delete_done = true;
+            }, error -> {
+                error.printStackTrace();
+            });
+            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20 * 1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            requestQueue.add(jsonObjectRequest);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    public void generalReportComment(String generalcomment_object_id, String reason) {
+        try {
+            String requestURL = context.getResources().getString(R.string.server) + "/api/generals/reportcomment";
+            JSONObject params = new JSONObject();
+            params.put("userID", UserPersonalInfo.email);
+            params.put("generalcomment_object_id", generalcomment_object_id);
+            params.put("reason", reason);
+            RequestQueue requestQueue = Volley.newRequestQueue(context);
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
+                    Request.Method.PUT, requestURL, params, response -> {
+                report_done = true;
+            }, error -> {
+                error.printStackTrace();
+            });
+            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20 * 1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            requestQueue.add(jsonObjectRequest);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    public void postEditComment(String generalcomment_object_id, String content) {
+        Log.d("edit", "postEditComment: " + generalcomment_object_id);
+
+        try {
+            String requestURL = context.getResources().getString(R.string.server) + "/api/generals/updatecomment";
+            JSONObject params = new JSONObject();
+            params.put("userID", UserPersonalInfo.email);
+            params.put("generalcomment_object_id", generalcomment_object_id);
+            params.put("content", content);
+            RequestQueue requestQueue = Volley.newRequestQueue(context);
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
+                    Request.Method.PUT, requestURL, params, response -> {
+                reply_done = true;
+            }, error -> {
+                error.printStackTrace();
+            });
+            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20 * 1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            requestQueue.add(jsonObjectRequest);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    public void blockUser(String counter) {
+        Log.d("counter", "blockUser: " + counter);
+        String token = UserPersonalInfo.token;
+        try {
+            String requestURL = context.getResources().getString(R.string.server) + "/api/users/blockuser";
+            JSONObject params = new JSONObject();
+            params.put("userID", counter);
+            RequestQueue requestQueue = Volley.newRequestQueue(context);
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
+                    Request.Method.PUT, requestURL, params, response -> {
+                        block_done = true;
+            }, error -> {
+                        error.printStackTrace();
+            })
+            {
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    HashMap<String, String> headers = new HashMap<String, String>();
+                    headers.put("Authorization", "Bearer " + token);
+                    return headers;
+                }
+            };
+
+            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20 * 1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            requestQueue.add(jsonObjectRequest);
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

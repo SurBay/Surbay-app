@@ -50,7 +50,6 @@ import com.pumasi.surbay.adapter.VoteRecyclerViewAdapter;
 import com.pumasi.surbay.classfile.ReReply;
 import com.pumasi.surbay.pages.MainActivity;
 import com.pumasi.surbay.R;
-import com.pumasi.surbay.adapter.GeneralListViewAdapter;
 import com.pumasi.surbay.classfile.CustomDialog;
 import com.pumasi.surbay.classfile.General;
 import com.pumasi.surbay.classfile.Notification;
@@ -77,6 +76,7 @@ public class BoardGeneral extends Fragment// Fragment 클래스를 상속받아�
 { // 게시판
 
     private LinearLayoutManager mLayoutManager;
+    private CustomDialog customDialog;
     private View view;
     static final int WRITE_NEWPOST = 1;
     static final int DO_SURVEY = 2;
@@ -90,7 +90,7 @@ public class BoardGeneral extends Fragment// Fragment 클래스를 상속받아�
     private int type = 0;
     private static boolean isOriginal = false;
     private int visibleItemCount, pastVisiblesItems, totalItemCount;
-    private SwipeRefreshLayout mSwipeRefreshLayout;
+    private SwipeRefreshLayout refresh_boards;
     private boolean getGeneralsDone = false;
     private boolean isLoading = false;
 
@@ -129,8 +129,16 @@ public class BoardGeneral extends Fragment// Fragment 클래스를 상속받아�
         voteRecyclerViewAdapter.setOnItemClickListener(new VoteRecyclerViewAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View v, int position) {
-                General general = (General) voteRecyclerViewAdapter.getItem(position);
-                getGeneral(general.getID(), position, 0);
+                if (UserPersonalInfo.userID.equals("nonMember")) {
+                    customDialog = new CustomDialog(getActivity(), null);
+                    customDialog.show();
+                    customDialog.setMessage("비회원은 투표게시판을 이용할 수 없습니다.");
+                    customDialog.setNegativeButton("확인");
+                } else {
+                    General general = (General) voteRecyclerViewAdapter.getItem(position);
+                    getGeneral(general.getID(), position, 0);
+                }
+
             }
         });
         initScrollListener();
@@ -153,6 +161,18 @@ public class BoardGeneral extends Fragment// Fragment 클래스를 상속받아�
 
     private void setComponents() {
         rv_board_vote = view.findViewById(R.id.rv_board_vote);
+        refresh_boards = view.findViewById(R.id.refresh_boards);
+        refresh_boards.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                setClickable(false);
+                check = "";
+                beforeVote = "";
+                boardVoteShow.clear();
+                voteRecyclerViewAdapter.notifyDataSetChanged();
+                getInfinityVotes(beforeVote, type, isOriginal);
+            }
+        });
         btn_vote_new_sort = view.findViewById(R.id.btn_vote_new_sort);
         ib_vote_like_sort = view.findViewById(R.id.ib_vote_like_sort);
         ib_vote_many_sort = view.findViewById(R.id.ib_vote_many_sort);
@@ -185,7 +205,7 @@ public class BoardGeneral extends Fragment// Fragment 클래스를 상속받아�
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
-                    tv_collect.setTextColor(Color.parseColor("#50D3DD"));
+                    tv_collect.setTextColor(context.getResources().getColor(R.color.teal_200));
                     isOriginal = true;
                 } else {
                     tv_collect.setTextColor(Color.parseColor("#BDBDBD"));
@@ -367,8 +387,16 @@ public class BoardGeneral extends Fragment// Fragment 클래스를 상속받아�
     public void getInfinityVotes(String object, int type, boolean isOriginal) {
         check = object;
         isLoading = true;
+        Log.d("hey2", "getInfinityPosts: "+ object + ", " + type + ", " + isOriginal);
+        String userID;
+        if (UserPersonalInfo.email == null) {
+            userID = "";
+        } else {
+            userID = UserPersonalInfo.email;
+        }
+
         try {
-            String requestURL = "http://ec2-3-35-152-40.ap-northeast-2.compute.amazonaws.com/api/generals/infinite/?userID=" + UserPersonalInfo.email + "&general_object_id=" + object + "&type=" + type + "&original=" + isOriginal;
+            String requestURL = "http://ec2-3-35-152-40.ap-northeast-2.compute.amazonaws.com/api/generals/infinite/?userID=" + userID + "&general_object_id=" + object + "&type=" + type + "&original=" + isOriginal;
             RequestQueue requestQueue = Volley.newRequestQueue(context);
             JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(
                     Request.Method.GET, requestURL, null, response -> {
@@ -445,11 +473,17 @@ public class BoardGeneral extends Fragment// Fragment 클래스를 상속받아�
                                                         }
                                                         boolean hide_ = reReply.getBoolean("hide");
                                                         String writer_ = reReply.getString("writer");
+                                                        String writer_name_ = "";
+                                                        try {
+                                                            writer_name_ = reReply.getString("writer_name");
+                                                        } catch (Exception e) {
+                                                            writer_name_ = "익명";
+                                                        }
                                                         String content_ = reReply.getString("content");
                                                         Date date_ = fm.parse(reReply.getString("date"));
                                                         String replyID_ = reReply.getString("replyID");
 
-                                                        ReReply newReReply = new ReReply(id_, reports_, report_reasons_, hide_, writer_, content_, date_, replyID_);
+                                                        ReReply newReReply = new ReReply(id_, reports_, report_reasons_, hide_, writer_, writer_name_, content_, date_, replyID_);
                                                         reReplies.add(newReReply);
                                                     }
                                                 }
@@ -532,6 +566,7 @@ public class BoardGeneral extends Fragment// Fragment 클래스를 상속받아�
                             voteRecyclerViewAdapter.notifyDataSetChanged();
                             setClickable(true);
                             setLoading(false);
+                            refresh_boards.setRefreshing(false);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -689,11 +724,17 @@ public class BoardGeneral extends Fragment// Fragment 클래스를 상속받아�
                                             }
                                             boolean hide_ = reReply.getBoolean("hide");
                                             String writer_ = reReply.getString("writer");
+                                            String writer_name_ = "";
+                                            try {
+                                                writer_name_ = reReply.getString("writer_name");
+                                            } catch (Exception e) {
+                                                writer_name_ = "익명";
+                                            }
                                             String content_ = reReply.getString("content");
                                             Date date_ = fm.parse(reReply.getString("date"));
                                             String replyID_ = reReply.getString("replyID");
 
-                                            ReReply newReReply = new ReReply(id_, reports_, report_reasons_, hide_, writer_, content_, date_, replyID_);
+                                            ReReply newReReply = new ReReply(id_, reports_, report_reasons_, hide_, writer_, writer_name_, content_, date_, replyID_);
                                             reReplies.add(newReReply);
                                         }
                                     }

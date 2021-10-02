@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.Locale;
 
 public class FeedbackReplyListViewAdapter  extends RecyclerView.Adapter<FeedbackReplyListViewAdapter.MyViewHolder> {
-    private static ReplyRecyclerViewAdapter.OnItemClickListener mListener = null ;
+    private FeedbackReplyListViewAdapter.OnItemClickListener mListener = null ;
     private ArrayList<Reply> listViewItemList = new ArrayList<Reply>();
     private LayoutInflater inflater;
     private PostNonSurvey post;

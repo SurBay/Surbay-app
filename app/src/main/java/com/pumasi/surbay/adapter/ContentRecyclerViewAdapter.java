@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -13,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.pumasi.surbay.R;
 import com.pumasi.surbay.classfile.Content;
+import com.pumasi.surbay.pages.MainActivity;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -52,7 +54,11 @@ public class ContentRecyclerViewAdapter extends RecyclerView.Adapter<ContentRecy
     @Override
     public void onBindViewHolder(@NonNull MyContentViewHolder holder, int position) {
         Content content = contentArrayList.get(position);
-        Glide.with(context).load(content.getImage_urls().get(0)).into(holder.iv_board_content_item_image);
+        int size = (int) (MainActivity.screen_width_px / 2.19786096257);
+
+        holder.iv_board_content_item_image.getLayoutParams().height = size;
+        holder.iv_board_content_item_image.getLayoutParams().width = size;
+        Glide.with(context).load(content.getImage_urls().get(0)).override(size, size).into(holder.iv_board_content_item_image);
         holder.tv_board_content_item_title.setText(content.getTitle());
         SimpleDateFormat fm = new SimpleDateFormat("MM.dd");
         holder.tv_board_content_item_date.setText(fm.format(content.getDate()));

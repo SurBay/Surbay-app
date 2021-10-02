@@ -1,7 +1,9 @@
 package com.pumasi.surbay;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -9,6 +11,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.viewpager.widget.ViewPager;
 
 import android.os.Handler;
@@ -19,13 +23,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.Volley;
+import com.ethanhua.skeleton.Skeleton;
+import com.ethanhua.skeleton.SkeletonScreen;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.pumasi.surbay.adapter.BannerViewPagerAdapter;
 import com.pumasi.surbay.adapter.HomeResearchPagerAdapter;
@@ -54,17 +62,24 @@ import java.lang.reflect.Array;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class HomeRenewalFragment extends Fragment {
 
+    private static Context context;
+    private static FragmentManager fragmentManager;
+    public RandomGetHandler randomGetHandler = new RandomGetHandler();
     public static int HOME_RESEARCH = 0;
     public static int HOME_VOTE = 1;
     public static int HOME_TIP = 2;
+    private RelativeLayout rl_research;
+    private RelativeLayout rl_vote;
+    private RelativeLayout rl_tip;
+    private LinearLayout ll_banner;
     public static ArrayList<Banner> homeBanners = new ArrayList<Banner>();
-    private static final Integer[] IMAGES = {R.drawable.renewal_banner, R.drawable.tutorialbanner2};
     private ViewPager vp_banner;
     private static ViewPager vp_research;
     private static ViewPager vp_vote;
@@ -92,28 +107,41 @@ public class HomeRenewalFragment extends Fragment {
     public static ArrayList<Post> randomPosts = new ArrayList<Post>();
     public static ArrayList<General> randomVotes = new ArrayList<General>();
     public static ArrayList<Surveytip> fullSurveytips = new ArrayList<Surveytip>();
-    private boolean doneBanners = true;
-    public static boolean doneResearch = false;
-    public static boolean doneVote = false;
-    public static boolean shuffleResearchDone = false;
-    public static boolean shuffleVoteDone = false;
-    private Handler handler;
+    private boolean getBannerDone = false;
+    private boolean getPostDone = false;
+    private boolean getVoteDone = false;
+    private boolean getTipDone = false;
+    private int refresh_count = 0;
+
+    private SkeletonScreen skeletonScreen;
+    private SkeletonScreen skeletonScreen2;
+    private SkeletonScreen skeletonScreen3;
+    private SkeletonScreen skeletonScreen4;
+    private SwipeRefreshLayout refresh_boards;
+    private Handler handler = null;
+    private Runnable update = null;
+    private Timer swipeTimer = null;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        doneVote = false;
-        doneBanners = false;
         view = inflater.inflate(R.layout.fragment_home_renewal, container, false);
+        context = getActivity().getApplicationContext();
+        fragmentManager = getChildFragmentManager();
         ((AppCompatActivity) getActivity()).getSupportActionBar().hide();
 
         ib_bell = view.findViewById(R.id.ib_bell);
         ib_bell.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getActivity().getApplicationContext(), NoticeActivity.class);
+                Intent intent = new Intent(getActivity(), NoticeActivity.class);
                 startActivity(intent);
             }
         });
+        rl_research = view.findViewById(R.id.rl_research);
+        rl_vote = view.findViewById(R.id.rl_vote);
+        rl_tip = view.findViewById(R.id.rl_tip);
+        ll_banner = view.findViewById(R.id.ll_banner);
+
         ib_shift_home_research = view.findViewById(R.id.ib_shift_home_research);
         ib_shift_home_vote = view.findViewById(R.id.ib_shift_home_vote);
         ib_shift_home_tip = view.findViewById(R.id.ib_shift_home_tip);
@@ -126,16 +154,48 @@ public class HomeRenewalFragment extends Fragment {
         iv_vote_none = view.findViewById(R.id.iv_vote_none);
         iv_tip_none = view.findViewById(R.id.iv_tip_none);
 
+        refresh_boards = view.findViewById(R.id.refresh_boards);
+        refresh_boards.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                skeletonScreen = Skeleton.bind(rl_research)
+                        .load(R.layout.gray)
+                        .angle(0)
+                        .color(R.color.white)
+                        .show();
+                skeletonScreen2 = Skeleton.bind(rl_vote)
+                        .load(R.layout.gray)
+                        .angle(0)
+                        .color(R.color.white)
+                        .show();
+                skeletonScreen3 = Skeleton.bind(rl_tip)
+                        .load(R.layout.gray)
+                        .angle(0)
+                        .color(R.color.white)
+                        .show();
+                skeletonScreen4 = Skeleton.bind(ll_banner)
+                        .load(R.layout.gray)
+                        .angle(0)
+                        .color(R.color.teal)
+                        .show();
+                RefreshThread refreshThread = new RefreshThread();
+                refreshThread.start();
+            }
+        });
         ib_home_research_shuffle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getRandomPosts();
+                randomPosts.clear();
+                PostShuffleClickable(false);
+                new RandomPostsThread().start();
             }
         });
         ib_home_vote_shuffle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getRandomVotes();
+                randomVotes.clear();
+                VoteShuffleClickable(false);
+                new RandomVotesThread().start();
             }
         });
         ib_home_tip_shuffle.setOnClickListener(new View.OnClickListener() {
@@ -182,85 +242,110 @@ public class HomeRenewalFragment extends Fragment {
     private void setVp_banner() {
 
         vp_banner = view.findViewById(R.id.vp_banner);
-        for (int i = 0; i < homeBanners.size(); i++) ImagesArray.add(homeBanners.get(i).getImage_url());
-        bannerAdapter = new BannerViewPagerAdapter(getActivity().getApplicationContext(), ImagesArray);
-        vp_banner.setAdapter(bannerAdapter);
 
-        vp_banner.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                currentPage = position;
-            }
-
-            @Override
-            public void onPageSelected(int position) {
-
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-
-            }
-        });
-           // 원리 시간 날 때 찾아볼 것!!
-        int NUM_PAGES = IMAGES.length;
-
-           final Handler handler = new Handler();
-           final Runnable Update = new Runnable() {
-               public void run() {
-                   if (currentPage == NUM_PAGES) {
-                       currentPage = 0;
-                   }
-                   vp_banner.setCurrentItem(currentPage++, true);
-               }
-           };
-           Timer swipeTimer = new Timer();
-           swipeTimer.schedule(new TimerTask() {
-               @Override
-               public void run() {
-                   handler.post(Update);
-               }
-           }, 30000, 30000);
-
-
-    }
-    private void setVp_research() {
-        vp_research = view.findViewById(R.id.vp_research);
-        vp_research_indicator = view.findViewById(R.id.vp_research_indicator);
-        if (randomPosts.size() == 0) {
-            getRandomPosts();
+        if (homeBanners.size() == 0) {
+            skeletonScreen4 = Skeleton.bind(ll_banner)
+                    .load(R.layout.gray)
+                    .angle(0)
+                    .color(R.color.teal)
+                    .show();
+            new BannerThread().start();
         } else {
-            homeResearchPagerAdapter = new HomeResearchPagerAdapter(getChildFragmentManager());
-            vp_research.setAdapter(homeResearchPagerAdapter);
-            vp_research_indicator.setViewPager(vp_research);
+            for (int i = 0; i < homeBanners.size(); i++) ImagesArray.add(homeBanners.get(i).getImage_url());
+            bannerAdapter = new BannerViewPagerAdapter(context, ImagesArray);
+            vp_banner.setAdapter(bannerAdapter);
+            vp_banner.setCurrentItem(Integer.MAX_VALUE / 2 - ((Integer.MAX_VALUE / 2) % ImagesArray.size()));
+
+            vp_banner.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+                @Override
+                public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                    currentPage = position;
+                }
+
+                @Override
+                public void onPageSelected(int position) {
+
+                }
+
+                @Override
+                public void onPageScrollStateChanged(int state) {
+
+                }
+            });
+            // 원리 시간 날 때 찾아볼 것!!
+            if (handler == null) {
+                handler = new Handler();
+                update = new Runnable() {
+                    public void run() {
+                        vp_banner.setCurrentItem(currentPage++, true);
+                    }
+                };
+                swipeTimer = new Timer();
+                swipeTimer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        handler.post(update);
+                    }
+                }, 2000, 2000);
+            }
+
         }
 
 
+
+    }
+    @SuppressLint("ResourceType")
+    private void setVp_research() {
+        vp_research = view.findViewById(R.id.vp_research);
+        vp_research_indicator = view.findViewById(R.id.vp_research_indicator);
+
+        if (randomPosts.size() == 0) {
+            skeletonScreen = Skeleton.bind(rl_research)
+                    .load(R.layout.gray)
+                    .angle(0)
+                    .color(R.color.white)
+                    .show();
+            new RandomPostsThread().start();
+        } else {
+            homeResearchPagerAdapter = new HomeResearchPagerAdapter(fragmentManager);
+            vp_research.setAdapter(homeResearchPagerAdapter);
+            vp_research_indicator.setViewPager(vp_research);
+        }
     }
 
     private void setVp_vote() {
         vp_vote_indicator = view.findViewById(R.id.vp_vote_indicator);
         vp_vote = view.findViewById(R.id.vp_vote);
+
         if (randomVotes.size() == 0) {
-            getRandomVotes();
+            skeletonScreen2 = Skeleton.bind(rl_vote)
+                    .load(R.layout.gray)
+                    .angle(0)
+                    .color(R.color.white)
+                    .show();
+            new RandomVotesThread().start();
         } else {
-            homeVotePagerAdapter = new HomeVotePagerAdapter(getChildFragmentManager());
+            homeVotePagerAdapter = new HomeVotePagerAdapter(fragmentManager);
             vp_vote.setAdapter(homeVotePagerAdapter);
             vp_vote_indicator.setViewPager(vp_vote);
         }
-
-
-
     }
     private void setVp_research_tip() {
         vp_tip_indicator = view.findViewById(R.id.vp_tip_indicator);
         vp_tip = view.findViewById(R.id.vp_tip);
-        homeTipPagerAdapter = new HomeTipPagerAdapter(getChildFragmentManager());
-        vp_tip.setAdapter(homeTipPagerAdapter);
-        vp_tip_indicator.setViewPager(vp_tip);
 
         if (fullSurveytips.size() == 0) {
-            getSurveytips();
+            skeletonScreen3 = Skeleton.bind(rl_tip)
+                    .load(R.layout.gray)
+                    .angle(0)
+                    .color(R.color.white)
+                    .show();
+            new ResearchTipThread().start();
+
+        } else {
+            homeTipPagerAdapter = new HomeTipPagerAdapter(fragmentManager);
+            vp_tip.setAdapter(homeTipPagerAdapter);
+            vp_tip_indicator.setViewPager(vp_tip);
         }
 
 
@@ -296,11 +381,76 @@ public class HomeRenewalFragment extends Fragment {
             vp_tip_indicator.setVisibility(View.VISIBLE);
         }
     }
+    class RefreshThread extends Thread {
+        public void run() {
+
+            new BannerThread().start();
+            new RandomPostsThread().start();
+            new RandomVotesThread().start();
+            new ResearchTipThread().start();
+        }
+    }
+    class BannerThread extends Thread {
+        public void run() {
+            getBanners();
+            Log.d("banner", "run: " + "banners thread1");
+            while(!getBannerDone) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            Log.d("banner", "run: " + "banners thread2");
+
+            randomGetHandler.sendEmptyMessage(3);
+        }
+    }
+    class RandomPostsThread extends Thread {
+        public void run() {
+            getRandomPosts();
+            while(!getPostDone) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            randomGetHandler.sendEmptyMessage(0);
+        }
+    }
+    class RandomVotesThread extends Thread {
+        public void run() {
+            getRandomVotes();
+            while(!getVoteDone) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            randomGetHandler.sendEmptyMessage(1);
+        }
+    }
+    class ResearchTipThread extends Thread {
+        public void run() {
+            getSurveytips();
+            while(!getTipDone) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            randomGetHandler.sendEmptyMessage(2);
+        }
+    }
+
     public void getRandomPosts() {
         try {
             Log.d("getRandom", "getRandomPosts: " + UserPersonalInfo.userID);
             String requestURL = "http://ec2-3-35-152-40.ap-northeast-2.compute.amazonaws.com/api/posts/random/?user_object_id=" + UserPersonalInfo.userID;
-            RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.mContext);
+            RequestQueue requestQueue = Volley.newRequestQueue(context);
             JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(
                     Request.Method.GET, requestURL, null, response -> {
                         try {
@@ -409,11 +559,17 @@ public class HomeRenewalFragment extends Fragment {
                                                         }
                                                         boolean hide_ = reReply.getBoolean("hide");
                                                         String writer_ = reReply.getString("writer");
+                                                        String writer_name_ = "";
+                                                        try {
+                                                            writer_name_ = reReply.getString("writer_name");
+                                                        } catch (Exception e) {
+                                                            writer_name_ = "익명";
+                                                        }
                                                         String content_ = reReply.getString("content");
                                                         Date date_ = fm.parse(reReply.getString("date"));
                                                         String replyID_ = reReply.getString("replyID");
 
-                                                        ReReply newReReply = new ReReply(id_, reports_, report_reasons_, hide_, writer_, content_, date_, replyID_);
+                                                        ReReply newReReply = new ReReply(id_, reports_, report_reasons_, hide_, writer_, writer_name_, content_, date_, replyID_);
                                                         reReplies.add(newReReply);
                                                     }
                                                 }
@@ -435,9 +591,9 @@ public class HomeRenewalFragment extends Fragment {
                                 randomPosts.add(newPost);
                                 Log.d("어?", "getRandomPosts: " + newPost);
                             }
-                            homeResearchPagerAdapter = new HomeResearchPagerAdapter(getChildFragmentManager());
-                            vp_research.setAdapter(homeResearchPagerAdapter);
-                            vp_research_indicator.setViewPager(vp_research);
+                            Collections.shuffle(randomPosts);
+                            getPostDone = true;
+
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -446,7 +602,6 @@ public class HomeRenewalFragment extends Fragment {
             });
             jsonArrayRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
             requestQueue.add(jsonArrayRequest);
-            doneResearch = true;
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -463,7 +618,7 @@ public class HomeRenewalFragment extends Fragment {
             }
             String requestURL = "http://ec2-3-35-152-40.ap-northeast-2.compute.amazonaws.com/api/generals/random/?userID=" + param_email;
             Log.d("getRandom", "getRandomVotes: " + UserPersonalInfo.email);
-            RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.mContext);
+            RequestQueue requestQueue = Volley.newRequestQueue(context);
             JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(
                     Request.Method.GET, requestURL, null, response -> {
                         try {
@@ -537,11 +692,17 @@ public class HomeRenewalFragment extends Fragment {
                                                          }
                                                          boolean hide_ = reReply.getBoolean("hide");
                                                          String writer_ = reReply.getString("writer");
+                                                         String writer_name_ = "";
+                                                         try {
+                                                             writer_name_ = reReply.getString("writer_name");
+                                                         } catch (Exception e) {
+                                                             writer_name_ = "익명";
+                                                         }
                                                          String content_ = reReply.getString("content");
                                                          Date date_ = fm.parse(reReply.getString("date"));
                                                          String replyID_ = reReply.getString("replyID");
 
-                                                         ReReply newReReply = new ReReply(id_, reports_, report_reasons_, hide_, writer_, content_, date_, replyID_);
+                                                         ReReply newReReply = new ReReply(id_, reports_, report_reasons_, hide_, writer_, writer_name_, content_, date_, replyID_);
                                                          reReplies.add(newReReply);
                                                      }
                                                  }
@@ -612,9 +773,8 @@ public class HomeRenewalFragment extends Fragment {
                                          participants, participants_userids, with_image, polls, liked_users, likes, hide);
                                  randomVotes.add(newGeneral);
                              }
-                            homeVotePagerAdapter = new HomeVotePagerAdapter(getChildFragmentManager());
-                            vp_vote.setAdapter(homeVotePagerAdapter);
-                            vp_vote_indicator.setViewPager(vp_vote);
+                             Collections.shuffle(randomVotes);
+                             getVoteDone = true;
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -624,7 +784,6 @@ public class HomeRenewalFragment extends Fragment {
             Log.d("도대체 어디가 안되는 거야", "getRandomVotes: " + randomVotes);
             jsonArrayRequest.setRetryPolicy(new DefaultRetryPolicy(20 * 1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
             requestQueue.add(jsonArrayRequest);
-            doneVote = true;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -686,8 +845,7 @@ public class HomeRenewalFragment extends Fragment {
                                 fullSurveytips.add(newSurveytip);
 
                             }
-                            homeTipPagerAdapter.notifyDataSetChanged();
-
+                            getTipDone = true;
                         } catch (JSONException e) {
                             Log.d("exception", "JSON error");
                             e.printStackTrace();
@@ -703,8 +861,7 @@ public class HomeRenewalFragment extends Fragment {
             e.printStackTrace();
         }
     }
-
-    public static boolean getBanners() {
+    public boolean getBanners() {
     try {
         String requestURL = "http://ec2-3-35-152-40.ap-northeast-2.compute.amazonaws.com/api/banner/getbanner";
         RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.mContext);
@@ -712,7 +869,7 @@ public class HomeRenewalFragment extends Fragment {
         JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(
                 Request.Method.GET, requestURL, null, response -> {
             try {
-                HomeRenewalFragment.homeBanners = new ArrayList<Banner>();
+                homeBanners = new ArrayList<Banner>();
                 JSONArray jsonArray = new JSONArray(response.toString());
                 for (int i = 0; i < jsonArray.length(); i++) {
                     JSONObject item = jsonArray.getJSONObject(i);
@@ -720,10 +877,33 @@ public class HomeRenewalFragment extends Fragment {
                     int type = item.getInt("type");
                     boolean hide = item.getBoolean("hide");
                     boolean done = item.getBoolean("done");
-                    String title = item.getString("title");
-                    String author = item.getString("author");
-                    String content = item.getString("content");
-                    String url = item.getString("url");
+
+                    // 있을 수도 없을 수도 있는 값들. 없을 때 방지로 Exception 설정.
+                    String title;
+                    try {
+                        title = item.getString("title");
+                    } catch (Exception e) {
+                        title = "";
+                    }
+                    String author;
+                    try {
+                        author = item.getString("author");
+                    } catch (Exception e) {
+                        author = "";
+                    }
+                    String content;
+                    try {
+                        content = item.getString("content");
+                    } catch (Exception e) {
+                        content = "";
+                    }
+                    String url;
+                    try {
+                        url = item.getString("url");
+                    } catch (Exception e) {
+                        url = "";
+                    }
+                    // 여기까지
                     String image_url = item.getString("image_url");
                     SimpleDateFormat fm = new SimpleDateFormat("yyyy-MM-dd\'T\'kk:mm:ss.SSS");
                     Date date = null;
@@ -735,6 +915,7 @@ public class HomeRenewalFragment extends Fragment {
                     Banner banner = new Banner(id, type, hide, done, title, author, content, url, date, image_url);
                     homeBanners.add(banner);
                 }
+                getBannerDone = true;
             }
             catch (JSONException e) {
                 e.printStackTrace();
@@ -756,17 +937,95 @@ public class HomeRenewalFragment extends Fragment {
     return true;
 
 }
-
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
+    public void PostShuffleClickable(boolean clickable) {
+        if (clickable) {
+            ib_home_research_shuffle.setVisibility(View.VISIBLE);
+        } else {
+            ib_home_research_shuffle.setVisibility(View.GONE);
+        }
     }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
+    public void VoteShuffleClickable(boolean clickable) {
+        if (clickable) {
+            ib_home_vote_shuffle.setVisibility(View.VISIBLE);
+        } else {
+            ib_home_vote_shuffle.setVisibility(View.GONE);
+        }
     }
+    private class RandomGetHandler extends Handler{
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            super.handleMessage(msg);
+            if (msg.what == 0) {
+                refresh_count += 1;
+                skeletonScreen.hide();
+                homeResearchPagerAdapter = new HomeResearchPagerAdapter(fragmentManager);
+                vp_research.setAdapter(homeResearchPagerAdapter);
+                vp_research_indicator.setViewPager(vp_research);
+                getPostDone = false;
+                PostShuffleClickable(true);
+            } else if(msg.what == 1) {
+                refresh_count += 1;
+                skeletonScreen2.hide();
+                homeVotePagerAdapter = new HomeVotePagerAdapter(fragmentManager);
+                vp_vote.setAdapter(homeVotePagerAdapter);
+                vp_vote_indicator.setViewPager(vp_vote);
+                getVoteDone = false;
+                VoteShuffleClickable(true);
+            } else if (msg.what == 2) {
+                refresh_count += 1;
+                skeletonScreen3.hide();
+                homeTipPagerAdapter = new HomeTipPagerAdapter(fragmentManager);
+                vp_tip.setAdapter(homeTipPagerAdapter);
+                vp_tip_indicator.setViewPager(vp_tip);
+                getTipDone = false;
+            }
+            else if (msg.what == 3) {
+                refresh_count += 1;
+                skeletonScreen4.hide();
+                for (int i = 0; i < homeBanners.size(); i++) ImagesArray.add(homeBanners.get(i).getImage_url());
+                bannerAdapter = new BannerViewPagerAdapter(context, ImagesArray);
+                vp_banner.setAdapter(bannerAdapter);
+                vp_banner.setCurrentItem((Integer.MAX_VALUE / 2) - ((Integer.MAX_VALUE / 2) % ImagesArray.size()));
+                vp_banner.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+                    @Override
+                    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                        currentPage = position;
+                    }
 
+                    @Override
+                    public void onPageSelected(int position) {
 
+                    }
+
+                    @Override
+                    public void onPageScrollStateChanged(int state) {
+
+                    }
+                });
+                if (handler == null) {
+                    handler = new Handler();
+                    update = new Runnable() {
+                        public void run() {
+                            vp_banner.setCurrentItem(currentPage++, true);
+                        }
+                    };
+                    swipeTimer = new Timer();
+                    swipeTimer.schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            handler.post(update);
+                        }
+                    }, 2000, 2000);
+                }
+
+                getBannerDone = false;
+
+            }
+            if (refresh_count == 4) {
+                refresh_count = 0;
+                refresh_boards.setRefreshing(false);
+            }
+        }
+    }
 
 }

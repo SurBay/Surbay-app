@@ -4,9 +4,9 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -25,23 +25,19 @@ import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.pumasi.surbay.BlankFragment;
 import com.pumasi.surbay.FreeBoardFragment;
 import com.pumasi.surbay.MypageRenewalFragment;
 import com.pumasi.surbay.ResearchBoardFragment;
 import com.pumasi.surbay.HomeRenewalFragment;
 import com.pumasi.surbay.VoucherBoardFragment;
-import com.pumasi.surbay.classfile.Banner;
-import com.pumasi.surbay.classfile.Coupon;
 import com.pumasi.surbay.classfile.MyCoupon;
 import com.pumasi.surbay.classfile.ReReply;
-import com.pumasi.surbay.pages.boardpage.BoardPost;
 import com.pumasi.surbay.pages.homepage.NoticeActivity;
 import com.pumasi.surbay.R;
 import com.pumasi.surbay.classfile.CustomDialog;
-import com.pumasi.surbay.classfile.General;
 import com.pumasi.surbay.classfile.Notice;
 import com.pumasi.surbay.classfile.Notification;
-import com.pumasi.surbay.classfile.Poll;
 import com.pumasi.surbay.classfile.Post;
 import com.pumasi.surbay.classfile.PostNonSurvey;
 import com.pumasi.surbay.classfile.Reply;
@@ -57,6 +53,7 @@ import org.json.JSONObject;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -64,6 +61,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
+
+    public static float screen_ratio;
+    public static int screen_width;
+    public static int screen_width_px;
+    private int previous = R.id.action_home;
+    private CustomDialog customDialog;
 
     private BottomNavigationView bottomNavigationView; // 바텀 네비게이션 뷰
     private FragmentManager fm;
@@ -75,14 +78,11 @@ public class MainActivity extends AppCompatActivity {
     private VoucherBoardFragment voucherBoardFragment;
     private MypageRenewalFragment mypageRenewalFragment;
 
-    public static ArrayList<Post> postArrayList = new ArrayList<Post>();
-    public static ArrayList<Post> notreportedpostArrayList = new ArrayList<>();
-    public static ArrayList<Post> reportpostArrayList = new ArrayList<>();
+    private BlankFragment blankFragment;
 
     public static ArrayList<Surveytip> surveytipArrayList = new ArrayList<>();
     public static ArrayList<PostNonSurvey> feedbackArrayList = new ArrayList<>();
     public static ArrayList<Notice> NoticeArrayList = new ArrayList<>();
-    public static ArrayList<General> generalArrayList = new ArrayList<>();
     public static Context mContext;
     public static Integer done = 0;
 
@@ -99,6 +99,17 @@ public class MainActivity extends AppCompatActivity {
 
         mContext = getApplicationContext();
 
+        DisplayMetrics display = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(display);
+        if (display.widthPixels > display.heightPixels) {
+            screen_ratio = (float) Math.round(display.widthPixels * 10000 / (double) display.heightPixels) / 10000;
+        } else {
+            screen_ratio = (float) Math.round(display.heightPixels * 10000 / (double) display.widthPixels) / 10000;
+        }
+        screen_width = (int) display.widthPixels * 160 / display.densityDpi;
+        screen_width_px = display.widthPixels;
+        Log.d("screen_width", "onCreate: " + screen_width);
+        Log.d("screen_ratio", "onCreate: " + screen_ratio);
         bottomNavigationView = findViewById(R.id.bottomNavi);
 
         homeRenewalFragment= new HomeRenewalFragment();
@@ -106,26 +117,17 @@ public class MainActivity extends AppCompatActivity {
         freeBoardFragment = new FreeBoardFragment();
         voucherBoardFragment = new VoucherBoardFragment();
         mypageRenewalFragment = new MypageRenewalFragment();
+        blankFragment = new BlankFragment();
 
         today = new Date();
-        SimpleDateFormat fm = new SimpleDateFormat(mContext.getString(R.string.date_format));
 
-        // 받지 못한 정보가 있으면 서버에서 가져오는 함수
-        if(postArrayList.size() == 0 || notreportedpostArrayList.size() == 0) {
-            getPosts();
-        }
         if(feedbackArrayList.size()==0) {
             getFeedbacks();
         }
         if(NoticeArrayList.size()==0) {
             getNotices();
         }
-        if(generalArrayList.size()==0){
-            getGenerals();
-        }
-        HomeRenewalFragment.getBanners();
         MainActivity.getSurveytips();
-        getPersonalInfo();
 
         cmpNoticeNew = new Comparator<Notice>() {
             @Override
@@ -190,30 +192,54 @@ public class MainActivity extends AppCompatActivity {
         switch (n)
         {
             case 0:
+                previous = R.id.action_home;
                 ft.replace(R.id.Main_Frame,homeRenewalFragment);
                 ft.commit();
                 break;
 
             case 1:
+                previous = R.id.action_research_board;
                 ft.replace(R.id.Main_Frame,researchBoardFragment);
                 ft.commit();
                 break;
 
             case 2:
+                previous = R.id.action_free_board;
                 ft.replace(R.id.Main_Frame,freeBoardFragment);
                 ft.commit();
                 break;
 
             case 3:
-                ft.replace(R.id.Main_Frame, voucherBoardFragment);
-                ft.commit();
+                ArrayList<String> access_users = new ArrayList<String>(Arrays.asList("specific0924@yonsei.ac.kr", "SurBay_Admin", "2018142226@yonsei.ac.kr"));
+                if (access_users.contains(UserPersonalInfo.email)) {
+                    previous = R.id.action_voucher;
+                    ft.replace(R.id.Main_Frame, voucherBoardFragment);
+                    ft.commit();
+                } else {
+                    customDialog = new CustomDialog(MainActivity.this, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            customDialog.dismiss();
+                            bottomNavigationView.setSelectedItemId(previous);
+                            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://pf.kakao.com/_NIxdxks"));
+                            startActivity(intent);
+                        }
+                    });
+                    customDialog.show();
+                    customDialog.setMessage("카카오톡 페이지로 이동하시겠습니까?");
+                    customDialog.setPositiveButton("이동");
+                    customDialog.setNegativeButton("취소");
+                    customDialog.setOnCancelListener(dialog -> {
+                        bottomNavigationView.setSelectedItemId(previous);
+                    });
+                }
                 break;
 
             case 4:
+                previous = R.id.action_mypage;
                 ft.replace(R.id.Main_Frame, mypageRenewalFragment);
                 ft.commit();
                 break;
-
 
         }
     }
@@ -239,13 +265,6 @@ public class MainActivity extends AppCompatActivity {
             endDialog = null;
         }
         moveTaskToBack(true);
-//        if (Build.VERSION.SDK_INT >= 21) {
-//            // 액티비티 종료 + 태스크 리스트에서 지우기
-//            finishAndRemoveTask();
-//        } else {
-//            // 액티비티 종료
-//            this.finishAffinity();
-//        }
         this.finishAffinity();
     }
 
@@ -324,18 +343,12 @@ public class MainActivity extends AppCompatActivity {
                                 boolean coupon_used = coupon.getBoolean("used");
                                 SimpleDateFormat fm = new SimpleDateFormat("yyyy-MM-dd\'T\'kk:mm:ss.SSS");
                                 Date coupon_used_date = null;
-                                Date coupon_date = null;
+                                String coupon_date = coupon.getString("date");
+
                                 try {
                                     coupon_used_date = fm.parse(coupon.getString("used_date"));
                                 } catch (ParseException e) {
                                     e.printStackTrace();
-                                }
-                                try {
-                                    coupon_date = fm.parse(coupon.getString("date"));
-
-                                } catch (ParseException e) {
-                                    coupon_date = null;
-
                                 }
                                 ArrayList<String> coupon_image_urls = new ArrayList<>();
                                 JSONArray ka = coupon.getJSONArray("image_urls");
@@ -374,175 +387,6 @@ public class MainActivity extends AppCompatActivity {
             requestQueue.add(jsonObjectRequest);
             Log.d("voucher", "getPosts: " + UserPersonalInfo.coupons.size());
 
-        } catch (Exception e){
-            Log.d("exception", "failed getting response");
-            e.printStackTrace();
-        }
-    }
-    public static void getPosts(){
-        try{
-            String requestURL = "http://ec2-3-35-152-40.ap-northeast-2.compute.amazonaws.com/api/posts";
-            RequestQueue requestQueue = Volley.newRequestQueue(mContext);
-            JsonArrayRequest jsonArrayRequest = new JsonArrayRequest
-                    (Request.Method.GET, requestURL, null, response -> {
-                        try {
-                            postArrayList = new ArrayList<Post>();
-                            notreportedpostArrayList = new ArrayList<Post>();
-                            reportpostArrayList = new ArrayList<Post>();
-                            JSONArray resultArr = new JSONArray(response.toString());
-                            for (int i = 0; i < resultArr.length(); i++) {
-                                JSONObject post = resultArr.getJSONObject(i);
-                                String id = post.getString("_id");
-                                String title = post.getString("title");
-                                String author = post.getString("author");
-                                Integer author_lvl = post.getInt("author_lvl");
-                                String content = post.getString("content");
-                                Integer participants = post.getInt("participants");
-                                Integer goal_participants = post.getInt("goal_participants");
-                                String url = post.getString("url");
-                                SimpleDateFormat fm = new SimpleDateFormat(mContext.getString(R.string.date_format));
-                                Date date = null;
-                                try {
-                                    date = fm.parse(post.getString("date"));
-                                } catch (ParseException e) {
-                                    e.printStackTrace();
-                                }
-                                Date deadline = null;
-                                try {
-                                    deadline = fm.parse(post.getString("deadline"));
-                                } catch (ParseException e) {
-                                    e.printStackTrace();
-                                }
-                                Boolean with_prize = post.getBoolean("with_prize");
-                                String prize = "none";
-                                Integer count= 0;
-                                Integer est_time = post.getInt("est_time");
-                                String target = post.getString("target");
-                                Boolean done = post.getBoolean("done");
-                                Boolean hide = post.getBoolean("hide");
-                                Integer extended = post.getInt("extended");
-                                String author_userid = post.getString("author_userid");
-                                if(with_prize) {
-                                    prize = post.getString("prize");
-                                    count = post.getInt("num_prize");
-                                }
-                                JSONArray ia = (JSONArray)post.get("participants_userids");
-
-                                ArrayList<String> participants_userids = new ArrayList<String>();
-                                for (int j = 0; j<ia.length(); j++){
-                                    participants_userids.add(ia.getString(j));
-                                }
-
-                                JSONArray ka = (JSONArray)post.get("reports");
-
-                                ArrayList<String> reports = new ArrayList<String>();
-                                for (int j = 0; j<ka.length(); j++){
-                                    reports.add(ka.getString(j));
-                                }
-
-                                ArrayList<Reply> comments = new ArrayList<>();
-                                try{
-                                    JSONArray ja = (JSONArray)post.get("comments");
-                                    if (ja.length() != 0){
-                                        for (int j = 0; j<ja.length(); j++){
-                                            JSONObject comment = ja.getJSONObject(j);
-                                            String reid = comment.getString("_id");
-                                            String writer = comment.getString("writer");
-                                            String contetn = comment.getString("content");
-                                            Date datereply = null;
-                                            try {
-                                                datereply = fm.parse(comment.getString("date"));
-                                            } catch (ParseException e) {
-                                                e.printStackTrace();
-                                            }
-                                            Boolean replyhide = comment.getBoolean("hide");
-                                            JSONArray ua = (JSONArray)comment.get("reports");
-
-
-                                            ArrayList<String> replyreports = new ArrayList<String>();
-                                            for (int u = 0; u<ua.length(); u++){
-                                                replyreports.add(ua.getString(u));
-                                            }
-                                            String writer_name = null;
-                                            try {
-                                                writer_name = comment.getString("writer_name");
-                                            }catch (Exception e){
-                                                writer_name = null;
-                                            }
-                                            ArrayList<ReReply> reReplies = new ArrayList<>();
-                                            try {
-                                                JSONArray jk = (JSONArray) comment.get("reply");
-                                                if (jk.length() != 0) {
-                                                    for (int k = 0; k < jk.length(); k++) {
-                                                        JSONObject reReply = jk.getJSONObject(k);
-                                                        String id_ = reReply.getString("_id");
-                                                        ArrayList<String> reports_ = new ArrayList<>();
-                                                        JSONArray jb = (JSONArray) reReply.get("reports");
-                                                        for (int b = 0; b < jb.length(); b++) {
-                                                            reports_.add(jb.getString(b));
-                                                        }
-                                                        ArrayList<String> report_reasons_ = new ArrayList<>();
-                                                        JSONArray jc = (JSONArray) reReply.get("report_reasons");
-                                                        for (int c = 0; c < jc.length(); c++) {
-                                                            report_reasons_.add(jc.getString(c));
-                                                        }
-                                                        boolean hide_ = reReply.getBoolean("hide");
-                                                        String writer_ = reReply.getString("writer");
-                                                        String content_ = reReply.getString("content");
-                                                        Date date_ = fm.parse(reReply.getString("date"));
-                                                        String replyID_ = reReply.getString("replyID");
-
-                                                        ReReply newReReply = new ReReply(id_, reports_, report_reasons_, hide_, writer_, content_, date_, replyID_);
-                                                        reReplies.add(newReReply);
-                                                    }
-                                                }
-                                            } catch (Exception e) {
-                                                e.printStackTrace();
-                                            }
-                                            Reply re = new Reply(reid, writer, contetn, datereply,replyreports,replyhide, writer_name, reReplies);
-                                            re.setWriter_name(writer_name);
-                                            if ((!replyhide )&& (!replyreports.contains(UserPersonalInfo.userID))){
-                                                comments.add(re);
-                                            }
-                                        }
-                                    }
-
-                                } catch (Exception e){
-                                    e.printStackTrace();
-                                }
-                                Integer pinned = 0;
-                                Boolean annonymous = false;
-                                String author_info = "";
-                                try {
-                                    pinned = post.getInt("pinned");
-                                    annonymous = post.getBoolean("annonymous");
-                                    author_info = post.getString("author_info");
-                                }catch (Exception e){
-
-                                }
-                                Post newPost = new Post(id, title, author, author_lvl, content, participants, goal_participants, url, date, deadline, with_prize, prize, est_time, target, count,comments,done, extended, participants_userids, reports, hide, author_userid, pinned, annonymous, author_info);
-
-                                Date now = new Date();
-                                if(reports.contains(UserPersonalInfo.userID) || hide) {
-                                    reportpostArrayList.add(newPost);
-                                } else if (now.after(newPost.getDeadline()) || newPost.isDone()){
-                                    notreportedpostArrayList.add(newPost);
-                                }
-                                 else {
-                                    postArrayList.add(newPost);
-                                    notreportedpostArrayList.add(newPost);
-                                }
-                            }
-                        } catch (JSONException e) {
-                            Log.d("exception", "JSON error");
-                            e.printStackTrace();
-                        }
-                    }, error -> {
-                        Log.d("exception", "volley error");
-                        error.printStackTrace();
-                    });
-            jsonArrayRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-            requestQueue.add(jsonArrayRequest);
         } catch (Exception e){
             Log.d("exception", "failed getting response");
             e.printStackTrace();
@@ -702,11 +546,17 @@ public class MainActivity extends AppCompatActivity {
                                                 }
                                                 boolean hide_ = reReply.getBoolean("hide");
                                                 String writer_ = reReply.getString("writer");
+                                                String writer_name_ = "";
+                                                try {
+                                                    writer_name_ = reReply.getString("writer_name");
+                                                } catch (Exception e) {
+                                                    writer_name_ = "익명";
+                                                }
                                                 String content_ = reReply.getString("content");
                                                 Date date_ = fm.parse(reReply.getString("date"));
                                                 String replyID_ = reReply.getString("replyID");
 
-                                                ReReply newReReply = new ReReply(id_, reports_, report_reasons_, hide_, writer_, content_, date_, replyID_);
+                                                ReReply newReReply = new ReReply(id_, reports_, report_reasons_, hide_, writer_, writer_name_, content_, date_, replyID_);
                                                 reReplies.add(newReReply);
                                             }
                                         }
@@ -809,185 +659,11 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
-    public static void getGenerals(){
-        try{
-            String requestURL = "http://ec2-3-35-152-40.ap-northeast-2.compute.amazonaws.com/api/generals";
-            RequestQueue requestQueue = Volley.newRequestQueue(mContext);
-            JsonArrayRequest jsonArrayRequest = new JsonArrayRequest
-                    (Request.Method.GET, requestURL, null, response -> {
-                        try {
-                            generalArrayList = new ArrayList<>();
-                            JSONArray resultArr = new JSONArray(response.toString());
-                            Log.d("gettinggeneralresponseis", ""+response);
-                            for (int i = 0; i < resultArr.length(); i++) {
-                                JSONObject general = resultArr.getJSONObject(i);
-                                String id = general.getString("_id");
-                                String title = general.getString("title");
-                                String author = general.getString("author");
-                                Integer author_lvl = general.getInt("author_lvl");
-                                String content = general.getString("content");
-                                SimpleDateFormat fm = new SimpleDateFormat(mContext.getString(R.string.date_format));
-                                Date date = null;
-                                try {
-                                    date = fm.parse(general.getString("date"));
-                                } catch (ParseException e) {
-                                    e.printStackTrace();
-                                }
-                                Date deadline = null;
-                                try {
-                                    deadline = fm.parse(general.getString("deadline"));
-                                } catch (ParseException e) {
-                                    e.printStackTrace();
-                                }
-                                ArrayList<Reply> comments = new ArrayList<>();
-                                try{
-                                    JSONArray ja = (JSONArray)general.get("comments");
-                                    if (ja.length() != 0){
-                                        for (int j = 0; j<ja.length(); j++){
-                                            JSONObject comment = ja.getJSONObject(j);
-                                            String reid = comment.getString("_id");
-                                            String writer = comment.getString("writer");
-                                            String contetn = comment.getString("content");
-                                            Date datereply = null;
-                                            try {
-                                                datereply = fm.parse(comment.getString("date"));
-                                            } catch (ParseException e) {
-                                                e.printStackTrace();
-                                            }
-                                            Boolean replyhide = comment.getBoolean("hide");
-                                            JSONArray ua = (JSONArray)comment.get("reports");
-
-
-                                            ArrayList<String> replyreports = new ArrayList<String>();
-                                            for (int u = 0; u<ua.length(); u++){
-                                                replyreports.add(ua.getString(u));
-                                            }
-                                            String writer_name = null;
-                                            try {
-                                                writer_name = comment.getString("writer_name");
-                                            }catch (Exception e){
-                                                writer_name = null;
-                                            }
-                                            ArrayList<ReReply> reReplies = new ArrayList<>();
-                                            try {
-                                                JSONArray jk = (JSONArray) comment.get("reply");
-                                                if (jk.length() != 0) {
-                                                    for (int k = 0; k < jk.length(); k++) {
-                                                        JSONObject reReply = jk.getJSONObject(k);
-                                                        String id_ = reReply.getString("_id");
-                                                        ArrayList<String> reports_ = new ArrayList<>();
-                                                        JSONArray jb = (JSONArray) reReply.get("reports");
-                                                        for (int b = 0; b < jb.length(); b++) {
-                                                            reports_.add(jb.getString(b));
-                                                        }
-                                                        ArrayList<String> report_reasons_ = new ArrayList<>();
-                                                        JSONArray jc = (JSONArray) reReply.get("report_reasons");
-                                                        for (int c = 0; c < jc.length(); c++) {
-                                                            report_reasons_.add(jc.getString(c));
-                                                        }
-                                                        boolean hide_ = reReply.getBoolean("hide");
-                                                        String writer_ = reReply.getString("writer");
-                                                        String content_ = reReply.getString("content");
-                                                        Date date_ = fm.parse(reReply.getString("date"));
-                                                        String replyID_ = reReply.getString("replyID");
-
-                                                        ReReply newReReply = new ReReply(id_, reports_, report_reasons_, hide_, writer_, content_, date_, replyID_);
-                                                        reReplies.add(newReReply);
-                                                    }
-                                                }
-                                            } catch (Exception e) {
-                                                e.printStackTrace();
-                                            }
-                                            Reply re = new Reply(reid, writer, contetn, datereply,replyreports,replyhide, writer_name, reReplies);
-                                            re.setWriter_name(writer_name);
-                                            if ((!replyhide )&& (!replyreports.contains(UserPersonalInfo.userID))){
-                                                comments.add(re);
-                                            }
-                                        }
-                                    }
-
-                                } catch (Exception e){
-                                    e.printStackTrace();
-                                }
-                                Boolean done = general.getBoolean("done");
-                                String author_userid = general.getString("author_userid");
-                                JSONArray ka = (JSONArray)general.get("reports");
-                                ArrayList<String> reports = new ArrayList<String>();
-                                for (int j = 0; j<ka.length(); j++){
-                                    reports.add(ka.getString(j));
-                                }
-                                Boolean multi_response = general.getBoolean("multi_response");
-                                Integer participants = general.getInt("participants");
-                                JSONArray ia = (JSONArray)general.get("participants_userids");
-                                ArrayList<String> participants_userids = new ArrayList<String>();
-                                for (int j = 0; j<ia.length(); j++){
-                                    participants_userids.add(ia.getString(j));
-                                }
-                                Boolean with_image = general.getBoolean("with_image");
-                                ArrayList<Poll> polls = new ArrayList<>();
-                                try{
-                                    JSONArray ja = (JSONArray)general.get("polls");
-                                    if (ja.length() != 0){
-                                        for (int j = 0; j<ja.length(); j++){
-                                            JSONObject poll = ja.getJSONObject(j);
-                                            String poll_id = poll.getString("_id");
-                                            String poll_content = poll.getString("content");
-                                            ArrayList<String> poll_participants_userids = new ArrayList<String>();
-                                            JSONArray ua = (JSONArray)poll.get("participants_userids");
-                                            for (int u = 0; u<ua.length(); u++){
-                                                poll_participants_userids.add(ua.getString(u));
-                                            }
-                                            String image = poll.getString("image");
-                                            Poll newpoll = new Poll(poll_id, poll_content, poll_participants_userids, image);
-                                            polls.add(newpoll);
-                                        }
-                                    }
-
-                                } catch (Exception e){
-                                    e.printStackTrace();
-                                }
-
-                                JSONArray la = (JSONArray)general.get("liked_users");
-                                ArrayList<String> liked_users = new ArrayList<String>();
-                                for (int j = 0; j<la.length(); j++){
-                                    liked_users.add(la.getString(j));
-                                }
-
-                                Integer likes = general.getInt("likes");
-
-                                Boolean hide = general.getBoolean("hide");
-
-                                General newGeneral = new General(id, title, author, author_lvl, content,
-                                        date, deadline, comments, done, author_userid, reports, multi_response,
-                                        participants, participants_userids, with_image, polls, liked_users, likes, hide);
-                                if((!newGeneral.getReports().contains(UserPersonalInfo.userID)) && (hide!=true))
-                                    generalArrayList.add(newGeneral);
-                            }
-                        } catch (JSONException e) {
-                            Log.d("exception", "JSON error");
-                            e.printStackTrace();
-                        }
-                    }, error -> {
-                        Log.d("exception", "volley error");
-                        error.printStackTrace();
-                    });
-            jsonArrayRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-            requestQueue.add(jsonArrayRequest);
-        } catch (Exception e){
-            Log.d("exception", "failed getting response");
-            e.printStackTrace();
-        }
-    }
 
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        try {
-            getPosts();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
         getPersonalInfo();
     }
 }

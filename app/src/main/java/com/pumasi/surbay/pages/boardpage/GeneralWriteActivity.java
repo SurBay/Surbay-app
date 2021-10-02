@@ -85,7 +85,7 @@ public class GeneralWriteActivity extends AppCompatActivity {
     static final int FIX_DONE = 3;
     static final int CHECK = 2;
     private InputMethodManager imm;
-
+    public int poll_count = 2;
     RecyclerView pollRecyclerView;
 
     TextView writeBack;
@@ -95,7 +95,7 @@ public class GeneralWriteActivity extends AppCompatActivity {
     private EditText writeContent;
     private AlertDialog dialog;
 
-    ImageButton addPollBtn;
+    public ImageButton addPollBtn;
 
     CheckBox multiResponse;
     TextView deadlineTextview;
@@ -223,9 +223,15 @@ public class GeneralWriteActivity extends AppCompatActivity {
         addPollBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                write_polls.add("");
-                image_uris.add(null);
-                pollWriteAdapter.notifyItemInserted(write_polls.size()-1);
+                if (poll_count < 10) {
+                    poll_count++;
+                    write_polls.add("");
+                    image_uris.add(null);
+                    pollWriteAdapter.notifyItemInserted(write_polls.size()-1);
+                    if (poll_count == 10) {
+                        addPollBtn.setVisibility(View.GONE);
+                    }
+                }
             }
         });
 
@@ -672,11 +678,17 @@ public class GeneralWriteActivity extends AppCompatActivity {
                                                         }
                                                         boolean hide_ = reReply.getBoolean("hide");
                                                         String writer_ = reReply.getString("writer");
+                                                        String writer_name_ = "";
+                                                        try {
+                                                            writer_name_ = reReply.getString("writer_name");
+                                                        } catch (Exception e) {
+                                                            writer_name_ = "익명";
+                                                        }
                                                         String content_ = reReply.getString("content");
                                                         Date date_ = fm.parse(reReply.getString("date"));
                                                         String replyID_ = reReply.getString("replyID");
 
-                                                        ReReply newReReply = new ReReply(id_, reports_, report_reasons_, hide_, writer_, content_, date_, replyID_);
+                                                        ReReply newReReply = new ReReply(id_, reports_, report_reasons_, hide_, writer_, writer_name_, content_, date_, replyID_);
                                                         reReplies.add(newReReply);
                                                     }
                                                 }
@@ -747,9 +759,6 @@ public class GeneralWriteActivity extends AppCompatActivity {
                                 if((!newGeneral.getReports().contains(UserPersonalInfo.userID)) && (hide!=true))
                                     generalArrayList.add(newGeneral);
                             }
-                            Log.d("gotgenerals123", "sizeis"+ MainActivity.generalArrayList.size());
-                            MainActivity.generalArrayList = generalArrayList;
-                            Log.d("gotgenerals", "sizeis"+MainActivity.generalArrayList.size());
                             getGeneralsDone = true;
                         } catch (JSONException e) {
                             Log.d("exception", "JSON error");

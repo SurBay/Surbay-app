@@ -10,14 +10,18 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Rect;
 import android.os.Handler;
 import android.os.Bundle;
 import android.os.Message;
 import android.os.SystemClock;
+import android.renderscript.ScriptGroup;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -26,6 +30,7 @@ import android.widget.PopupMenu;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -49,7 +54,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ContentDetailCommentsActivity extends AppCompatActivity {
 
@@ -61,6 +68,7 @@ public class ContentDetailCommentsActivity extends AppCompatActivity {
     private boolean delete_done = false;
     private boolean reply_delete_done = false;
     private boolean report_done = false;
+    private boolean block_done = false;
     private boolean reply_report_done = false;
     private String content_id;
     private boolean is_reply = false;
@@ -74,14 +82,15 @@ public class ContentDetailCommentsActivity extends AppCompatActivity {
     public ImageView iv_content_detail_comment_reply;
     private EditText et_content_detail_comment_reply;
     private ImageButton ib_content_detail_comment_reply;
-
+    private LinearLayout ll_content_detail_comment_reply;
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_content_detail_comments);
         getSupportActionBar().hide();
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        context = getApplicationContext();
+        context = ContentDetailCommentsActivity.this;
         content_id = getIntent().getStringExtra("content_id");
         comments = getIntent().getParcelableArrayListExtra("comments");
 
@@ -91,13 +100,15 @@ public class ContentDetailCommentsActivity extends AppCompatActivity {
         ib_back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                setResult(comments.size());
+                int comment_counts = 0;
+                for (ContentReply contentReply : comments) {
+                    comment_counts++;
+                    comment_counts += contentReply.getReply().size();
+                }
+                setResult(comment_counts);
                 finish();
             }
         });
-
-
-
 
         iv_content_detail_comment_reply = findViewById(R.id.iv_content_detail_comment_reply);
         et_content_detail_comment_reply = findViewById(R.id.et_content_detail_comment_reply);
@@ -105,12 +116,17 @@ public class ContentDetailCommentsActivity extends AppCompatActivity {
         ib_content_detail_comment_reply.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 reply = et_content_detail_comment_reply.getText().toString();
                 et_content_detail_comment_reply.getText().clear();
-                BackgroundReplyThread backgroundReplyThread = new BackgroundReplyThread();
-                backgroundReplyThread.start();
+                if (reply.length() > 0) {
+                    BackgroundReplyThread backgroundReplyThread = new BackgroundReplyThread();
+                    backgroundReplyThread.start();
+                }
             }
         });
+        ll_content_detail_comment_reply = findViewById(R.id.ll_content_detail_comment_reply);
+        if (UserPersonalInfo.userID.equals("nonMember")) ll_content_detail_comment_reply.setVisibility(View.GONE);
     }
 
     public void postContentReply(String content) {
@@ -240,6 +256,11 @@ public class ContentDetailCommentsActivity extends AppCompatActivity {
                         for (int k = 0; k < ka.length(); k++) {
                             _report_reasons.add(ka.getString(k));
                         }
+                        ArrayList<String> _reports = new ArrayList<>();
+                        JSONArray ka2 = responseComment.getJSONArray("reports");
+                        for (int k = 0; k < ka2.length(); k++) {
+                            _reports.add(ka2.getString(k));
+                        }
                         String _writer = responseComment.getString("writer");
                         String _writer_name = responseComment.getString("writer_name");
                         Date _date = null;
@@ -250,7 +271,7 @@ public class ContentDetailCommentsActivity extends AppCompatActivity {
                         }
                         String _content = responseComment.getString("content");
 
-                        comments.add(new ContentReply(_id, contentReplies, _hide, _report_reasons, _writer, _writer_name, _date, _content));
+                        comments.add(new ContentReply(_id, contentReplies, _hide, _reports, _report_reasons, _writer, _writer_name, _date, _content));
                     }
                     this.comments = comments;
                     get_done = true;
@@ -308,47 +329,7 @@ public class ContentDetailCommentsActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
-    public void reportReply(String contentcomment_object_id, String reply_object_id, String report_reason) {
-        try {
-            String requestURL = context.getResources().getString(R.string.server) + "/api/content/reportreply";
-            JSONObject params = new JSONObject();
-            params.put("userID", UserPersonalInfo.email);
-            params.put("contentcomment_object_id", contentcomment_object_id);
-            params.put("reply_object_id", reply_object_id);
-            params.put("reason", report_reason);
-            RequestQueue requestQueue = Volley.newRequestQueue(context);
-            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
-                    Request.Method.PUT, requestURL, params, response -> {
-                        reply_report_done = true;
-            }, error -> {
-                error.printStackTrace();
-            });
-            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20 * 1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-            requestQueue.add(jsonObjectRequest);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-    public void deleteReply(String contentcomment_object_id, String reply_object_id) {
-        try {
-            String requestURL = context.getResources().getString(R.string.server) + "/api/content/deletereply";
-            JSONObject params = new JSONObject();
-            params.put("userID", UserPersonalInfo.email);
-            params.put("contentcomment_object_id", contentcomment_object_id);
-            params.put("reply_object_id", reply_object_id);
-            RequestQueue requestQueue = Volley.newRequestQueue(context);
-            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
-                    Request.Method.PUT, requestURL, params, response -> {
-                        reply_delete_done = true;
-            }, error -> {
-                error.printStackTrace();
-            });
-            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20 * 1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-            requestQueue.add(jsonObjectRequest);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+
     class BackgroundInitiateThread extends Thread {
         public void run() {
             getComments(content_id);
@@ -407,8 +388,10 @@ public class ContentDetailCommentsActivity extends AppCompatActivity {
                 try {
                     Thread.sleep(100);
                 } catch (InterruptedException e) {}
+
             }
             getComments(content_id);
+
             while (!get_done) {
                 try {
                     Thread.sleep(100);
@@ -438,6 +421,12 @@ public class ContentDetailCommentsActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
             }
+            getComments(content_id);
+            while (!get_done) {
+                try {
+                    Thread.sleep(100);
+                } catch (Exception e) {}
+            }
             Message message = handler.obtainMessage();
             Bundle bundle = new Bundle();
             bundle.putInt("thread", 0);
@@ -446,16 +435,14 @@ public class ContentDetailCommentsActivity extends AppCompatActivity {
         }
     }
 
-    public class BackgroundReplyDeleteThread extends Thread {
-        private String comment_id;
-        private String reply_id;
-        public BackgroundReplyDeleteThread(String comment_id, String reply_id) {
-            this.comment_id = comment_id;
-            this.reply_id = reply_id;
+    class BackgroundBlockThread extends Thread {
+        private String counter;
+        public BackgroundBlockThread(String counter) {
+            this.counter = counter;
         }
         public void run() {
-            deleteReply(comment_id, reply_id);
-            while (!reply_delete_done) {
+            blockUser(counter);
+            while (!block_done) {
                 try {
                     Thread.sleep(100);
                 } catch (InterruptedException e) {
@@ -473,35 +460,9 @@ public class ContentDetailCommentsActivity extends AppCompatActivity {
             bundle.putInt("thread", 0);
             message.setData(bundle);
             handler.sendMessage(message);
-
         }
     }
 
-    public class BackgroundReplyReportThread extends Thread {
-        private String comment_id;
-        private String reply_id;
-        private String report_reason;
-        public BackgroundReplyReportThread(String comment_id, String reply_id, String report_reason) {
-            this.comment_id = comment_id;
-            this.reply_id = reply_id;
-            this.report_reason = report_reason;
-        }
-        public void run() {
-            reportReply(comment_id, reply_id, report_reason);
-            while (!reply_report_done) {
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-            Message message = handler.obtainMessage();
-            Bundle bundle = new Bundle();
-            bundle.putInt("thread", 0);
-            message.setData(bundle);
-            handler.sendMessage(message);
-        }
-    }
 
     private class ContentDetailHandler extends Handler {
         @Override
@@ -509,72 +470,136 @@ public class ContentDetailCommentsActivity extends AppCompatActivity {
             super.handleMessage(msg);
             if (msg.getData().getInt("thread") == 1) {
                 rv_content_detail_comment = findViewById(R.id.rv_content_detail_comment);
-                contentReplyRecyclerViewAdapter = new ContentReplyRecyclerViewAdapter(comments, ContentDetailCommentsActivity.this);
+                contentReplyRecyclerViewAdapter = new ContentReplyRecyclerViewAdapter(comments, ContentDetailCommentsActivity.this, content_id);
                 contentReplyRecyclerViewAdapter.setOnItemClickListener(new ContentReplyRecyclerViewAdapter.OnReplyClickListener() {
                     @Override
                     public void onReplyClick(View v, int position) {
-                        ContentReply contentReply = (ContentReply) contentReplyRecyclerViewAdapter.getItem(position);
-                        reply_id = contentReply.getId();
-                        is_reply = true;
-                        setReplyVisible(true);
+                        if (UserPersonalInfo.userID.equals("nonMember")) {
+                            customDialog = new CustomDialog(ContentDetailCommentsActivity.this, null);
+                            customDialog.show();
+                            customDialog.setMessage("비회원은 이용할 수 없는 기능입니다.");
+                            customDialog.setNegativeButton("확인");
+                        } else {
+                            if (is_reply) {
+                                is_reply = false;
+                                setReplyVisible(false);
+
+                                contentReplyRecyclerViewAdapter.Click(-1);
+                            } else {
+                                et_content_detail_comment_reply.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        et_content_detail_comment_reply.setFocusableInTouchMode(true);
+                                        et_content_detail_comment_reply.requestFocus();
+                                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                                        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
+                                    }
+                                });
+                                contentReplyRecyclerViewAdapter.Click(position);
+                                ContentReply contentReply = (ContentReply) contentReplyRecyclerViewAdapter.getItem(position);
+                                reply_id = contentReply.getId();
+                                is_reply = true;
+                                setReplyVisible(true);
+                            }
+                        }
+
+
                     }
                 });
                 contentReplyRecyclerViewAdapter.setOnItemClickListener(new ContentReplyRecyclerViewAdapter.OnMenuClickListener() {
                     @Override
                     public void onMenuClick(View v, int position) {
-                        ContentReply contentReply = (ContentReply) contentReplyRecyclerViewAdapter.getItem(position);
-                        PopupMenu popupMenu = new PopupMenu(context, v);
-                        popupMenu.getMenuInflater().inflate(R.menu.content_reply_popup_menu, popupMenu.getMenu());
-                        popupMenu.show();
-                        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                            @Override
-                            public boolean onMenuItemClick(MenuItem item) {
-                                switch (item.getItemId()) {
-                                    case R.id.delete:
-                                        customDialog = new CustomDialog(ContentDetailCommentsActivity.this, new View.OnClickListener() {
-                                            @Override
-                                            public void onClick(View v) {
-                                                BackgroundDeleteThread backgroundDeleteThread = new BackgroundDeleteThread(contentReply.getId());
-                                                backgroundDeleteThread.start();
-                                                customDialog.dismiss();
-                                            }
-                                        });
-                                        customDialog.show();
-                                        customDialog.setMessage("댓글을 삭제하겠습니까?");
-                                        customDialog.setPositiveButton("삭제");
-                                        customDialog.setNegativeButton("취소");
-                                        return true;
-                                    case R.id.report:
-                                        customDialog = new CustomDialog(ContentDetailCommentsActivity.this, new View.OnClickListener() {
-                                            @Override
-                                            public void onClick(View v) {
-                                                ArrayList<String> reports = new ArrayList<>(Arrays.asList("욕설/비하", "상업적 광고 및 판매", "낚시/놀람/도배/사기", "게시판 성격에 부적절함", "기타"));
-                                                AlertDialog.Builder builder = new AlertDialog.Builder(ContentDetailCommentsActivity.this);
-                                                builder.setTitle("신고 사유");
-                                                builder.setItems(R.array.reportreason, new DialogInterface.OnClickListener() {
+                        if (UserPersonalInfo.userID.equals("nonMember")) {
+                            customDialog = new CustomDialog(ContentDetailCommentsActivity.this, null);
+                            customDialog.show();
+                            customDialog.setMessage("비회원은 이용할 수 없는 기능입니다.");
+                            customDialog.setNegativeButton("확인");
+                        } else {
+                            ContentReply contentReply = (ContentReply) contentReplyRecyclerViewAdapter.getItem(position);
+                            PopupMenu popupMenu = new PopupMenu(context, v);
+                            popupMenu.getMenuInflater().inflate(R.menu.content_reply_popup_menu, popupMenu.getMenu());
+                            popupMenu.show();
+                            if (UserPersonalInfo.email.equals(contentReply.getWriter())) {
+                                popupMenu.getMenu().getItem(1).setVisible(false);
+                                popupMenu.getMenu().getItem(1).setEnabled(false);
+                                popupMenu.getMenu().getItem(2).setVisible(false);
+                                popupMenu.getMenu().getItem(2).setEnabled(false);
+                            } else {
+                                popupMenu.getMenu().getItem(0).setVisible(false);
+                                popupMenu.getMenu().getItem(0).setEnabled(false);
+                            }
+                            popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                                @Override
+                                public boolean onMenuItemClick(MenuItem item) {
+                                    switch (item.getItemId()) {
+                                        case R.id.delete:
+                                            customDialog = new CustomDialog(ContentDetailCommentsActivity.this, new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View v) {
+                                                    BackgroundDeleteThread backgroundDeleteThread = new BackgroundDeleteThread(contentReply.getId());
+                                                    backgroundDeleteThread.start();
+                                                    customDialog.dismiss();
+                                                }
+                                            });
+                                            customDialog.show();
+                                            customDialog.setMessage("댓글을 삭제하겠습니까?");
+                                            customDialog.setPositiveButton("삭제");
+                                            customDialog.setNegativeButton("취소");
+                                            return true;
+                                        case R.id.report:
+                                            if (contentReply.getReports().contains(UserPersonalInfo.email)) {
+                                                customDialog = new CustomDialog(ContentDetailCommentsActivity.this, null);
+                                                customDialog.show();
+                                                customDialog.setMessage("이미 신고한 댓글입니다");
+                                                customDialog.setMessage("확인");
+                                            } else {
+                                                customDialog = new CustomDialog(ContentDetailCommentsActivity.this, new View.OnClickListener() {
                                                     @Override
-                                                    public void onClick(DialogInterface dialog, int which) {
-                                                        BackgroundReportThread backgroundReportThread = new BackgroundReportThread(contentReply.getId(), reports.get(which));
-                                                        backgroundReportThread.start();
+                                                    public void onClick(View v) {
+
+                                                        ArrayList<String> reports = new ArrayList<>(Arrays.asList("욕설/비하", "상업적 광고 및 판매", "낚시/놀람/도배/사기", "게시판 성격에 부적절함", "기타"));
+                                                        AlertDialog.Builder builder = new AlertDialog.Builder(ContentDetailCommentsActivity.this);
+                                                        builder.setTitle("신고 사유");
+                                                        builder.setItems(R.array.reportreason, new DialogInterface.OnClickListener() {
+                                                            @Override
+                                                            public void onClick(DialogInterface dialog, int which) {
+                                                                BackgroundReportThread backgroundReportThread = new BackgroundReportThread(contentReply.getId(), reports.get(which));
+                                                                backgroundReportThread.start();
+                                                                Toast.makeText(ContentDetailCommentsActivity.this, "신고가 접수되었습니다", Toast.LENGTH_SHORT).show();
+                                                            }
+                                                        });
+                                                        Dialog dialog = builder.create();
+                                                        dialog.show();
+                                                        customDialog.dismiss();
+
                                                     }
                                                 });
-                                                Dialog dialog = builder.create();
-                                                dialog.show();
-                                                customDialog.dismiss();
-
+                                                customDialog.show();
+                                                customDialog.setMessage("댓글을 신고하시겠습니까?");
+                                                customDialog.setPositiveButton("신고");
+                                                customDialog.setNegativeButton("취소");
                                             }
-                                        });
-                                        customDialog.show();
-                                        customDialog.setMessage("댓글을 신고하시겠습니까?");
-                                        customDialog.setPositiveButton("신고");
-                                        customDialog.setNegativeButton("취소");
-                                        return true;
-
-
+                                            return true;
+                                        case R.id.block:
+                                            customDialog = new CustomDialog(context, new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View v) {
+                                                    BackgroundBlockThread backgroundBlockThread = new BackgroundBlockThread(contentReply.getWriter());
+                                                    backgroundBlockThread.start();
+                                                    customDialog.dismiss();
+                                                }
+                                            });
+                                            customDialog.show();
+                                            customDialog.setMessage("상대를 차단하겠습니까?\n상대를 차단하시면 더 이상 상대방이 보낸 쪽지를 볼 수 없습니다.");
+                                            customDialog.setPositiveButton("차단");
+                                            customDialog.setNegativeButton("취소");
+                                            return true;
+                                    }
+                                    return false;
                                 }
-                                return false;
-                            }
-                        });
+                            });
+                        }
+
                     }
                 });
                 rv_content_detail_comment.setAdapter(contentReplyRecyclerViewAdapter);
@@ -591,16 +616,69 @@ public class ContentDetailCommentsActivity extends AppCompatActivity {
             reply_delete_done = false;
             report_done = false;
             reply_report_done = false;
+            block_done = false;
         }
     }
     @Override
     public void onBackPressed() {
         if (is_reply) {
+            contentReplyRecyclerViewAdapter.Click(-1);
             is_reply = false;
             setReplyVisible(false);
         } else {
-            setResult(comments.size());
+            int comment_counts = 0;
+            for (ContentReply contentReply : comments) {
+                comment_counts++;
+                comment_counts += contentReply.getReply().size();
+            }
+            setResult(comment_counts);
             finish();
         }
+    }
+
+    public void blockUser(String counter) {
+        Log.d("counter", "blockUser: " + counter);
+        String token = UserPersonalInfo.token;
+        try {
+            String requestURL = context.getResources().getString(R.string.server) + "/api/users/blockuser";
+            JSONObject params = new JSONObject();
+            params.put("userID", counter);
+            RequestQueue requestQueue = Volley.newRequestQueue(context);
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
+                    Request.Method.PUT, requestURL, params, response -> {
+                block_done = true;
+            }, error -> {
+                error.printStackTrace();
+            })
+            {
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    HashMap<String, String> headers = new HashMap<String, String>();
+                    headers.put("Authorization", "Bearer " + token);
+                    return headers;
+                }
+            };
+
+            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20 * 1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            requestQueue.add(jsonObjectRequest);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        View focusView = getCurrentFocus();
+        if (focusView != null) {
+            Rect rect = new Rect();
+            focusView.getGlobalVisibleRect(rect);
+            int x = (int) ev.getX(), y = (int) ev.getY();
+            if (!rect.contains(x, y)) {
+                InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+                if (imm != null)
+                    imm.hideSoftInputFromWindow(focusView.getWindowToken(), 0);
+                focusView.clearFocus();
+            }
+        }
+        return super.dispatchTouchEvent(ev);
     }
 }

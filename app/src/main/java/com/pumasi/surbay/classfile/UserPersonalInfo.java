@@ -9,14 +9,15 @@ public class UserPersonalInfo {
     public static String email;
     public static String userPassword;
     public static Integer points, level, gender, yearBirth;
-    public static ArrayList<String> participations, prizes;
-    public static ArrayList<String> general_participations;
-    public static ArrayList<String> my_generals;
-    public static ArrayList<String> my_posts;
-    public static ArrayList<Notification> notifications;
+    public static ArrayList<String> participations, prizes = new ArrayList<>();
+    public static ArrayList<String> general_participations = new ArrayList<>();
+    public static ArrayList<String> my_generals = new ArrayList<>();
+    public static ArrayList<String> my_posts = new ArrayList<>();
+    public static ArrayList<Notification> notifications = new ArrayList<>();
     public static Boolean notificationAllow;
     public static Integer prize_check;
-    public static ArrayList<MyCoupon> coupons;
+    public static ArrayList<MyCoupon> coupons = new ArrayList<>();
+    public static ArrayList<String> blocked_users = new ArrayList<>();
     public static void clearInfo(){
         token = null;
         userID = null;
@@ -36,5 +37,6 @@ public class UserPersonalInfo {
         my_generals = null;
         my_posts = null;
         coupons = null;
+        blocked_users = null;
     }
 }

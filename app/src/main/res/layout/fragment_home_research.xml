@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal"
-    android:layout_width="373.92dp"
-    android:layout_height="171dp"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="18dp"
     android:background="@color/renewal_background">
     <LinearLayout
         android:id="@+id/ll_home_research_item1"
         android:orientation="vertical"
-        android:layout_width="184.68dp"
+        android:layout_weight="1"
+        android:layout_width="0dp"
         android:layout_height="171dp"
         android:background="@drawable/home_item"
         android:layout_marginEnd="2.28dp">
@@ -31,7 +33,7 @@
                 android:layout_marginLeft="2dp"
                 android:gravity="center_vertical"
                 android:maxEms="20"
-                android:maxLines="2"
+                android:lines="2"
                 android:text="익명"
                 android:textColor="@color/text_black_70"
                 android:textSize="11.4dp" />
@@ -43,28 +45,30 @@
             android:background="@color/renewal_gray" />
         <TextView
             android:id="@+id/tv_title1"
-            android:layout_width="157.32dp"
-            android:layout_height="34.92dp"
-            android:layout_gravity="center_horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="10dp"
+            android:layout_gravity="left"
             android:layout_marginTop="8.4dp"
             android:text="온라인 강의 학생 만족도 설문조사"
             android:textSize="14.82dp"
             android:textStyle="bold"
             android:textColor="@color/text_black"
             android:lineHeight="16.1dp"
-            android:maxLines="2"
+            android:lines="2"
             android:maxEms="25" />
         <TextView
             android:id="@+id/tv_target1"
-            android:layout_width="157.32dp"
-            android:layout_height="31.5dp"
-            android:layout_gravity="center_horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="10dp"
+            android:layout_gravity="left"
             android:layout_marginTop="5.12dp"
             android:text="정장 구매한 경험이 있는 여성분들 설문 부탁드려요"
             android:textSize="13.11dp"
             android:textColor="@color/text_black_70"
             android:lineHeight="16.1dp"
-            android:maxLines="2"
+            android:lines="2"
             android:maxEms="30" />
         <RelativeLayout
             android:layout_width="match_parent"
@@ -95,7 +99,8 @@
     <LinearLayout
         android:id="@+id/ll_home_research_item2"
         android:orientation="vertical"
-        android:layout_width="184.68dp"
+        android:layout_weight="1"
+        android:layout_width="0dp"
         android:layout_height="171dp"
         android:background="@drawable/home_item"
         android:layout_marginEnd="2.28dp">
@@ -119,7 +124,7 @@
                 android:layout_marginLeft="2dp"
                 android:gravity="center_vertical"
                 android:maxEms="20"
-                android:maxLines="2"
+                android:lines="2"
                 android:text="익명"
                 android:textColor="@color/text_black_70"
                 android:textSize="11.4dp" />
@@ -131,28 +136,30 @@
             android:background="@color/renewal_gray" />
         <TextView
             android:id="@+id/tv_title2"
-            android:layout_width="157.32dp"
-            android:layout_height="34.92dp"
-            android:layout_gravity="center_horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="10dp"
+            android:layout_gravity="left"
             android:layout_marginTop="8.4dp"
             android:text="온라인 강의 학생 만족도 설문조사"
             android:textSize="14.82dp"
             android:textStyle="bold"
             android:textColor="@color/text_black"
             android:lineHeight="16.1dp"
-            android:maxLines="2"
+            android:lines="2"
             android:maxEms="25" />
         <TextView
             android:id="@+id/tv_target2"
-            android:layout_width="157.32dp"
-            android:layout_height="31.5dp"
-            android:layout_gravity="center_horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="10dp"
+            android:layout_gravity="left"
             android:layout_marginTop="5.12dp"
             android:text="정장 구매한 경험이 있는 여성분들 설문 부탁드려요"
             android:textSize="13.11dp"
             android:textColor="@color/text_black_70"
             android:lineHeight="16.1dp"
-            android:maxLines="2"
+            android:lines="2"
             android:maxEms="30" />
         <RelativeLayout
             android:layout_width="match_parent"

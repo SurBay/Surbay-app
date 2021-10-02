@@ -77,7 +77,6 @@ public class LoginActivity extends AppCompatActivity {
     RelativeLayout loading;
 
     loginHandler handler = new loginHandler();
-    private boolean getPostDone = false;
 
     TextView nonMemberLogin;
 
@@ -92,9 +91,7 @@ public class LoginActivity extends AppCompatActivity {
 
 
         try {
-            HomeRenewalFragment.getBanners();
             MainActivity.getSurveytips();
-            getPosts();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -124,7 +121,6 @@ public class LoginActivity extends AppCompatActivity {
         token = autologin.getString("token", null);
         Log.d("자동로그인", "" + loginId + loginPwd + name + token);
         fcm_token = null;
-//        FirebaseMessaging.getInstance().subscribeToTopic("surbay");
         FirebaseMessaging.getInstance().getToken()
                 .addOnCompleteListener(new OnCompleteListener<String>() {
                     @Override
@@ -148,15 +144,13 @@ public class LoginActivity extends AppCompatActivity {
                                 public void run() {
 
                                     makeLoginRequest(loginId, loginPwd);
-                                    while (!(loginDone && getPostDone)) {
+                                    while (!(loginDone)) {
                                         try {
-                                            Thread.sleep(100);
+                                            Thread.sleep(10);
                                         } catch (Exception e) {
                                             e.printStackTrace();
                                         }
                                     }
-
-                                    Log.d("repeat", "run: " + loginDone + HomeRenewalFragment.randomPosts + HomeRenewalFragment.randomVotes);
                                     Message message = handler.obtainMessage();
                                     handler.sendMessage(message);
                                 }
@@ -230,27 +224,13 @@ public class LoginActivity extends AppCompatActivity {
                         public void run() {
 
                             makeLoginRequest(username, password);
-                            while (!(loginDone && getPostDone)) {
+                            while (!(loginDone)) {
                                 try {
-                                    Thread.sleep(100);
+                                    Thread.sleep(10);
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
                             }
-//                            if (loginDone) {
-//                                HomeRenewalFragment.getRandomPosts();
-//                                HomeRenewalFragment.getRandomVotes();
-//                                while (!(HomeRenewalFragment.doneResearch && HomeRenewalFragment.doneVote)) {
-//                                    try {
-//                                        Thread.sleep(100);
-//                                    } catch (Exception e) {
-//                                        e.printStackTrace();
-//                                    }
-//                                }
-//
-//                            }
-
-                            Log.d("repeat", "run: " + loginDone + HomeRenewalFragment.randomPosts + HomeRenewalFragment.randomVotes);
                             Message message = handler.obtainMessage();
                             handler.sendMessage(message);
                         }
@@ -261,9 +241,7 @@ public class LoginActivity extends AppCompatActivity {
         bt_sign_up.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                Intent intent = new Intent(LoginActivity.this, SignupActivity.class);
                 Intent intent = new Intent(LoginActivity.this, SignupActivityEmail.class);
-
                 startActivity(intent);
             }
         });
@@ -358,8 +336,6 @@ public class LoginActivity extends AppCompatActivity {
         @Override
         public void handleMessage(@NonNull Message msg) {
             super.handleMessage(msg);
-            Log.d("1234", "handleMessage: " + HomeRenewalFragment.randomVotes + HomeRenewalFragment.randomVotes);
-
             if (UserPersonalInfo.userID != null) {
                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                 startActivity(intent);
@@ -413,9 +389,7 @@ public class LoginActivity extends AppCompatActivity {
                     customDialog.setNegativeButton("다시시도");
                     error.printStackTrace();
                 });
-        jsonObjectRequest.setRetryPolicy(new
-
-                DefaultRetryPolicy(20*1000,DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000,DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         requestQueue.add(jsonObjectRequest);
     }
     private void makeLoginRequest(String username, String password){
@@ -435,7 +409,6 @@ public class LoginActivity extends AppCompatActivity {
                         try {
                             JSONObject resultObj = new JSONObject(response.toString());
                             Boolean success = resultObj.getBoolean("type");
-                            AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
                             if(success) {
                                 try {
                                     String token = resultObj.getString("token");
@@ -483,7 +456,18 @@ public class LoginActivity extends AppCompatActivity {
                                     for (int j = 0; j<ja2.length(); j++){
                                         prizearray.add(ja2.getString(j));
                                     }
+
                                     UserPersonalInfo.prizes = prizearray;
+                                    try {
+                                        ArrayList<String> blockedUsers = new ArrayList<>();
+                                        JSONArray ja7 = (JSONArray)user.get("blocked_users");
+                                        for (int j = 0; j < ja7.length(); j++) {
+                                            blockedUsers.add(ja7.getString(j));
+                                        }
+                                        UserPersonalInfo.blocked_users = blockedUsers;
+                                    } catch (Exception e) {
+                                        UserPersonalInfo.blocked_users = new ArrayList<>();
+                                    }
 
                                     ArrayList<Notification> notifications = new ArrayList<>();
                                     try{
@@ -525,18 +509,11 @@ public class LoginActivity extends AppCompatActivity {
                                             boolean coupon_used = coupon.getBoolean("used");
                                             SimpleDateFormat fm = new SimpleDateFormat(getResources().getString(R.string.date_format));
                                             Date coupon_used_date = null;
-                                            Date coupon_date = null;
+                                            String coupon_date = coupon.getString("date");
                                             try {
                                                 coupon_used_date = fm.parse(coupon.getString("used_date"));
                                             } catch (ParseException e) {
-                                                e.printStackTrace();
-                                            }
-                                            try {
-                                                coupon_date = fm.parse(coupon.getString("date"));
-
-                                            } catch (ParseException e) {
-                                                coupon_date = null;
-
+                                                coupon_used_date = null;
                                             }
                                             ArrayList<String> coupon_image_urls = new ArrayList<>();
                                             JSONArray ka = coupon.getJSONArray("image_urls");
@@ -637,176 +614,4 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    private void getPosts(){
-        try{
-            Log.d("starting request", "get posts");
-            String requestURL = "http://ec2-3-35-152-40.ap-northeast-2.compute.amazonaws.com/api/posts";
-            RequestQueue requestQueue = Volley.newRequestQueue(LoginActivity.this);
-            JsonArrayRequest jsonArrayRequest = new JsonArrayRequest
-                    (Request.Method.GET, requestURL, null, response -> {
-                        try {
-                            MainActivity.postArrayList = new ArrayList<Post>();
-                            MainActivity.notreportedpostArrayList = new ArrayList<Post>();
-                            MainActivity.reportpostArrayList = new ArrayList<Post>();
-                            JSONArray resultArr = new JSONArray(response.toString());
-                            Log.d("getpost", ""+response+"\n");
-                            for (int i = 0; i < resultArr.length(); i++) {
-                                JSONObject post = resultArr.getJSONObject(i);
-                                String id = post.getString("_id");
-                                String title = post.getString("title");
-                                String author = post.getString("author");
-                                Integer author_lvl = post.getInt("author_lvl");
-                                String content = post.getString("content");
-                                Integer participants = post.getInt("participants");
-                                Integer goal_participants = post.getInt("goal_participants");
-                                String url = post.getString("url");
-                                SimpleDateFormat fm = new SimpleDateFormat(getString(R.string.date_format));
-                                Date date = null;
-                                try {
-                                    date = fm.parse(post.getString("date"));
-                                    Log.d("parsing date", "success");
-                                } catch (ParseException e) {
-                                    e.printStackTrace();
-                                }
-                                Date deadline = null;
-                                try {
-                                    deadline = fm.parse(post.getString("deadline"));
-                                } catch (ParseException e) {
-                                    e.printStackTrace();
-                                }
-                                Boolean with_prize = post.getBoolean("with_prize");
-                                String prize = "none";
-                                Integer count= 0;
-                                Integer est_time = post.getInt("est_time");
-                                String target = post.getString("target");
-                                Boolean done = post.getBoolean("done");
-                                Boolean hide = post.getBoolean("hide");
-                                Integer extended = post.getInt("extended");
-                                String author_userid = post.getString("author_userid");
-                                if(with_prize) {
-                                    prize = post.getString("prize");
-                                    count = post.getInt("num_prize");
-                                }
-                                JSONArray ia = (JSONArray)post.get("participants_userids");
-
-                                ArrayList<String> participants_userids = new ArrayList<String>();
-                                for (int j = 0; j<ia.length(); j++){
-                                    participants_userids.add(ia.getString(j));
-                                }
-
-                                JSONArray ka = (JSONArray)post.get("reports");
-
-                                ArrayList<String> reports = new ArrayList<String>();
-                                for (int j = 0; j<ka.length(); j++){
-                                    reports.add(ka.getString(j));
-                                }
-
-                                ArrayList<Reply> comments = new ArrayList<>();
-                                try{
-                                    JSONArray ja = (JSONArray)post.get("comments");
-                                    if (ja.length() != 0){
-                                        for (int j = 0; j<ja.length(); j++){
-                                            JSONObject comment = ja.getJSONObject(j);
-                                            String reid = comment.getString("_id");
-                                            String writer = comment.getString("writer");
-                                            String contetn = comment.getString("content");
-                                            Date datereply = null;
-                                            try {
-                                                datereply = fm.parse(comment.getString("date"));
-                                            } catch (ParseException e) {
-                                                e.printStackTrace();
-                                            }
-                                            Boolean replyhide = comment.getBoolean("hide");
-                                            JSONArray ua = (JSONArray)comment.get("reports");
-
-                                            ArrayList<String> replyreports = new ArrayList<String>();
-                                            for (int u = 0; u<ua.length(); u++){
-                                                replyreports.add(ua.getString(u));
-                                            }
-                                            String writer_name = null;
-                                            try {
-                                                writer_name = comment.getString("writer_name");
-                                            }catch (Exception e){
-                                                writer_name = null;
-                                            }
-                                            ArrayList<ReReply> reReplies = new ArrayList<>();
-                                            try {
-                                                JSONArray jk = (JSONArray) comment.get("reply");
-                                                if (jk.length() != 0) {
-                                                    for (int k = 0; k < jk.length(); k++) {
-                                                        JSONObject reReply = jk.getJSONObject(k);
-                                                        String id_ = reReply.getString("_id");
-                                                        ArrayList<String> reports_ = new ArrayList<>();
-                                                        JSONArray jb = (JSONArray) reReply.get("reports");
-                                                        for (int b = 0; b < jb.length(); b++) {
-                                                            reports_.add(jb.getString(b));
-                                                        }
-                                                        ArrayList<String> report_reasons_ = new ArrayList<>();
-                                                        JSONArray jc = (JSONArray) reReply.get("report_reasons");
-                                                        for (int c = 0; c < jc.length(); c++) {
-                                                            report_reasons_.add(jc.getString(c));
-                                                        }
-                                                        boolean hide_ = reReply.getBoolean("hide");
-                                                        String writer_ = reReply.getString("writer");
-                                                        String content_ = reReply.getString("content");
-                                                        Date date_ = fm.parse(reReply.getString("date"));
-                                                        String replyID_ = reReply.getString("replyID");
-
-                                                        ReReply newReReply = new ReReply(id_, reports_, report_reasons_, hide_, writer_, content_, date_, replyID_);
-                                                        reReplies.add(newReReply);
-                                                    }
-                                                }
-                                            } catch (Exception e) {
-                                                e.printStackTrace();
-                                            }
-                                            Reply re = new Reply(reid, writer, contetn, datereply,replyreports,replyhide, writer_name, reReplies);
-                                            re.setWriter_name(writer_name);
-                                            if (!replyhide && !replyreports.contains(UserPersonalInfo.userID)){
-                                                comments.add(re);
-                                            }
-                                        }
-                                    }
-
-                                } catch (Exception e){
-                                    e.printStackTrace();
-                                }
-                                Integer pinned = 0;
-                                Boolean annonymous = false;
-                                String author_info = "";
-                                try {
-                                    pinned = post.getInt("pinned");
-                                    annonymous = post.getBoolean("annonymous");
-                                    author_info = post.getString("author_info");
-                                }catch (Exception e){
-
-                                }
-                                Post newPost = new Post(id, title, author, author_lvl, content, participants, goal_participants, url, date, deadline, with_prize, prize, est_time, target, count,comments,done, extended, participants_userids, reports, hide, author_userid, pinned, annonymous, author_info);
-
-                                Date now = new Date();
-                                if(reports.contains(UserPersonalInfo.userID) || hide) {
-                                    MainActivity.reportpostArrayList.add(newPost);
-                                } else if (now.after(newPost.getDeadline()) || newPost.isDone()){
-                                    MainActivity.notreportedpostArrayList.add(newPost);
-                                }
-                                else {
-                                    MainActivity.postArrayList.add(newPost);
-                                    MainActivity.notreportedpostArrayList.add(newPost);
-                                }
-                            }
-                            getPostDone = true;
-                        } catch (JSONException e) {
-                            Log.d("exception", "JSON error");
-                            e.printStackTrace();
-                        }
-                    }, error -> {
-                        Log.d("exception", "volley error");
-                        error.printStackTrace();
-                    });
-            jsonArrayRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-            requestQueue.add(jsonArrayRequest);
-        } catch (Exception e){
-            Log.d("exception", "failed getting response");
-            e.printStackTrace();
-        }
-    }
 }

@@ -26,6 +26,7 @@ import com.pumasi.surbay.adapter.SimpleImagePagerAdapter;
 import com.pumasi.surbay.classfile.Content;
 import com.pumasi.surbay.classfile.ContentReReply;
 import com.pumasi.surbay.classfile.ContentReply;
+import com.pumasi.surbay.classfile.CustomDialog;
 import com.pumasi.surbay.classfile.UserPersonalInfo;
 
 import org.json.JSONArray;
@@ -44,6 +45,7 @@ public class ContentDetailActivity extends AppCompatActivity {
     private int current_page = 1;
     private SimpleImagePagerAdapter simpleImagePagerAdapter;
     private ContentDetailRecyclerViewAdapter contentDetailRecyclerViewAdapter;
+    private CustomDialog customDialog;
 
     private ArrayList<String> imageRecycler = new ArrayList<>();
 
@@ -54,13 +56,13 @@ public class ContentDetailActivity extends AppCompatActivity {
     private RecyclerView rv_content_detail;
     private TextView tv_content_detail_content;
 
-    private int like_state = 0;
+    private boolean like_state = false;
     private int like_count = 0;
     private ImageButton ib_content_detail_like;
     private TextView tv_content_detail_like;
     private ImageButton ib_content_detail_comment;
     private TextView tv_content_detail_comment;
-
+    private int comment_counts = 0;
     @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,20 +114,25 @@ public class ContentDetailActivity extends AppCompatActivity {
         SimpleDateFormat fm = new SimpleDateFormat("MM.dd");
         tv_content_detail_date = findViewById(R.id.tv_content_detail_date);
         tv_content_detail_title = findViewById(R.id.tv_content_detail_title);
-        tv_content_detail_content = findViewById(R.id.tv_content_detail_title);
+        tv_content_detail_content = findViewById(R.id.tv_content_detail_content);
 
         tv_content_detail_date.setText(fm.format(content.getDate()));
         tv_content_detail_title.setText(content.getTitle());
         tv_content_detail_content.setText(content.getContent());
-
-        Log.d("content", "onCreate: " + content.getDate() + content.getContent() + content.getAuthor());
 
         ib_content_detail_like = findViewById(R.id.ib_content_detail_like);
         tv_content_detail_like = findViewById(R.id.tv_content_detail_like);
         ib_content_detail_like.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                setLike(content.getId());
+                if (UserPersonalInfo.userID.equals("nonMember")) {
+                    customDialog = new CustomDialog(ContentDetailActivity.this, null);
+                    customDialog.show();
+                    customDialog.setMessage("비회원은 좋아요를 누를 수 없습니다.");
+                    customDialog.setNegativeButton("확인");
+                } else {
+                    setLike(content.getId());
+                }
             }
         });
         tv_content_detail_like.setText(String.valueOf(content.getLikes()));
@@ -133,8 +140,7 @@ public class ContentDetailActivity extends AppCompatActivity {
             Log.d("notinLikedUser", "onCreate: " + user);
             if (user.equals(UserPersonalInfo.email)) {
                 Log.d("inLikedUser", "onCreate: " + "there is" + user);
-                like_state = 1;
-                like_count -= 1;
+                like_state = true;
                 setLikeSelected(like_state);
                 break;
             }
@@ -150,13 +156,15 @@ public class ContentDetailActivity extends AppCompatActivity {
                 startActivityForResult(intent, 0);
             }
         });
-        tv_content_detail_comment.setText(String.valueOf(content.getComments().size()));
+        for (ContentReply contentReply : content.getComments()) {
+            comment_counts++;
+            comment_counts += contentReply.getReply().size();
+        }
+        tv_content_detail_comment.setText(String.valueOf(comment_counts));
     }
 
     public void setLike(String content_object_id) {
         try {
-            like_state = like_state == 0 ? 1 : 0;
-            setLikeSelected(like_state);
             String requestURL = getResources().getString(R.string.server) + "/api/content/likecontent/";
             JSONObject params = new JSONObject();
             params.put("userID", UserPersonalInfo.email);
@@ -168,30 +176,34 @@ public class ContentDetailActivity extends AppCompatActivity {
                     String message = new JSONObject(response.toString()).getString("message");
                     if (message.equals("likes")) {
                         Toast.makeText(context, "좋아요를 누르셨습니다.", Toast.LENGTH_SHORT).show();
+                        like_count += 1;
                     } else if (message.equals("dislikes")) {
                         Toast.makeText(context, "좋아요를 취소하셨습니다.", Toast.LENGTH_SHORT).show();
+                        like_count -= 1;
                     }
+                    like_state = !like_state;
+                    setLikeSelected(like_state);
                 } catch (JSONException e) {
                     Toast.makeText(context, "서버 통신 실패", Toast.LENGTH_SHORT).show();
-                    like_state = like_state == 0 ? 1 : 0;
+                    like_state = !like_state;
                     setLikeSelected(like_state);
                 }
-            }, error -> {
-                        error.printStackTrace();
+            }, error -> { error.printStackTrace();
+                like_state = !like_state;
+                setLikeSelected(like_state);
             });
             jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20 * 1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
             requestQueue.add(jsonObjectRequest);
         } catch (Exception e) {
             Toast.makeText(context, "서버 통신 실패", Toast.LENGTH_SHORT).show();
-            e.printStackTrace();
+            like_state = !like_state;
+            setLikeSelected(like_state);
         }
     }
-    public void setLikeSelected(int type) {
-        if (type == 0) {
-            like_count -= 1;
+    public void setLikeSelected(boolean type) {
+        if (!type) {
             ib_content_detail_like.setBackgroundResource(R.drawable.heart_empty);
-        } else if (type == 1) {
-            like_count += 1;
+        } else if (type) {
             ib_content_detail_like.setBackgroundResource(R.drawable.heart_filled);
         }
         tv_content_detail_like.setText(String.valueOf(like_count));

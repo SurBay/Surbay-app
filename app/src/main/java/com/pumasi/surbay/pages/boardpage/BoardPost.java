@@ -81,7 +81,7 @@ public class BoardPost extends Fragment {
     private SwipeRefreshLayout refresh_boards;
     private String check = "";
     private String beforePost = "";
-    private static int type = 1;
+    private int type = 0;
     private static boolean isParticipated = false;
 
     @Nullable
@@ -103,23 +103,37 @@ public class BoardPost extends Fragment {
         rv_board_post.setAdapter(postRecyclerViewAdapter);
         rv_board_post.setLayoutManager(mLayoutManager);
 
-        initScrollListener();
-        getInfinityPosts(beforePost, type, isParticipated);
-
         postRecyclerViewAdapter.setOnItemClickListener(new PostRecyclerViewAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View v, int position) {
+
                 Post item = (Post) postRecyclerViewAdapter.getItem(position);
                 getPost(item.getID(), position);
 
             }
         });
 
+        initScrollListener();
+        getInfinityPosts(beforePost, type, isParticipated);
+
+
+
         return view;
     }
     private void setComponents() {
         rv_board_post = view.findViewById(R.id.rv_board_post);
         refresh_boards = view.findViewById(R.id.refresh_boards);
+        refresh_boards.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                setClickable(false);
+                check = "";
+                beforePost = "";
+                boardPostShow.clear();
+                postRecyclerViewAdapter.notifyDataSetChanged();
+                getInfinityPosts(beforePost, type, isParticipated);
+            }
+        });
         btn_post_sort_new = view.findViewById(R.id.btn_post_sort_new);
         btn_post_sort_day = view.findViewById(R.id.btn_post_sort_day);
         btn_post_sort_goal = view.findViewById(R.id.btn_post_sort_goal);
@@ -177,7 +191,7 @@ public class BoardPost extends Fragment {
                         if(UserPersonalInfo.userID.equals("nonMember")){
                             CustomDialog customDialog = new CustomDialog(getActivity(), null);
                             customDialog.show();
-                            customDialog.setMessage("비회원은 설문을 작성하실 수 없습니다");
+                            customDialog.setMessage("비회원은 리서치를 작성하실 수 없습니다");
                             customDialog.setNegativeButton("확인");
                             return;
                         }
@@ -231,8 +245,9 @@ public class BoardPost extends Fragment {
     public void getInfinityPosts(String object, int type, boolean isParticipated) {
         check = object;
         isLoading = true;
+        Log.d("hey1", "getInfinityPosts: "+ object + ", " + type + ", " + isParticipated);
         try {
-            String requestURL = "http://ec2-3-35-152-40.ap-northeast-2.compute.amazonaws.com/api/posts/infinite/?userID=" + UserPersonalInfo.userID + "&type=" + String.valueOf(type) + "&post_object_id=" + object + "&participate=" + isParticipated;
+            String requestURL = "http://ec2-3-35-152-40.ap-northeast-2.compute.amazonaws.com/api/posts/infinite/?userID=" + UserPersonalInfo.userID + "&type=" + type + "&post_object_id=" + object + "&participate=" + isParticipated;
             RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.mContext);
             JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(
                     Request.Method.GET, requestURL, null, response -> {
@@ -339,11 +354,17 @@ public class BoardPost extends Fragment {
                                                 }
                                                 boolean hide_ = reReply.getBoolean("hide");
                                                 String writer_ = reReply.getString("writer");
+                                                String writer_name_ = "";
+                                                try {
+                                                    writer_name_ = reReply.getString("writer_name");
+                                                } catch (Exception e) {
+                                                    writer_name_ = "익명";
+                                                }
                                                 String content_ = reReply.getString("content");
                                                 Date date_ = fm.parse(reReply.getString("date"));
                                                 String replyID_ = reReply.getString("replyID");
 
-                                                ReReply newReReply = new ReReply(id_, reports_, report_reasons_, hide_, writer_, content_, date_, replyID_);
+                                                ReReply newReReply = new ReReply(id_, reports_, report_reasons_, hide_, writer_, writer_name_, content_, date_, replyID_);
                                                 reReplies.add(newReReply);
                                             }
                                         }
@@ -374,11 +395,10 @@ public class BoardPost extends Fragment {
                     } else if (boardPostShow.get(boardPostShow.size() - 1) != null) {
                         beforePost = boardPostShow.get(boardPostShow.size() - 1).getID();
                     }
-
                     postRecyclerViewAdapter.notifyDataSetChanged();
                     setLoading(false);
                     setClickable(true);
-
+                    refresh_boards.setRefreshing(false);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -502,11 +522,17 @@ public class BoardPost extends Fragment {
                                             }
                                             boolean hide_ = reReply.getBoolean("hide");
                                             String writer_ = reReply.getString("writer");
+                                            String writer_name_ = "";
+                                            try {
+                                                writer_name_ = reReply.getString("writer_name");
+                                            } catch (Exception e) {
+                                                writer_name_ = "익명";
+                                            }
                                             String content_ = reReply.getString("content");
                                             Date date_ = fm.parse(reReply.getString("date"));
                                             String replyID_ = reReply.getString("replyID");
 
-                                            ReReply newReReply = new ReReply(id_, reports_, report_reasons_, hide_, writer_, content_, date_, replyID_);
+                                            ReReply newReReply = new ReReply(id_, reports_, report_reasons_, hide_, writer_, writer_name_, content_, date_, replyID_);
                                             reReplies.add(newReReply);
                                         }
                                     }

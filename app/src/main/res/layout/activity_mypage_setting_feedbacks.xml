@@ -1,14 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" 
+    android:orientation="vertical"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/gray">
+    android:background="@color/renewal_background">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="50.3dp"
+        android:background="@color/white">
+        <ImageButton
+            android:id="@+id/ib_back"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:padding="0dp"
+            android:scaleType="centerCrop"
+            android:layout_marginLeft="17dp"
+            android:layout_centerVertical="true"
+            android:background="@color/white"
+            android:src="@drawable/leftarrow2" />
+
+    </RelativeLayout>
     <fragment
-        android:layout_marginTop="30dp"
         android:name="com.pumasi.surbay.pages.BoardFeedback"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/feedbacks_borad"
-        ></fragment>
+        android:id="@+id/feedbacks_borad" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>

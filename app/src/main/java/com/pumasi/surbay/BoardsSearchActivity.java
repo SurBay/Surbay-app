@@ -2,10 +2,12 @@ package com.pumasi.surbay;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -13,12 +15,14 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -33,23 +37,22 @@ import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.JsonRequest;
 import com.android.volley.toolbox.Volley;
-import com.pumasi.surbay.adapter.GeneralListViewAdapter;
-import com.pumasi.surbay.adapter.PostListViewAdapter;
+import com.pumasi.surbay.adapter.ContentRecyclerViewAdapter;
 import com.pumasi.surbay.adapter.PostRecyclerViewAdapter;
-import com.pumasi.surbay.adapter.SurveyTipListViewAdapter;
-import com.pumasi.surbay.adapter.TipRecyclerViewAdapter;
 import com.pumasi.surbay.adapter.VoteRecyclerViewAdapter;
+import com.pumasi.surbay.classfile.Content;
+import com.pumasi.surbay.classfile.ContentReReply;
+import com.pumasi.surbay.classfile.ContentReply;
+import com.pumasi.surbay.classfile.CustomDialog;
 import com.pumasi.surbay.classfile.General;
 import com.pumasi.surbay.classfile.Poll;
 import com.pumasi.surbay.classfile.Post;
 import com.pumasi.surbay.classfile.ReReply;
 import com.pumasi.surbay.classfile.Reply;
-import com.pumasi.surbay.classfile.Surveytip;
 import com.pumasi.surbay.classfile.UserPersonalInfo;
 import com.pumasi.surbay.pages.MainActivity;
 import com.pumasi.surbay.pages.boardpage.GeneralDetailActivity;
 import com.pumasi.surbay.pages.boardpage.PostDetailActivity;
-import com.pumasi.surbay.pages.boardpage.TipdetailActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -61,23 +64,28 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.concurrent.ExecutionException;
 
 public class BoardsSearchActivity extends AppCompatActivity {
+
+    private Context context;
+
     static final int LIKED = 5;
     static final int DISLIKED = 4;
 
     public final int RESEARCH_SELECT = 0;
     public final int VOTE_SELECT = 1;
-    public final int TIP_SELECT = 2;
+    public final int CONTENT_SELECT = 2;
 
 
     static final int DO_SURVEY = 2;
     static final int DONE = 1;
     static final int LIKE_SURVEY = 3;
 
-    final String[] spinner_context = {"리서치", "투표", "설문 Tip"};
+    private CustomDialog customDialog;
+    final String[] spinner_context = {"리서치", "투표", "콘텐츠"};
     RecyclerView rv_search;
-    EditText search_editview;
+    EditText et_search;
     ImageButton search_delete;
     Spinner search_spinner;
     ImageButton back;
@@ -86,11 +94,11 @@ public class BoardsSearchActivity extends AppCompatActivity {
     private ImageButton ib_search;
     static ArrayList<Post> searchPosts = new ArrayList<Post>();
     static ArrayList<General> searchVotes = new ArrayList<General>();
-    static ArrayList<Surveytip> searchTips = new ArrayList<Surveytip>();
+    static ArrayList<Content> searchContents = new ArrayList<Content>();
 
     private PostRecyclerViewAdapter search_ResearchAdapter;
     private VoteRecyclerViewAdapter search_VoteAdapter;
-    private TipRecyclerViewAdapter search_TipAdapter;
+    private ContentRecyclerViewAdapter search_ContentAdapter;
 
     int selecting_spinner;
     int selected_spinner;
@@ -101,12 +109,15 @@ public class BoardsSearchActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_boards_search);
-
         this.getSupportActionBar().hide();
+        context = getApplicationContext();
+        Date date = new Date(System.currentTimeMillis());
+        String time = new SimpleDateFormat(context.getResources().getString(R.string.date_format)).format(date);
+        Log.d("now_time", time);
 
         loadingPanel = findViewById(R.id.loadingPanel);
 
-        search_editview = (EditText)findViewById(R.id.search_edittext);
+        et_search = (EditText)findViewById(R.id.search_edittext);
         search_delete = (ImageButton)findViewById(R.id.boards_delete_button);
         search_spinner = (Spinner)findViewById(R.id.search_spinner);
         rv_search = (RecyclerView) findViewById(R.id.rv_search);
@@ -133,44 +144,57 @@ public class BoardsSearchActivity extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 selecting_spinner = position;
+                LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) rv_search.getLayoutParams();
+                et_search.getText().clear();
+                clear();
+
                 switch (position) {
                     case RESEARCH_SELECT:
                         Log.d("search", "onItemSelected: Research Selected");
+                        layoutParams.setMargins(0,0,0,0);
                         search_ResearchAdapter = new PostRecyclerViewAdapter(searchPosts, getApplicationContext());
                         rv_search.setAdapter(search_ResearchAdapter);
                         rv_search.setLayoutManager(new LinearLayoutManager(getApplicationContext(), RecyclerView.VERTICAL, false));
                         search_ResearchAdapter.setOnItemClickListener(new PostRecyclerViewAdapter.OnItemClickListener() {
                             @Override
                             public void onItemClick(View v, int position) {
-
+                                Post post = (Post) search_ResearchAdapter.getItem(position);
+                                getPost(post.getID(), position);
                             }
                         });
                         break;
                     case VOTE_SELECT:
                         Log.d("search", "onItemSelected: Votes Selected");
+                        layoutParams.setMargins(0,0,0,0);
                         search_VoteAdapter = new VoteRecyclerViewAdapter(searchVotes, getApplicationContext());
                         rv_search.setAdapter(search_VoteAdapter);
                         rv_search.setLayoutManager(new LinearLayoutManager(getApplicationContext(), RecyclerView.VERTICAL, false));
                         search_VoteAdapter.setOnItemClickListener(new VoteRecyclerViewAdapter.OnItemClickListener() {
                             @Override
                             public void onItemClick(View v, int position) {
+                                if (UserPersonalInfo.userID.equals("nonMember")) {
+                                    customDialog = new CustomDialog(BoardsSearchActivity.this, null);
+                                    customDialog.show();
+                                    customDialog.setMessage("비회원은 투표게시판을 이용할 수 없습니다.");
+                                    customDialog.setNegativeButton("확인");
+                                } else {
+                                    General general = (General) search_VoteAdapter.getItem(position);
+                                    getGeneral(general.getID(), position);
+                                }
 
                             }
                         });
                         break;
-                    case TIP_SELECT:
-                        Log.d("search", "onItemSelected: Tips Selected");
-                        search_TipAdapter = new TipRecyclerViewAdapter(searchTips, getApplicationContext());
-                        rv_search.setAdapter(search_TipAdapter);
-                        rv_search.setLayoutManager(new LinearLayoutManager(getApplicationContext(), RecyclerView.VERTICAL, false));
-                        search_TipAdapter.setOnItemClickListener(new TipRecyclerViewAdapter.OnItemClickListener() {
+                    case CONTENT_SELECT:
+                        layoutParams.setMargins((int) (MainActivity.screen_width_px / 45.6666666667),0, (int) (MainActivity.screen_width_px / 45.6666666667),0);
+                        search_ContentAdapter = new ContentRecyclerViewAdapter(searchContents, getApplicationContext());
+                        rv_search.setAdapter(search_ContentAdapter);
+                        rv_search.setLayoutManager(new GridLayoutManager(getApplicationContext(), 2, RecyclerView.VERTICAL, false));
+                        search_ContentAdapter.setOnItemClickListener(new ContentRecyclerViewAdapter.OnItemClickListener() {
                             @Override
                             public void onItemClick(View v, int position) {
-                                Surveytip surveytip = (Surveytip) search_TipAdapter.getItem(position);
-                                Intent intent = new Intent(getApplicationContext(), TipdetailActivity.class);
-                                intent.putExtra("post", surveytip);
-                                intent.putExtra("position", position);
-                                startActivityForResult(intent, LIKE_SURVEY);
+                                Content content = (Content) search_ContentAdapter.getItem(position);
+                                getContent(content.getId());
                             }
                         });
                         break;
@@ -191,68 +215,69 @@ public class BoardsSearchActivity extends AppCompatActivity {
         search_delete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                search_editview.getText().clear();
+                et_search.getText().clear();
                 search_delete.setVisibility(View.INVISIBLE);
             }
         });
 
-        search_editview.addTextChangedListener(new TextWatcher() {
+        et_search.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-            }
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
 
             @Override
             public void afterTextChanged(Editable s) {
                 Log.d("search", "afterTextChanged: textChanged");
                 selected_spinner = selecting_spinner;
-                search_keyword = search_editview.getText().toString();
-//                searchPosts.clear();
-//                search_ResearchAdapter.notifyDataSetChanged();
-//                if (search_keyword.length() > 0 ){
-//
-//                    search_delete.setVisibility(View.VISIBLE);
-//                    if (getDone) {
-//                        getDone = false;
-//                        do_search(search_keyword);
-//                    }
-//                };
+                search_keyword = et_search.getText().toString();
             }
         });
         ib_search.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (search_keyword.length() != 0) {
                     do_search(search_keyword);
-//                InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
-//                imm.hideSoftInputFromWindow(search_editview.getWindowToken(), 0);
+                }
             }
         });
 
-//        rv_search.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//            @Override
-//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//                //클릭시 글 확대 기능 추가 예정
-//                if (selected_spinner == SURBAY_SELECT){
-//                    Post item = (Post)search_SurveyAdapter.getItem(position);
-//                    Log.d("search", item.toString());
-//                    Intent intent = new Intent(BoardsSearchActivity.this, PostDetailActivity.class);
-//                    intent.putExtra("post", item);
-//                    intent.putExtra("position", position);
-//                    Log.d("search", item.toString());
-//                    startActivityForResult(intent, DO_SURVEY);
-//                }
-//            }
-//        });
+        et_search.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+
+                if (keyCode == KeyEvent.KEYCODE_ENTER) {
+                    do_search(search_keyword);
+                    return true;
+                }
+                return false;
+            }
+        });
     }
-//    @Override
-//    public boolean onTouchEvent(MotionEvent event) {
-//        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-//        if(getCurrentFocus()!=null)imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
-//        return true;
-//    }
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        if(getCurrentFocus()!=null)imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+        return true;
+    }
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        View focusView = getCurrentFocus();
+        if (focusView != null) {
+            Rect rect = new Rect();
+            focusView.getGlobalVisibleRect(rect);
+            int x = (int) ev.getX(), y = (int) ev.getY();
+            if (!rect.contains(x, y)) {
+                InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+                if (imm != null)
+                    imm.hideSoftInputFromWindow(focusView.getWindowToken(), 0);
+                focusView.clearFocus();
+            }
+        }
+        return super.dispatchTouchEvent(ev);
+    }
+
 
     private void do_search(String search_keyword) {
         setClickable(false);
@@ -268,53 +293,11 @@ public class BoardsSearchActivity extends AppCompatActivity {
                 search_VoteAdapter.notifyDataSetChanged();
                 getSearchVote(search_keyword);
                 break;
-            case TIP_SELECT:
-                searchTips.clear();
-                search_TipAdapter.notifyDataSetChanged();
-                for (Surveytip tip : MainActivity.surveytipArrayList){
-                    if ((tip.getContent().contains(search_keyword)) || (tip.getTitle().contains(search_keyword))){
-                        searchTips.add(tip);
-                    }
-                    search_TipAdapter.notifyDataSetChanged();
-                    setClickable(true);
-                    setLoading(false);
-                }
-//
-//                search_listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//                    @Override
-//                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//                        General item =  (General) search_GeneralAdapter.getItem(position);
-//                        Log.d("search", item.toString());
-//                        Intent intent = new Intent(BoardsSearchActivity.this, GeneralDetailActivity.class);
-//                        intent.putExtra("general", item);
-//                        intent.putExtra("position", position);
-//                        Log.d("search", item.toString());
-//                        startActivity(intent);
-//                    }
-//                });
-//                break;
-//            case TIP_SELECT:
-//                search_list_tip.clear();
-//                search_TipAdapter = new SurveyTipListViewAdapter(search_list_tip);
-//                search_listview.setAdapter(search_TipAdapter);
-//
-//
-//                search_listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//                    @Override
-//                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//                        if (selected_spinner == TIP_SELECT){
-//                            Surveytip item = (Surveytip)search_TipAdapter.getItem(position);
-//                            Log.d("search", item.toString());
-//                            Intent intent = new Intent(BoardsSearchActivity.this, TipdetailActivity.class);
-//                            intent.putExtra("post", item);
-//                            intent.putExtra("position", position);
-//                            Log.d("search", item.toString());
-//                            startActivityForResult(intent, LIKE_SURVEY);
-//                        }
-//                    }
-//                });
-//                break;
-
+            case CONTENT_SELECT:
+                searchContents.clear();
+                search_ContentAdapter.notifyDataSetChanged();
+                getSearchContent(search_keyword);
+                break;
         }
 
     }
@@ -322,40 +305,6 @@ public class BoardsSearchActivity extends AppCompatActivity {
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-//        switch (requestCode) {
-//            case DO_SURVEY:
-//                Log.d("result code is", ""+resultCode);
-//                switch (resultCode){
-//                    case(DONE):
-//                        int position = data.getIntExtra("position", -1);
-//                        int newParticipants = data.getIntExtra("participants", -1);
-//                        search_SurveyAdapter.updateParticipants(position, newParticipants);
-//                        Post item = (Post) search_SurveyAdapter.getItem(position);
-//
-//                        search_listview.setAdapter(search_SurveyAdapter);
-//                        Log.d("new participant", "new is: " + item.getParticipants());
-//                        return;
-//                    default:
-//                        return;
-//                }
-//            case LIKE_SURVEY:
-//                int pos = data.getIntExtra("position", -1);
-//                Surveytip surveytip = data.getParcelableExtra("surveyTip");
-//                search_list_tip.set(pos, surveytip);
-//                MainActivity.surveytipArrayList.set(pos, surveytip);
-//                try {
-//                    MainActivity.getSurveytips();
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                }
-//
-//                search_TipAdapter = new SurveyTipListViewAdapter(search_list_tip);
-//                search_TipAdapter.notifyDataSetChanged();
-//                search_listview.setAdapter(search_TipAdapter);
-//                break;
-//            default:
-//                return;
-//        }
 
     }
 
@@ -475,11 +424,17 @@ public class BoardsSearchActivity extends AppCompatActivity {
                                                 }
                                                 boolean hide_ = reReply.getBoolean("hide");
                                                 String writer_ = reReply.getString("writer");
+                                                String writer_name_ = "";
+                                                try {
+                                                    writer_name_ = reReply.getString("writer_name");
+                                                } catch (Exception e) {
+                                                    writer_name_ = "익명";
+                                                }
                                                 String content_ = reReply.getString("content");
                                                 Date date_ = fm.parse(reReply.getString("date"));
                                                 String replyID_ = reReply.getString("replyID");
 
-                                                ReReply newReReply = new ReReply(id_, reports_, report_reasons_, hide_, writer_, content_, date_, replyID_);
+                                                ReReply newReReply = new ReReply(id_, reports_, report_reasons_, hide_, writer_, writer_name_, content_, date_, replyID_);
                                                 reReplies.add(newReReply);
                                             }
                                         }
@@ -605,11 +560,17 @@ public class BoardsSearchActivity extends AppCompatActivity {
                                                 }
                                                 boolean hide_ = reReply.getBoolean("hide");
                                                 String writer_ = reReply.getString("writer");
+                                                String writer_name_ = "";
+                                                try {
+                                                    writer_name_ = reReply.getString("writer_name");
+                                                } catch (Exception e) {
+                                                    writer_name_ = "익명";
+                                                }
                                                 String content_ = reReply.getString("content");
                                                 Date date_ = fm.parse(reReply.getString("date"));
                                                 String replyID_ = reReply.getString("replyID");
 
-                                                ReReply newReReply = new ReReply(id_, reports_, report_reasons_, hide_, writer_, content_, date_, replyID_);
+                                                ReReply newReReply = new ReReply(id_, reports_, report_reasons_, hide_, writer_, writer_name_, content_, date_, replyID_);
                                                 reReplies.add(newReReply);
                                             }
                                         }
@@ -697,6 +658,121 @@ public class BoardsSearchActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
+    private void getSearchContent(String searchQuery) {
+        Log.d("searchcheck", "getSearchContent:");
+        try {
+            String requestURL = "http://ec2-3-35-152-40.ap-northeast-2.compute.amazonaws.com/api/search";
+            RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
+            JSONObject params = new JSONObject();
+            params.put("content", searchQuery);
+            params.put("type", CONTENT_SELECT);
+            CustomJsonArrayRequest customJsonArrayRequest = new CustomJsonArrayRequest(
+                    Request.Method.PUT, requestURL, params, response -> {
+                try {
+                    JSONArray responseContents = new JSONArray(response.toString());
+                    for (int i = 0; i < responseContents.length(); i++) {
+                        JSONObject responseContent = (JSONObject) responseContents.get(i);
+                        String id = responseContent.getString("_id");
+                        ArrayList<String> image_urls = new ArrayList<>();
+                        JSONArray ja = responseContent.getJSONArray("image_urls");
+                        for (int j = 0; j < ja.length(); j++) {
+                            image_urls.add(ja.getString(j));
+                        }
+                        int likes = responseContent.getInt("likes");
+                        int visit = responseContent.getInt("visit");
+                        boolean hide = responseContent.getBoolean("hide");
+                        String title = responseContent.getString("title");
+                        String author = responseContent.getString("author");
+                        String content = responseContent.getString("content");
+                        SimpleDateFormat fm = new SimpleDateFormat(getResources().getString(R.string.date_format));
+                        Date date = null;
+                        try {
+                            date = fm.parse(responseContent.getString("date"));
+                        } catch (ParseException e) {
+                            date = null;
+                        }
+                        ArrayList<String> liked_users = new ArrayList<>();
+                        JSONArray ja2 = responseContent.getJSONArray("liked_users");;
+                        for (int j = 0; j < ja2.length(); j++) {
+                            liked_users.add(ja.getString(j));
+                        }
+                        ArrayList<ContentReply> comments = new ArrayList<>();
+                        JSONArray responseComments = responseContent.getJSONArray("comments");
+                        for (int j = 0; j < responseComments.length(); j++) {
+                            JSONObject responseComment = (JSONObject) responseComments.get(j);
+                            String _id = responseComment.getString("_id");
+                            ArrayList<ContentReReply> contentReplies = new ArrayList<>();
+                            JSONArray responseReplies = (JSONArray) responseComment.get("reply");
+                            for (int k = 0; k < responseReplies.length(); k++) {
+                                JSONObject responseReply = (JSONObject) responseReplies.get(k);
+                                String __id = responseReply.getString("_id");
+                                ArrayList<String> __reports = new ArrayList<>();
+                                JSONArray ua = responseReply.getJSONArray("reports");
+                                for (int u = 0; u < ua.length(); u++) {
+                                    __reports.add(ua.getString(u));
+                                }
+                                boolean __hide = responseReply.getBoolean("hide");
+                                ArrayList<String> __report_reasons = new ArrayList<>();
+                                JSONArray ua2 = responseReply.getJSONArray("report_reasons");
+                                for (int u = 0; u < ua2.length(); u++) {
+                                    __report_reasons.add(ua.getString(u));
+                                }
+                                String __writer = responseReply.getString("writer");
+                                String __writer_name = responseReply.getString("writer_name");
+                                String __replyID = responseReply.getString("replyID");
+                                String __content = responseReply.getString("content");
+                                Date __date = null;
+                                try {
+                                    __date = fm.parse(responseReply.getString("date"));
+                                } catch (ParseException e) {
+                                    e.printStackTrace();
+                                }
+                                contentReplies.add(new ContentReReply(__id, __reports, __hide, __report_reasons, __writer, __writer_name, __replyID, __content, __date));
+
+                            }
+                            boolean _hide = responseComment.getBoolean("hide");
+                            ArrayList<String> _report_reasons = new ArrayList<>();
+                            JSONArray ka = responseComment.getJSONArray("report_reasons");
+                            for (int k = 0; k < ka.length(); k++) {
+                                _report_reasons.add(ka.getString(k));
+                            }
+                            ArrayList<String> _reports = new ArrayList<>();
+                            JSONArray ka2 = responseComment.getJSONArray("reports");
+                            for (int k = 0; k < ka2.length(); k++) {
+                                _reports.add(ka2.getString(k));
+                            }
+                            String _writer = responseComment.getString("writer");
+                            String _writer_name = responseComment.getString("writer_name");
+                            Date _date = null;
+                            try {
+                                _date = fm.parse(responseComment.getString("date"));
+                            } catch (ParseException e) {
+                                _date = null;
+                            }
+                            String _content = responseComment.getString("content");
+
+                            comments.add(new ContentReply(_id, contentReplies, _hide, _reports, _report_reasons, _writer, _writer_name, _date, _content));
+
+                        }
+                        searchContents.add(new Content(id, image_urls, likes, visit, hide, title, author, content, date, comments, liked_users));
+
+                    }
+                    search_ContentAdapter.notifyDataSetChanged();
+                    setLoading(false);
+                    setClickable(true);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }, error -> {
+                error.printStackTrace();
+            });
+            customJsonArrayRequest.setRetryPolicy(new DefaultRetryPolicy(20 * 1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            requestQueue.add(customJsonArrayRequest);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
     private void setClickable(boolean clickable) {
         ib_search.setEnabled(clickable);
     }
@@ -740,4 +816,454 @@ public class BoardsSearchActivity extends AppCompatActivity {
             }
         }
     }
+
+    public void getPost(String post_object_id, int position) {
+        try {
+            String requestURL = "http://ec2-3-35-152-40.ap-northeast-2.compute.amazonaws.com/api/posts/getpost/" + post_object_id;
+            RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.mContext);
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
+                    Request.Method.GET, requestURL, null, response -> {
+                try {
+                    JSONObject post = new JSONObject(response.toString());
+                    String id = post.getString("_id");
+                    String title = post.getString("title");
+                    String author = post.getString("author");
+                    Integer author_lvl = post.getInt("author_lvl");
+                    String content = post.getString("content");
+                    Integer participants = post.getInt("participants");
+                    Integer goal_participants = post.getInt("goal_participants");
+                    String url = post.getString("url");
+                    SimpleDateFormat fm = new SimpleDateFormat("yyyy-MM-dd\'T\'kk:mm:ss.SSS");
+                    Date date = null;
+                    Date deadline = null;
+                    try {
+                        date = fm.parse(post.getString("date"));
+                        deadline = fm.parse(post.getString("deadline"));
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                    Boolean with_prize = post.getBoolean("with_prize");
+                    Integer est_time = post.getInt("est_time");
+                    String target = post.getString("target");
+                    Boolean done = post.getBoolean("done");
+                    Boolean hide = post.getBoolean("hide");
+                    Integer extended = post.getInt("extended");
+                    String author_userid = post.getString("author_userid");
+                    String prize = "none";
+                    Integer num_prize = 0;
+                    if (with_prize) {
+                        prize = post.getString("prize");
+                        num_prize = post.getInt("num_prize");
+                    }
+                    Integer pinned = 0;
+                    Boolean annonymous = false;
+                    String author_info = "";
+                    try {
+                        pinned = post.getInt("pinned");
+                        annonymous = post.getBoolean("annonymous");
+                        author_info = post.getString("author_info");
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    JSONArray ia = (JSONArray) post.get("participants_userids");
+                    ArrayList<String> participants_userids = new ArrayList<String>();
+                    for (int j = 0; j < ia.length(); j++) {
+                        participants_userids.add(ia.getString(j));
+                    }
+                    JSONArray ka = (JSONArray) post.get("reports");
+                    ArrayList<String> reports = new ArrayList<String>();
+                    for (int j = 0; j < ka.length(); j++) {
+                        reports.add(ka.getString(j));
+                    }
+                    ArrayList<Reply> comments = new ArrayList<>();
+                    try{
+                        JSONArray ja = (JSONArray)post.get("comments");
+                        if (ja.length() != 0){
+                            for (int j = 0; j<ja.length(); j++){
+                                JSONObject comment = ja.getJSONObject(j);
+                                String reid = comment.getString("_id");
+                                String writer = comment.getString("writer");
+                                String contetn = comment.getString("content");
+                                Date datereply = null;
+                                try {
+                                    datereply = fm.parse(comment.getString("date"));
+                                } catch (ParseException e) {
+                                    e.printStackTrace();
+                                }
+                                Boolean replyhide = comment.getBoolean("hide");
+                                JSONArray ua = (JSONArray)comment.get("reports");
+
+
+                                ArrayList<String> replyreports = new ArrayList<String>();
+                                for (int u = 0; u<ua.length(); u++){
+                                    replyreports.add(ua.getString(u));
+                                }
+                                String writer_name = null;
+                                try {
+                                    writer_name = comment.getString("writer_name");
+                                }catch (Exception e){
+                                    writer_name = null;
+                                }
+                                ArrayList<ReReply> reReplies = new ArrayList<>();
+                                try {
+                                    JSONArray jk = (JSONArray) comment.get("reply");
+                                    if (jk.length() != 0) {
+                                        for (int k = 0; k < jk.length(); k++) {
+                                            JSONObject reReply = jk.getJSONObject(k);
+                                            String id_ = reReply.getString("_id");
+                                            ArrayList<String> reports_ = new ArrayList<>();
+                                            JSONArray jb = (JSONArray) reReply.get("reports");
+                                            for (int b = 0; b < jb.length(); b++) {
+                                                reports_.add(jb.getString(b));
+                                            }
+                                            ArrayList<String> report_reasons_ = new ArrayList<>();
+                                            JSONArray jc = (JSONArray) reReply.get("report_reasons");
+                                            for (int c = 0; c < jc.length(); c++) {
+                                                report_reasons_.add(jc.getString(c));
+                                            }
+                                            boolean hide_ = reReply.getBoolean("hide");
+                                            String writer_ = reReply.getString("writer");
+                                            String writer_name_ = "";
+                                            try {
+                                                writer_name_ = reReply.getString("writer_name");
+                                            } catch (Exception e) {
+                                                writer_name_ = "익명";
+                                            }
+                                            String content_ = reReply.getString("content");
+                                            Date date_ = fm.parse(reReply.getString("date"));
+                                            String replyID_ = reReply.getString("replyID");
+
+                                            ReReply newReReply = new ReReply(id_, reports_, report_reasons_, hide_, writer_, writer_name_, content_, date_, replyID_);
+                                            reReplies.add(newReReply);
+                                        }
+                                    }
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                                Reply re = new Reply(reid, writer, contetn, datereply,replyreports,replyhide, writer_name, reReplies);
+                                re.setWriter_name(writer_name);
+                                if ((!replyhide )&& (!replyreports.contains(UserPersonalInfo.userID))){
+                                    comments.add(re);
+                                }
+                            }
+                        }
+
+                    } catch (Exception e){
+                        e.printStackTrace();
+                    }
+                    Post newPost = new Post(id, title, author, author_lvl, content, participants, goal_participants, url, date, deadline, with_prize, prize, est_time, target, num_prize, comments, done, extended, participants_userids, reports, hide, author_userid, pinned, annonymous, author_info);
+                    Log.d("newPost", "getInfinityPosts: " + newPost);
+                    Intent intent = new Intent(context, PostDetailActivity.class);
+                    intent.putExtra("post", newPost);
+                    intent.putExtra("position", position);
+                    startActivityForResult(intent, DO_SURVEY);
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }, error -> {
+                error.printStackTrace();
+            });
+            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            requestQueue.add(jsonObjectRequest);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    private void getGeneral(String general_object_id, int position) {
+        try {
+            String requestURL = "http://ec2-3-35-152-40.ap-northeast-2.compute.amazonaws.com/api/generals/getpost/" + general_object_id;
+            RequestQueue requestQueue = Volley.newRequestQueue(context);
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
+                    Request.Method.GET, requestURL, null, response -> {
+                try {
+                    JSONObject general = new JSONObject(response.toString());
+                    String id = general.getString("_id");
+                    String title = general.getString("title");
+                    String author = general.getString("author");
+                    Integer author_lvl = general.getInt("author_lvl");
+                    String content = general.getString("content");
+                    SimpleDateFormat fm = new SimpleDateFormat(context.getResources().getString(R.string.date_format));
+                    Date date = null;
+                    try {
+                        date = fm.parse(general.getString("date"));
+                        Log.d("note excepted", "getInfinityVotes: " + date);
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                        Log.d("date excepted", "getInfinityVotes: " + date);
+                    }
+                    Date deadline = null;
+                    try {
+                        deadline = fm.parse(general.getString("deadline"));
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                    ArrayList<Reply> comments = new ArrayList<>();
+                    try{
+                        JSONArray ja = (JSONArray)general.get("comments");
+                        if (ja.length() != 0){
+                            for (int j = 0; j<ja.length(); j++){
+                                JSONObject comment = ja.getJSONObject(j);
+                                String reid = comment.getString("_id");
+                                String writer = comment.getString("writer");
+                                String contetn = comment.getString("content");
+                                Date datereply = null;
+                                try {
+                                    datereply = fm.parse(comment.getString("date"));
+                                } catch (ParseException e) {
+                                    e.printStackTrace();
+                                }
+                                Boolean replyhide = comment.getBoolean("hide");
+                                JSONArray ua = (JSONArray)comment.get("reports");
+
+
+                                ArrayList<String> replyreports = new ArrayList<String>();
+                                for (int u = 0; u<ua.length(); u++){
+                                    replyreports.add(ua.getString(u));
+                                }
+                                String writer_name = null;
+                                try {
+                                    writer_name = comment.getString("writer_name");
+                                }catch (Exception e){
+                                    writer_name = null;
+                                }
+                                ArrayList<ReReply> reReplies = new ArrayList<>();
+                                try {
+                                    JSONArray jk = (JSONArray) comment.get("reply");
+                                    if (jk.length() != 0) {
+                                        for (int k = 0; k < jk.length(); k++) {
+                                            JSONObject reReply = jk.getJSONObject(k);
+                                            String id_ = reReply.getString("_id");
+                                            ArrayList<String> reports_ = new ArrayList<>();
+                                            JSONArray jb = (JSONArray) reReply.get("reports");
+                                            for (int b = 0; b < jb.length(); b++) {
+                                                reports_.add(jb.getString(b));
+                                            }
+                                            ArrayList<String> report_reasons_ = new ArrayList<>();
+                                            JSONArray jc = (JSONArray) reReply.get("report_reasons");
+                                            for (int c = 0; c < jc.length(); c++) {
+                                                report_reasons_.add(jc.getString(c));
+                                            }
+                                            boolean hide_ = reReply.getBoolean("hide");
+                                            String writer_ = reReply.getString("writer");
+                                            String writer_name_ = "";
+                                            try {
+                                                writer_name_ = reReply.getString("writer_name");
+                                            } catch (Exception e) {
+                                                writer_name_ = "익명";
+                                            }
+                                            String content_ = reReply.getString("content");
+                                            Date date_ = fm.parse(reReply.getString("date"));
+                                            String replyID_ = reReply.getString("replyID");
+
+                                            ReReply newReReply = new ReReply(id_, reports_, report_reasons_, hide_, writer_, writer_name_, content_, date_, replyID_);
+                                            reReplies.add(newReReply);
+                                        }
+                                    }
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                                Reply re = new Reply(reid, writer, contetn, datereply,replyreports,replyhide, writer_name, reReplies);
+                                re.setWriter_name(writer_name);
+                                if ((!replyhide )&& (!replyreports.contains(UserPersonalInfo.userID))){
+                                    comments.add(re);
+                                }
+                            }
+                        }
+
+                    } catch (Exception e){
+                        e.printStackTrace();
+                    }
+                    Boolean done = general.getBoolean("done");
+                    String author_userid = general.getString("author_userid");
+                    JSONArray ka = (JSONArray)general.get("reports");
+                    ArrayList<String> reports = new ArrayList<String>();
+                    for (int j = 0; j<ka.length(); j++){
+                        reports.add(ka.getString(j));
+                    }
+                    Boolean multi_response = general.getBoolean("multi_response");
+                    Integer participants = general.getInt("participants");
+                    JSONArray ia = (JSONArray)general.get("participants_userids");
+                    ArrayList<String> participants_userids = new ArrayList<String>();
+                    for (int j = 0; j<ia.length(); j++){
+                        participants_userids.add(ia.getString(j));
+                    }
+                    Boolean with_image = general.getBoolean("with_image");
+                    ArrayList<Poll> polls = new ArrayList<>();
+                    try{
+                        JSONArray ja = (JSONArray)general.get("polls");
+                        if (ja.length() != 0){
+                            for (int j = 0; j<ja.length(); j++){
+                                JSONObject poll = ja.getJSONObject(j);
+                                String poll_id = poll.getString("_id");
+                                String poll_content = poll.getString("content");
+                                ArrayList<String> poll_participants_userids = new ArrayList<String>();
+                                JSONArray ua = (JSONArray)poll.get("participants_userids");
+                                for (int u = 0; u<ua.length(); u++){
+                                    poll_participants_userids.add(ua.getString(u));
+                                }
+                                String image = poll.getString("image");
+                                Poll newpoll = new Poll(poll_id, poll_content, poll_participants_userids, image);
+                                polls.add(newpoll);
+                            }
+                        }
+
+                    } catch (Exception e){
+                        e.printStackTrace();
+                    }
+
+                    JSONArray la = (JSONArray)general.get("liked_users");
+                    ArrayList<String> liked_users = new ArrayList<String>();
+                    for (int j = 0; j<la.length(); j++){
+                        liked_users.add(la.getString(j));
+                    }
+
+                    Integer likes = general.getInt("likes");
+
+                    Boolean hide = general.getBoolean("hide");
+
+                    General newGeneral = new General(id, title, author, author_lvl, content,
+                            date, deadline, comments, done, author_userid, reports, multi_response,
+                            participants, participants_userids, with_image, polls, liked_users, likes, hide);
+                    Intent intent = new Intent(context, GeneralDetailActivity.class);
+                    intent.putExtra("general", newGeneral);
+                    intent.putExtra("position", position);
+                    startActivityForResult(intent, DO_SURVEY);
+
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }, error -> {
+                error.printStackTrace();
+            });
+            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            requestQueue.add(jsonObjectRequest);
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+    public void getContent(String content_object_id) {
+        try {
+            String requestURL = context.getResources().getString(R.string.server) + "/api/content/getcontent/" + content_object_id;
+            RequestQueue requestQueue = Volley.newRequestQueue(context);
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
+                    Request.Method.GET, requestURL, null, response -> {
+                try {
+                    JSONObject responseContent = new JSONObject(response.toString());
+                    String id = responseContent.getString("_id");
+                    ArrayList<String> image_urls = new ArrayList<>();
+                    JSONArray ja = responseContent.getJSONArray("image_urls");
+                    for (int j = 0; j < ja.length(); j++) {
+                        image_urls.add(ja.getString(j));
+                    }
+                    int likes = responseContent.getInt("likes");
+                    int visit = responseContent.getInt("visit");
+                    boolean hide = responseContent.getBoolean("hide");
+                    String title = responseContent.getString("title");
+                    String author = responseContent.getString("author");
+                    String content_ = responseContent.getString("content");
+                    SimpleDateFormat fm = new SimpleDateFormat(getResources().getString(R.string.date_format));
+                    Date date = null;
+                    try {
+                        date = fm.parse(responseContent.getString("date"));
+                    } catch (ParseException e) {
+                        date = null;
+                    }
+                    ArrayList<String> liked_users = new ArrayList<>();
+                    JSONArray ja2 = responseContent.getJSONArray("liked_users");;
+                    for (int j = 0; j < ja2.length(); j++) {
+                        liked_users.add(ja2.getString(j));
+                    }
+                    ArrayList<ContentReply> comments = new ArrayList<>();
+                    JSONArray responseComments = responseContent.getJSONArray("comments");
+                    for (int j = 0; j < responseComments.length(); j++) {
+                        JSONObject responseComment = (JSONObject) responseComments.get(j);
+                        String _id = responseComment.getString("_id");
+                        ArrayList<ContentReReply> contentReplies = new ArrayList<>();
+                        JSONArray responseReplies = (JSONArray) responseComment.get("reply");
+                        for (int k = 0; k < responseReplies.length(); k++) {
+                            JSONObject responseReply = (JSONObject) responseReplies.get(k);
+                            String __id = responseReply.getString("_id");
+                            ArrayList<String> __reports = new ArrayList<>();
+                            JSONArray ua = responseReply.getJSONArray("reports");
+                            for (int u = 0; u < ua.length(); u++) {
+                                __reports.add(ua.getString(u));
+                            }
+                            boolean __hide = responseReply.getBoolean("hide");
+                            ArrayList<String> __report_reasons = new ArrayList<>();
+                            JSONArray ua2 = responseReply.getJSONArray("report_reasons");
+                            for (int u = 0; u < ua2.length(); u++) {
+                                __report_reasons.add(ua.getString(u));
+                            }
+                            String __writer = responseReply.getString("writer");
+                            String __writer_name = responseReply.getString("writer_name");
+                            String __replyID = responseReply.getString("replyID");
+                            String __content = responseReply.getString("content");
+                            Date __date = null;
+                            try {
+                                __date = fm.parse(responseReply.getString("date"));
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
+                            contentReplies.add(new ContentReReply(__id, __reports, __hide, __report_reasons, __writer, __writer_name, __replyID, __content, __date));
+
+                        }
+                        boolean _hide = responseComment.getBoolean("hide");
+                        ArrayList<String> _report_reasons = new ArrayList<>();
+                        JSONArray ka = responseComment.getJSONArray("report_reasons");
+                        for (int k = 0; k < ka.length(); k++) {
+                            _report_reasons.add(ka.getString(k));
+                        }
+                        ArrayList<String> _reports = new ArrayList<>();
+                        JSONArray ka2 = responseComment.getJSONArray("reports");
+                        for (int k = 0; k < ka2.length(); k++) {
+                            _reports.add(ka2.getString(k));
+                        }
+                        String _writer = responseComment.getString("writer");
+                        String _writer_name = responseComment.getString("writer_name");
+                        Date _date = null;
+                        try {
+                            _date = fm.parse(responseComment.getString("date"));
+                        } catch (ParseException e) {
+                            _date = null;
+                        }
+                        String _content = responseComment.getString("content");
+
+                        comments.add(new ContentReply(_id, contentReplies, _hide, _reports, _report_reasons, _writer, _writer_name, _date, _content));
+                    }
+                    Intent intent = new Intent(context, ContentDetailActivity.class);
+                    Content content = new Content(id, image_urls, likes, visit, hide, title, author, content_, date, comments, liked_users);
+                    intent.putExtra("content", content);
+                    intent.putExtra("id", content.getId());
+                    startActivity(intent);
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }, error -> {
+                error.printStackTrace();
+            });
+            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20 * 1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            requestQueue.add(jsonObjectRequest);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    private void clear() {
+        searchPosts.clear();
+        searchVotes.clear();
+        searchContents.clear();
+    }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        clear();
+    }
+
+
 }

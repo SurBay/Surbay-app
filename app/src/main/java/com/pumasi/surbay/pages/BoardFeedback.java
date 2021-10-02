@@ -294,11 +294,17 @@ public class BoardFeedback extends Fragment {
                                                 }
                                                 boolean hide_ = reReply.getBoolean("hide");
                                                 String writer_ = reReply.getString("writer");
+                                                String writer_name_ = "";
+                                                try {
+                                                    writer_name_ = reReply.getString("writer_name");
+                                                } catch (Exception e) {
+                                                    writer_name_ = "익명";
+                                                }
                                                 String content_ = reReply.getString("content");
                                                 Date date_ = fm.parse(reReply.getString("date"));
                                                 String replyID_ = reReply.getString("replyID");
 
-                                                ReReply newReReply = new ReReply(id_, reports_, report_reasons_, hide_, writer_, content_, date_, replyID_);
+                                                ReReply newReReply = new ReReply(id_, reports_, report_reasons_, hide_, writer_, writer_name_, content_, date_, replyID_);
                                                 reReplies.add(newReReply);
                                             }
                                         }

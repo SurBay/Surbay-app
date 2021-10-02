@@ -81,8 +81,20 @@ public class MyNoteActivity extends AppCompatActivity {
                     counter = chat.getTo_userID();
                     counter_name = chat.getTo_name();
                 }
+                boolean answered = false;
+                for (MessageContent messageContent : chat.getContent()) {
+                    if (messageContent.getWriter().equals(counter)) {
+                        answered = true;
+                        break;
+                    }
+                }
+                if (counter.equals("알 수 없음")) intent.putExtra("counter_name", "알 수 없음");
+                else if (answered) {
+                    intent.putExtra("counter_name", counter_name);
+                } else {
+                    intent.putExtra("counter_name", "익명");
+                }
                 intent.putExtra("id", chat.getId());
-                intent.putExtra("counter_name", counter_name);
                 intent.putExtra("counter", counter);
                 intent.putExtra("position", position);
                 startActivityForResult(intent, REQUEST_CHAT);
@@ -146,7 +158,16 @@ public class MyNoteActivity extends AppCompatActivity {
                         } catch (ParseException e) {
                             date = null;
                         }
-                        messages.add(new MyMessage(id, text_num, uncheck_num, from_userID, to_userID, from_name, to_name, content, date));
+                        boolean add = true;
+                        for (String block_user : UserPersonalInfo.blocked_users) {
+                            if (from_userID.equals(block_user) || to_userID.equals(block_user)) {
+                                add = false;
+                                break;
+                            }
+                        }
+                        if (add) {
+                            messages.add(new MyMessage(id, text_num, uncheck_num, from_userID, to_userID, from_name, to_name, content, date));
+                        }
                     }
                     myNoteRecyclerViewAdapter.setItem(messages);
                     myNoteRecyclerViewAdapter.notifyDataSetChanged();

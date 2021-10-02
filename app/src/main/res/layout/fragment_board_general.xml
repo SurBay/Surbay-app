@@ -74,7 +74,7 @@
             android:layout_toStartOf="@id/tv_collect"
             android:layout_centerVertical="true"
             android:gravity="center"
-            android:buttonTint="@drawable/done_checkbox_selector_free"/>
+            android:buttonTint="@drawable/done_checkbox_selector_research"/>
 
 
 
@@ -104,7 +104,7 @@
             android:layout_width="60dp"
             android:layout_height="60dp"
             android:gravity="center"
-            android:background="@drawable/btn_vote_write"
+            android:background="@drawable/btn_vote_write_teal"
             android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true"
             android:layout_marginRight="23dp"

@@ -48,7 +48,7 @@ import java.util.regex.Pattern;
 
 public class AccountFix extends AppCompatActivity {
     TextView check_name;
-    Integer name_checked = 0; //0: 중복 확인중, 1: 중복임, 2: 사용가능
+    Integer name_checked = 2; //0: 중복 확인중, 1: 중복임, 2: 사용가능
 
     ArrayList<String> spinner_age;
 
@@ -286,7 +286,10 @@ public class AccountFix extends AppCompatActivity {
 //        });
     }
 
-    private void nameCheck(EditText v) throws Exception{
+    private void
+
+
+    nameCheck(EditText v) throws Exception{
         if (v.getText().toString().length() == 0 ){
             check_name.setVisibility(View.GONE);
         }else if(v.getText().toString().length()<2 || v.getText().toString().length()>10){

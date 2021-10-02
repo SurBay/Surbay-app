@@ -153,6 +153,11 @@ public class BoardContents extends Fragment {
                             for (int k = 0; k < ka.length(); k++) {
                                 _report_reasons.add(ka.getString(k));
                             }
+                            ArrayList<String> _reports = new ArrayList<>();
+                            JSONArray ka2 = responseComment.getJSONArray("reports");
+                            for (int k = 0; k < ka2.length(); k++) {
+                                _reports.add(ka2.getString(k));
+                            }
                             String _writer = responseComment.getString("writer");
                             String _writer_name = responseComment.getString("writer_name");
                             Date _date = null;
@@ -163,7 +168,7 @@ public class BoardContents extends Fragment {
                             }
                             String _content = responseComment.getString("content");
 
-                            comments.add(new ContentReply(_id, contentReplies, _hide, _report_reasons, _writer, _writer_name, _date, _content));
+                            comments.add(new ContentReply(_id, contentReplies, _hide, _reports, _report_reasons, _writer, _writer_name, _date, _content));
                         }
                         contentsArrayList.add(new Content(id, image_urls, likes, visit, hide, title, author, content, date, comments, liked_users));
 
@@ -215,7 +220,7 @@ public class BoardContents extends Fragment {
                     ArrayList<String> liked_users = new ArrayList<>();
                     JSONArray ja2 = responseContent.getJSONArray("liked_users");;
                     for (int j = 0; j < ja2.length(); j++) {
-                        liked_users.add(ja.getString(j));
+                        liked_users.add(ja2.getString(j));
                     }
                     ArrayList<ContentReply> comments = new ArrayList<>();
                     JSONArray responseComments = responseContent.getJSONArray("comments");
@@ -257,6 +262,11 @@ public class BoardContents extends Fragment {
                         for (int k = 0; k < ka.length(); k++) {
                             _report_reasons.add(ka.getString(k));
                         }
+                        ArrayList<String> _reports = new ArrayList<>();
+                        JSONArray ka2 = responseComment.getJSONArray("reports");
+                        for (int k = 0; k < ka2.length(); k++) {
+                            _reports.add(ka2.getString(k));
+                        }
                         String _writer = responseComment.getString("writer");
                         String _writer_name = responseComment.getString("writer_name");
                         Date _date = null;
@@ -267,7 +277,7 @@ public class BoardContents extends Fragment {
                         }
                         String _content = responseComment.getString("content");
 
-                        comments.add(new ContentReply(_id, contentReplies, _hide, _report_reasons, _writer, _writer_name, _date, _content));
+                        comments.add(new ContentReply(_id, contentReplies, _hide, _reports, _report_reasons, _writer, _writer_name, _date, _content));
                     }
                     Intent intent = new Intent(context, ContentDetailActivity.class);
                     Content content = new Content(id, image_urls, likes, visit, hide, title, author, content_, date, comments, liked_users);

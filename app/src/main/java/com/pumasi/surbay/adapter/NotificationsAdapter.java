@@ -2,9 +2,16 @@ package com.pumasi.surbay.adapter;
 
 import android.content.Context;
 
+import android.graphics.Color;
+import android.media.Image;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
@@ -14,23 +21,22 @@ import com.pumasi.surbay.classfile.Notification;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 public class NotificationsAdapter extends RecyclerView.Adapter<NotificationsAdapter.MyViewHolder> {
     private static OnItemClickListener mListener = null ;
 
     // OnItemClickListener 리스너 객체 참조를 어댑터에 전달하는 메서드
-
+    private Context context;
     private LayoutInflater inflater;
-    private ArrayList<Notification> imageModelArrayList;
+    private ArrayList<Notification> imageModelArrayList = new ArrayList<>();
 
 
     public NotificationsAdapter(Context ctx, ArrayList<Notification> imageModelArrayList){
         inflater = LayoutInflater.from(ctx);
-        if (imageModelArrayList != null) {
-            Collections.reverse(imageModelArrayList);
-            this.imageModelArrayList = imageModelArrayList;
-        }
+        this.imageModelArrayList = imageModelArrayList;
 
     }
 
@@ -44,7 +50,7 @@ public class NotificationsAdapter extends RecyclerView.Adapter<NotificationsAdap
     @Override
     public NotificationsAdapter.MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
-        View view = inflater.inflate(R.layout.notification_recyclerview_item, parent, false);
+        View view = inflater.inflate(R.layout.notification_item, parent, false);
         MyViewHolder holder = new MyViewHolder(view);
 
 
@@ -54,20 +60,34 @@ public class NotificationsAdapter extends RecyclerView.Adapter<NotificationsAdap
     @Override
     public void onBindViewHolder(NotificationsAdapter.MyViewHolder holder, int position) {
 
+        ArrayList<String> highlight_words = new ArrayList<>(Arrays.asList("댓글", "달성", "종료", "마감", "참여 보상"));
+        Notification notification = imageModelArrayList.get(position);
 
-        holder.title.setText(imageModelArrayList.get(position).getTitle());
-        holder.content.setText(imageModelArrayList.get(position).getContent());
+        String title = notification.getTitle();
+        holder.tv_my_notification_title.setText(title);
+
+        for (String highlight_word : highlight_words) {
+            SpannableString spannableString = new SpannableString(title);
+            int start = title.indexOf(highlight_word);
+            int end;
+            if (start != -1) {
+                end = start + highlight_word.length();
+                spannableString.setSpan(new ForegroundColorSpan(Color.parseColor("#3AD1BF")), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                holder.tv_my_notification_title.setText(spannableString);
+                break;
+            }
+
+        }
+
+        holder.tv_my_notification_content.setText(imageModelArrayList.get(position).getContent());
         SimpleDateFormat fm = new SimpleDateFormat("MM.dd kk:mm");
-        holder.date.setText(fm.format(imageModelArrayList.get(position).getDate()));
+        holder.tv_my_notification_date.setText(fm.format(imageModelArrayList.get(position).getDate()));
 
     }
 
     @Override
     public int getItemCount() {
-        if (imageModelArrayList != null) {
-            return imageModelArrayList.size();
-        }
-        return 0;
+        return imageModelArrayList == null ? 0 : imageModelArrayList.size();
     }
 
     public Object getItem(int position) {
@@ -76,16 +96,20 @@ public class NotificationsAdapter extends RecyclerView.Adapter<NotificationsAdap
 
     static class MyViewHolder extends RecyclerView.ViewHolder{
 
-        TextView title;
-        TextView content;
-        TextView date;
+        private ImageButton ib_my_notification_cancel;
+
+        private TextView tv_my_notification_title;
+        private TextView tv_my_notification_content;
+        private TextView tv_my_notification_date;
 
         public MyViewHolder(View itemView) {
             super(itemView);
 
-            title = (TextView) itemView.findViewById(R.id.notification_title);
-            content = (TextView) itemView.findViewById(R.id.notification_content);
-            date = (TextView) itemView.findViewById(R.id.notification_date);
+            ib_my_notification_cancel = (ImageButton) itemView.findViewById(R.id.ib_my_notification_cancel);
+
+            tv_my_notification_title = (TextView) itemView.findViewById(R.id.tv_my_notification_title);
+            tv_my_notification_content = (TextView) itemView.findViewById(R.id.tv_my_notification_content);
+            tv_my_notification_date = (TextView) itemView.findViewById(R.id.tv_my_notification_date);
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override

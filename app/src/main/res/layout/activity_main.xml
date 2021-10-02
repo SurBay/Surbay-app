@@ -22,6 +22,7 @@
         app:itemIconTint="@drawable/bottom_nav_color"
         app:labelVisibilityMode="unlabeled"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:itemIconSize="28.5dp"
         app:menu="@menu/bottom_navigation_bar">
     </com.google.android.material.bottomnavigation.BottomNavigationView>
 </androidx.constraintlayout.widget.ConstraintLayout>

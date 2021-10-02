@@ -1,17 +1,23 @@
 package com.pumasi.surbay;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.annotation.SuppressLint;
+import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.media.Image;
+import android.os.Handler;
 import android.os.Bundle;
+import android.os.Message;
 import android.os.SystemClock;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
@@ -21,7 +27,9 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.NetworkResponse;
 import com.android.volley.ParseError;
@@ -33,6 +41,7 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.JsonRequest;
 import com.android.volley.toolbox.Volley;
 import com.pumasi.surbay.adapter.MyChatRecyclerViewAdapter;
+import com.pumasi.surbay.classfile.CustomDialog;
 import com.pumasi.surbay.classfile.MessageContent;
 import com.pumasi.surbay.classfile.MyMessage;
 import com.pumasi.surbay.classfile.UserPersonalInfo;
@@ -43,11 +52,15 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Array;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
-
+import java.util.HashMap;
+import java.util.Map;
 public class MyNoteDetailActivity extends AppCompatActivity {
 
 
@@ -70,6 +83,11 @@ public class MyNoteDetailActivity extends AppCompatActivity {
 
     private String counter;
     private String counter_name;
+    private CustomDialog customDialog;
+
+    private NoteHandler handler = new NoteHandler();
+    private boolean block_done = false;
+    private boolean delete_done = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -77,7 +95,7 @@ public class MyNoteDetailActivity extends AppCompatActivity {
         getSupportActionBar().hide();
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-        context = getApplicationContext();
+        context = MyNoteDetailActivity.this;
 
         id = getIntent().getStringExtra("id");
         counter = getIntent().getStringExtra("counter");
@@ -87,7 +105,9 @@ public class MyNoteDetailActivity extends AppCompatActivity {
         ib_back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                setResult(position);
+                if (position != -1) {
+                    setResult(position);
+                }
                 finish();
             }
         });
@@ -103,18 +123,78 @@ public class MyNoteDetailActivity extends AppCompatActivity {
         ib_my_note_detail_menu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                builder.setItems((R.array.my_chat), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which) {
 
+                            // 채팅방 나가기
+                            case 0:
+                                customDialog = new CustomDialog(context, new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        DeleteThread deleteThread = new DeleteThread(id, counter);
+                                        deleteThread.start();
+                                    }
+                                });
+                                customDialog.show();
+                                customDialog.setMessage("쪽지를 삭제하시겠습니까?\n차단하시면 그 이후 상대방의 채팅을\n확인하실 수 없습니다.");
+                                customDialog.setPositiveButton("삭제");
+                                customDialog.setNegativeButton("취소");
+                                break;
+                            // 쪽지 삭제하기
+                            case 1:
+                                customDialog = new CustomDialog(context, new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        BlockThread blockThread = new BlockThread(id, counter);
+                                        blockThread.start();
+                                    }
+                                });
+                                customDialog.show();
+                                customDialog.setMessage("상대를 차단하시겠습니까?\n차단하시면 그 이후 상대방의 채팅을\n확인하실 수 없습니다.");
+                                customDialog.setPositiveButton("차단");
+                                customDialog.setNegativeButton("취소");
+                                break;
+                            // 신고하기
+                            case 2:
+                                ArrayList<String> reports = new ArrayList<>(Arrays.asList("욕설/비하", "상업적 광고 및 판매", "낚시/놀람/도배/사기", "게시판 성격에 부적절함", "기타"));
+                                AlertDialog.Builder builder2 = new AlertDialog.Builder(context);
+                                builder2.setItems(R.array.reportreason, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        Toast.makeText(MyNoteDetailActivity.this, reports.get(which), Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                                Dialog dialog2 = builder2.create();
+                                dialog2.show();
+                                break;
+
+                            // 차단하기
+                            case 3:
+                                break;
+
+                        }
+                    }
+                });
+                Dialog dialog = builder.create();
+                ListView listView = ((AlertDialog) dialog).getListView();
+                listView.setDivider(context.getResources().getDrawable(R.color.BDBDBD));
+                listView.setDividerHeight(2);
+                listView.setFooterDividersEnabled(false);
+                dialog.show();
             }
         });
 
         tv_my_note_detail_counter = findViewById(R.id.tv_my_note_detail_counter);
+
         tv_my_note_detail_counter.setText(counter_name);
 
         rv_my_note_detail = findViewById(R.id.rv_my_note_detail);
         myChatRecyclerViewAdapter = new MyChatRecyclerViewAdapter(messageContents, context);
         rv_my_note_detail.setAdapter(myChatRecyclerViewAdapter);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(context, RecyclerView.VERTICAL, false);
-        linearLayoutManager.setStackFromEnd(true);
         rv_my_note_detail.setLayoutManager(linearLayoutManager);
         reloadChat();
 
@@ -126,7 +206,7 @@ public class MyNoteDetailActivity extends AppCompatActivity {
             public void onClick(View v) {
                 String reply = et_my_note_reply.getText().toString();
                 et_my_note_reply.getText().clear();
-                messageContents.add(new MessageContent("mock", false, UserPersonalInfo.email, reply, new Date(SystemClock.currentThreadTimeMillis())));
+                messageContents.add(new MessageContent("mock", false, UserPersonalInfo.email, reply, new Date()));
                 myChatRecyclerViewAdapter.setItem(messageContents);
                 myChatRecyclerViewAdapter.notifyItemChanged(messageContents.size() - 1);
                 rv_my_note_detail.scrollToPosition(myChatRecyclerViewAdapter.getItemCount() - 1);
@@ -217,6 +297,112 @@ public class MyNoteDetailActivity extends AppCompatActivity {
 //
 //
 //    }
+
+    class DeleteThread extends Thread {
+        private String message_id;
+        private String counter;
+        public DeleteThread(String message_id, String counter) {
+            this.message_id = message_id;
+            this.counter = counter;
+        }
+        public void run() {
+            deleteUser(message_id, counter);
+            while(!delete_done) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            handler.sendEmptyMessage(0);
+        }
+    }
+    class BlockThread extends Thread {
+        private String message_id;
+        private String counter;
+        public BlockThread(String message_id, String counter) {
+            this.message_id = message_id;
+            this.counter = counter;
+        }
+        public void run() {
+            blockUser(counter);
+            deleteUser(message_id, counter);
+            while(!block_done || !delete_done) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            handler.sendEmptyMessage(0);
+        }
+
+    }
+
+    class NoteHandler extends Handler {
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            super.handleMessage(msg);
+            if (msg.what == 0) {
+                delete_done = false;
+                block_done = false;
+                finish();
+            }
+        }
+    }
+
+    public void blockUser(String counter) {
+        Log.d("counter", "blockUser: " + counter);
+        String token = UserPersonalInfo.token;
+        try {
+            String requestURL = context.getResources().getString(R.string.server) + "/api/users/blockuser";
+            JSONObject params = new JSONObject();
+            params.put("userID", counter);
+            RequestQueue requestQueue = Volley.newRequestQueue(context);
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
+                    Request.Method.PUT, requestURL, params, response -> {
+                block_done = true;
+            }, error -> {
+                error.printStackTrace();
+            })
+            {
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    HashMap<String, String> headers = new HashMap<String, String>();
+                    headers.put("Authorization", "Bearer " + token);
+                    return headers;
+                }
+            };
+
+            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20 * 1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            requestQueue.add(jsonObjectRequest);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void deleteUser(String message_object_id, String counter) {
+        try {
+            String requestURL = context.getResources().getString(R.string.server) + "/api/messages/deletemessage";
+            JSONObject params = new JSONObject();
+            params.put("userID", UserPersonalInfo.userID);
+            params.put("message_object_id", message_object_id);
+            RequestQueue requestQueue = Volley.newRequestQueue(context);
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
+                    Request.Method.PUT, requestURL, params, response -> {
+                        delete_done = true;
+            }, error -> {
+                        error.printStackTrace();
+            });
+            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20 * 1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            requestQueue.add(jsonObjectRequest);
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     private class CustomJsonArrayRequest extends JsonRequest<JSONArray> {
 
         /**

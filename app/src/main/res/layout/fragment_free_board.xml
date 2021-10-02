@@ -8,14 +8,15 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
         android:background="@color/white"
         >
         <TextView
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="자유 게시판"
+            android:text="자유"
             android:textSize="20dp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="12dp"
             android:textColor="@color/black"
             android:textStyle="bold"
             android:gravity="center"
@@ -28,6 +29,7 @@
             android:layout_height="26dp"
             android:layout_alignParentRight="true"
             android:layout_marginRight="15dp"
+            android:layout_marginTop="12.5dp"
             android:background="#FFFFFF"
             android:padding="3dp"
             android:scaleType="centerInside"
@@ -37,11 +39,16 @@
         android:id="@+id/tl_free_board"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:tabSelectedTextColor="@color/teal_200"
-        app:tabTextAppearance="@android:style/TextAppearance.Widget.TabWidget"
+        app:tabSelectedTextColor="@color/free_theme_color"
+        app:tabTextAppearance="@style/tabLayout_free"
+        app:tabIndicatorColor="@color/free_theme_color"
+        app:tabIndicatorHeight="0dp"
         app:tabMode="fixed"
         app:tabGravity="fill"
-        app:tabTextColor="@color/gray2"/>
+        app:tabPaddingTop="0dp"
+        app:tabTextColor="@color/gray2"
+        app:tabPadding="0dp">
+    </com.google.android.material.tabs.TabLayout>
     <androidx.viewpager2.widget.ViewPager2
         android:layout_width="match_parent"
         android:layout_height="match_parent"

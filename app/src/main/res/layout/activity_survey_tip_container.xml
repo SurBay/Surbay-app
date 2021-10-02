@@ -32,6 +32,7 @@
             android:layout_centerVertical="true" />
 
         <ImageButton
+            android:visibility="gone"
             android:layout_width="26dp"
             android:layout_height="26dp"
             android:layout_marginRight="15dp"

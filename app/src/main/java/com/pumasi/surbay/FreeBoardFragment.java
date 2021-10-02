@@ -13,22 +13,26 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 import com.pumasi.surbay.pages.boardpage.BoardGeneral;
 
+import java.util.Arrays;
+import java.util.List;
+
 
 public class FreeBoardFragment extends Fragment {
 
+    private TabLayoutMediator tabLayoutMediator;
     private ImageButton btn_query_free_board;
     public static ViewPager2 vp_free_board;
     private TabLayout tl_free_board;
     public static FragmentStateAdapter adapter2;
     public static int free_position;
-
-
-
+    private static int frag_position;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -44,7 +48,14 @@ public class FreeBoardFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity().getApplicationContext(), BoardsSearchActivity.class);
-                intent.putExtra("pos", 1);
+                switch (frag_position) {
+                    case 0:
+                        intent.putExtra("pos", 1);
+                        break;
+                    case 1:
+                        intent.putExtra("pos", 2);
+                        break;
+                }
                 startActivity(intent);
             }
         });
@@ -76,19 +87,57 @@ public class FreeBoardFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        new TabLayoutMediator(tl_free_board, vp_free_board,
-                ((tab, position) -> {
-                    if (position == 0) {
-                        tab.setText("투표 게시판");
-                    } else if (position  == 1) {
-                        tab.setText("콘텐츠 게시판");
-                    }
-                })).attach();
+
+        final List<String> texts = Arrays.asList("투표 게시판", "콘텐츠 게시판");
+        final List<Integer> drawables = Arrays.asList(R.drawable.red_dot, R.drawable.white_dot);
+        final List<Integer> textColor = Arrays.asList(R.color.teal_200, R.color.gray2);
+
+
+        tabLayoutMediator = new TabLayoutMediator(tl_free_board, vp_free_board, new TabLayoutMediator.TabConfigurationStrategy() {
+            @Override
+            public void onConfigureTab(@NonNull TabLayout.Tab tab, int position) {
+                tab.setCustomView(createTabView(drawables.get(position), texts.get(position), getContext().getResources().getColor(textColor.get(position))));
+            }
+        });
+        tabLayoutMediator.attach();
+
+        tl_free_board.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                frag_position = tab.getPosition();
+                vp_free_board.setCurrentItem(tab.getPosition());
+                TextView textView = tl_free_board.getTabAt(tab.getPosition()).getCustomView().findViewById(R.id.tv_custom_tab);
+                textView.setTextColor(getContext().getResources().getColor(R.color.teal_200));
+                ImageView imageView = tl_free_board.getTabAt(tab.getPosition()).getCustomView().findViewById(R.id.iv_custom_tab);
+                imageView.setImageResource(R.drawable.red_dot);
+
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+                TextView textView = tl_free_board.getTabAt(tab.getPosition()).getCustomView().findViewById(R.id.tv_custom_tab);
+                textView.setTextColor(getContext().getResources().getColor(R.color.gray2));
+                ImageView imageView = tl_free_board.getTabAt(tab.getPosition()).getCustomView().findViewById(R.id.iv_custom_tab);
+                imageView.setImageResource(R.drawable.white_dot);
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
 
     }
-    @Override
-    public void onStart() {
-        super.onStart();
-    }
 
+    private View createTabView(int drawable, String text, int color) {
+        View tabView = LayoutInflater.from(getContext()).inflate(R.layout.custom_tab, null);
+        ImageView iv_custom_tab = tabView.findViewById(R.id.iv_custom_tab);
+        TextView tv_custom_tab = tabView.findViewById(R.id.tv_custom_tab);
+        iv_custom_tab.setImageResource(drawable);
+        tv_custom_tab.setTextColor(color);
+        tv_custom_tab.setText(text);
+
+        return tabView;
+    }
 }
