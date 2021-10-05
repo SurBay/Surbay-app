@@ -397,11 +397,11 @@ public class PostWriteActivity extends AppCompatActivity {
         writeSave.setTextSize((float) (MainActivity.screen_width / 23.4285714286));
         writeDone.setTextSize((float) (MainActivity.screen_width / 23.4285714286));
         RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) writeDone.getLayoutParams();
-        params.rightMargin = (int) (MainActivity.screen_width / 15.7692307692);
+        params.rightMargin = (int) (MainActivity.screen_width_px / 15.7692307692);
         RelativeLayout.LayoutParams params2 = (RelativeLayout.LayoutParams) writeSave.getLayoutParams();
-        params2.rightMargin = (int) (MainActivity.screen_width / 21.8666666667);
+        params2.rightMargin = (int) (MainActivity.screen_width_px / 21.8666666667);
         RelativeLayout.LayoutParams params3 = (RelativeLayout.LayoutParams) writeBack.getLayoutParams();
-        params3.leftMargin = (int) (MainActivity.screen_width / 15.7692307692);
+        params3.leftMargin = (int) (MainActivity.screen_width_px / 15.7692307692);
 
 
         loading = findViewById(R.id.loadingPanel);
@@ -1023,9 +1023,9 @@ public class PostWriteActivity extends AppCompatActivity {
         if(writeGoalParticipants.getText().toString().length() > 0) {
             goalParticipants = Integer.valueOf(writeGoalParticipants.getText().toString());
             if (goalParticipants == 0){
-                goalParticipants = 100;
+                goalParticipants = 50;
             }
-        } else{goalParticipants = 100;}
+        } else{goalParticipants = 50;}
 
         if (purpose == 1){
             url = writeUrl.getText().toString();

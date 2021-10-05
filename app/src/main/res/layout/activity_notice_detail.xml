@@ -15,68 +15,73 @@
         android:clickable="true"
         android:scaleType="centerInside"
         android:src="@drawable/leftarrow2"/>
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:orientation="vertical"
-        android:layout_marginTop="23.8dp"
-        android:paddingHorizontal="26dp">
+        android:layout_height="match_parent">
         <LinearLayout
-            android:id="@+id/linearLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/notice_detail_date"
-                android:layout_width="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:layout_marginTop="23.8dp"
+            android:paddingHorizontal="26dp">
+            <LinearLayout
+                android:id="@+id/linearLayout"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="날짜"
-                android:textColor="@color/text_gray"
-                android:textSize="12.5dp" />
+                android:orientation="horizontal">
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/notice_detail_date"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="날짜"
+                    android:textColor="@color/text_gray"
+                    android:textSize="12.5dp" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=" / "
+                    android:textColor="@color/text_gray"
+                    android:textSize="12.5dp" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/notice_detail_auther"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="작성자"
+                    android:textColor="@color/text_gray"
+                    android:textSize="12.5dp" />
+            </LinearLayout>
 
             <androidx.appcompat.widget.AppCompatTextView
-
-                android:layout_width="wrap_content"
+                android:id="@+id/notice_detail_title"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text=" / "
-                android:textColor="@color/text_gray"
-                android:textSize="12.5dp" />
-
+                android:layout_marginTop="12.5dp"
+                android:text="제목"
+                android:textColor="@color/black"
+                android:textSize="17.5dp"
+                android:textStyle="bold" />
             <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/notice_detail_auther"
-                android:layout_width="wrap_content"
+                android:id="@+id/notice_detail_content"
+                android:layout_marginTop="11dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="작성자"
-                android:textColor="@color/text_gray"
-                android:textSize="12.5dp" />
+                android:layout_centerVertical="true"
+                android:text="내용"
+                android:textColor="@color/black"
+                android:textSize="15sp" />
+            <androidx.recyclerview.widget.RecyclerView
+                android:layout_marginTop="30dp"
+                android:id="@+id/notice_images"
+                android:layout_width="match_parent"
+                android:layout_height="300dp"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                android:visibility="gone"
+                />
         </LinearLayout>
+    </ScrollView>
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/notice_detail_title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12.5dp"
-            android:text="제목"
-            android:textColor="@color/black"
-            android:textSize="17.5dp"
-            android:textStyle="bold"></androidx.appcompat.widget.AppCompatTextView>
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/notice_detail_content"
-            android:layout_marginTop="11dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:text="내용"
-            android:textColor="@color/black"
-            android:textSize="15sp" />
-        <androidx.recyclerview.widget.RecyclerView
-            android:layout_marginTop="30dp"
-            android:id="@+id/notice_images"
-            android:layout_width="match_parent"
-            android:layout_height="300dp"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            android:visibility="gone"
-            />
-    </LinearLayout>
 </LinearLayout>

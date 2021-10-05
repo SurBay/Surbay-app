@@ -42,6 +42,7 @@ import com.pumasi.surbay.classfile.Content;
 import com.pumasi.surbay.classfile.ContentReReply;
 import com.pumasi.surbay.classfile.ContentReply;
 import com.pumasi.surbay.classfile.CustomDialog;
+import com.pumasi.surbay.classfile.Notification;
 import com.pumasi.surbay.classfile.ReReply;
 import com.pumasi.surbay.classfile.UserPersonalInfo;
 
@@ -72,6 +73,7 @@ public class ContentDetailCommentsActivity extends AppCompatActivity {
     private boolean reply_report_done = false;
     private String content_id;
     private boolean is_reply = false;
+    private boolean person_done = false;
     private String reply_id;
     private ArrayList<ContentReply> comments;
     private ContentReplyRecyclerViewAdapter contentReplyRecyclerViewAdapter;
@@ -449,6 +451,14 @@ public class ContentDetailCommentsActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
             }
+            getPersonalInfo();
+            while (!person_done) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
             getComments(content_id);
             while (!get_done) {
                 try {
@@ -483,7 +493,6 @@ public class ContentDetailCommentsActivity extends AppCompatActivity {
                             if (is_reply) {
                                 is_reply = false;
                                 setReplyVisible(false);
-
                                 contentReplyRecyclerViewAdapter.Click(-1);
                             } else {
                                 et_content_detail_comment_reply.post(new Runnable() {
@@ -551,7 +560,7 @@ public class ContentDetailCommentsActivity extends AppCompatActivity {
                                                 customDialog = new CustomDialog(ContentDetailCommentsActivity.this, null);
                                                 customDialog.show();
                                                 customDialog.setMessage("이미 신고한 댓글입니다");
-                                                customDialog.setMessage("확인");
+                                                customDialog.setNegativeButton("확인");
                                             } else {
                                                 customDialog = new CustomDialog(ContentDetailCommentsActivity.this, new View.OnClickListener() {
                                                     @Override
@@ -581,18 +590,25 @@ public class ContentDetailCommentsActivity extends AppCompatActivity {
                                             }
                                             return true;
                                         case R.id.block:
-                                            customDialog = new CustomDialog(context, new View.OnClickListener() {
-                                                @Override
-                                                public void onClick(View v) {
-                                                    BackgroundBlockThread backgroundBlockThread = new BackgroundBlockThread(contentReply.getWriter());
-                                                    backgroundBlockThread.start();
-                                                    customDialog.dismiss();
-                                                }
-                                            });
-                                            customDialog.show();
-                                            customDialog.setMessage("상대를 차단하겠습니까?\n상대를 차단하시면 더 이상 상대방이 보낸 쪽지를 볼 수 없습니다.");
-                                            customDialog.setPositiveButton("차단");
-                                            customDialog.setNegativeButton("취소");
+                                            if (UserPersonalInfo.blocked_users.contains(contentReply.getWriter())) {
+                                                customDialog = new CustomDialog(context, null);
+                                                customDialog.show();
+                                                customDialog.setMessage("이미 차단한 유저입니다.");
+                                                customDialog.setNegativeButton("확인");
+                                            } else {
+                                                customDialog = new CustomDialog(context, new View.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(View v) {
+                                                        BackgroundBlockThread backgroundBlockThread = new BackgroundBlockThread(contentReply.getWriter());
+                                                        backgroundBlockThread.start();
+                                                        customDialog.dismiss();
+                                                    }
+                                                });
+                                                customDialog.show();
+                                                customDialog.setMessage("상대를 차단하겠습니까?\n상대를 차단하시면 더 이상 상대방이 보낸 쪽지를 볼 수 없습니다.");
+                                                customDialog.setPositiveButton("차단");
+                                                customDialog.setNegativeButton("취소");
+                                            }
                                             return true;
                                     }
                                     return false;
@@ -617,6 +633,7 @@ public class ContentDetailCommentsActivity extends AppCompatActivity {
             report_done = false;
             reply_report_done = false;
             block_done = false;
+            person_done = false;
         }
     }
     @Override
@@ -680,5 +697,105 @@ public class ContentDetailCommentsActivity extends AppCompatActivity {
             }
         }
         return super.dispatchTouchEvent(ev);
+    }
+    private void getPersonalInfo() {
+        if (UserPersonalInfo.token == null) {
+            return;
+        }
+        String token = UserPersonalInfo.token;
+        try{
+            String requestURL = getString(R.string.server) + "/personalinfo";
+            RequestQueue requestQueue = Volley.newRequestQueue(context);
+            JsonObjectRequest jsonObjectRequest= new JsonObjectRequest
+                    (Request.Method.GET, requestURL, null, response -> {
+                        try {
+                            JSONObject res = new JSONObject(response.toString());
+                            Log.d("response is", ""+response);
+                            JSONObject user = res.getJSONObject("data");
+                            UserPersonalInfo.name = user.getString("name");
+                            UserPersonalInfo.email = user.getString("email");
+                            UserPersonalInfo.points = user.getInt("points");
+                            UserPersonalInfo.level = user.getInt("level");
+                            UserPersonalInfo.userID = user.getString("userID");
+                            UserPersonalInfo.userPassword = user.getString("userPassword");
+                            UserPersonalInfo.gender = user.getInt("gender");
+                            UserPersonalInfo.yearBirth = user.getInt("yearBirth");
+                            JSONArray ja = (JSONArray)user.get("participations");
+
+                            ArrayList<String> partiarray = new ArrayList<String>();
+                            for (int j = 0; j<ja.length(); j++){
+                                partiarray.add(ja.getString(j));
+                            }
+
+                            UserPersonalInfo.participations = partiarray;
+                            Log.d("partiarray", ""+UserPersonalInfo.participations.toString());
+
+                            JSONArray ja2 = (JSONArray)user.get("prizes");
+                            ArrayList<String> prizearray = new ArrayList<String>();
+                            for (int j = 0; j<ja2.length(); j++){
+                                prizearray.add(ja2.getString(j));
+                            }
+                            UserPersonalInfo.prizes = prizearray;
+                            Log.d("prizearray", ""+UserPersonalInfo.prizes.toString());
+                            ArrayList<Notification> notifications = new ArrayList<>();
+                            try{
+                                SimpleDateFormat fm = new SimpleDateFormat(getString(R.string.date_format));
+                                JSONArray na = (JSONArray)user.get("notifications");
+                                if (na.length() != 0){
+                                    for (int j = 0; j<na.length(); j++){
+                                        JSONObject notification = na.getJSONObject(j);
+                                        String title = notification.getString("title");
+                                        String content = notification.getString("content");
+                                        String post_id = notification.getString("post_id");
+                                        Date date = null;
+                                        try {
+                                            date = fm.parse(notification.getString("date"));
+                                        } catch (ParseException e) {
+                                            e.printStackTrace();
+                                        }
+                                        Integer post_type = notification.getInt("post_type");
+                                        Notification newNotification = new Notification(title, content, post_id, date, post_type);
+                                        notifications.add(newNotification);
+                                    }
+                                }
+
+                            } catch (Exception e){
+                                e.printStackTrace();
+                            }
+                            UserPersonalInfo.notifications = notifications;
+                            UserPersonalInfo.notificationAllow = user.getBoolean("notification_allow");
+                            UserPersonalInfo.prize_check = user.getInt("prize_check");
+                            try {
+                                ArrayList<String> blockedUsers = new ArrayList<>();
+                                JSONArray ja7 = (JSONArray)user.get("blocked_users");
+                                for (int j = 0; j < ja7.length(); j++) {
+                                    blockedUsers.add(ja7.getString(j));
+                                }
+                                UserPersonalInfo.blocked_users = blockedUsers;
+                            } catch (Exception e) {
+                                UserPersonalInfo.blocked_users = new ArrayList<>();
+                            }
+                            person_done = true;
+                        } catch (JSONException e) {
+                            Log.d("exception", "JSON error");
+                            e.printStackTrace();
+                        }
+                    }, error -> {
+                        Log.d("exception", "volley error");
+                        error.printStackTrace();
+                    }){
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    HashMap<String, String> headers = new HashMap<String, String>();
+                    headers.put("Authorization", "Bearer " + token);
+                    return headers;
+                }
+            };
+            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            requestQueue.add(jsonObjectRequest);
+        } catch (Exception e){
+            Log.d("exception", "failed getting response");
+            e.printStackTrace();
+        }
     }
 }

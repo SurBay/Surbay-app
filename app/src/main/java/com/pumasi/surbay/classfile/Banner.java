@@ -14,6 +14,19 @@ public class Banner {
     private Date date;
     private String image_url;
 
+    /*
+
+    [banner type]
+
+    0 : 공지게시글
+    1 : 리서치(post) 게시글
+    2 : 투표(general) 게시글
+    3 : Tip 게시글
+    4 : 지금X - (모바일교환권) 상품 게시글
+    5 : 지금X - (쿠폰/이벤트) 이벤트 게시글
+    6 : 외부 url
+
+     */
     public Banner (String id, int type, boolean hide, boolean done, String title, String author, String content, String url, Date date, String image_url) {
         this.id = id;
         this.type = type;

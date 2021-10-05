@@ -57,7 +57,7 @@ public class ContentReReplyRecyclerViewAdapter extends RecyclerView.Adapter<Cont
         int size = contentReReplies == null ? 0 : contentReReplies.size();
 
         holder.tv_re_reply_name.setText(contentReReply.getWriter_name());
-        holder.tv_re_reply_date.setText(tools.convertTimeZone(context, contentReReply.getDate(), "MM.dd kk:mm"));
+        holder.tv_re_reply_date.setText(tools.convertTimeZone(context, contentReReply.getDate(), "MM.dd HH:mm"));
         if (UserPersonalInfo.blocked_users.contains(contentReReply.getWriter())) {
             holder.tv_re_reply_text.setText("(차단한 유저의 댓글입니다.)");
         }

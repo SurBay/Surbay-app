@@ -88,6 +88,8 @@ public class MyNoteDetailActivity extends AppCompatActivity {
     private NoteHandler handler = new NoteHandler();
     private boolean block_done = false;
     private boolean delete_done = false;
+    private boolean reload_done = false;
+    private boolean reply_done = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -115,7 +117,7 @@ public class MyNoteDetailActivity extends AppCompatActivity {
         ib_my_note_detail_refresh.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                reloadChat();
+                new ReloadThread().start();
             }
         });
 
@@ -196,7 +198,7 @@ public class MyNoteDetailActivity extends AppCompatActivity {
         rv_my_note_detail.setAdapter(myChatRecyclerViewAdapter);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(context, RecyclerView.VERTICAL, false);
         rv_my_note_detail.setLayoutManager(linearLayoutManager);
-        reloadChat();
+        new ReloadThread().start();
 
         et_my_note_reply = findViewById(R.id.et_my_note_reply);
         ib_my_note_reply = findViewById(R.id.ib_my_note_reply);
@@ -206,11 +208,7 @@ public class MyNoteDetailActivity extends AppCompatActivity {
             public void onClick(View v) {
                 String reply = et_my_note_reply.getText().toString();
                 et_my_note_reply.getText().clear();
-                messageContents.add(new MessageContent("mock", false, UserPersonalInfo.email, reply, new Date()));
-                myChatRecyclerViewAdapter.setItem(messageContents);
-                myChatRecyclerViewAdapter.notifyItemChanged(messageContents.size() - 1);
-                rv_my_note_detail.scrollToPosition(myChatRecyclerViewAdapter.getItemCount() - 1);
-                postReply(reply);
+                new ReplyThread(reply).start();
             }
         });
     }
@@ -227,6 +225,7 @@ public class MyNoteDetailActivity extends AppCompatActivity {
             RequestQueue requestQueue = Volley.newRequestQueue(context);
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
                     Request.Method.POST, requestURL, params, response -> {
+                        reply_done = true;
             }, error -> {
                         error.printStackTrace();
             });
@@ -240,9 +239,6 @@ public class MyNoteDetailActivity extends AppCompatActivity {
     public void reloadChat() {
         try {
             messageContents.clear();
-            myChatRecyclerViewAdapter.setItem(messageContents);
-            myChatRecyclerViewAdapter.notifyDataSetChanged();
-
             String requestURL = getResources().getString(R.string.server) + "/api/messages/getmessage";
             JSONObject params = new JSONObject();
             params.put("userID", UserPersonalInfo.email);
@@ -268,9 +264,8 @@ public class MyNoteDetailActivity extends AppCompatActivity {
                             }
                             messageContents.add(new MessageContent(id, check, writer, content, date));
                         }
-                        myChatRecyclerViewAdapter.setItem(messageContents);
-                        myChatRecyclerViewAdapter.notifyDataSetChanged();
-                        rv_my_note_detail.scrollToPosition(myChatRecyclerViewAdapter.getItemCount() - 1);
+
+                        reload_done = true;
                         Log.d("reload", "reloadChat: " + messageContents);
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -298,6 +293,36 @@ public class MyNoteDetailActivity extends AppCompatActivity {
 //
 //    }
 
+    class ReloadThread extends Thread {
+        public void run() {
+            reloadChat();
+            while(!reload_done) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            handler.sendEmptyMessage(1);
+        }
+    }
+    class ReplyThread extends Thread {
+        private String reply;
+        public ReplyThread(String reply) {
+            this.reply = reply;
+        }
+        public void run() {
+            postReply(reply);
+            while(!reply_done) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            new ReloadThread().start();
+        }
+    }
     class DeleteThread extends Thread {
         private String message_id;
         private String counter;
@@ -347,6 +372,12 @@ public class MyNoteDetailActivity extends AppCompatActivity {
                 delete_done = false;
                 block_done = false;
                 finish();
+            } else if (msg.what == 1) {
+                myChatRecyclerViewAdapter.setItem(messageContents);
+                myChatRecyclerViewAdapter.notifyDataSetChanged();
+                rv_my_note_detail.scrollToPosition(myChatRecyclerViewAdapter.getItemCount() - 1);
+                reload_done = false;
+                reply_done = false;
             }
         }
     }
@@ -357,7 +388,7 @@ public class MyNoteDetailActivity extends AppCompatActivity {
         try {
             String requestURL = context.getResources().getString(R.string.server) + "/api/users/blockuser";
             JSONObject params = new JSONObject();
-            params.put("userID", counter);
+            params.put("", counter);
             RequestQueue requestQueue = Volley.newRequestQueue(context);
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
                     Request.Method.PUT, requestURL, params, response -> {

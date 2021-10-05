@@ -133,14 +133,14 @@ public class PostRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
             if (tools.toUTC(date.getTime()) - boardPost.getDeadline().getTime() > 0) {
                 ((MyPostViewHolder) holder).tv_research_item_indicator.setText("종료");
                 ((MyPostViewHolder) holder).tv_research_item_indicator.setTextColor(Color.parseColor("#C4C4C4"));
-            } else if (tools.dayCompare(tools.toLocal(boardPost.getDeadline().getTime()), date.getTime()) == 0) {
+            } else if (tools.compareDay(new Date(tools.toLocal(boardPost.getDeadline().getTime()))) == 0) {
                 ((MyPostViewHolder) holder).tv_research_item_indicator.setText("D-DAY");
                 ((MyPostViewHolder) holder).tv_research_item_indicator.setTextColor(Color.parseColor("#3AD1BF"));
             } else if (tools.toUTC(date.getTime()) - boardPost.getDate().getTime() < tools.time_day) {
                 ((MyPostViewHolder) holder).tv_research_item_indicator.setText("NEW");
                 ((MyPostViewHolder) holder).tv_research_item_indicator.setTextColor(Color.parseColor("#3AD1BF"));
             } else {
-                ((MyPostViewHolder) holder).tv_research_item_indicator.setText("D-" + tools.dayCompare(tools.toLocal(boardPost.getDeadline().getTime()), date.getTime()));
+                ((MyPostViewHolder) holder).tv_research_item_indicator.setText("D-" + tools.compareDay(new Date(tools.toLocal(boardPost.getDeadline().getTime()))));
                 ((MyPostViewHolder) holder).tv_research_item_indicator.setTextColor(Color.parseColor("#3AD1BF"));
 
             }

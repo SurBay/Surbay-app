@@ -11,7 +11,7 @@
     android:background="@color/white">
     <LinearLayout
         android:layout_marginHorizontal="26dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="5dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
@@ -91,17 +91,16 @@
         android:background="@color/gray"
         android:layout_marginHorizontal="26dp"
         android:layout_marginTop="10dp"/>
-    <LinearLayout
+    <RelativeLayout
         android:layout_marginTop="10dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginHorizontal="26dp"
         >
         <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1">
+            android:layout_toLeftOf="@id/fix_center">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -121,12 +120,14 @@
                 android:layout_below="@id/detail_est_time_text"
                 android:layout_centerHorizontal="true"
                 android:text="  3~4분"
+                android:autoSizeTextType="uniform"
                 />
         </RelativeLayout>
         <RelativeLayout
+            android:id="@+id/fix_center"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_centerHorizontal="true"
             >
             <TextView
                 android:layout_width="wrap_content"
@@ -145,6 +146,7 @@
                 android:layout_centerHorizontal="true"
                 android:textColor="@color/text_black"
                 android:text="12.29 - 01.04 오전 12시"
+                android:autoSizeTextType="uniform"
                 android:lines="1">
             </TextView>
             <TextView
@@ -163,7 +165,7 @@
         <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_toRightOf="@+id/fix_center"
             >
             <TextView
                 android:layout_marginLeft="50dp"
@@ -183,6 +185,7 @@
                 android:layout_below="@id/detail_surb_parti_text"
                 android:layout_centerHorizontal="true"
                 android:text="21/50"
+                android:autoSizeTextType="uniform"
                 android:textSize="12.5sp"
                 />
             <TextView
@@ -195,9 +198,10 @@
                 android:textSize="12.5sp"
                 android:textStyle="bold"
                 android:text="90%"
+                android:autoSizeTextType="uniform"
                 />
         </RelativeLayout>
-    </LinearLayout>
+    </RelativeLayout>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

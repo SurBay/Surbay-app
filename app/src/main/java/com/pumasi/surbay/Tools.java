@@ -6,6 +6,9 @@ import android.util.Log;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -57,13 +60,23 @@ public class Tools {
 
         return result;
     }
-    public int dayCompare(long time2, long time) {
-        SimpleDateFormat fm = new SimpleDateFormat("yyyy-MM-dd\\'T\\'kk:mm:ss.SSS");
-        int day2 = (int) (time2 / time_day);
-        int day = (int) (time / time_day);
-        Log.d("TAG", "dayCompare: " + fm.format(time2) + ", " + fm.format(time));
-        Log.d("TAG", "dayCompare: " + day2 + ", " + day);
-        return day2 - day;
+
+    @SuppressLint("SimpleDateFormat")
+    public int compareDay(Date deadline) {
+        Date today = new Date();
+        long diff = 0;
+        int dday = 0;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd MM yyyy");
+            SimpleDateFormat fm = new SimpleDateFormat("dd MM yyyy");
+            LocalDate date1 = LocalDate.parse(fm.format(deadline), dtf);
+            LocalDate date2 = LocalDate.parse(fm.format(today), dtf);
+            diff = ChronoUnit.DAYS.between(date2, date1);
+        } else {
+            diff = deadline.getDate()-today.getDate();
+        }
+        dday = (int) diff;
+        return dday;
     }
     public long toUTC(long local) {
         return local - 9 * 60 * 60 * 1000;

@@ -298,10 +298,11 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="25dp">
                     <ImageView
-                        android:layout_width="16dp"
-                        android:layout_height="14dp"
+                        android:layout_width="18dp"
+                        android:layout_height="16dp"
+                        android:scaleType="fitXY"
                         android:layout_gravity="center_vertical"
-                        android:src="@drawable/coin" />
+                        android:src="@drawable/coin_" />
                     <TextView
                         android:id="@+id/tv_post_write_reward_credit"
                         android:layout_width="wrap_content"
@@ -478,7 +479,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginLeft="5dp"
-                                android:text="모바일 교환권"
+                                android:text=""
                                 android:textSize="13.5dp" />
                             <EditText
                                 android:layout_marginLeft="5dp"
@@ -487,8 +488,8 @@
                                 android:layout_height="wrap_content"
                                 android:focusable="true"
                                 android:focusableInTouchMode="true"
-                                android:gravity="right"
-                                android:hint="상품"
+                                android:gravity="left"
+                                android:hint="기프티콘 상품"
                                 android:lines="1"
                                 android:inputType="text"
                                 android:textColor="@color/text_black"
@@ -513,7 +514,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginLeft="20dp"
+                                android:layout_marginLeft="30dp"
                                 android:background="@drawable/round_border_teal_list"
                                 android:text="앨범"
                                 android:textSize="13.5dp"

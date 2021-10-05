@@ -194,7 +194,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginLeft="18dp"
-                                android:text="-5크레딧"
+                                android:text="-1크레딧"
                                 android:textSize="13.5dp"
                                 android:textStyle="bold"
                                 android:textColor="@color/text_color70" />

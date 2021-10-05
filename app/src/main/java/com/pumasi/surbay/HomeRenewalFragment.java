@@ -103,7 +103,6 @@ public class HomeRenewalFragment extends Fragment {
     private static ImageView iv_vote_none;
     private static ImageView iv_tip_none;
     private ImageView ib_bell;
-    private ArrayList<String> ImagesArray = new ArrayList<>();
     public static ArrayList<Post> randomPosts = new ArrayList<Post>();
     public static ArrayList<General> randomVotes = new ArrayList<General>();
     public static ArrayList<Surveytip> fullSurveytips = new ArrayList<Surveytip>();
@@ -251,10 +250,9 @@ public class HomeRenewalFragment extends Fragment {
                     .show();
             new BannerThread().start();
         } else {
-            for (int i = 0; i < homeBanners.size(); i++) ImagesArray.add(homeBanners.get(i).getImage_url());
-            bannerAdapter = new BannerViewPagerAdapter(context, ImagesArray);
+            bannerAdapter = new BannerViewPagerAdapter(getActivity(), homeBanners);
             vp_banner.setAdapter(bannerAdapter);
-            vp_banner.setCurrentItem(Integer.MAX_VALUE / 2 - ((Integer.MAX_VALUE / 2) % ImagesArray.size()));
+            vp_banner.setCurrentItem(Integer.MAX_VALUE / 2 - ((Integer.MAX_VALUE / 2) % homeBanners.size()));
 
             vp_banner.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
                 @Override
@@ -865,7 +863,6 @@ public class HomeRenewalFragment extends Fragment {
     try {
         String requestURL = "http://ec2-3-35-152-40.ap-northeast-2.compute.amazonaws.com/api/banner/getbanner";
         RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.mContext);
-        Log.d("fuck", "getBanners: " );
         JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(
                 Request.Method.GET, requestURL, null, response -> {
             try {
@@ -982,10 +979,9 @@ public class HomeRenewalFragment extends Fragment {
             else if (msg.what == 3) {
                 refresh_count += 1;
                 skeletonScreen4.hide();
-                for (int i = 0; i < homeBanners.size(); i++) ImagesArray.add(homeBanners.get(i).getImage_url());
-                bannerAdapter = new BannerViewPagerAdapter(context, ImagesArray);
+                bannerAdapter = new BannerViewPagerAdapter(getActivity(), homeBanners);
                 vp_banner.setAdapter(bannerAdapter);
-                vp_banner.setCurrentItem((Integer.MAX_VALUE / 2) - ((Integer.MAX_VALUE / 2) % ImagesArray.size()));
+                vp_banner.setCurrentItem((Integer.MAX_VALUE / 2) - ((Integer.MAX_VALUE / 2) % homeBanners.size()));
                 vp_banner.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
                     @Override
                     public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {

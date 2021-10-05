@@ -101,13 +101,12 @@ public class HomeResearchFragment extends Fragment {
         if (tools.toUTC(date.getTime()) - home_item.getDeadline().getTime() > 0) {
             tv_day1.setText("종료");
             tv_day1.setTextColor(Color.parseColor("#C4C4C4"));
-        } else if (home_item.getDeadline().getTime() - date.getTime() < 1000 * 60 * 60 * 24) {
+        } else if (tools.compareDay(new Date(tools.toLocal(home_item.getDeadline().getTime()))) == 0) {
             tv_day1.setText("D-DAY");
-        } else if (date.getTime() - home_item.getDate().getTime() < 1000 * 60 * 60 * 24) {
+        } else if (tools.toUTC(date.getTime()) - home_item.getDate().getTime() < tools.time_day) {
             tv_day1.setText("NEW");
         } else {
-            long d_day = (home_item.getDeadline().getTime() - date.getTime()) / (1000 * 60 * 60 * 24) + 1;
-            tv_day1.setText("D-" + d_day);
+            tv_day1.setText("D-" + tools.compareDay(new Date(tools.toLocal(home_item.getDeadline().getTime()))));
         }
         ll_home_research_item1.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -139,15 +138,15 @@ public class HomeResearchFragment extends Fragment {
             if (home_item2.getNum_prize() == 0) {
                 iv_gift2.setVisibility(View.INVISIBLE);
             }
-            if (date.getTime() - home_item2.getDeadline().getTime() > 0) {
+            if (tools.toUTC(date.getTime()) - home_item2.getDeadline().getTime() > 0) {
                 tv_day2.setText("종료");
                 tv_day2.setTextColor(Color.parseColor("#C4C4C4"));
-            } else if (tools.dayCompare(tools.toLocal(home_item2.getDeadline().getTime()), date.getTime()) == 0) {
+            } else if (tools.compareDay(new Date(tools.toLocal(home_item2.getDeadline().getTime()))) == 0) {
                 tv_day2.setText("D-DAY");
-            } else if (date.getTime() - home_item2.getDate().getTime() < tools.time_day) {
+            } else if (tools.toUTC(date.getTime()) - home_item2.getDate().getTime() < tools.time_day) {
                 tv_day2.setText("NEW");
             } else {
-                tv_day2.setText("D-" + tools.dayCompare(tools.toLocal(home_item2.getDeadline().getTime()), date.getTime()));
+                tv_day2.setText("D-" + tools.compareDay(new Date(tools.toLocal(home_item2.getDeadline().getTime()))));
             }
             ll_home_research_item2.setOnClickListener(new View.OnClickListener() {
                 @Override

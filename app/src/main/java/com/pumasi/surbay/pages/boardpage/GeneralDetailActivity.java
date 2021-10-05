@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
@@ -51,6 +52,7 @@ import com.pumasi.surbay.adapter.PollDoneAdapter;
 import com.pumasi.surbay.adapter.PollDoneAdapterWImage;
 import com.pumasi.surbay.classfile.CustomDialog;
 import com.pumasi.surbay.classfile.General;
+import com.pumasi.surbay.classfile.Notification;
 import com.pumasi.surbay.classfile.Poll;
 import com.pumasi.surbay.classfile.ReReply;
 import com.pumasi.surbay.classfile.Reply;
@@ -96,6 +98,7 @@ public class GeneralDetailActivity extends AppCompatActivity {
     private boolean report_done = false;
     private boolean delete_done = false;
     private boolean block_done = false;
+    private boolean person_done = false;
 
     private Context context;
     private TextView participants;
@@ -222,20 +225,27 @@ public class GeneralDetailActivity extends AppCompatActivity {
                     customDialog.setMessage("비회원은 이용할 수 없는 기능입니다.");
                     customDialog.setNegativeButton("확인");
                 } else {
-                    generalReplyRecyclerViewAdapter.Click(position);
-                    Reply reply = (Reply) generalReplyRecyclerViewAdapter.getItem(position);
-                    reply_id = reply.getID();
-                    et_vote_detail_reply.post(new Runnable() {
+                    if (reply_mode == COMMENT) {
+                        et_vote_detail_reply.post(new Runnable() {
                         @Override
                         public void run() {
-                            et_vote_detail_reply.setFocusableInTouchMode(true);
-                            et_vote_detail_reply.requestFocus();
-                            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                            imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
-                        }
-                    });
-                    reply_mode = REPLY;
-                    setReplyVisible(true);
+                                et_vote_detail_reply.setFocusableInTouchMode(true);
+                                et_vote_detail_reply.requestFocus();
+                                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
+                            }
+                        });
+                        generalReplyRecyclerViewAdapter.Click(position);
+                        Reply reply = (Reply) generalReplyRecyclerViewAdapter.getItem(position);
+                        reply_id = reply.getID();
+                        reply_mode = REPLY;
+                        setReplyVisible(true);
+                    } else {
+                        reply_mode = COMMENT;
+                        setReplyVisible(false);
+                        generalReplyRecyclerViewAdapter.Click(-1);
+                    }
+
                 }
 
             }
@@ -283,30 +293,38 @@ public class GeneralDetailActivity extends AppCompatActivity {
                                 customDialog.setNegativeButton("취소");
                                 return true;
                             case R.id.report:
-                                customDialog = new CustomDialog(context, new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        ArrayList<String> reports = new ArrayList<>(Arrays.asList("욕설/비하", "상업적 광고 및 판매", "낚시/놀람/도배/사기", "게시판 성격에 부적절함", "기타"));
-                                        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                                        builder.setTitle("신고 사유");
-                                        builder.setItems(R.array.reportreason, new DialogInterface.OnClickListener() {
-                                            @Override
-                                            public void onClick(DialogInterface dialog, int which) {
-                                                BackgroundReportThread backgroundReportThread = new BackgroundReportThread(reply.getID(), reports.get(which));
-                                                backgroundReportThread.start();
-                                                Toast.makeText(GeneralDetailActivity.this, "신고가 접수되었습니다", Toast.LENGTH_SHORT).show();
-                                            }
-                                        });
-                                        Dialog dialog = builder.create();
-                                        dialog.show();
-                                        customDialog.dismiss();
+                                if (reply.getReports().contains(UserPersonalInfo.email)) {
+                                    customDialog = new CustomDialog(context, null);
+                                    customDialog.show();
+                                    customDialog.setMessage("이미 신고한 댓글입니다.");
+                                    customDialog.setNegativeButton("확인");
+                                } else {
+                                    customDialog = new CustomDialog(context, new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            ArrayList<String> reports = new ArrayList<>(Arrays.asList("욕설/비하", "상업적 광고 및 판매", "낚시/놀람/도배/사기", "게시판 성격에 부적절함", "기타"));
+                                            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                                            builder.setTitle("신고 사유");
+                                            builder.setItems(R.array.reportreason, new DialogInterface.OnClickListener() {
+                                                @Override
+                                                public void onClick(DialogInterface dialog, int which) {
+                                                    BackgroundReportThread backgroundReportThread = new BackgroundReportThread(reply.getID(), reports.get(which));
+                                                    backgroundReportThread.start();
+                                                    Toast.makeText(GeneralDetailActivity.this, "신고가 접수되었습니다", Toast.LENGTH_SHORT).show();
+                                                }
+                                            });
+                                            Dialog dialog = builder.create();
+                                            dialog.show();
+                                            customDialog.dismiss();
 
-                                    }
-                                });
-                                customDialog.show();
-                                customDialog.setMessage("댓글을 신고하시겠습니까?");
-                                customDialog.setPositiveButton("신고");
-                                customDialog.setNegativeButton("취소");
+                                        }
+                                    });
+                                    customDialog.show();
+                                    customDialog.setMessage("댓글을 신고하시겠습니까?");
+                                    customDialog.setPositiveButton("신고");
+                                    customDialog.setNegativeButton("취소");
+                                }
+
                                 return true;
                             case R.id.edit:
                                 et_vote_detail_reply.requestFocus();
@@ -316,18 +334,26 @@ public class GeneralDetailActivity extends AppCompatActivity {
                                 reply_id = reply.getID();
                                 setReplyVisible(false);
                             case R.id.block:
-                                customDialog = new CustomDialog(context, new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        BackgroundBlockThread backgroundBlockThread = new BackgroundBlockThread(reply.getWriter());
-                                        backgroundBlockThread.start();
-                                        customDialog.dismiss();
-                                    }
-                                });
-                                customDialog.show();
-                                customDialog.setMessage("상대를 차단하겠습니까?\n상대를 차단하시면 더 이상 상대방이 보낸 쪽지를 볼 수 없습니다.");
-                                customDialog.setPositiveButton("차단");
-                                customDialog.setNegativeButton("취소");
+                                if (UserPersonalInfo.blocked_users.contains(reply.getWriter())) {
+                                    customDialog = new CustomDialog(context, null);
+                                    customDialog.show();
+                                    customDialog.setMessage("이미 차단한 유저입니다.");
+                                    customDialog.setNegativeButton("확인");
+                                } else {
+                                    customDialog = new CustomDialog(context, new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            BackgroundBlockThread backgroundBlockThread = new BackgroundBlockThread(reply.getWriter());
+                                            backgroundBlockThread.start();
+                                            customDialog.dismiss();
+                                        }
+                                    });
+                                    customDialog.show();
+                                    customDialog.setMessage("상대를 차단하겠습니까?\n상대를 차단하시면 더 이상 상대방이 보낸 쪽지를 볼 수 없습니다.");
+                                    customDialog.setPositiveButton("차단");
+                                    customDialog.setNegativeButton("취소");
+                                }
+
                                 return true;
                         }
                         return false;
@@ -631,6 +657,14 @@ public class GeneralDetailActivity extends AppCompatActivity {
         public void run() {
             blockUser(counter);
             while (!block_done) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            getPersonalInfo();
+            while(!person_done) {
                 try {
                     Thread.sleep(100);
                 } catch (InterruptedException e) {
@@ -1188,6 +1222,7 @@ public class GeneralDetailActivity extends AppCompatActivity {
                 default:
                     break;
             }
+            person_done = false;
         }
     }
 
@@ -1474,6 +1509,122 @@ public class GeneralDetailActivity extends AppCompatActivity {
             jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20 * 1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
             requestQueue.add(jsonObjectRequest);
         } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        View focusView = getCurrentFocus();
+        if (focusView != null) {
+            Rect rect = new Rect();
+            focusView.getGlobalVisibleRect(rect);
+            int x = (int) ev.getX(), y = (int) ev.getY();
+            if (!rect.contains(x, y)) {
+                InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+                if (imm != null)
+                    imm.hideSoftInputFromWindow(focusView.getWindowToken(), 0);
+                focusView.clearFocus();
+            }
+        }
+        return super.dispatchTouchEvent(ev);
+    }
+    private void getPersonalInfo() {
+        if (UserPersonalInfo.token == null) {
+            return;
+        }
+        String token = UserPersonalInfo.token;
+        try{
+            String requestURL = getString(R.string.server) + "/personalinfo";
+            RequestQueue requestQueue = Volley.newRequestQueue(context);
+            JsonObjectRequest jsonObjectRequest= new JsonObjectRequest
+                    (Request.Method.GET, requestURL, null, response -> {
+                        try {
+                            JSONObject res = new JSONObject(response.toString());
+                            Log.d("response is", ""+response);
+                            JSONObject user = res.getJSONObject("data");
+                            UserPersonalInfo.name = user.getString("name");
+                            UserPersonalInfo.email = user.getString("email");
+                            UserPersonalInfo.points = user.getInt("points");
+                            UserPersonalInfo.level = user.getInt("level");
+                            UserPersonalInfo.userID = user.getString("userID");
+                            UserPersonalInfo.userPassword = user.getString("userPassword");
+                            UserPersonalInfo.gender = user.getInt("gender");
+                            UserPersonalInfo.yearBirth = user.getInt("yearBirth");
+                            JSONArray ja = (JSONArray)user.get("participations");
+
+                            ArrayList<String> partiarray = new ArrayList<String>();
+                            for (int j = 0; j<ja.length(); j++){
+                                partiarray.add(ja.getString(j));
+                            }
+
+                            UserPersonalInfo.participations = partiarray;
+                            Log.d("partiarray", ""+UserPersonalInfo.participations.toString());
+
+                            JSONArray ja2 = (JSONArray)user.get("prizes");
+                            ArrayList<String> prizearray = new ArrayList<String>();
+                            for (int j = 0; j<ja2.length(); j++){
+                                prizearray.add(ja2.getString(j));
+                            }
+                            UserPersonalInfo.prizes = prizearray;
+                            Log.d("prizearray", ""+UserPersonalInfo.prizes.toString());
+                            ArrayList<Notification> notifications = new ArrayList<>();
+                            try{
+                                SimpleDateFormat fm = new SimpleDateFormat(getString(R.string.date_format));
+                                JSONArray na = (JSONArray)user.get("notifications");
+                                if (na.length() != 0){
+                                    for (int j = 0; j<na.length(); j++){
+                                        JSONObject notification = na.getJSONObject(j);
+                                        String title = notification.getString("title");
+                                        String content = notification.getString("content");
+                                        String post_id = notification.getString("post_id");
+                                        Date date = null;
+                                        try {
+                                            date = fm.parse(notification.getString("date"));
+                                        } catch (ParseException e) {
+                                            e.printStackTrace();
+                                        }
+                                        Integer post_type = notification.getInt("post_type");
+                                        Notification newNotification = new Notification(title, content, post_id, date, post_type);
+                                        notifications.add(newNotification);
+                                    }
+                                }
+
+                            } catch (Exception e){
+                                e.printStackTrace();
+                            }
+                            UserPersonalInfo.notifications = notifications;
+                            UserPersonalInfo.notificationAllow = user.getBoolean("notification_allow");
+                            UserPersonalInfo.prize_check = user.getInt("prize_check");
+                            try {
+                                ArrayList<String> blockedUsers = new ArrayList<>();
+                                JSONArray ja7 = (JSONArray)user.get("blocked_users");
+                                for (int j = 0; j < ja7.length(); j++) {
+                                    blockedUsers.add(ja7.getString(j));
+                                }
+                                UserPersonalInfo.blocked_users = blockedUsers;
+                            } catch (Exception e) {
+                                UserPersonalInfo.blocked_users = new ArrayList<>();
+                            }
+                            person_done = true;
+                        } catch (JSONException e) {
+                            Log.d("exception", "JSON error");
+                            e.printStackTrace();
+                        }
+                    }, error -> {
+                        Log.d("exception", "volley error");
+                        error.printStackTrace();
+                    }){
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    HashMap<String, String> headers = new HashMap<String, String>();
+                    headers.put("Authorization", "Bearer " + token);
+                    return headers;
+                }
+            };
+            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            requestQueue.add(jsonObjectRequest);
+        } catch (Exception e){
+            Log.d("exception", "failed getting response");
             e.printStackTrace();
         }
     }

@@ -17,6 +17,7 @@ import com.pumasi.surbay.Tools;
 import com.pumasi.surbay.classfile.General;
 import com.pumasi.surbay.classfile.Post;
 import com.pumasi.surbay.classfile.ReReply;
+import com.pumasi.surbay.classfile.UserPersonalInfo;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -73,8 +74,10 @@ public class GeneralReReplyRecyclerViewAdapter extends RecyclerView.Adapter<Gene
             holder.tv_re_reply_name.setTextColor(context.getColor(R.color.text_black_70));
         }
         holder.tv_re_reply_date.setText(tools.convertTimeZone(context, reReply.getDate(), "MM.dd kk:mm"));
-        if (reReply.getReports().size() > 4) {
-            holder.tv_re_reply_text.setText("신고 누적으로 삭제된 대댓글입니다.");
+        if (UserPersonalInfo.blocked_users.contains(reReply.getWriter())) {
+            holder.tv_re_reply_text.setText("(차단한 유저의 댓글입니다.)");
+        } else if (reReply.getReports().size() > 4) {
+            holder.tv_re_reply_text.setText("신고가 누적되어 삭제되었습니다.");
         } else {
             holder.tv_re_reply_text.setText(reReply.getContent());
         }

@@ -39,6 +39,7 @@ import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Locale;
 
@@ -217,7 +218,7 @@ public class MobileCouponFragment extends Fragment {
     }
     public void getCoupons() {
         setLoading(true);
-        boardStores.add(new Store("all", false, null, null, "전체", "all"));
+        boardStores.add(new Store("all", false, new ArrayList<>(Arrays.asList("https://ibb.co/q5n9Ckm")), null, "전체", "all"));
         try {
             String requestURL = "http://ec2-3-35-152-40.ap-northeast-2.compute.amazonaws.com/api/coupon";
             RequestQueue requestQueue = Volley.newRequestQueue(context);

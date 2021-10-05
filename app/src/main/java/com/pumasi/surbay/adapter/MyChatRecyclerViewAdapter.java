@@ -53,10 +53,10 @@ public class MyChatRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView
         MessageContent messageContent = messageContents.get(position);
         if (holder instanceof MyChatViewHolder) {
             ((MyChatViewHolder) holder).tv_my_note_myself_chat.setText(messageContent.getContent());
-            ((MyChatViewHolder) holder).tv_my_note_myself_date.setText(new Tools().convertTimeZone(context, messageContent.getDate(), "MM.dd hh:mm"));
+            ((MyChatViewHolder) holder).tv_my_note_myself_date.setText(new Tools().convertTimeZone(context, messageContent.getDate(), "MM.dd HH:mm"));
         } else if (holder instanceof CounterChatViewHolder) {
             ((CounterChatViewHolder) holder).tv_my_note_counter_chat.setText(messageContent.getContent());
-            ((CounterChatViewHolder) holder).tv_my_note_counter_date.setText(new Tools().convertTimeZone(context, messageContent.getDate(), "MM.dd hh:mm"));
+            ((CounterChatViewHolder) holder).tv_my_note_counter_date.setText(new Tools().convertTimeZone(context, messageContent.getDate(), "MM.dd HH:mm"));
         }
 
     }
