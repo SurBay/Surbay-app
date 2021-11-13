@@ -46,6 +46,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.pumasi.surbay.ContentDetailActivity;
 import com.pumasi.surbay.adapter.VoteRecyclerViewAdapter;
 import com.pumasi.surbay.classfile.ReReply;
 import com.pumasi.surbay.pages.MainActivity;
@@ -56,6 +57,8 @@ import com.pumasi.surbay.classfile.Notification;
 import com.pumasi.surbay.classfile.Poll;
 import com.pumasi.surbay.classfile.Reply;
 import com.pumasi.surbay.classfile.UserPersonalInfo;
+import com.pumasi.surbay.pages.signup.LoginActivity;
+import com.pumasi.surbay.tools.ServerTransport;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -80,18 +83,12 @@ public class BoardGeneral extends Fragment// Fragment 클래스를 상속받아�
     private View view;
     static final int WRITE_NEWPOST = 1;
     static final int DO_SURVEY = 2;
-    static final int NEWPOST = 1;
-    static final int DONE = 1;
-    static final int DELETE = 4;
-    static final int FIX_DONE = 3;
-    static final int REPORTED = 5;
-    static final int NOT_DONE = 0;
+
     private final int REQUEST_BOARD = 1;
     private int type = 0;
     private static boolean isOriginal = false;
     private int visibleItemCount, pastVisiblesItems, totalItemCount;
     private SwipeRefreshLayout refresh_boards;
-    private boolean getGeneralsDone = false;
     private boolean isLoading = false;
 
     private Button btn_vote_new_sort;
@@ -108,12 +105,14 @@ public class BoardGeneral extends Fragment// Fragment 클래스를 상속받아�
 
     private String check = "";
     private String beforeVote = "";
+    private ServerTransport st;
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_board_general, container, false);
         getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         context = getActivity().getApplicationContext();
+        st = new ServerTransport(context);
 
         setComponents();
 
@@ -130,13 +129,20 @@ public class BoardGeneral extends Fragment// Fragment 클래스를 상속받아�
             @Override
             public void onItemClick(View v, int position) {
                 if (UserPersonalInfo.userID.equals("nonMember")) {
-                    customDialog = new CustomDialog(getActivity(), null);
+                    customDialog = new CustomDialog(getActivity(), new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Intent intent = new Intent(getActivity(), LoginActivity.class);
+                            startActivity(intent);
+                        }
+                    });
                     customDialog.show();
-                    customDialog.setMessage("비회원은 투표게시판을 이용할 수 없습니다.");
-                    customDialog.setNegativeButton("확인");
+                    customDialog.setMessage("투표게시판을 이용하기 위해서는 \n로그인이 필요합니다.");
+                    customDialog.setPositiveButton("로그인 하기");
+                    customDialog.setNegativeButton("닫기");
                 } else {
                     General general = (General) voteRecyclerViewAdapter.getItem(position);
-                    getGeneral(general.getID(), position, 0);
+                    st.getExecute(general.getID(), 1, 1);
                 }
 
             }
@@ -153,10 +159,6 @@ public class BoardGeneral extends Fragment// Fragment 클래스를 상속받아�
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         Log.d("result code is", ""+requestCode+"   "+resultCode);
-        if (requestCode == REQUEST_BOARD) {
-            getGeneral(((General) voteRecyclerViewAdapter.getItem(resultCode)).getID(), resultCode, 1);
-        }
-        getPersonalInfo();
     }
 
     private void setComponents() {
@@ -227,120 +229,29 @@ public class BoardGeneral extends Fragment// Fragment 클래스를 상속받아�
                     @Override
                     public void onClick(View v) {
                         if (UserPersonalInfo.userID.equals("nonMember")) {
-                            CustomDialog customDialog = new CustomDialog(getActivity(), null);
+                            CustomDialog customDialog = new CustomDialog(getActivity(), new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    Intent intent = new Intent(getActivity(), LoginActivity.class);
+                                    startActivity(intent);
+                                }
+                            });
                             customDialog.show();
-                            customDialog.setMessage("비회원은 글을 작성하실 수 없습니다");
-                            customDialog.setNegativeButton("확인");
-                            return;
+                            customDialog.setMessage("게시글을 작성하기 위해서는 \n로그인이 필요합니다");
+                            customDialog.setPositiveButton("로그인 하기");
+                            customDialog.setNegativeButton("닫기");
+                        } else {
+                            Intent intent = new Intent(((AppCompatActivity) getActivity()).getApplicationContext(), GeneralWriteActivity.class);
+                            intent.putExtra("purpose", WRITE_NEWPOST);
+                            startActivityForResult(intent, WRITE_NEWPOST);
                         }
-                        Intent intent = new Intent(((AppCompatActivity) getActivity()).getApplicationContext(), GeneralWriteActivity.class);
-                        intent.putExtra("purpose", WRITE_NEWPOST);
-                        startActivityForResult(intent, WRITE_NEWPOST);
+
                     }
                 }
         );
 
 
     }
-    private void getPersonalInfo() {
-        if (UserPersonalInfo.token == null) {
-            return;
-        }
-        String token = UserPersonalInfo.token;
-        try{
-            String requestURL = getString(R.string.server) + "/personalinfo";
-            RequestQueue requestQueue = Volley.newRequestQueue(getActivity().getApplicationContext());
-            JsonObjectRequest jsonObjectRequest= new JsonObjectRequest
-                    (Request.Method.GET, requestURL, null, response -> {
-                        try {
-                            JSONObject res = new JSONObject(response.toString());
-                            Log.d("response is", ""+response);
-                            JSONObject user = res.getJSONObject("data");
-                            UserPersonalInfo.name = user.getString("name");
-                            UserPersonalInfo.email = user.getString("email");
-                            UserPersonalInfo.points = user.getInt("points");
-                            UserPersonalInfo.level = user.getInt("level");
-                            UserPersonalInfo.userID = user.getString("userID");
-                            UserPersonalInfo.userPassword = user.getString("userPassword");
-                            UserPersonalInfo.gender = user.getInt("gender");
-                            UserPersonalInfo.yearBirth = user.getInt("yearBirth");
-                            JSONArray ja = (JSONArray)user.get("participations");
-
-                            ArrayList<String> partiarray = new ArrayList<String>();
-                            for (int j = 0; j<ja.length(); j++){
-                                partiarray.add(ja.getString(j));
-                            }
-
-                            UserPersonalInfo.participations = partiarray;
-                            Log.d("partiarray", ""+UserPersonalInfo.participations.toString());
-
-                            JSONArray ja2 = (JSONArray)user.get("prizes");
-                            ArrayList<String> prizearray = new ArrayList<String>();
-                            for (int j = 0; j<ja2.length(); j++){
-                                prizearray.add(ja2.getString(j));
-                            }
-                            UserPersonalInfo.prizes = prizearray;
-                            Log.d("prizearray", ""+UserPersonalInfo.prizes.toString());
-
-                            ArrayList<Notification> notifications = new ArrayList<>();
-                            try{
-                                SimpleDateFormat fm = new SimpleDateFormat(getString(R.string.date_format));
-                                JSONArray na = (JSONArray)user.get("notifications");
-                                if (na.length() != 0){
-                                    for (int j = 0; j<na.length(); j++){
-                                        JSONObject notification = na.getJSONObject(j);
-                                        String title = notification.getString("title");
-                                        String content = notification.getString("content");
-                                        String post_id = notification.getString("post_id");
-                                        Date date = null;
-                                        try {
-                                            date = fm.parse(notification.getString("date"));
-                                        } catch (ParseException e) {
-                                            e.printStackTrace();
-                                        }
-                                        Integer post_type = notification.getInt("post_type");
-                                        Notification newNotification = new Notification(title, content, post_id, date, post_type);
-                                        notifications.add(newNotification);
-                                    }
-                                }
-
-                            } catch (Exception e){
-                                e.printStackTrace();
-                            }
-                            UserPersonalInfo.notifications = notifications;
-                            UserPersonalInfo.notificationAllow = user.getBoolean("notification_allow");
-
-                            UserPersonalInfo.participations = partiarray;
-
-                            UserPersonalInfo.prize_check = user.getInt("prize_check");
-                            SharedPreferences auto = getActivity().getSharedPreferences("auto", Activity.MODE_PRIVATE);
-                            SharedPreferences.Editor autoLogin = auto.edit();
-                            autoLogin.putString("name", user.getString("name"));
-                            autoLogin.commit();
-                        } catch (JSONException e) {
-                            Log.d("exception", "JSON error");
-                            e.printStackTrace();
-                        }
-                    }, error -> {
-                        Log.d("exception", "volley error");
-                        error.printStackTrace();
-                    }){
-                @Override
-                public Map<String, String> getHeaders() throws AuthFailureError {
-                    HashMap<String, String> headers = new HashMap<String, String>();
-                    headers.put("Authorization", "Bearer " + token);
-                    return headers;
-                }
-            };
-            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-            requestQueue.add(jsonObjectRequest);
-        } catch (Exception e){
-            Log.d("exception", "failed getting response");
-            e.printStackTrace();
-        }
-    }
-
-
 
     public void setSelected(int num) {
         setClickable(false);
@@ -647,186 +558,6 @@ public class BoardGeneral extends Fragment// Fragment 클래스를 상속받아�
         int color = res.getColor(colorResId);
         drawable.setColorFilter(color, PorterDuff.Mode.SRC_IN);
         return drawable;
-    }
-    private void getGeneral(String general_object_id, int position, int work) {
-        try {
-            String requestURL = "http://ec2-3-35-152-40.ap-northeast-2.compute.amazonaws.com/api/generals/getpost/" + general_object_id;
-            RequestQueue requestQueue = Volley.newRequestQueue(context);
-            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
-                    Request.Method.GET, requestURL, null, response -> {
-                try {
-                    JSONObject general = new JSONObject(response.toString());
-                    String id = general.getString("_id");
-                    String title = general.getString("title");
-                    String author = general.getString("author");
-                    Integer author_lvl = general.getInt("author_lvl");
-                    String content = general.getString("content");
-                    SimpleDateFormat fm = new SimpleDateFormat(context.getResources().getString(R.string.date_format));
-                    Date date = null;
-                    try {
-                        date = fm.parse(general.getString("date"));
-                        Log.d("note excepted", "getInfinityVotes: " + date);
-                    } catch (ParseException e) {
-                        e.printStackTrace();
-                        Log.d("date excepted", "getInfinityVotes: " + date);
-                    }
-                    Date deadline = null;
-                    try {
-                        deadline = fm.parse(general.getString("deadline"));
-                    } catch (ParseException e) {
-                        e.printStackTrace();
-                    }
-                    ArrayList<Reply> comments = new ArrayList<>();
-                    try{
-                        JSONArray ja = (JSONArray)general.get("comments");
-                        if (ja.length() != 0){
-                            for (int j = 0; j<ja.length(); j++){
-                                JSONObject comment = ja.getJSONObject(j);
-                                String reid = comment.getString("_id");
-                                String writer = comment.getString("writer");
-                                String contetn = comment.getString("content");
-                                Date datereply = null;
-                                try {
-                                    datereply = fm.parse(comment.getString("date"));
-                                } catch (ParseException e) {
-                                    e.printStackTrace();
-                                }
-                                Boolean replyhide = comment.getBoolean("hide");
-                                JSONArray ua = (JSONArray)comment.get("reports");
-
-
-                                ArrayList<String> replyreports = new ArrayList<String>();
-                                for (int u = 0; u<ua.length(); u++){
-                                    replyreports.add(ua.getString(u));
-                                }
-                                String writer_name = null;
-                                try {
-                                    writer_name = comment.getString("writer_name");
-                                }catch (Exception e){
-                                    writer_name = null;
-                                }
-                                ArrayList<ReReply> reReplies = new ArrayList<>();
-                                try {
-                                    JSONArray jk = (JSONArray) comment.get("reply");
-                                    if (jk.length() != 0) {
-                                        for (int k = 0; k < jk.length(); k++) {
-                                            JSONObject reReply = jk.getJSONObject(k);
-                                            String id_ = reReply.getString("_id");
-                                            ArrayList<String> reports_ = new ArrayList<>();
-                                            JSONArray jb = (JSONArray) reReply.get("reports");
-                                            for (int b = 0; b < jb.length(); b++) {
-                                                reports_.add(jb.getString(b));
-                                            }
-                                            ArrayList<String> report_reasons_ = new ArrayList<>();
-                                            JSONArray jc = (JSONArray) reReply.get("report_reasons");
-                                            for (int c = 0; c < jc.length(); c++) {
-                                                report_reasons_.add(jc.getString(c));
-                                            }
-                                            boolean hide_ = reReply.getBoolean("hide");
-                                            String writer_ = reReply.getString("writer");
-                                            String writer_name_ = "";
-                                            try {
-                                                writer_name_ = reReply.getString("writer_name");
-                                            } catch (Exception e) {
-                                                writer_name_ = "익명";
-                                            }
-                                            String content_ = reReply.getString("content");
-                                            Date date_ = fm.parse(reReply.getString("date"));
-                                            String replyID_ = reReply.getString("replyID");
-
-                                            ReReply newReReply = new ReReply(id_, reports_, report_reasons_, hide_, writer_, writer_name_, content_, date_, replyID_);
-                                            reReplies.add(newReReply);
-                                        }
-                                    }
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-                                Reply re = new Reply(reid, writer, contetn, datereply,replyreports,replyhide, writer_name, reReplies);
-                                re.setWriter_name(writer_name);
-                                if ((!replyhide )&& (!replyreports.contains(UserPersonalInfo.userID))){
-                                    comments.add(re);
-                                }
-                            }
-                        }
-
-                    } catch (Exception e){
-                        e.printStackTrace();
-                    }
-                    Boolean done = general.getBoolean("done");
-                    String author_userid = general.getString("author_userid");
-                    JSONArray ka = (JSONArray)general.get("reports");
-                    ArrayList<String> reports = new ArrayList<String>();
-                    for (int j = 0; j<ka.length(); j++){
-                        reports.add(ka.getString(j));
-                    }
-                    Boolean multi_response = general.getBoolean("multi_response");
-                    Integer participants = general.getInt("participants");
-                    JSONArray ia = (JSONArray)general.get("participants_userids");
-                    ArrayList<String> participants_userids = new ArrayList<String>();
-                    for (int j = 0; j<ia.length(); j++){
-                        participants_userids.add(ia.getString(j));
-                    }
-                    Boolean with_image = general.getBoolean("with_image");
-                    ArrayList<Poll> polls = new ArrayList<>();
-                    try{
-                        JSONArray ja = (JSONArray)general.get("polls");
-                        if (ja.length() != 0){
-                            for (int j = 0; j<ja.length(); j++){
-                                JSONObject poll = ja.getJSONObject(j);
-                                String poll_id = poll.getString("_id");
-                                String poll_content = poll.getString("content");
-                                ArrayList<String> poll_participants_userids = new ArrayList<String>();
-                                JSONArray ua = (JSONArray)poll.get("participants_userids");
-                                for (int u = 0; u<ua.length(); u++){
-                                    poll_participants_userids.add(ua.getString(u));
-                                }
-                                String image = poll.getString("image");
-                                Poll newpoll = new Poll(poll_id, poll_content, poll_participants_userids, image);
-                                polls.add(newpoll);
-                            }
-                        }
-
-                    } catch (Exception e){
-                        e.printStackTrace();
-                    }
-
-                    JSONArray la = (JSONArray)general.get("liked_users");
-                    ArrayList<String> liked_users = new ArrayList<String>();
-                    for (int j = 0; j<la.length(); j++){
-                        liked_users.add(la.getString(j));
-                    }
-
-                    Integer likes = general.getInt("likes");
-
-                    Boolean hide = general.getBoolean("hide");
-
-                    General newGeneral = new General(id, title, author, author_lvl, content,
-                            date, deadline, comments, done, author_userid, reports, multi_response,
-                            participants, participants_userids, with_image, polls, liked_users, likes, hide);
-                    if (work == 0) {
-                        Intent intent = new Intent(context, GeneralDetailActivity.class);
-                        intent.putExtra("general", newGeneral);
-                        intent.putExtra("position", position);
-                        startActivityForResult(intent, REQUEST_BOARD);
-                    } else if (work == 1) {
-                        boardVoteShow.set(position, newGeneral);
-                        voteRecyclerViewAdapter.setItem(boardVoteShow);
-                        voteRecyclerViewAdapter.notifyDataSetChanged();
-                    }
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-            }, error -> {
-                error.printStackTrace();
-            });
-            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-            requestQueue.add(jsonObjectRequest);
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
     }
 
 }

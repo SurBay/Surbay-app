@@ -258,7 +258,7 @@ public class FeedbackWrite extends AppCompatActivity {
 //        category = categoryedit.getSelectedItemPosition();
 
         SimpleDateFormat fm = new SimpleDateFormat("yyyy-MM-dd a KK시");
-        Date date = new Date();
+        Date date = new Date(System.currentTimeMillis() - 18 * 60 * 60 * 1000);
 
         String author = UserPersonalInfo.userID;
         Integer author_lvl = UserPersonalInfo.level;
@@ -275,8 +275,6 @@ public class FeedbackWrite extends AppCompatActivity {
             PostNonSurvey feedback = new PostNonSurvey(null, title, author, author_lvl, content, date, category, new ArrayList<Reply>());
             feedback.setAuthor_userid(UserPersonalInfo.userID);
             MainActivity.feedbackArrayList.add(0, feedback);
-            listViewAdapter.notifyDataSetChanged();
-            listView.setAdapter(listViewAdapter);
             Intent intent = new Intent(FeedbackWrite.this, BoardFeedback.class);
             try {
                 postPost(title, author, author_lvl, content, date, category);

@@ -257,7 +257,7 @@
                 android:layout_weight="1"
                 android:focusable="true"
                 android:focusableInTouchMode="true"
-                android:hint="미입력 시 50(명)으로 설정됩니다"
+                android:hint="미입력 시 30(명)으로 설정됩니다"
                 android:textColor="@color/text_black"
                 android:textSize="11sp"
                 android:textColorHint="@color/nav_gray"

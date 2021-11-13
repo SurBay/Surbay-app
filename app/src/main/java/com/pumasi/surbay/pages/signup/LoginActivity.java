@@ -1,5 +1,6 @@
 package com.pumasi.surbay.pages.signup;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -43,6 +44,7 @@ import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
 import com.google.firebase.dynamiclinks.PendingDynamicLinkData;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.pumasi.surbay.HomeRenewalFragment;
+import com.pumasi.surbay.classfile.Notice;
 import com.pumasi.surbay.classfile.ReReply;
 import com.pumasi.surbay.classfile.MyCoupon;
 import com.pumasi.surbay.pages.MainActivity;
@@ -82,6 +84,7 @@ public class LoginActivity extends AppCompatActivity {
 
     String fcm_token;
 
+    boolean notice_done = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -148,6 +151,14 @@ public class LoginActivity extends AppCompatActivity {
                                         try {
                                             Thread.sleep(10);
                                         } catch (Exception e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                    getNotices();
+                                    while (!notice_done) {
+                                        try {
+                                            Thread.sleep(100);
+                                        } catch (InterruptedException e) {
                                             e.printStackTrace();
                                         }
                                     }
@@ -228,6 +239,14 @@ public class LoginActivity extends AppCompatActivity {
                                 try {
                                     Thread.sleep(10);
                                 } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                            getNotices();
+                            while(!notice_done) {
+                                try {
+                                    Thread.sleep(100);
+                                } catch (InterruptedException e) {
                                     e.printStackTrace();
                                 }
                             }
@@ -485,6 +504,7 @@ public class LoginActivity extends AppCompatActivity {
                                                 } catch (ParseException e) {
                                                     e.printStackTrace();
                                                 }
+                                                Log.d("case_m", "makeLoginRequest: " + date);
                                                 Integer post_type = notification.getInt("post_type");
                                                 Notification newNotification = new Notification(title, content, post_id, date, post_type);
                                                 notifications.add(newNotification);
@@ -515,6 +535,12 @@ public class LoginActivity extends AppCompatActivity {
                                             } catch (ParseException e) {
                                                 coupon_used_date = null;
                                             }
+                                            Date coupon_due_date = null;
+                                            try {
+                                                coupon_due_date = fm.parse(coupon.getString("due_date"));
+                                            } catch (ParseException e) {
+                                                coupon_due_date = null;
+                                            }
                                             ArrayList<String> coupon_image_urls = new ArrayList<>();
                                             JSONArray ka = coupon.getJSONArray("image_urls");
                                             for (int k = 0; k < ka.length(); k++) {
@@ -523,7 +549,7 @@ public class LoginActivity extends AppCompatActivity {
                                             String coupon_store = coupon.getString("store");
                                             String coupon_menu = coupon.getString("menu");
                                             String coupon_content = coupon.getString("content");
-                                            myCoupons.add(new MyCoupon(coupon__id, coupon_id, coupon_used, coupon_used_date, coupon_date, coupon_image_urls, coupon_store, coupon_menu, coupon_content));
+                                            myCoupons.add(new MyCoupon(coupon__id, coupon_id, coupon_used, coupon_used_date, coupon_date, coupon_due_date, coupon_image_urls, coupon_store, coupon_menu, coupon_content));
                                         }
                                         UserPersonalInfo.coupons = myCoupons;
                                         Log.d("userCoupons", "makeLoginRequest: " + myCoupons);
@@ -613,5 +639,61 @@ public class LoginActivity extends AppCompatActivity {
             v.setTag("0");
         }
     }
+    public void getNotices(){
+        try{
+            Log.d("starting request", "get notices");
+            String requestURL = "http://ec2-3-35-152-40.ap-northeast-2.compute.amazonaws.com/api/notices";
+            RequestQueue requestQueue = Volley.newRequestQueue(LoginActivity.this);
+            JsonArrayRequest jsonArrayRequest = new JsonArrayRequest
+                    (Request.Method.GET, requestURL, null, response -> {
+                        try {
+                            MainActivity.NoticeArrayList = new ArrayList<Notice>();
+                            JSONArray resultArr = new JSONArray(response.toString());
+                            Log.d("response is", ""+response);
 
+                            for (int i = 0; i < resultArr.length(); i++) {
+                                JSONObject post = resultArr.getJSONObject(i);
+                                String id = post.getString("_id");
+                                String title = post.getString("title");
+                                String author = post.getString("author");
+                                String content = post.getString("content");
+                                @SuppressLint("SimpleDateFormat") SimpleDateFormat fm = new SimpleDateFormat(getApplicationContext().getString(R.string.date_format));
+                                Date date = null;
+                                try {
+                                    date = fm.parse(post.getString("date"));
+                                    Log.d("parsing date", "success");
+                                } catch (ParseException e) {
+                                    e.printStackTrace();
+                                }
+                                JSONArray images = (JSONArray)post.get("image_urls");
+                                ArrayList<String> imagearray = new ArrayList<>();
+                                if(images!=null) {
+                                    imagearray = new ArrayList<String>();
+                                    for (int j = 0; j < images.length(); j++) {
+                                        imagearray.add(images.getString(j));
+                                    }
+                                }
+                                Notice newNotice = new Notice(id, title, author, content, date);
+
+                                if(images!=null){
+                                    newNotice.setImages(imagearray);
+                                }
+                                MainActivity.NoticeArrayList.add(newNotice);
+                                notice_done = true;
+                            }
+                        } catch (JSONException e) {
+                            Log.d("exception", "JSON error");
+                            e.printStackTrace();
+                        }
+                    }, error -> {
+                        Log.d("exception", "volley error");
+                        error.printStackTrace();
+                    });
+            jsonArrayRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            requestQueue.add(jsonArrayRequest);
+        } catch (Exception e){
+            Log.d("exception", "failed getting response");
+            e.printStackTrace();
+        }
+    }
 }

@@ -9,4 +9,7 @@
         android:id="@+id/remove"
         android:title="삭제하기"
         app:showAsAction=""/>
+    <item
+        android:id="@+id/note"
+        android:title="작성자에게 쪽지보내기" />
 </menu>

@@ -58,7 +58,11 @@ public class MyExchangeRecyclerViewAdapter extends RecyclerView.Adapter<MyExchan
             Glide.with(context).load(myCoupon.getImage_urls().get(0)).into(holder.iv_my_coupon_item_image);
         }
         holder.tv_my_coupon_item_name.setText(myCoupon.getStore() + " " + myCoupon.getMenu());
-//        holder.tv_my_coupon_item_date.setText(); 나중에 추가
+        if (myCoupon.getDue_date() == null) {
+            holder.tv_my_coupon_item_date.setText("사용기한 무제한");
+        } else {
+            holder.tv_my_coupon_item_date.setText(new SimpleDateFormat("사용기한 ~yyyy.MM.dd").format(myCoupon.getDue_date()));
+        }
         holder.tv_my_coupon_item_publish_date.setText(tools.convertTimeZone(context, myCoupon.getDate(), "yyyy.MM.dd"));
     }
     public void setItems(ArrayList<MyCoupon> myCoupons) {

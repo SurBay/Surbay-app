@@ -16,6 +16,7 @@ import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.viewpager.widget.PagerAdapter;
 
+import com.bumptech.glide.Glide;
 import com.github.chrisbanes.photoview.PhotoView;
 import com.github.chrisbanes.photoview.PhotoViewAttacher;
 import com.pumasi.surbay.R;
@@ -29,7 +30,7 @@ public class ViewPagerAdapter extends PagerAdapter {
     Context context;
 
     // Array of images
-    ArrayList<Bitmap> images;
+    ArrayList<String> images = new ArrayList<>();
 
     // Layout Inflater
     LayoutInflater mLayoutInflater;
@@ -42,7 +43,7 @@ public class ViewPagerAdapter extends PagerAdapter {
 
 
     // Viewpager Constructor
-    public ViewPagerAdapter(Context context, ArrayList<Bitmap> images) {
+    public ViewPagerAdapter(Context context, ArrayList<String> images) {
         this.context = context;
         this.images = images;
 
@@ -72,8 +73,7 @@ public class ViewPagerAdapter extends PagerAdapter {
         // referencing the image view from the item.xml file
         PhotoView imageView = (PhotoView) itemView.findViewById(R.id.imageview);
 
-        imageView.setImageBitmap(images.get(position));
-        // Adding the View
+        Glide.with(context).load(images.get(position)).into(imageView);
         Objects.requireNonNull(container).addView(itemView);
 
 

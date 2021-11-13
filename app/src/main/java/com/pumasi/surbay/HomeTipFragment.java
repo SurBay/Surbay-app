@@ -26,6 +26,7 @@ import com.pumasi.surbay.classfile.Reply;
 import com.pumasi.surbay.classfile.Surveytip;
 import com.pumasi.surbay.pages.MainActivity;
 import com.pumasi.surbay.pages.boardpage.TipdetailActivity;
+import com.pumasi.surbay.tools.ServerTransport;
 
 import org.json.JSONArray;
 import org.json.JSONException;

@@ -209,7 +209,7 @@ public class SignupActivityExtra extends AppCompatActivity {
 
     protected InputFilter filterKoEnNumSpe = new InputFilter() {
         public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
-            Pattern ps = Pattern.compile("^[a-zA-Z0-9ㄱ-ㅎㅏ-ㅣ가-힣!_@$%^&+=]+$");
+            Pattern ps = Pattern.compile("^[a-zA-Z0-9ㄱ-ㅎㅏ-ㅣ가-힣!_@$%^&+=\\u318D\\u119E\\u11A2\\u2022\\u2025a\\u00B7\\uFE55]+$");
 
             if (!ps.matcher(source).matches()) {
                 return "";

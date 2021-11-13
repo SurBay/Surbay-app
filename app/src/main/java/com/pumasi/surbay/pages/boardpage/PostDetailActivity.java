@@ -1,14 +1,12 @@
 package com.pumasi.surbay.pages.boardpage;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.Dialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -52,7 +50,6 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-import com.pumasi.surbay.ContentDetailCommentsActivity;
 import com.pumasi.surbay.MyNoteActivity;
 import com.pumasi.surbay.R;
 import com.pumasi.surbay.SurveyWebActivity;
@@ -60,11 +57,11 @@ import com.pumasi.surbay.Tools;
 import com.pumasi.surbay.adapter.ReplyRecyclerViewAdapter;
 import com.pumasi.surbay.classfile.CustomDialog;
 import com.pumasi.surbay.classfile.MessageDialog;
-import com.pumasi.surbay.classfile.Notification;
 import com.pumasi.surbay.classfile.Post;
 import com.pumasi.surbay.classfile.ReReply;
 import com.pumasi.surbay.classfile.Reply;
 import com.pumasi.surbay.classfile.UserPersonalInfo;
+import com.pumasi.surbay.tools.ServerTransport;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -80,7 +77,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 
@@ -163,6 +159,7 @@ public class PostDetailActivity extends AppCompatActivity {
     private boolean person_done = false;
 
     RelativeLayout loading;
+    ServerTransport st;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -175,6 +172,8 @@ public class PostDetailActivity extends AppCompatActivity {
         getSupportActionBar().setElevation(0);
         Intent intent = getIntent();
         context = PostDetailActivity.this;
+        st = new ServerTransport(context);
+
         today = new Date();
 
         author = findViewById(R.id.author);
@@ -577,14 +576,15 @@ public class PostDetailActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
             }
-            getPersonalInfo();
-            while (!person_done) {
+            st.getPersonalInfo();
+            while (!st.getPersonalInfoDone) {
                 try {
                     Thread.sleep(100);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
+            st.getPersonalInfoDone = false;
             new BackgroundThread().start();
         }
     }
@@ -728,107 +728,6 @@ public class PostDetailActivity extends AppCompatActivity {
         }
         iv_post_detail_reply.setLayoutParams(params);
     }
-    private void getPersonalInfo() {
-        if (UserPersonalInfo.token == null) {
-            return;
-        }
-        String token = UserPersonalInfo.token;
-        try{
-            String requestURL = getString(R.string.server) + "/personalinfo";
-            RequestQueue requestQueue = Volley.newRequestQueue(context);
-            JsonObjectRequest jsonObjectRequest= new JsonObjectRequest
-                    (Request.Method.GET, requestURL, null, response -> {
-                        try {
-                            JSONObject res = new JSONObject(response.toString());
-                            Log.d("response is", ""+response);
-                            JSONObject user = res.getJSONObject("data");
-                            UserPersonalInfo.name = user.getString("name");
-                            UserPersonalInfo.email = user.getString("email");
-                            UserPersonalInfo.points = user.getInt("points");
-                            UserPersonalInfo.level = user.getInt("level");
-                            UserPersonalInfo.userID = user.getString("userID");
-                            UserPersonalInfo.userPassword = user.getString("userPassword");
-                            UserPersonalInfo.gender = user.getInt("gender");
-                            UserPersonalInfo.yearBirth = user.getInt("yearBirth");
-                            JSONArray ja = (JSONArray)user.get("participations");
-
-                            ArrayList<String> partiarray = new ArrayList<String>();
-                            for (int j = 0; j<ja.length(); j++){
-                                partiarray.add(ja.getString(j));
-                            }
-
-                            UserPersonalInfo.participations = partiarray;
-                            Log.d("partiarray", ""+UserPersonalInfo.participations.toString());
-
-                            JSONArray ja2 = (JSONArray)user.get("prizes");
-                            ArrayList<String> prizearray = new ArrayList<String>();
-                            for (int j = 0; j<ja2.length(); j++){
-                                prizearray.add(ja2.getString(j));
-                            }
-                            UserPersonalInfo.prizes = prizearray;
-                            Log.d("prizearray", ""+UserPersonalInfo.prizes.toString());
-                            ArrayList<Notification> notifications = new ArrayList<>();
-                            try{
-                                SimpleDateFormat fm = new SimpleDateFormat(getString(R.string.date_format));
-                                JSONArray na = (JSONArray)user.get("notifications");
-                                if (na.length() != 0){
-                                    for (int j = 0; j<na.length(); j++){
-                                        JSONObject notification = na.getJSONObject(j);
-                                        String title = notification.getString("title");
-                                        String content = notification.getString("content");
-                                        String post_id = notification.getString("post_id");
-                                        Date date = null;
-                                        try {
-                                            date = fm.parse(notification.getString("date"));
-                                        } catch (ParseException e) {
-                                            e.printStackTrace();
-                                        }
-                                        Integer post_type = notification.getInt("post_type");
-                                        Notification newNotification = new Notification(title, content, post_id, date, post_type);
-                                        notifications.add(newNotification);
-                                    }
-                                }
-
-                            } catch (Exception e){
-                                e.printStackTrace();
-                            }
-                            UserPersonalInfo.notifications = notifications;
-                            UserPersonalInfo.notificationAllow = user.getBoolean("notification_allow");
-                            UserPersonalInfo.prize_check = user.getInt("prize_check");
-                            try {
-                                ArrayList<String> blockedUsers = new ArrayList<>();
-                                JSONArray ja7 = (JSONArray)user.get("blocked_users");
-                                for (int j = 0; j < ja7.length(); j++) {
-                                    blockedUsers.add(ja7.getString(j));
-                                }
-                                UserPersonalInfo.blocked_users = blockedUsers;
-                            } catch (Exception e) {
-                                UserPersonalInfo.blocked_users = new ArrayList<>();
-                            }
-                            person_done = true;
-                        } catch (JSONException e) {
-                            Log.d("exception", "JSON error");
-                            e.printStackTrace();
-                        }
-                    }, error -> {
-                        Log.d("exception", "volley error");
-                        error.printStackTrace();
-                    }){
-                @Override
-                public Map<String, String> getHeaders() throws AuthFailureError {
-                    HashMap<String, String> headers = new HashMap<String, String>();
-                    headers.put("Authorization", "Bearer " + token);
-                    return headers;
-                }
-            };
-            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-            requestQueue.add(jsonObjectRequest);
-        } catch (Exception e){
-            Log.d("exception", "failed getting response");
-            e.printStackTrace();
-        }
-    }
-
     private void updateParticipants(int updatedParticipants) throws Exception{
         String goalpart, realpart;
         if(post.getParticipants()>999){
@@ -844,7 +743,8 @@ public class PostDetailActivity extends AppCompatActivity {
         }
         participants.setText(""+goalpart+"/"+realpart);
         updateUserParticipation(post.getID());
-        getPersonalInfo();
+        st.getPersonalInfo();
+        st.getPersonalInfoDone = false;
     }
     private void updateReports() throws Exception {
         String requestURL = getString(R.string.server) + "/api/posts/report/" + post.getID();
@@ -1338,10 +1238,11 @@ public class PostDetailActivity extends AppCompatActivity {
 
     public void donepost(){
         Log.d("tag", "donepost2");
-        String requestURL = getString(R.string.server)+"/api/posts/done/"+post.getID();
+        String requestURL = getString(R.string.server)+"/api/posts/putdonepost";
         try{
             RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
             JSONObject params = new JSONObject();
+            params.put("post_object_id", post.getID());
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
                     (Request.Method.PUT, requestURL, params, response -> {
                         Log.d("response is", ""+response);
@@ -1412,7 +1313,7 @@ public class PostDetailActivity extends AppCompatActivity {
                                 extendView(deadline);
                             } else {
                                 if(res.getString("message").startsWith("already")){
-                                    Toast.makeText(PostDetailActivity.this, "이미 1회 연장하셨습니다", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(PostDetailActivity.this, "이미 최대로 연장하셨습니다", Toast.LENGTH_SHORT).show();
 
                                 }else if(res.getString("message").startsWith("not")){
                                     Toast.makeText(PostDetailActivity.this, "연장 크레딧이 부족합니다", Toast.LENGTH_SHORT).show();
@@ -1868,5 +1769,16 @@ public class PostDetailActivity extends AppCompatActivity {
             }
         }
         return super.dispatchTouchEvent(ev);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        int work = getIntent().getIntExtra("work", 0);
+        if (work == 0) {
+
+        } else if (work == 1) {
+            this.overridePendingTransition(R.anim.enter, R.anim._null);
+        }
     }
 }

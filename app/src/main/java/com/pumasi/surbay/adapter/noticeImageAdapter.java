@@ -10,6 +10,7 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.pumasi.surbay.R;
 
 import java.util.ArrayList;
@@ -17,19 +18,15 @@ import java.util.ArrayList;
 public class noticeImageAdapter extends RecyclerView.Adapter<noticeImageAdapter.MyViewHolder>{
     private static noticeImageAdapter.OnItemClickListener mListener = null ;
 
+    private Context context;
     private LayoutInflater inflater;
-    private ArrayList<Bitmap> imageBitmapList;
+    private ArrayList<String> imageURLs = new ArrayList<>();
 
-    public noticeImageAdapter(Context ctx, ArrayList<Bitmap> imageBitmapList){
+
+    public noticeImageAdapter(Context ctx, ArrayList<String> imageURLs){
+        this.context = ctx;
         inflater = LayoutInflater.from(ctx);
-        this.imageBitmapList = imageBitmapList;
-    }
-
-    public void setBitmapList(ArrayList<Bitmap> bmList){
-        this.imageBitmapList = bmList;
-    }
-    public ArrayList<Bitmap> getBitmapList(){
-        return imageBitmapList;
+        this.imageURLs = imageURLs;
     }
 
     public interface OnItemClickListener {
@@ -39,36 +36,28 @@ public class noticeImageAdapter extends RecyclerView.Adapter<noticeImageAdapter.
         this.mListener = listener ;
     }
 
-    public void removeItem(int position){
-        imageBitmapList.remove(position);
-        notifyItemRemoved(position);
-    }
-
     @NonNull
     @Override
     public noticeImageAdapter.MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
         View view = inflater.inflate(R.layout.notice_image_item, parent, false);
         noticeImageAdapter.MyViewHolder holder = new noticeImageAdapter.MyViewHolder(view);
-
-
         return holder;
 
     }
 
     @Override
     public void onBindViewHolder(@NonNull noticeImageAdapter.MyViewHolder holder, int position) {
-//        Log.d("bmlistis", imageBitmapList+"");
-        holder.image.setImageBitmap(imageBitmapList.get(position));
+        Glide.with(context).load(imageURLs.get(position)).into(holder.image);
     }
 
     @Override
     public int getItemCount() {
-        return imageBitmapList.size();
+        return imageURLs.size();
     }
 
     public Object getItem(int position) {
-        return imageBitmapList.get(position);
+        return imageURLs.get(position);
     }
 
     static class MyViewHolder extends RecyclerView.ViewHolder{

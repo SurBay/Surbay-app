@@ -373,8 +373,7 @@
                 android:scrollbarStyle="insideInset"
                 android:layout_toRightOf="@id/iv_post_detail_reply"
                 android:layout_toLeftOf="@id/reply_enter_button"
-                android:layout_centerVertical="true"
-                />
+                android:layout_centerVertical="true" />
             <ImageButton
                 android:layout_marginRight="5dp"
                 android:layout_width="30dp"

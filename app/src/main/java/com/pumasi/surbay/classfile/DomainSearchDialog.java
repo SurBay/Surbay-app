@@ -99,7 +99,7 @@ public class DomainSearchDialog extends Dialog {
             dialogSearchListViewAdapter = new DialogSearchListViewAdapter(search_list);
             Log.d("serarch_list", ""+search_list.size()+search_list);
             if(search_list.size()==0){
-                search_text.setText("검색 결과가 없습니다\n대학교 추가를 원하시면 인스타그램 @surbay_official 계정 DM을 통해 연락 바랍니다.");
+                search_text.setText("검색 결과가 없습니다\n도메인 추가를 원하시면 인스타그램 \n@surbay_official 계정 DM을\n 통해 연락 바랍니다.");
                 search_text.setVisibility(View.VISIBLE);
             }
             search_result.setAdapter(dialogSearchListViewAdapter);
@@ -114,7 +114,7 @@ public class DomainSearchDialog extends Dialog {
         }else{
             search_list.clear();
             search_text.setVisibility(View.VISIBLE);
-            search_text.setText("현재 서울 소재 대학을 대상으로 서비스를 제공하고 있습니다. 대학교 추가를 원하시면 인스타그랩 @surbay_official 계정 DM을 통해 연락 바랍니다.");
+            search_text.setText("현재 서울 소재 대학을 대상으로\n 서비스를 제공하고 있습니다.\n 도메인 추가를 원하시면 인스타그램 \n@surbay_official 계정 DM을\n 통해 연락 바랍니다.");
 
         }
     }

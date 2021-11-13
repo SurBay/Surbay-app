@@ -43,6 +43,8 @@ import com.pumasi.surbay.classfile.ReReply;
 import com.pumasi.surbay.classfile.Reply;
 import com.pumasi.surbay.classfile.UserPersonalInfo;
 import com.pumasi.surbay.pages.MainActivity;
+import com.pumasi.surbay.pages.signup.LoginActivity;
+import com.pumasi.surbay.tools.ServerTransport;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -58,6 +60,7 @@ import static com.pumasi.surbay.pages.boardpage.BoardGeneral.DO_SURVEY;
 
 
 public class BoardPost extends Fragment {
+    private ServerTransport st;
 
     private LinearLayoutManager mLayoutManager;
     static final int WRITE_NEWPOST = 1;
@@ -91,6 +94,7 @@ public class BoardPost extends Fragment {
         view = inflater.inflate(R.layout.fragment_board_post, container, false);
         getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         context = getActivity().getApplicationContext();
+        st = new ServerTransport(context);
 
         setComponents();
 
@@ -106,18 +110,13 @@ public class BoardPost extends Fragment {
         postRecyclerViewAdapter.setOnItemClickListener(new PostRecyclerViewAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View v, int position) {
-
                 Post item = (Post) postRecyclerViewAdapter.getItem(position);
-                getPost(item.getID(), position);
-
+                st.getExecute(item.getID(), 0, 1);
             }
         });
 
         initScrollListener();
         getInfinityPosts(beforePost, type, isParticipated);
-
-
-
         return view;
     }
     private void setComponents() {
@@ -189,15 +188,23 @@ public class BoardPost extends Fragment {
                     @Override
                     public void onClick(View v) {
                         if(UserPersonalInfo.userID.equals("nonMember")){
-                            CustomDialog customDialog = new CustomDialog(getActivity(), null);
+                            CustomDialog customDialog = new CustomDialog(getActivity(), new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    Intent intent = new Intent(getActivity(), LoginActivity.class);
+                                    startActivity(intent);
+                                }
+                            });
                             customDialog.show();
-                            customDialog.setMessage("비회원은 리서치를 작성하실 수 없습니다");
-                            customDialog.setNegativeButton("확인");
-                            return;
+                            customDialog.setMessage("게시글을 작성하기 위해서는 \n로그인이 필요합니다");
+                            customDialog.setPositiveButton("로그인 하기");
+                            customDialog.setNegativeButton("닫기");
+                        } else {
+                            Intent intent = new Intent(((AppCompatActivity) getActivity()).getApplicationContext(), PostWriteActivity.class);
+                            intent.putExtra("purpose", WRITE_NEWPOST);
+                            startActivityForResult(intent, WRITE_NEWPOST);
                         }
-                        Intent intent = new Intent(((AppCompatActivity) getActivity()).getApplicationContext(), PostWriteActivity.class);
-                        intent.putExtra("purpose", WRITE_NEWPOST);
-                        startActivityForResult(intent, WRITE_NEWPOST);
+
                     }
                 }
         );
@@ -245,9 +252,13 @@ public class BoardPost extends Fragment {
     public void getInfinityPosts(String object, int type, boolean isParticipated) {
         check = object;
         isLoading = true;
+        String user_id = "";
+        if (UserPersonalInfo.userID != "nonMember") {
+            user_id = UserPersonalInfo.userID;
+        }
         Log.d("hey1", "getInfinityPosts: "+ object + ", " + type + ", " + isParticipated);
         try {
-            String requestURL = "http://ec2-3-35-152-40.ap-northeast-2.compute.amazonaws.com/api/posts/infinite/?userID=" + UserPersonalInfo.userID + "&type=" + type + "&post_object_id=" + object + "&participate=" + isParticipated;
+            String requestURL = "http://ec2-3-35-152-40.ap-northeast-2.compute.amazonaws.com/api/posts/infinite/?userID=" + user_id + "&type=" + type + "&post_object_id=" + object + "&participate=" + isParticipated;
             RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.mContext);
             JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(
                     Request.Method.GET, requestURL, null, response -> {
@@ -407,167 +418,12 @@ public class BoardPost extends Fragment {
             });
             jsonArrayRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
             requestQueue.add(jsonArrayRequest);
-            Log.d("TAG", "getInfinityPosts: " + beforePost);
             doneInfinityPost = true;
             isLoading = false;
 
         } catch (Exception e) {
             e.printStackTrace();
             doneInfinityPost = true;
-        }
-    }
-    public void getPost(String post_object_id, int position) {
-        try {
-            String requestURL = "http://ec2-3-35-152-40.ap-northeast-2.compute.amazonaws.com/api/posts/getpost/" + post_object_id;
-            RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.mContext);
-            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
-                    Request.Method.GET, requestURL, null, response -> {
-                try {
-                    JSONObject post = new JSONObject(response.toString());
-                    String id = post.getString("_id");
-                    String title = post.getString("title");
-                    String author = post.getString("author");
-                    Integer author_lvl = post.getInt("author_lvl");
-                    String content = post.getString("content");
-                    Integer participants = post.getInt("participants");
-                    Integer goal_participants = post.getInt("goal_participants");
-                    String url = post.getString("url");
-                    SimpleDateFormat fm = new SimpleDateFormat("yyyy-MM-dd\'T\'kk:mm:ss.SSS");
-                    Date date = null;
-                    Date deadline = null;
-                    try {
-                        date = fm.parse(post.getString("date"));
-                        deadline = fm.parse(post.getString("deadline"));
-                    } catch (ParseException e) {
-                        e.printStackTrace();
-                    }
-                    Boolean with_prize = post.getBoolean("with_prize");
-                    Integer est_time = post.getInt("est_time");
-                    String target = post.getString("target");
-                    Boolean done = post.getBoolean("done");
-                    Boolean hide = post.getBoolean("hide");
-                    Integer extended = post.getInt("extended");
-                    String author_userid = post.getString("author_userid");
-                    String prize = "none";
-                    Integer num_prize = 0;
-                    if (with_prize) {
-                        prize = post.getString("prize");
-                        num_prize = post.getInt("num_prize");
-                    }
-                    Integer pinned = 0;
-                    Boolean annonymous = false;
-                    String author_info = "";
-                    try {
-                        pinned = post.getInt("pinned");
-                        annonymous = post.getBoolean("annonymous");
-                        author_info = post.getString("author_info");
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    JSONArray ia = (JSONArray) post.get("participants_userids");
-                    ArrayList<String> participants_userids = new ArrayList<String>();
-                    for (int j = 0; j < ia.length(); j++) {
-                        participants_userids.add(ia.getString(j));
-                    }
-                    JSONArray ka = (JSONArray) post.get("reports");
-                    ArrayList<String> reports = new ArrayList<String>();
-                    for (int j = 0; j < ka.length(); j++) {
-                        reports.add(ka.getString(j));
-                    }
-                    ArrayList<Reply> comments = new ArrayList<>();
-                    try{
-                        JSONArray ja = (JSONArray)post.get("comments");
-                        if (ja.length() != 0){
-                            for (int j = 0; j<ja.length(); j++){
-                                JSONObject comment = ja.getJSONObject(j);
-                                String reid = comment.getString("_id");
-                                String writer = comment.getString("writer");
-                                String contetn = comment.getString("content");
-                                Date datereply = null;
-                                try {
-                                    datereply = fm.parse(comment.getString("date"));
-                                } catch (ParseException e) {
-                                    e.printStackTrace();
-                                }
-                                Boolean replyhide = comment.getBoolean("hide");
-                                JSONArray ua = (JSONArray)comment.get("reports");
-
-
-                                ArrayList<String> replyreports = new ArrayList<String>();
-                                for (int u = 0; u<ua.length(); u++){
-                                    replyreports.add(ua.getString(u));
-                                }
-                                String writer_name = null;
-                                try {
-                                    writer_name = comment.getString("writer_name");
-                                }catch (Exception e){
-                                    writer_name = null;
-                                }
-                                ArrayList<ReReply> reReplies = new ArrayList<>();
-                                try {
-                                    JSONArray jk = (JSONArray) comment.get("reply");
-                                    if (jk.length() != 0) {
-                                        for (int k = 0; k < jk.length(); k++) {
-                                            JSONObject reReply = jk.getJSONObject(k);
-                                            String id_ = reReply.getString("_id");
-                                            ArrayList<String> reports_ = new ArrayList<>();
-                                            JSONArray jb = (JSONArray) reReply.get("reports");
-                                            for (int b = 0; b < jb.length(); b++) {
-                                                reports_.add(jb.getString(b));
-                                            }
-                                            ArrayList<String> report_reasons_ = new ArrayList<>();
-                                            JSONArray jc = (JSONArray) reReply.get("report_reasons");
-                                            for (int c = 0; c < jc.length(); c++) {
-                                                report_reasons_.add(jc.getString(c));
-                                            }
-                                            boolean hide_ = reReply.getBoolean("hide");
-                                            String writer_ = reReply.getString("writer");
-                                            String writer_name_ = "";
-                                            try {
-                                                writer_name_ = reReply.getString("writer_name");
-                                            } catch (Exception e) {
-                                                writer_name_ = "익명";
-                                            }
-                                            String content_ = reReply.getString("content");
-                                            Date date_ = fm.parse(reReply.getString("date"));
-                                            String replyID_ = reReply.getString("replyID");
-
-                                            ReReply newReReply = new ReReply(id_, reports_, report_reasons_, hide_, writer_, writer_name_, content_, date_, replyID_);
-                                            reReplies.add(newReReply);
-                                        }
-                                    }
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-                                Reply re = new Reply(reid, writer, contetn, datereply,replyreports,replyhide, writer_name, reReplies);
-                                re.setWriter_name(writer_name);
-                                if ((!replyhide )&& (!replyreports.contains(UserPersonalInfo.userID))){
-                                    comments.add(re);
-                                }
-                            }
-                        }
-
-                    } catch (Exception e){
-                        e.printStackTrace();
-                    }
-                    Post newPost = new Post(id, title, author, author_lvl, content, participants, goal_participants, url, date, deadline, with_prize, prize, est_time, target, num_prize, comments, done, extended, participants_userids, reports, hide, author_userid, pinned, annonymous, author_info);
-                    Log.d("newPost", "getInfinityPosts: " + newPost);
-                    Intent intent = new Intent(context, PostDetailActivity.class);
-                    intent.putExtra("post", newPost);
-                    intent.putExtra("position", position);
-                    startActivityForResult(intent, DO_SURVEY);
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }, error -> {
-                error.printStackTrace();
-            });
-            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-            requestQueue.add(jsonObjectRequest);
-
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
     private void initScrollListener() {

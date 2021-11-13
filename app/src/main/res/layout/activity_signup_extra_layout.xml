@@ -28,7 +28,7 @@
                 android:layout_height="wrap_content"
                 android:text="닉네임 설정"
                 android:textSize="15sp"
-                android:textColorHint="@color/text_black_70"></TextView>
+                android:textColorHint="@color/text_black_70" />
         </LinearLayout>
         <EditText
             android:id="@+id/name"
@@ -36,7 +36,7 @@
             android:layout_height="wrap_content"
             android:ems="10"
             style="@style/EdittextTheme"
-            android:inputType="text"
+            android:inputType="none"
             android:maxLength="10"
             android:privateImeOptions="defaultInputmode=korean"
             android:background="@drawable/box_white"
@@ -57,7 +57,7 @@
             android:text="회원정보 (선택)"
             android:layout_marginHorizontal="51dp"
             android:textSize="15sp"
-            android:textColorHint="@color/text_black_70"></TextView>
+            android:textColorHint="@color/text_black_70"/>
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

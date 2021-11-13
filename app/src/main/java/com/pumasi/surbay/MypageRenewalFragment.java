@@ -1,10 +1,8 @@
 package com.pumasi.surbay;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 
@@ -17,12 +15,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
@@ -42,6 +40,8 @@ import com.pumasi.surbay.pages.mypage.MypageSettingMain;
 import com.pumasi.surbay.pages.mypage.NotificationsActivity;
 import com.pumasi.surbay.pages.mypage.SettingFeedbacks;
 import com.pumasi.surbay.pages.mypage.SettingReport;
+import com.pumasi.surbay.pages.signup.LoginActivity;
+import com.pumasi.surbay.tools.ServerTransport;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -88,12 +88,21 @@ public class MypageRenewalFragment extends Fragment {
     private ImageButton ib_my_suggest;
     private ImageButton ib_my_report;
 
+    private RelativeLayout rl_my_research;
+    private RelativeLayout rl_my_vote;
+    private RelativeLayout rl_my_setting;
+    private RelativeLayout rl_my_setting2;
+
+    private LinearLayout ll_my_login;
+    private TextView tv_my_login;
+    private Button btn_my_login;
+
     public static final int UPLOADED_RESEARCH = 0;
     public static final int PARTICIPATED_RESEARCH = 1;
     public static final int UPLOADED_VOTE = 2;
     public static final int PARTICIPATED_VOTE = 3;
 
-
+    public ServerTransport st;
     @SuppressLint("SetTextI18n")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -101,35 +110,50 @@ public class MypageRenewalFragment extends Fragment {
 
         view = inflater.inflate(R.layout.fragment_mypage_renewal, container, false);
         context = getActivity().getApplicationContext();
+        st = new ServerTransport(context);
+        try {
+            userControl(UserPersonalInfo.userID.equals("nonMember"));
+            if (UserPersonalInfo.userID.equals("nonMember")) {
+                rl_my_research.setVisibility(View.GONE);
+            }
 
-        refresh_boards = view.findViewById(R.id.refresh_boards);
-        refresh_boards.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                GetPersonalInfoThread getPersonalInfoThread = new GetPersonalInfoThread();
-                getPersonalInfoThread.start();
+            refresh_boards = view.findViewById(R.id.refresh_boards);
+            refresh_boards.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+                @Override
+                public void onRefresh() {
+                    GetPersonalInfoThread getPersonalInfoThread = new GetPersonalInfoThread();
+                    getPersonalInfoThread.start();
+                }
+            });
+            iv_my_character = view.findViewById(R.id.iv_my_character);
+            String[] adminsList = {"SurBay_Admin", "SurBay_dev", "SurBay_dev2", "SurBay_des", "djrobort", "surbaying", "specific0924@yonsei.ac.kr"};
+            boolean isAdmin = false;
+            for (String admin : adminsList) {
+                if (UserPersonalInfo.userID.equals(admin)) {
+                    iv_my_character.setImageResource(R.drawable.surbay_logo_transparent);
+                    isAdmin = true;
+                }
             }
-        });
-        iv_my_character = view.findViewById(R.id.iv_my_character);
-        String[] adminsList = {"SurBay_Admin", "SurBay_dev", "SurBay_dev2", "SurBay_des", "djrobort", "surbaying", "specific0924@yonsei.ac.kr"};
-        boolean isAdmin = false;
-        for (String admin : adminsList) {
-            if (UserPersonalInfo.userID.equals(admin)) {
-                iv_my_character.setImageResource(R.drawable.surbay_logo_transparent);
-                isAdmin = true;
-            }
-        }
-        if (!isAdmin) {
-            if (UserPersonalInfo.level <= 1) {
-                iv_my_character.setImageResource(R.drawable.lv1_trans);
-            } else if (UserPersonalInfo.level <= 2) {
-                iv_my_character.setImageResource(R.drawable.lv2_trans);
-            } else if (UserPersonalInfo.level <= 3) {
-                iv_my_character.setImageResource(R.drawable.lv3_trans);
+            if (UserPersonalInfo.userID.equals("nonMember")) {
+                iv_my_character.setImageResource(R.drawable.anonymous);
             } else {
-                iv_my_character.setImageResource(R.drawable.lv4_trans);
+                if (!isAdmin) {
+                    if (UserPersonalInfo.level <= 1) {
+                        iv_my_character.setImageResource(R.drawable.lv1_trans);
+                    } else if (UserPersonalInfo.level <= 2) {
+                        iv_my_character.setImageResource(R.drawable.lv2_trans);
+                    } else if (UserPersonalInfo.level <= 3) {
+                        iv_my_character.setImageResource(R.drawable.lv3_trans);
+                    } else {
+                        iv_my_character.setImageResource(R.drawable.lv4_trans);
+                    }
+                }
             }
+        } catch (Exception e) {
+            Log.d("why_null", "onCreateView: " + UserPersonalInfo.userID);
         }
+
+
         tv_my_name = view.findViewById(R.id.tv_my_name);
         tv_my_school = view.findViewById(R.id.tv_my_school);
         tv_my_credit = view.findViewById(R.id.tv_my_credit);
@@ -320,19 +344,19 @@ public class MypageRenewalFragment extends Fragment {
                 startActivity(intent);
             }
         });
-
         return view;
     }
     class GetPersonalInfoThread extends Thread {
         public void run() {
-            getPersonalInfo();
-            while (!getDone) {
+            st.getPersonalInfo();
+            while (!st.getPersonalInfoDone) {
                 try {
                     Thread.sleep(100);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
+            st.getPersonalInfoDone = false;
             handler.sendEmptyMessage(0);
         }
     }
@@ -356,15 +380,19 @@ public class MypageRenewalFragment extends Fragment {
                     isAdmin = true;
                 }
             }
-            if (!isAdmin) {
-                if (UserPersonalInfo.level <= 1) {
-                    iv_my_character.setImageResource(R.drawable.lv1_trans);
-                } else if (UserPersonalInfo.level <= 2) {
-                    iv_my_character.setImageResource(R.drawable.lv2_trans);
-                } else if (UserPersonalInfo.level <= 3) {
-                    iv_my_character.setImageResource(R.drawable.lv3_trans);
-                } else {
-                    iv_my_character.setImageResource(R.drawable.lv4_trans);
+            if (UserPersonalInfo.userID.equals("nonMember")) {
+                iv_my_character.setImageResource(R.drawable.anonymous);
+            } else {
+                if (!isAdmin) {
+                    if (UserPersonalInfo.level <= 1) {
+                        iv_my_character.setImageResource(R.drawable.lv1_trans);
+                    } else if (UserPersonalInfo.level <= 2) {
+                        iv_my_character.setImageResource(R.drawable.lv2_trans);
+                    } else if (UserPersonalInfo.level <= 3) {
+                        iv_my_character.setImageResource(R.drawable.lv3_trans);
+                    } else {
+                        iv_my_character.setImageResource(R.drawable.lv4_trans);
+                    }
                 }
             }
 
@@ -373,105 +401,31 @@ public class MypageRenewalFragment extends Fragment {
         }
     }
 
+    private void userControl(boolean isAnonymous) {
+        if (isAnonymous) {
+            rl_my_research = view.findViewById(R.id.rl_my_research);
+            rl_my_vote = view.findViewById(R.id.rl_my_vote);
+            rl_my_setting = view.findViewById(R.id.rl_my_setting);
+            rl_my_setting2 = view.findViewById(R.id.rl_my_setting2);
+            rl_my_research.setVisibility(View.GONE);
+            rl_my_vote.setVisibility(View.GONE);
+            rl_my_setting.setVisibility(View.GONE);
+            rl_my_setting2.setVisibility(View.GONE);
 
-    private void getPersonalInfo() {
-        if (UserPersonalInfo.token == null) {
-            return;
-        }
-        String token = UserPersonalInfo.token;
-        try{
-            String requestURL = getString(R.string.server) + "/personalinfo";
-            RequestQueue requestQueue = Volley.newRequestQueue(context);
-            JsonObjectRequest jsonObjectRequest= new JsonObjectRequest
-                    (Request.Method.GET, requestURL, null, response -> {
-                        try {
-                            JSONObject res = new JSONObject(response.toString());
-                            Log.d("response is", ""+response);
-                            JSONObject user = res.getJSONObject("data");
-                            UserPersonalInfo.name = user.getString("name");
-                            UserPersonalInfo.email = user.getString("email");
-                            UserPersonalInfo.points = user.getInt("points");
-                            UserPersonalInfo.level = user.getInt("level");
-                            UserPersonalInfo.userID = user.getString("userID");
-                            UserPersonalInfo.userPassword = user.getString("userPassword");
-                            UserPersonalInfo.gender = user.getInt("gender");
-                            UserPersonalInfo.yearBirth = user.getInt("yearBirth");
-                            JSONArray ja = (JSONArray)user.get("participations");
+            ll_my_login = view.findViewById(R.id.ll_my_login);
+            tv_my_login = view.findViewById(R.id.tv_my_login);
+            btn_my_login = view.findViewById(R.id.btn_my_login);
 
-                            ArrayList<String> partiarray = new ArrayList<String>();
-                            for (int j = 0; j<ja.length(); j++){
-                                partiarray.add(ja.getString(j));
-                            }
-
-                            UserPersonalInfo.participations = partiarray;
-                            Log.d("partiarray", ""+UserPersonalInfo.participations.toString());
-
-                            JSONArray ja2 = (JSONArray)user.get("prizes");
-                            ArrayList<String> prizearray = new ArrayList<String>();
-                            for (int j = 0; j<ja2.length(); j++){
-                                prizearray.add(ja2.getString(j));
-                            }
-                            UserPersonalInfo.prizes = prizearray;
-                            Log.d("prizearray", ""+UserPersonalInfo.prizes.toString());
-                            ArrayList<Notification> notifications = new ArrayList<>();
-                            try{
-                                SimpleDateFormat fm = new SimpleDateFormat(getString(R.string.date_format));
-                                JSONArray na = (JSONArray)user.get("notifications");
-                                if (na.length() != 0){
-                                    for (int j = 0; j<na.length(); j++){
-                                        JSONObject notification = na.getJSONObject(j);
-                                        String title = notification.getString("title");
-                                        String content = notification.getString("content");
-                                        String post_id = notification.getString("post_id");
-                                        Date date = null;
-                                        try {
-                                            date = fm.parse(notification.getString("date"));
-                                        } catch (ParseException e) {
-                                            e.printStackTrace();
-                                        }
-                                        Integer post_type = notification.getInt("post_type");
-                                        Notification newNotification = new Notification(title, content, post_id, date, post_type);
-                                        notifications.add(newNotification);
-                                    }
-                                }
-
-                            } catch (Exception e){
-                                e.printStackTrace();
-                            }
-                            UserPersonalInfo.notifications = notifications;
-                            UserPersonalInfo.notificationAllow = user.getBoolean("notification_allow");
-                            UserPersonalInfo.prize_check = user.getInt("prize_check");
-                            try {
-                                ArrayList<String> blockedUsers = new ArrayList<>();
-                                JSONArray ja7 = (JSONArray)user.get("blocked_users");
-                                for (int j = 0; j < ja7.length(); j++) {
-                                    blockedUsers.add(ja7.getString(j));
-                                }
-                                UserPersonalInfo.blocked_users = blockedUsers;
-                            } catch (Exception e) {
-                                UserPersonalInfo.blocked_users = new ArrayList<>();
-                            }
-                            getDone = true;
-                        } catch (JSONException e) {
-                            Log.d("exception", "JSON error");
-                            e.printStackTrace();
-                        }
-                    }, error -> {
-                        Log.d("exception", "volley error");
-                        error.printStackTrace();
-                    }){
+            ll_my_login.setVisibility(View.VISIBLE);
+            btn_my_login.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public Map<String, String> getHeaders() throws AuthFailureError {
-                    HashMap<String, String> headers = new HashMap<String, String>();
-                    headers.put("Authorization", "Bearer " + token);
-                    return headers;
+                public void onClick(View v) {
+                    Intent intent = new Intent(getActivity(), LoginActivity.class);
+                    startActivity(intent);
                 }
-            };
-            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-            requestQueue.add(jsonObjectRequest);
-        } catch (Exception e){
-            Log.d("exception", "failed getting response");
-            e.printStackTrace();
+            });
+
+
         }
     }
 }

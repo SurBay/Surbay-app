@@ -91,7 +91,7 @@ public class TipdetailActivity extends AppCompatActivity {
         back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(ORIGIN_LIKE==LIKED && LIKE_CHANGE==DISLIKED){
+                if(ORIGIN_LIKE==LIKED && LIKE_CHANGE==DISLIKED) {
                     dislikepost();
                     surveytip.setLikes(surveytip.getLikes()-1);
                     surveytip.getLiked_users().remove(UserPersonalInfo.userID);
@@ -178,56 +178,56 @@ public class TipdetailActivity extends AppCompatActivity {
         imagesrecyclerview.setVisibility(View.GONE);
         ArrayList<String> notice_images = surveytip.getImage_uris();
 
-        if(notice_images.size()>0) {
-            final Handler handler = new Handler(){
-                @Override
-                public void handleMessage(@NonNull Message msg) {
-                    super.handleMessage(msg);
-                    imageAdapter = new noticeImageAdapter(TipdetailActivity.this, image_bitmaps);
-                    imagesrecyclerview.setAdapter(imageAdapter);
-                    imagesrecyclerview.setLayoutManager(new LinearLayoutManager(TipdetailActivity.this, LinearLayoutManager.HORIZONTAL, false));
-                    imagesrecyclerview.setVisibility(View.VISIBLE);
-                    imageAdapter.setOnItemClickListener(new noticeImageAdapter.OnItemClickListener() {
-                        @Override
-                        public void onItemClick(View v, int position) {
-                            Intent intent = new Intent(TipdetailActivity.this, NoticeImageDeatil.class);
-//                            BitmapTransfer.setBitmap(image_bitmaps.get(position));
-                            BitmapTransfer.setBitmap_list(image_bitmaps);
-                            startActivityForResult(intent, 20);
-                        }
-                    });
-
-
-                }
-            };
-            for (int i = 0; i < notice_images.size(); i++) {
-                int finalI = i;
-                new Thread() {
-                    Message msg;
-                    public void run() {
-                        try {
-
-                            Log.d("start", "bitmap no." + finalI);
-                            String uri = notice_images.get(finalI);
-                            URL url = new
-                                    URL(uri);
-                            URLConnection conn = url.openConnection();
-                            conn.connect();
-                            BufferedInputStream bis = new
-                                    BufferedInputStream(conn.getInputStream());
-
-                            Bitmap bm = BitmapFactory.decodeStream(bis);
-                            image_bitmaps.add(bm);
-                            bis.close();
-                            msg = handler.obtainMessage();
-                            handler.sendMessage(msg);
-                        } catch (IOException e) {
-                        }
-                    }
-                }.start();
-            }
-
-        }
+//        if(notice_images.size()>0) {
+//            final Handler handler = new Handler(){
+//                @Override
+//                public void handleMessage(@NonNull Message msg) {
+//                    super.handleMessage(msg);
+//                    imageAdapter = new noticeImageAdapter(TipdetailActivity.this, image_bitmaps);
+//                    imagesrecyclerview.setAdapter(imageAdapter);
+//                    imagesrecyclerview.setLayoutManager(new LinearLayoutManager(TipdetailActivity.this, LinearLayoutManager.HORIZONTAL, false));
+//                    imagesrecyclerview.setVisibility(View.VISIBLE);
+//                    imageAdapter.setOnItemClickListener(new noticeImageAdapter.OnItemClickListener() {
+//                        @Override
+//                        public void onItemClick(View v, int position) {
+//                            Intent intent = new Intent(TipdetailActivity.this, NoticeImageDeatil.class);
+////                            BitmapTransfer.setBitmap(image_bitmaps.get(position));
+//                            BitmapTransfer.setBitmap_list(image_bitmaps);
+//                            startActivityForResult(intent, 20);
+//                        }
+//                    });
+//
+//
+//                }
+//            };
+//            for (int i = 0; i < notice_images.size(); i++) {
+//                int finalI = i;
+//                new Thread() {
+//                    Message msg;
+//                    public void run() {
+//                        try {
+//
+//                            Log.d("start", "bitmap no." + finalI);
+//                            String uri = notice_images.get(finalI);
+//                            URL url = new
+//                                    URL(uri);
+//                            URLConnection conn = url.openConnection();
+//                            conn.connect();
+//                            BufferedInputStream bis = new
+//                                    BufferedInputStream(conn.getInputStream());
+//
+//                            Bitmap bm = BitmapFactory.decodeStream(bis);
+//                            image_bitmaps.add(bm);
+//                            bis.close();
+//                            msg = handler.obtainMessage();
+//                            handler.sendMessage(msg);
+//                        } catch (IOException e) {
+//                        }
+//                    }
+//                }.start();
+//            }
+//
+//        }
 
 
     }

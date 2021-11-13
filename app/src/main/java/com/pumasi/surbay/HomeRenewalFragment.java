@@ -1,8 +1,11 @@
 package com.pumasi.surbay;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -40,6 +43,7 @@ import com.pumasi.surbay.adapter.HomeResearchPagerAdapter;
 import com.pumasi.surbay.adapter.HomeTipPagerAdapter;
 import com.pumasi.surbay.adapter.HomeVotePagerAdapter;
 import com.pumasi.surbay.classfile.Banner;
+import com.pumasi.surbay.classfile.CustomDialog;
 import com.pumasi.surbay.classfile.General;
 import com.pumasi.surbay.classfile.Notice;
 import com.pumasi.surbay.classfile.Notification;
@@ -103,6 +107,7 @@ public class HomeRenewalFragment extends Fragment {
     private static ImageView iv_vote_none;
     private static ImageView iv_tip_none;
     private ImageView ib_bell;
+    private ImageView ib_bell_indicator;
     public static ArrayList<Post> randomPosts = new ArrayList<Post>();
     public static ArrayList<General> randomVotes = new ArrayList<General>();
     public static ArrayList<Surveytip> fullSurveytips = new ArrayList<Surveytip>();
@@ -128,12 +133,36 @@ public class HomeRenewalFragment extends Fragment {
         fragmentManager = getChildFragmentManager();
         ((AppCompatActivity) getActivity()).getSupportActionBar().hide();
 
+        ib_bell_indicator = view.findViewById(R.id.ib_bell_indicator);
+        SharedPreferences updateNotice = getActivity().getSharedPreferences("updateNotice", Context.MODE_PRIVATE);
+        String past_notice = updateNotice.getString("last_notice_id", null);
+        if (past_notice != null && !UserPersonalInfo.userID.equals("nonMember")) {
+            if (past_notice.equals(MainActivity.NoticeArrayList.get(0).getID())) {
+                ib_bell_indicator.setVisibility(View.INVISIBLE);
+            } else {
+                ib_bell_indicator.setVisibility(View.VISIBLE);
+            }
+        } else {
+            ib_bell_indicator.setVisibility(View.VISIBLE);  
+        }
+        if (UserPersonalInfo.userID.equals("nonMember")) {
+            ib_bell_indicator.setVisibility(View.GONE);
+        }
+
         ib_bell = view.findViewById(R.id.ib_bell);
         ib_bell.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getActivity(), NoticeActivity.class);
-                startActivity(intent);
+                if (UserPersonalInfo.userID.equals("nonMember")) {
+                    CustomDialog customDialog = new CustomDialog(getActivity(), null);
+                    customDialog.show();
+                    customDialog.setMessage("비회원은 이용할 수 없는 기능입니다.");
+                    customDialog.setNegativeButton("확인");
+                } else {
+                    Intent intent = new Intent(getActivity(), NoticeActivity.class);
+                    startActivityForResult(intent, 0);
+                }
+
             }
         });
         rl_research = view.findViewById(R.id.rl_research);
@@ -954,7 +983,9 @@ public class HomeRenewalFragment extends Fragment {
             super.handleMessage(msg);
             if (msg.what == 0) {
                 refresh_count += 1;
-                skeletonScreen.hide();
+                try {
+                    skeletonScreen.hide();
+                } catch (Exception ignored) {}
                 homeResearchPagerAdapter = new HomeResearchPagerAdapter(fragmentManager);
                 vp_research.setAdapter(homeResearchPagerAdapter);
                 vp_research_indicator.setViewPager(vp_research);
@@ -962,7 +993,11 @@ public class HomeRenewalFragment extends Fragment {
                 PostShuffleClickable(true);
             } else if(msg.what == 1) {
                 refresh_count += 1;
-                skeletonScreen2.hide();
+                try {
+                    skeletonScreen2.hide();
+                } catch (Exception ignored) {
+                    Log.d("what?", "handleMessage: " + "nothing to hide");
+                }
                 homeVotePagerAdapter = new HomeVotePagerAdapter(fragmentManager);
                 vp_vote.setAdapter(homeVotePagerAdapter);
                 vp_vote_indicator.setViewPager(vp_vote);
@@ -970,7 +1005,9 @@ public class HomeRenewalFragment extends Fragment {
                 VoteShuffleClickable(true);
             } else if (msg.what == 2) {
                 refresh_count += 1;
-                skeletonScreen3.hide();
+                try {
+                    skeletonScreen3.hide();
+                } catch (Exception ignored) {}
                 homeTipPagerAdapter = new HomeTipPagerAdapter(fragmentManager);
                 vp_tip.setAdapter(homeTipPagerAdapter);
                 vp_tip_indicator.setViewPager(vp_tip);
@@ -978,7 +1015,9 @@ public class HomeRenewalFragment extends Fragment {
             }
             else if (msg.what == 3) {
                 refresh_count += 1;
-                skeletonScreen4.hide();
+                try {
+                    skeletonScreen4.hide();
+                } catch (Exception ignored) {}
                 bannerAdapter = new BannerViewPagerAdapter(getActivity(), homeBanners);
                 vp_banner.setAdapter(bannerAdapter);
                 vp_banner.setCurrentItem((Integer.MAX_VALUE / 2) - ((Integer.MAX_VALUE / 2) % homeBanners.size()));
@@ -1022,6 +1061,13 @@ public class HomeRenewalFragment extends Fragment {
                 refresh_boards.setRefreshing(false);
             }
         }
+
+
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        ib_bell_indicator.setVisibility(View.GONE);
+    }
 }

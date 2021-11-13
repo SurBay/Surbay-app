@@ -39,7 +39,6 @@ public class SignupActivityEmail extends AppCompatActivity {
     TextView university_edittext;
     ImageButton university_search;
     EditText userid_edittext;
-    TextView domain_textview;
     Button signup_next;
     RelativeLayout signup_layout;
     TextView check_id;
@@ -55,37 +54,16 @@ public class SignupActivityEmail extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup_email_layout);
         getSupportActionBar().hide();
-        getDomains();
 
 
         university_edittext = findViewById(R.id.signup_university);
         university_search = findViewById(R.id.sign_up_university_search);
         userid_edittext = findViewById(R.id.signup_userid);
-        domain_textview = findViewById(R.id.signup_domain);
         signup_next = findViewById(R.id.signup_email_next);
         loading = findViewById(R.id.loadingPanel);
         loading.setVisibility(View.GONE);
         signup_layout = findViewById(R.id.rl_sign_up_university_search);
         check_id = findViewById(R.id.signup_check_id);
-
-        signup_layout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                SearchDialog();
-            }
-        });
-        university_edittext.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                SearchDialog();
-            }
-        });
-        university_search.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                SearchDialog();
-            }
-        });
 
         userid_edittext.addTextChangedListener(new TextWatcher() {
             @Override
@@ -94,7 +72,8 @@ public class SignupActivityEmail extends AppCompatActivity {
             public void onTextChanged(CharSequence s, int start, int before, int count) {}
             @Override
             public void afterTextChanged(Editable s) {
-                if(domain_textview.getText().toString().length()!=0) {
+
+                if(userid_edittext.getText().toString().length()!=0) {
                     check_id.setVisibility(View.VISIBLE);
                     check_id.setText("중복 확인 중입니다.");
                     check_id.setTextColor(getResources().getColor(R.color.red));
@@ -103,6 +82,8 @@ public class SignupActivityEmail extends AppCompatActivity {
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
+                } else {
+                    check_id.setText("");
                 }
             }
         });
@@ -110,7 +91,7 @@ public class SignupActivityEmail extends AppCompatActivity {
         signup_next.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String userid = userid_edittext.getText().toString() + "@" + domain_textview.getText().toString();
+                String userid = userid_edittext.getText().toString();
                 if (userid.length() == 0 || dup_check==false) {
                     CustomDialog customDialog = new CustomDialog(SignupActivityEmail.this, null);
                     customDialog.show();
@@ -131,33 +112,33 @@ public class SignupActivityEmail extends AppCompatActivity {
 
     }
 
-    private void SearchDialog()
-    {
-        DomainSearchDialog domainSearchDialog = new DomainSearchDialog(SignupActivityEmail.this);
-        domainSearchDialog.setCanceledOnTouchOutside(true);
-        domainSearchDialog.setCancelable(true);
-        domainSearchDialog.getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT);
-        domainSearchDialog.show();
-        getFragmentManager().executePendingTransactions();
-        domainSearchDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialog) {
-                if(search_result_university!=null){
-                    university_edittext.setText(search_result_university);
-                    try {
-                        JSONArray university_domains = domains.getJSONArray(search_result_university);
-                        ArrayList<String> domains_list= new ArrayList<>();
-                        for(int i=0;i<university_domains.length();i++){
-                            domains_list.add(university_domains.getString(i));
-                        }
-                        domain_textview.setText(domains_list.get(0));
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        });
-    }
+//    private void SearchDialog()
+//    {
+//        DomainSearchDialog domainSearchDialog = new DomainSearchDialog(SignupActivityEmail.this);
+//        domainSearchDialog.setCanceledOnTouchOutside(true);
+//        domainSearchDialog.setCancelable(true);
+//        domainSearchDialog.getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT);
+//        domainSearchDialog.show();
+//        getFragmentManager().executePendingTransactions();
+//        domainSearchDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+//            @Override
+//            public void onDismiss(DialogInterface dialog) {
+//                if(search_result_university!=null){
+//                    university_edittext.setText(search_result_university);
+//                    try {
+//                        JSONArray university_domains = domains.getJSONArray(search_result_university);
+//                        ArrayList<String> domains_list= new ArrayList<>();
+//                        for(int i=0;i<university_domains.length();i++){
+//                            domains_list.add(university_domains.getString(i));
+//                        }
+//                        domain_edittext.setText(domains_list.get(0));
+//                    } catch (JSONException e) {
+//                        e.printStackTrace();
+//                    }
+//                }
+//            }
+//        });
+//    }
 
     private void getDomains(){
         try{
@@ -189,7 +170,7 @@ public class SignupActivityEmail extends AppCompatActivity {
             check_id.setVisibility(View.GONE);
         } else {
             try {
-                String userid = userid_edittext.getText().toString() + "@" + domain_textview.getText().toString();
+                String userid = userid_edittext.getText().toString();
                 RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
                 String requestURL = getString(R.string.server)+"/userids/duplicate?userID="+ userid;
                 JSONObject params = new JSONObject();

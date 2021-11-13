@@ -14,11 +14,14 @@ import com.pumasi.surbay.adapter.ViewPagerAdapter;
 import com.pumasi.surbay.classfile.BitmapTransfer;
 import com.pumasi.surbay.classfile.CustomViewPager;
 
+import java.util.ArrayList;
+
 public class NoticeImageDeatil extends AppCompatActivity {
     private ScaleGestureDetector mScaleGestureDetector;
     private float mScaleFactor = 1.0f;
     CustomViewPager viewPager;
     ViewPagerAdapter viewPagerAdapter;
+    ArrayList<String> notice_images;
     Integer position;
 
     @Override
@@ -30,20 +33,17 @@ public class NoticeImageDeatil extends AppCompatActivity {
         getSupportActionBar().setElevation(0);
 
         Intent intent = getIntent();
+
+        notice_images = intent.getStringArrayListExtra("notice_images");
         position = intent.getIntExtra("position", -1);
 
         Log.d("bitmapssizeare", ""+BitmapTransfer.getBitmap_list().size());
 
 
         viewPager = (CustomViewPager)findViewById(R.id.viewpager);
-        viewPagerAdapter = new ViewPagerAdapter(NoticeImageDeatil.this, BitmapTransfer.getBitmap_list());
+        viewPagerAdapter = new ViewPagerAdapter(NoticeImageDeatil.this, notice_images);
         viewPager.setAdapter(viewPagerAdapter);
         viewPager.setCurrentItem(position);
-
-//        imageView = findViewById(R.id.imageview);
-//        mScaleGestureDetector = new ScaleGestureDetector(this, new ScaleListener());
-//
-//        imageView.setImageBitmap(BitmapTransfer.getBitmap());
 
 
     }

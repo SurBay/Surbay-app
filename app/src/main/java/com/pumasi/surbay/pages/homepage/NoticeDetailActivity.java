@@ -39,10 +39,6 @@ public class NoticeDetailActivity extends AppCompatActivity {
     Notice post;
     private RecyclerView imagesrecyclerview;
     private noticeImageAdapter imageAdapter;
-    private ArrayList<Bitmap> image_bitmaps = new ArrayList<>();
-
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,59 +70,22 @@ public class NoticeDetailActivity extends AppCompatActivity {
 
         imagesrecyclerview.setVisibility(View.GONE);
         ArrayList<String> notice_images = post.getImages();
-
-        if(notice_images.size()>0) {
-            ArrayList<Uri> image_uris = new ArrayList<>();
-            final Handler handler = new Handler(){
+        if (notice_images.size() > 0) {
+            imageAdapter = new noticeImageAdapter(NoticeDetailActivity.this, notice_images);
+            imagesrecyclerview.setAdapter(imageAdapter);
+            imagesrecyclerview.setLayoutManager(new LinearLayoutManager(NoticeDetailActivity.this, LinearLayoutManager.HORIZONTAL, false));
+            imagesrecyclerview.setVisibility(View.VISIBLE);
+            imageAdapter.setOnItemClickListener(new noticeImageAdapter.OnItemClickListener() {
                 @Override
-                public void handleMessage(@NonNull Message msg) {
-                    super.handleMessage(msg);
-                    imageAdapter = new noticeImageAdapter(NoticeDetailActivity.this, image_bitmaps);
-                    imagesrecyclerview.setAdapter(imageAdapter);
-                    imagesrecyclerview.setLayoutManager(new LinearLayoutManager(NoticeDetailActivity.this, LinearLayoutManager.HORIZONTAL, false));
-                    imagesrecyclerview.setVisibility(View.VISIBLE);
-                    imageAdapter.setOnItemClickListener(new noticeImageAdapter.OnItemClickListener() {
-                        @Override
-                        public void onItemClick(View v, int position) {
-                            Intent intent = new Intent(NoticeDetailActivity.this, NoticeImageDeatil.class);
-//                            BitmapTransfer.setBitmap(image_bitmaps.get(position));
-                            BitmapTransfer.setBitmap_list(image_bitmaps);
-                            intent.putExtra("position", position);
-                            startActivity(intent);
-                        }
-                    });
-
-
+                public void onItemClick(View v, int position) {
+                    Intent intent = new Intent(NoticeDetailActivity.this, NoticeImageDeatil.class);
+                    intent.putExtra("notice_images", notice_images);
+                    intent.putExtra("position", position);
+                    startActivity(intent);
                 }
-            };
-            for (int i = 0; i < notice_images.size(); i++) {
-                int finalI = i;
-                new Thread() {
-                    Message msg;
-                    public void run() {
-                        try {
-
-                            Log.d("start", "bitmap no." + finalI);
-                            String uri = notice_images.get(finalI);
-                            URL url = new
-                                    URL(uri);
-                            URLConnection conn = url.openConnection();
-                            conn.connect();
-                            BufferedInputStream bis = new
-                                    BufferedInputStream(conn.getInputStream());
-
-                            Bitmap bm = BitmapFactory.decodeStream(bis);
-                            image_bitmaps.add(bm);
-                            bis.close();
-                            msg = handler.obtainMessage();
-                            handler.sendMessage(msg);
-                        } catch (IOException e) {
-                        }
-                    }
-                }.start();
-            }
-
+            });
         }
+
         author.setText(post.getAuthor());
         date.setText(new SimpleDateFormat("MM.dd").format(post.getDate()));
         title.setText(post.getTitle());

@@ -26,7 +26,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="15dp"
-                android:text="Surbay는 이메일 아이디를 사용하고 있습니다.\n학교 메일, 네이버 메일, Gmail 등을 사용할 수 있습니다."
+                android:text="SurBay는 이메일 아이디를 사용하고 있습니다.\n학교 메일, 네이버 메일, Gmail 등을 사용할 수 있습니다."
                 android:textColor="@color/text_gray" />
             <TextView
                 android:layout_marginTop="17.5sp"
@@ -37,6 +37,7 @@
                 android:textColorHint="@color/text_black_70" />
         </LinearLayout>
         <RelativeLayout
+            android:visibility="gone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="7dp"
@@ -80,37 +81,13 @@
                 android:inputType="text"
                 android:privateImeOptions="defaultInputmode=english"
                 android:background="@drawable/box_white"
-                android:hint="아이디"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/username_center"
-                app:layout_constraintTop_toTopOf="parent"
-                android:layout_marginEnd="5dp"/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="\@"
-                android:textSize="15sp"
-                android:textColor="@color/text_black_70"
-                android:id="@+id/username_center"
-                android:layout_marginHorizontal="5dp"
+                android:hint="이메일"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
-                />
-            <TextView
-                android:id="@+id/signup_domain"
-                android:layout_width="0dp"
-                android:layout_marginStart="5dp"
-                android:layout_height="wrap_content"
-                android:ems="10"
-                style="@style/TextviewTheme"
-                android:inputType="text"
-                android:privateImeOptions="defaultInputmode=english"
-                android:background="@drawable/box_white"
-                app:layout_constraintStart_toEndOf="@id/username_center"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"/>
+                android:layout_marginEnd="5dp"/>
+
 
         </androidx.constraintlayout.widget.ConstraintLayout>
         <TextView

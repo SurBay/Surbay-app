@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -46,7 +47,6 @@ public class NoticeActivity extends AppCompatActivity {
     private BackgroundThread refreshThread;
 
     private Boolean getNoticesDone = false;
-    Comparator<Notice> cmpNoticeNew;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,37 +55,22 @@ public class NoticeActivity extends AppCompatActivity {
 
         this.getSupportActionBar().hide();
 
-
+        SharedPreferences sharedPreferences = getSharedPreferences("updateNotice", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("last_notice_id", MainActivity.NoticeArrayList.get(0).getID());
+        editor.apply();
         back = findViewById(R.id.notice_back);
         back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                setResult(0);
                 finish();
             }
         });
 
         notice_listview = findViewById(R.id.notice_list);
 
-
-        cmpNoticeNew = new Comparator<Notice>() {
-            @Override
-            public int compare(Notice o1, Notice o2) {
-                int ret;
-                Date date1 = o1.getDate();
-                Date date2 = o2.getDate();
-                int compare = date1.compareTo(date2);
-                if (compare > 0)
-                    ret = -1; //date2<date1
-                else if (compare == 0)
-                    ret = 0;
-                else
-                    ret = 1;
-                return ret;
-            }
-        };
-
         notice_list = new ArrayList<>(MainActivity.NoticeArrayList);
-        Collections.sort(notice_list, cmpNoticeNew);
         notice_listAdapter = new NoticeListAdapter(notice_list);
         notice_listview.setAdapter(notice_listAdapter);
 
@@ -135,7 +120,6 @@ public class NoticeActivity extends AppCompatActivity {
             super.handleMessage(msg);
             Log.d("gotmessage", "goetmessage");
             notice_list = new ArrayList<>(MainActivity.NoticeArrayList);
-            Collections.sort(notice_list, cmpNoticeNew);
             notice_listAdapter = new NoticeListAdapter(notice_list);
             notice_listview.setAdapter(notice_listAdapter);
             getNoticesDone = false;
@@ -200,5 +184,11 @@ public class NoticeActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        setResult(0);
     }
 }

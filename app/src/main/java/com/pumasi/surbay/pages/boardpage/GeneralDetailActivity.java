@@ -44,6 +44,7 @@ import com.android.volley.Response;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.pumasi.surbay.ContentDetailCommentsActivity;
+import com.pumasi.surbay.MyNoteActivity;
 import com.pumasi.surbay.R;
 import com.pumasi.surbay.adapter.GeneralReplyRecyclerViewAdapter;
 import com.pumasi.surbay.adapter.PollAdapter;
@@ -52,6 +53,7 @@ import com.pumasi.surbay.adapter.PollDoneAdapter;
 import com.pumasi.surbay.adapter.PollDoneAdapterWImage;
 import com.pumasi.surbay.classfile.CustomDialog;
 import com.pumasi.surbay.classfile.General;
+import com.pumasi.surbay.classfile.MessageDialog;
 import com.pumasi.surbay.classfile.Notification;
 import com.pumasi.surbay.classfile.Poll;
 import com.pumasi.surbay.classfile.ReReply;
@@ -118,6 +120,7 @@ public class GeneralDetailActivity extends AppCompatActivity {
 
     private AlertDialog dialog;
     private CustomDialog customDialog;
+    private MessageDialog messageDialog;
     private ImageView iv_vote_detail_reply;
     private ImageButton reply_enter_button;
     private Button btn_general_detail_end;
@@ -683,12 +686,7 @@ public class GeneralDetailActivity extends AppCompatActivity {
                     Thread.sleep(100);
                 } catch (Exception e) {}
             }
-//            getGeneral(general.getID());
-//            while(!(getGeneralDone)) {
-//                try {
-//                    Thread.sleep(100);
-//                } catch (Exception e) {}
-//            }
+
             Message message = handler.obtainMessage();
             Bundle bundle = new Bundle();
             bundle.putInt("thread", SURVEY);
@@ -816,9 +814,11 @@ public class GeneralDetailActivity extends AppCompatActivity {
         if (UserPersonalInfo.userID.equals(general.getAuthor_userid())){
             menu.getItem(0).setVisible(false);
             menu.getItem(1).setVisible(true);
+            menu.getItem(2).setVisible(false);
         } else {
             menu.getItem(0).setVisible(true);
             menu.getItem(1).setVisible(false);
+            menu.getItem(2).setVisible(true);
         }
         return super.onCreateOptionsMenu(menu);
     }
@@ -852,6 +852,15 @@ public class GeneralDetailActivity extends AppCompatActivity {
             case R.id.remove:
                 RemoveDialog();
                 break;
+            case R.id.note:
+                messageDialog = new MessageDialog(GeneralDetailActivity.this, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        messageDialog.setClickable(false);
+                        setNote(messageDialog.note);
+                    }
+                });
+                messageDialog.show();
 
         }
         return super.onOptionsItemSelected(item);
@@ -1114,7 +1123,6 @@ public class GeneralDetailActivity extends AppCompatActivity {
             reply_mode = COMMENT;
             Toast.makeText(context, "수정 모드가 종료되었습니다.", Toast.LENGTH_SHORT).show();
         }
-
     }
     public void likepost(){
         String requestURL = getString(R.string.server)+"/api/generals/like/"+general.getID();
@@ -1626,6 +1634,39 @@ public class GeneralDetailActivity extends AppCompatActivity {
         } catch (Exception e){
             Log.d("exception", "failed getting response");
             e.printStackTrace();
+        }
+    }
+    public void setNote(String content) {
+        try {
+            String requestURL = context.getResources().getString(R.string.server) + "/api/messages/postmessage";
+            JSONObject params = new JSONObject();
+            params.put("from_userID", UserPersonalInfo.email);
+            params.put("to_userID", general.getAuthor_userid());
+            params.put("content", content);
+            RequestQueue requestQueue = Volley.newRequestQueue(context);
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
+                    Request.Method.POST, requestURL, params, response -> {
+                Intent intent = new Intent(context, MyNoteActivity.class);
+                messageDialog.dismiss();
+                startActivity(intent);
+            }, error -> {
+                error.printStackTrace();
+            });
+            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20 * 1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            requestQueue.add(jsonObjectRequest);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        int work = getIntent().getIntExtra("work", 0);
+        if (work == 0) {
+
+        } else if (work == 1) {
+            this.overridePendingTransition(R.anim.enter, R.anim._null);
         }
     }
 }

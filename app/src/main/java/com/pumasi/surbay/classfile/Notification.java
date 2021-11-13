@@ -54,9 +54,13 @@ public class Notification {
         this.title =  title;
         this.content = content;
         this.post_id = post_id;
-        Date seoul_date = date;
-        seoul_date.setTime(seoul_date.getTime()+(9*60*60*1000));
-        this.date = seoul_date;
+        if (date != null) {
+            Date seoul_date = date;
+            seoul_date.setTime(seoul_date.getTime()+(9*60*60*1000));
+            this.date = seoul_date;
+        } else {
+            this.date = date;
+        }
         this.post_type = post_type;
     }
 }

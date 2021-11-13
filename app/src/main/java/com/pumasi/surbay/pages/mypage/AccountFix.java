@@ -232,64 +232,9 @@ public class AccountFix extends AppCompatActivity {
             }
         });
 
-//        phone_checkTextview.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                phoneNumber = phonenumberEditText.getText().toString();
-//                try {
-//                    phoneCheck();
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        });
-//        phonecheckEditText.addTextChangedListener(new TextWatcher() {
-//            @Override
-//            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-//
-//            }
-//
-//            @Override
-//            public void onTextChanged(CharSequence s, int start, int before, int count) {
-//
-//            }
-//
-//            @Override
-//            public void afterTextChanged(Editable s) {
-//                typesmsCode = phonecheckEditText.getText().toString();
-//                Log.d("code is", "sms code" + typesmsCode);
-//                if (typesmsCode.length() == 6){
-//                    PhoneAuthCredential credential = PhoneAuthProvider.getCredential(getverificationId, typesmsCode);
-//                    Task<AuthResult> result = auth.signInWithCredential(credential)
-//                            .addOnCompleteListener(AccountFix.this, new OnCompleteListener<AuthResult>() {
-//                                @Override
-//                                public void onComplete(@NonNull Task<AuthResult> task) {
-//                                    if (task.isSuccessful()) {
-//                                        // Sign in success, update UI with the signed-in user's information
-//                                        FirebaseUser user = task.getResult().getUser();
-//                                        Log.d("signupauth", "signInWithCredential:success");
-//                                        CDT.cancel();
-//                                        signupPCNText.setText("인증이 완료되었습니다");
-//                                        phone_check = true;
-//                                    } else {
-//                                        // If sign in fails, display a message to the user.
-//                                        Log.d("signupauth", "signInWithCredential:failefail");
-//
-//                                        signupPCNText.setText("인증번호가 일치하지 않습니다");
-//                                        // ...
-//                                    }
-//                                }
-//                            });
-//                }
-//
-//            }
-//        });
     }
 
-    private void
-
-
-    nameCheck(EditText v) throws Exception{
+    private void nameCheck(EditText v) throws Exception{
         if (v.getText().toString().length() == 0 ){
             check_name.setVisibility(View.GONE);
         }else if(v.getText().toString().length()<2 || v.getText().toString().length()>10){
@@ -340,57 +285,6 @@ public class AccountFix extends AppCompatActivity {
         return true;
     }
 
-//    private void phoneCheck() throws Exception{
-//        try {
-//            RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
-//            String requestURL = getString(R.string.server)+"/phonenumbers/duplicate?phoneNumber=" + phoneNumber;
-//            JSONObject params = new JSONObject();
-//            params.put("phoneNumber", phoneNumber);
-//            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
-//                    (Request.Method.GET, requestURL, params, response -> {
-//                        Log.d("response is", "" + response);
-//                        try {
-//                            JSONObject nameObj = new JSONObject(response.toString());
-//                            Boolean success = nameObj.getBoolean("type");
-//                            if (success) {
-//
-//                                CustomDialog customDialog = new CustomDialog(AccountFix.this, null);
-//                                customDialog.show();
-//                                customDialog.setMessage("인증번호가 발송되었습니다.");
-//                                customDialog.setNegativeButton("확인");
-//                                String realphone = "+82"+phoneNumber.substring(1);
-//                                Log.d("phone", "num is "+ realphone);
-//                                PhoneAuth(realphone);
-//                            } else {
-//                                if (phoneNumber.equals(UserPersonalInfo.phoneNumber)){
-//                                    CustomDialog customDialog = new CustomDialog(AccountFix.this, null);
-//                                    customDialog.show();
-//                                    customDialog.setMessage("인증번호가 발송되었습니다.");
-//                                    customDialog.setNegativeButton("확인");
-//                                    String realphone = "+82"+phoneNumber.substring(1);
-//                                    Log.d("phone", "num is "+ realphone);
-//                                    PhoneAuth(realphone);
-//                                } else {
-//
-//                                    CustomDialog customDialog = new CustomDialog(AccountFix.this, null);
-//                                    customDialog.show();
-//                                    customDialog.setMessage("이미 가입된 전화번호입니다");
-//                                    customDialog.setNegativeButton("확인");
-//                                }
-//                            }
-//                        } catch (JSONException e) {
-//                            e.printStackTrace();
-//                        }
-//                    }, error -> {
-//                        Log.d("exception", "volley error");
-//                        error.printStackTrace();
-//                    });
-//            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-//            requestQueue.add(jsonObjectRequest);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//    }
 
     public void TimerStart(){
         signupTimer.setVisibility(View.VISIBLE);
@@ -426,76 +320,6 @@ public class AccountFix extends AppCompatActivity {
         }
     };
 
-//    public void PhoneAuth(String phoneNumber){
-////        phoneNumber = "+1 1231231234";
-//        auth = FirebaseAuth.getInstance();
-////        FirebaseAuth.getInstance().getFirebaseAuthSettings().forceRecaptchaFlowForTesting(true);
-//        PhoneAuthOptions.Builder optionsBuilder = PhoneAuthOptions.newBuilder(auth)
-//                .setPhoneNumber(phoneNumber)
-//                .setTimeout(120L, TimeUnit.SECONDS)
-//                .setActivity(this)
-//                .setCallbacks(new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
-//                    @Override
-//                    public void onCodeSent(@NonNull String verificationId,
-//                                           @NonNull PhoneAuthProvider.ForceResendingToken forceResendingToken) {
-//                        // Save the verification id somewhere
-//                        // ...
-//
-//                        // The corresponding whitelisted code above should be used to complete sign-in.
-//                        Log.d("signupauth", forceResendingToken.toString() + verificationId);
-//                        Log.d("signupauth", "onCodeSent:" + verificationId);
-//                        mVerificationId = verificationId;
-//                        TimerStart();
-//                        phonecheckEditText.setEnabled(true);
-//                        getverificationId = verificationId;
-//                        mResendToken = forceResendingToken;
-//
-//                    }
-//
-//                    @Override
-//                    public void onVerificationCompleted(PhoneAuthCredential credential) {
-//                        // This callback will be invoked in two situations:
-//                        // 1 - Instant verification. In some cases the phone number can be instantly
-//                        //     verified without needing to send or enter a verification code.
-//                        // 2 - Auto-retrieval. On some devices Google Play services can automatically
-//                        //     detect the incoming verification SMS and perform verification without
-//                        //     user action.
-//                        Log.d("phone auth", "onVerificationCompleted:" + credential);
-//                        String code = credential.getSmsCode();
-//
-//                        //sometime the code is not detected automatically
-//                        //in this case the code will be null
-//                        //so user has to manually enter the code
-//                        if (code != null) {
-//                            phonecheckEditText.setText(code);
-//                            //verifying the code
-//                            verifyVerificationCode(code);
-//                        }
-//
-//                    }
-//
-//                    @Override
-//                    public void onVerificationFailed(FirebaseException e) {
-//                        // This callback is invoked in an invalid request for verification is made,
-//                        // for instance if the the phone number format is not valid.
-//                        Log.w("phone auth", "onVerificationFailed", e);
-//
-//                        if (e instanceof FirebaseAuthInvalidCredentialsException) {
-//                            // Invalid request
-//                            // ...
-//                        } else if (e instanceof FirebaseTooManyRequestsException) {
-//                            // The SMS quota for the project has been exceeded
-//                            // ...
-//                        }
-//
-//                        // Show a message and update the UI
-//                        // ...
-//                    }
-//                });
-//        if(mResendToken!=null) optionsBuilder.setForceResendingToken(mResendToken);
-//        PhoneAuthOptions options = optionsBuilder.build();
-//        PhoneAuthProvider.verifyPhoneNumber(options);
-//    }
     private void verifyVerificationCode(String otp) {
         //creating the credential
         PhoneAuthCredential credential = PhoneAuthProvider.getCredential(mVerificationId, otp);
@@ -539,11 +363,6 @@ public class AccountFix extends AppCompatActivity {
             gender = 2;
         }
 
-//        if (!phone_check){
-//            Toast.makeText(AccountFix.this, "번호 인증을 진행해주세요.", Toast.LENGTH_SHORT).show();
-//            return false;
-//        }
-
         return true;
     }
 
@@ -555,7 +374,6 @@ public class AccountFix extends AppCompatActivity {
             params.put("name", name);
             params.put("gender", gender);
             params.put("yearBirth", yearBirth);
-//            params.put("phoneNumber", phoneNumber);
             String requestURL = getString(R.string.server)+"/personalinfo";
             RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
             JsonObjectRequest jsonObjectRequest= new JsonObjectRequest

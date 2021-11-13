@@ -90,7 +90,8 @@ public class Reply implements Parcelable {
         dest.writeString(this.writer);
         dest.writeString(this.content);
         dest.writeString(new SimpleDateFormat(dateformat).format(this.date));
-        Log.d("in reply3", ""+this.id+this.writer+this.content+this.date);
+
+        Log.d("in_reply3", ""+this.id+this.writer+this.content+this.date);
         dest.writeStringList(this.reports);
         dest.writeString(String.valueOf(this.hide));
         dest.writeString(this.writer_name);

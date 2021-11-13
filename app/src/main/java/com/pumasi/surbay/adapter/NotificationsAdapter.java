@@ -4,6 +4,7 @@ import android.content.Context;
 
 import android.graphics.Color;
 import android.media.Image;
+import android.os.Parcelable;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
@@ -35,6 +36,7 @@ public class NotificationsAdapter extends RecyclerView.Adapter<NotificationsAdap
 
 
     public NotificationsAdapter(Context ctx, ArrayList<Notification> imageModelArrayList){
+        this.context = ctx;
         inflater = LayoutInflater.from(ctx);
         this.imageModelArrayList = imageModelArrayList;
 
@@ -52,8 +54,6 @@ public class NotificationsAdapter extends RecyclerView.Adapter<NotificationsAdap
 
         View view = inflater.inflate(R.layout.notification_item, parent, false);
         MyViewHolder holder = new MyViewHolder(view);
-
-
         return holder;
     }
 
@@ -81,7 +81,11 @@ public class NotificationsAdapter extends RecyclerView.Adapter<NotificationsAdap
 
         holder.tv_my_notification_content.setText(imageModelArrayList.get(position).getContent());
         SimpleDateFormat fm = new SimpleDateFormat("MM.dd kk:mm");
-        holder.tv_my_notification_date.setText(fm.format(imageModelArrayList.get(position).getDate()));
+        try {
+            holder.tv_my_notification_date.setText(fm.format(imageModelArrayList.get(position).getDate()));
+        } catch (Exception e) {
+            holder.tv_my_notification_date.setText("");
+        }
 
     }
 

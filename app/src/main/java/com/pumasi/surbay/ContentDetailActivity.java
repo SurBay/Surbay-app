@@ -217,4 +217,15 @@ public class ContentDetailActivity extends AppCompatActivity {
             tv_content_detail_comment.setText(String.valueOf(resultCode));
         }
     }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        int work = getIntent().getIntExtra("work", 0);
+        if (work == 0) {
+
+        } else if (work == 1) {
+            this.overridePendingTransition(R.anim.enter, R.anim._null);
+        }
+    }
 }

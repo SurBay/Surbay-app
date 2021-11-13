@@ -205,6 +205,37 @@ public class General implements Parcelable{
         this.likes = likes;
         this.hide = hide;
     }
+    public General(String id, String title, String author, Integer author_lvl, String content,
+                   Date date, Date deadline, ArrayList<Reply> comments, Boolean done,
+                   String author_userid, ArrayList<String> reports, Boolean multi_response,
+                   Integer participants, ArrayList<String> participants_userids, Boolean with_image,
+                   ArrayList<Poll> polls, ArrayList<String> liked_users, Integer likes, Boolean hide, Boolean special, Integer visit){
+        this.id = id;
+        this.title = title;
+        this.author = author;
+        this.author_lvl = author_lvl;
+        this.content = content;
+        Date seoul_date = date;
+        seoul_date.setTime(seoul_date.getTime()+(9*60*60*1000));
+        this.date = seoul_date;
+        Date seoul_deadline = deadline;
+        seoul_deadline.setTime(seoul_deadline.getTime()+(9*60*60*1000));
+        this.deadline = seoul_deadline;
+        this.comments = comments;
+        this.done = done;
+        this.author_userid = author_userid;
+        this.reports = reports;
+        this.multi_response = multi_response;
+        this.participants = participants;
+        this.participants_userids = participants_userids;
+        this.with_image = with_image;
+        this.polls = polls;
+        this.liked_users = liked_users;
+        this.likes = likes;
+        this.hide = hide;
+        this.special = special;
+        this.visit = visit;
+    }
 
     public General(Parcel in){
         this.id = in.readString();

@@ -1023,9 +1023,9 @@ public class PostWriteActivity extends AppCompatActivity {
         if(writeGoalParticipants.getText().toString().length() > 0) {
             goalParticipants = Integer.valueOf(writeGoalParticipants.getText().toString());
             if (goalParticipants == 0){
-                goalParticipants = 50;
+                goalParticipants = 30;
             }
-        } else{goalParticipants = 50;}
+        } else{goalParticipants = 30;}
 
         if (purpose == 1){
             url = writeUrl.getText().toString();

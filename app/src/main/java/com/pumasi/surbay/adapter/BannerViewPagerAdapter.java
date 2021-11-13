@@ -35,6 +35,7 @@ import com.pumasi.surbay.pages.boardpage.TipdetailActivity;
 import com.pumasi.surbay.pages.homepage.NoticeDetailActivity;
 import com.pumasi.surbay.R;
 import com.pumasi.surbay.classfile.Notice;
+import com.pumasi.surbay.tools.ServerTransport;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -53,12 +54,23 @@ public class BannerViewPagerAdapter extends PagerAdapter {
     private ArrayList<Banner> banners;
     private LayoutInflater inflater;
     private Context context;
+    private ServerTransport st;
+
+    private final int NOTICE = 0;
+    private final int RESEARCH = 1;
+    private final int VOTE = 2;
+    private final int SURVEY_TIP = 3;
+    private final int COUPON = 4;
+    private final int EVENT = 5;
+    private final int WEB_PAGE = 6;
+
 
 
     public BannerViewPagerAdapter(Context context, ArrayList<Banner> banners) {
         this.context = context;
         this.banners=banners;
         inflater = LayoutInflater.from(context);
+        st = new ServerTransport(context);
     }
 
     @Override
@@ -89,7 +101,7 @@ public class BannerViewPagerAdapter extends PagerAdapter {
             @Override
             public void onClick(View v) {
                 switch (banner.getType()) {
-                    case 0:
+                    case NOTICE:
                         // 공지 게시글
                         for (Notice notice : MainActivity.NoticeArrayList) {
                             if (banner.getUrl().equals(notice.getID())) {
@@ -100,13 +112,13 @@ public class BannerViewPagerAdapter extends PagerAdapter {
                             }
                         }
                         break;
-                    case 1:
+                    case RESEARCH:
                         getPost(banner.getUrl(), 0);
                         break;
-                    case 2:
+                    case VOTE:
                         getGeneral(banner.getUrl(), 0);
                         break;
-                    case 3:
+                    case SURVEY_TIP:
                         for (Surveytip surveytip : MainActivity.surveytipArrayList) {
                             if (banner.getUrl().equals(surveytip.getID())) {
                                 Intent intent = new Intent(context, TipdetailActivity.class);
@@ -116,18 +128,16 @@ public class BannerViewPagerAdapter extends PagerAdapter {
                             }
                         }
                         break;
-                    case 4:
+                    case COUPON:
                         // 지금X - (모바일교환권) 상품 게시글
                         break;
-                    case 5:
+                    case EVENT:
                         // 지금X - (쿠폰/이벤트) 이벤트 게시글
                         break;
-                    case 6:
+                    case WEB_PAGE:
                         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(banner.getUrl()));
                         context.startActivity(intent);
                         break;
-
-
                 }
             }
         });
@@ -474,5 +484,4 @@ public class BannerViewPagerAdapter extends PagerAdapter {
             e.printStackTrace();
         }
     }
-
 }

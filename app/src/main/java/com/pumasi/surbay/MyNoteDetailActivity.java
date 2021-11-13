@@ -280,18 +280,6 @@ public class MyNoteDetailActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
-//    public void Dialog() {
-//        AlertDialog.Builder builder = new AlertDialog.Builder(MyNoteDetailActivity.this, R.style.CustomDialog);
-//        LayoutInflater inflater = getLayoutInflater();
-//        View view = inflater.inflate(R.layout.share_dialog, null);
-//
-//        final ListView listview = (ListView)view.findViewById(R.id.listview_alterdialog_list);
-//        final AlertDialog dialog = builder.create();
-//        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(getColor(R.color.transparent)));
-//        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-//
-//
-//    }
 
     class ReloadThread extends Thread {
         public void run() {

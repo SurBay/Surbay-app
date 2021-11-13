@@ -45,6 +45,7 @@ import com.pumasi.surbay.classfile.Surveytip;
 import com.pumasi.surbay.classfile.UserPersonalInfo;
 import com.pumasi.surbay.pages.mypage.NotificationsActivity;
 import com.pumasi.surbay.pages.signup.SplashActivity;
+import com.pumasi.surbay.tools.ServerTransport;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -62,6 +63,7 @@ import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
+    ServerTransport st;
     public static float screen_ratio;
     public static int screen_width;
     public static int screen_width_px;
@@ -96,9 +98,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         mContext = getApplicationContext();
 
+        st = new ServerTransport(mContext);
+        Log.d("get post", "onCreate: ");
         DisplayMetrics display = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(display);
         if (display.widthPixels > display.heightPixels) {
@@ -123,9 +126,6 @@ public class MainActivity extends AppCompatActivity {
 
         if(feedbackArrayList.size()==0) {
             getFeedbacks();
-        }
-        if(NoticeArrayList.size()==0) {
-            getNotices();
         }
         MainActivity.getSurveytips();
 
@@ -268,130 +268,6 @@ public class MainActivity extends AppCompatActivity {
         this.finishAffinity();
     }
 
-    public static void getPersonalInfo() {
-        if (UserPersonalInfo.token == null) {
-            Log.d("getting info failed", "token is null");
-            return;
-        }
-        Log.d("token", "getPersonalInfo: " + UserPersonalInfo.token);
-        String token = UserPersonalInfo.token;
-        try{
-            String requestURL = "http://ec2-3-35-152-40.ap-northeast-2.compute.amazonaws.com" + "/personalinfo";
-            RequestQueue requestQueue = Volley.newRequestQueue(mContext);
-            JsonObjectRequest jsonObjectRequest= new JsonObjectRequest
-                    (Request.Method.GET, requestURL, null, response -> {
-                        try {
-                            JSONObject res = new JSONObject(response.toString());
-                            JSONObject user = res.getJSONObject("data");
-                            UserPersonalInfo.name = user.getString("name");
-                            UserPersonalInfo.email = user.getString("email");
-                            UserPersonalInfo.points = user.getInt("points");
-                            UserPersonalInfo.level = user.getInt("level");
-                            UserPersonalInfo.userID = user.getString("userID");
-                            UserPersonalInfo.userPassword = user.getString("userPassword");
-                            UserPersonalInfo.gender = user.getInt("gender");
-                            UserPersonalInfo.yearBirth = user.getInt("yearBirth");
-                            JSONArray ja = (JSONArray)user.get("participations");
-
-                            ArrayList<String> partiarray = new ArrayList<String>();
-                            for (int j = 0; j<ja.length(); j++){
-                                partiarray.add(ja.getString(j));
-                            }
-
-                            UserPersonalInfo.participations = partiarray;
-                            JSONArray ja2 = (JSONArray)user.get("prizes");
-                            ArrayList<String> prizearray = new ArrayList<String>();
-                            for (int j = 0; j<ja2.length(); j++){
-                                prizearray.add(ja2.getString(j));
-                            }
-                            UserPersonalInfo.prizes = prizearray;
-                            ArrayList<Notification> notifications = new ArrayList<>();
-                            try{
-                                SimpleDateFormat fm = new SimpleDateFormat("yyyy-MM-dd\'T\'kk:mm:ss.SSS");
-                                JSONArray na = (JSONArray)user.get("notifications");
-                                if (na.length() != 0){
-                                    for (int j = 0; j<na.length(); j++){
-                                        JSONObject notification = na.getJSONObject(j);
-                                        String title = notification.getString("title");
-                                        String content = notification.getString("content");
-                                        String post_id = notification.getString("post_id");
-                                        Date date = null;
-                                        try {
-                                            date = fm.parse(notification.getString("date"));
-                                        } catch (ParseException e) {
-                                            e.printStackTrace();
-                                        }
-                                        Integer post_type = notification.getInt("post_type");
-                                        Notification newNotification = new Notification(title, content, post_id, date, post_type);
-                                        notifications.add(newNotification);
-                                    }
-                                }
-
-                            } catch (Exception e){
-                                e.printStackTrace();
-                            }
-                            UserPersonalInfo.notifications = notifications;
-                            UserPersonalInfo.notificationAllow = user.getBoolean("notification_allow");
-                            UserPersonalInfo.prize_check = user.getInt("prize_check");
-                            ArrayList<MyCoupon> myCoupons = new ArrayList<>();
-                            JSONArray ja6 = (JSONArray) user.get("coupons");
-                            UserPersonalInfo.coupons.clear();
-                            for (int j = 0; j < ja.length(); j++) {
-                                JSONObject coupon = (JSONObject) ja6.get(j);
-                                String coupon__id = coupon.getString("_id");
-                                String coupon_id = coupon.getString("coupon_id");
-                                boolean coupon_used = coupon.getBoolean("used");
-                                SimpleDateFormat fm = new SimpleDateFormat("yyyy-MM-dd\'T\'kk:mm:ss.SSS");
-                                Date coupon_used_date = null;
-                                String coupon_date = coupon.getString("date");
-
-                                try {
-                                    coupon_used_date = fm.parse(coupon.getString("used_date"));
-                                } catch (ParseException e) {
-                                    e.printStackTrace();
-                                }
-                                ArrayList<String> coupon_image_urls = new ArrayList<>();
-                                JSONArray ka = coupon.getJSONArray("image_urls");
-                                for (int k = 0; k < ka.length(); k++) {
-                                    coupon_image_urls.add(ka.getString(k));
-                                }
-                                String coupon_store = coupon.getString("store");
-                                String coupon_menu = coupon.getString("menu");
-                                String coupon_content = coupon.getString("content");
-                                myCoupons.add(new MyCoupon(coupon__id, coupon_id, coupon_used, coupon_used_date, coupon_date, coupon_image_urls, coupon_store, coupon_menu, coupon_content));
-                                UserPersonalInfo.coupons = myCoupons;
-                                Log.d("Coupon", "getPersonalInfo: " + new MyCoupon(coupon__id, coupon_id, coupon_used, coupon_used_date, coupon_date, coupon_image_urls, coupon_store, coupon_menu, coupon_content));
-                            }
-                            UserPersonalInfo.coupons = myCoupons;
-
-                            SharedPreferences auto = mContext.getSharedPreferences("auto", Activity.MODE_PRIVATE);
-                            SharedPreferences.Editor autoLogin = auto.edit();
-                            autoLogin.putString("name", user.getString("name"));
-                            autoLogin.commit();
-                        } catch (JSONException e) {
-                            Log.d("exception", "JSON error");
-                            e.printStackTrace();
-                        }
-                    }, error -> {
-                        Log.d("exception", "volley error");
-                        error.printStackTrace();
-                    }){
-                @Override
-                public Map<String, String> getHeaders() throws AuthFailureError {
-                    HashMap<String, String> headers = new HashMap<String, String>();
-                    headers.put("Authorization", "Bearer " + token);
-                    return headers;
-                }
-            };
-            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-            requestQueue.add(jsonObjectRequest);
-            Log.d("voucher", "getPosts: " + UserPersonalInfo.coupons.size());
-
-        } catch (Exception e){
-            Log.d("exception", "failed getting response");
-            e.printStackTrace();
-        }
-    }
     public static void getSurveytips(){
         try{
             String requestURL = "http://ec2-3-35-152-40.ap-northeast-2.compute.amazonaws.com/api/surveytips";
@@ -596,74 +472,8 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
-    public static void getNotices(){
-        try{
-            Log.d("starting request", "get notices");
-            String requestURL = "http://ec2-3-35-152-40.ap-northeast-2.compute.amazonaws.com/api/notices";
-            RequestQueue requestQueue = Volley.newRequestQueue(mContext);
-            JsonArrayRequest jsonArrayRequest = new JsonArrayRequest
-                    (Request.Method.GET, requestURL, null, response -> {
-                        try {
-                            NoticeArrayList = new ArrayList<Notice>();
-                            JSONArray resultArr = new JSONArray(response.toString());
-                            Log.d("response is", ""+response);
-
-                            for (int i = 0; i < resultArr.length(); i++) {
-                                JSONObject post = resultArr.getJSONObject(i);
-                                String id = post.getString("_id");
-                                String title = post.getString("title");
-                                String author = post.getString("author");
-                                String content = post.getString("content");
-                                SimpleDateFormat fm = new SimpleDateFormat(mContext.getString(R.string.date_format));
-                                Date date = null;
-                                try {
-                                    date = fm.parse(post.getString("date"));
-                                    Log.d("parsing date", "success");
-                                } catch (ParseException e) {
-                                    e.printStackTrace();
-                                }
-                                JSONArray images = (JSONArray)post.get("image_urls");
-                                ArrayList<String> imagearray = new ArrayList<>();
-                                if(images!=null) {
-                                    imagearray = new ArrayList<String>();
-                                    for (int j = 0; j < images.length(); j++) {
-                                        imagearray.add(images.getString(j));
-                                    }
-                                }
-
-
-                                Notice newNotice = new Notice(id, title, author, content, date);
-
-                                if(images!=null){
-                                    newNotice.setImages(imagearray);
-                                }
-                                NoticeArrayList.add(newNotice);
-                            }
-//                            if(done==0){
-//                                HomeFragment.receivedPosts();
-//                                done = 1;
-//                            }
-
-                        } catch (JSONException e) {
-                            Log.d("exception", "JSON error");
-                            e.printStackTrace();
-                        }
-                    }, error -> {
-                        Log.d("exception", "volley error");
-                        error.printStackTrace();
-                    });
-            jsonArrayRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-            requestQueue.add(jsonArrayRequest);
-        } catch (Exception e){
-            Log.d("exception", "failed getting response");
-            e.printStackTrace();
-        }
-    }
-
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        getPersonalInfo();
     }
 }

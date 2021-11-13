@@ -15,11 +15,11 @@ import androidx.annotation.NonNull;
 import com.pumasi.surbay.R;
 
 public class CustomDialog extends Dialog{
-    private TextView mPositiveButton;
-    private TextView mNegativeButton;
-    private TextView content;
+    protected TextView mPositiveButton;
+    protected TextView mNegativeButton;
+    protected TextView content;
 
-    private View.OnClickListener mPositiveListener;
+    protected View.OnClickListener mPositiveListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

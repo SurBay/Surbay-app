@@ -25,6 +25,7 @@ import com.bumptech.glide.Glide;
 import com.pumasi.surbay.classfile.Coupon;
 import com.pumasi.surbay.classfile.UserPersonalInfo;
 import com.pumasi.surbay.pages.MainActivity;
+import com.pumasi.surbay.tools.ServerTransport;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -37,6 +38,7 @@ import static android.icu.lang.UCharacter.GraphemeClusterBreak.V;
 
 public class SellingDetailActivity extends AppCompatActivity {
 
+    private ServerTransport st;
     private ImageButton ib_back;
     private TextView tv_coupon_selling_detail_title;
     private ImageView iv_coupon_selling_detail_img;
@@ -57,9 +59,10 @@ public class SellingDetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_selling_detail);
         getSupportActionBar().hide();
+        context = getApplicationContext();
+        st = new ServerTransport(context);
 
         Coupon coupon = getIntent().getParcelableExtra("coupon");
-        context = getApplicationContext();
         ib_back = findViewById(R.id.ib_back);
         iv_coupon_selling_detail_img = findViewById(R.id.iv_coupon_selling_detail_img);
         tv_coupon_selling_detail_title = findViewById(R.id.tv_coupon_selling_detail_title);
@@ -134,7 +137,7 @@ public class SellingDetailActivity extends AppCompatActivity {
         ib_back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MainActivity.getPersonalInfo();
+                st.getPersonalInfo();
                 finish();
             }
         });
@@ -165,6 +168,6 @@ public class SellingDetailActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        MainActivity.getPersonalInfo();
+        st.getPersonalInfo();
     }
 }

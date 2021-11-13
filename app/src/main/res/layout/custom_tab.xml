@@ -6,8 +6,8 @@
     android:layout_height="wrap_content">
     <ImageView
         android:id="@+id/iv_custom_tab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="5dp"
+        android:layout_height="5dp"
         android:layout_gravity="center_horizontal"/>
     <TextView
         style="@style/tabLayout_free"

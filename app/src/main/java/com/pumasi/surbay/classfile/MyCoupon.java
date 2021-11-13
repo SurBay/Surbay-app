@@ -1,5 +1,6 @@
 package com.pumasi.surbay.classfile;
 
+import android.annotation.SuppressLint;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
@@ -15,19 +16,25 @@ public class MyCoupon implements Parcelable {
     private Boolean used;
     private Date used_date;
     private String date;
+    private Date due_date;
     private ArrayList<String> image_urls;
     private String store;
     private String menu;
     private String content;
 
+
+
     private String dateformat = "yyyy-MM-dd'T'kk:mm:ss.SSS";
 
-    public MyCoupon(String id, String coupon_id, Boolean used, Date used_date, String date, ArrayList<String> image_urls, String store, String menu, String content) {
+    public MyCoupon(String id, String coupon_id, Boolean used, Date used_date, String date, Date due_date, ArrayList<String> image_urls, String store, String menu, String content) {
         this.id = id;
         this.coupon_id = coupon_id;
         this.used = used;
         this.used_date = used_date;
         this.date = date;
+        if (due_date != null) {
+            this.due_date = new Date(due_date.getTime() + 9 * 60 * 60 * 1000);
+        }
         this.image_urls = image_urls;
         this.store = store;
         this.menu = menu;
@@ -107,10 +114,19 @@ public class MyCoupon implements Parcelable {
         this.content = content;
     }
 
+    public Date getDue_date() {
+        return due_date;
+    }
+
+    public void setDue_date(Date due_date) {
+        this.due_date = due_date;
+    }
     public static Creator<MyCoupon> getCREATOR() {
         return CREATOR;
     }
 
+
+    @SuppressLint("SimpleDateFormat")
     protected MyCoupon(Parcel in) {
         id = in.readString();
         coupon_id = in.readString();
@@ -124,6 +140,13 @@ public class MyCoupon implements Parcelable {
         if (this.used_date != null) {
             try {
                 this.used_date = new SimpleDateFormat(dateformat).parse(in.readString());
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+        if (this.due_date != null) {
+            try {
+                this.due_date = new SimpleDateFormat(dateformat).parse(in.readString());
             } catch (ParseException e) {
                 e.printStackTrace();
             }
@@ -161,6 +184,9 @@ public class MyCoupon implements Parcelable {
         dest.writeString(date);
         if (this.used_date != null) {
             dest.writeString(new SimpleDateFormat(dateformat).format(this.used_date));
+        }
+        if (this.due_date != null) {
+            dest.writeString(new SimpleDateFormat(dateformat).format(this.due_date));
         }
 
     }

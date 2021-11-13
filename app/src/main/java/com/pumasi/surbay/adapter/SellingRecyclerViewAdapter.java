@@ -56,7 +56,7 @@ public class SellingRecyclerViewAdapter extends RecyclerView.Adapter<SellingRecy
         SimpleDateFormat fm = new SimpleDateFormat("yyyy.MM.dd");
         try {
             String end = fm.format(coupon.getDate());
-            holder.tv_coupon_selling_item_due.setText(end);
+            holder.tv_coupon_selling_item_due.setText("발행일 ~" + end);
         } catch (Exception e) {
             Log.d("date", "onBindViewHolder: " + coupon.getDate());
         }

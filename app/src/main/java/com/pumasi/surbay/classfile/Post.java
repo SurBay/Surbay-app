@@ -190,6 +190,9 @@ public class Post implements Parcelable{
         this.pinned = pinned;
         this.annonymous = annonymous;
         this.author_info = author_info;
+        if (this.visit == null) {
+            this.visit = 0;
+        }
         this.visit = visit;
         this.almost = almost;
     }
@@ -233,6 +236,9 @@ public class Post implements Parcelable{
         this.pinned = in.readInt();
         this.annonymous = Boolean.parseBoolean(in.readString());
         this.author_info = in.readString();
+        this.visit = in.readInt();
+        this.almost = in.readDouble();
+
     }
     @Override
     public int describeContents() {
@@ -266,6 +272,8 @@ public class Post implements Parcelable{
         dest.writeInt(this.pinned);
         dest.writeString(String.valueOf(this.annonymous));
         dest.writeString(this.author_info);
+        dest.writeInt(this.visit);
+        dest.writeDouble(this.almost);
 
     }
     public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
