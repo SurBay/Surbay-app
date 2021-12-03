@@ -27,7 +27,6 @@ public class PollWriteAdapter extends RecyclerView.Adapter<PollWriteAdapter.MyVi
 
     private LayoutInflater inflater;
     private Context context;
-    private ArrayList<String> contents = new ArrayList<>();
 
     public PollWriteAdapter(Context ctx){
         inflater = LayoutInflater.from(ctx);

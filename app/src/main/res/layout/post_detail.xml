@@ -134,7 +134,7 @@
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
                 android:textColor="@color/text_black_70"
-                android:text="라서치 기한"
+                android:text="리서치 기한"
                 android:textSize="11.5sp"
                 android:id="@+id/detail_surb_date_text">
             </TextView>

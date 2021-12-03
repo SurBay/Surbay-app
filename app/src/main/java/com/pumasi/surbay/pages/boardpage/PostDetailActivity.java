@@ -85,7 +85,6 @@ public class PostDetailActivity extends AppCompatActivity {
     private Tools tools = new Tools();
     private final int COMMENT = 0;
     private final int REPLY = 1;
-    private final int EDIT = 2;
 
     static final int START_SURVEY = 1;
     static final int DONE = 1;
@@ -125,7 +124,6 @@ public class PostDetailActivity extends AppCompatActivity {
     Button surveyEx;
     Button surveyEnd;
 
-    private AlertDialog dialog;
     private CustomDialog customDialog;
     private MessageDialog messageDialog;
     private ImageView iv_post_detail_reply;
@@ -155,8 +153,6 @@ public class PostDetailActivity extends AppCompatActivity {
 
     public static SwipeRefreshLayout mSwipeRefreshLayout;
     postDetailHandler handler = new postDetailHandler();
-    private boolean getPostDone = false;
-    private boolean person_done = false;
 
     RelativeLayout loading;
     ServerTransport st;
@@ -173,6 +169,7 @@ public class PostDetailActivity extends AppCompatActivity {
         Intent intent = getIntent();
         context = PostDetailActivity.this;
         st = new ServerTransport(context);
+        customDialog = new CustomDialog(PostDetailActivity.this);
 
         today = new Date();
 
@@ -210,8 +207,6 @@ public class PostDetailActivity extends AppCompatActivity {
         post = (Post)intent.getParcelableExtra("post");
         position = intent.getIntExtra("position", -1);
 
-        new BackgroundThread().start();
-
         loading_detail(post);
         replyArrayList = post.getComments();
         replyRecyclerViewAdapter = new ReplyRecyclerViewAdapter(PostDetailActivity.this, replyArrayList);
@@ -220,10 +215,7 @@ public class PostDetailActivity extends AppCompatActivity {
             @Override
             public void onReplyClick(View v, int position) {
                 if (UserPersonalInfo.userID.equals("nonMember")) {
-                    customDialog = new CustomDialog(PostDetailActivity.this, null);
-                    customDialog.show();
-                    customDialog.setMessage("비회원은 이용할 수 없는 기능입니다.");
-                    customDialog.setNegativeButton("확인");
+                    customDialog.customRejectDialog("비회원은 이용할 수 없는 기능입니다.", "확인");
                 } else {
                     if (reply_mode == COMMENT) {
                         et_post_detail_reply.post(new Runnable() {
@@ -253,10 +245,7 @@ public class PostDetailActivity extends AppCompatActivity {
             @Override
             public void onMenuClick(View v, int position) {
                 if (UserPersonalInfo.userID.equals("nonMember")) {
-                    customDialog = new CustomDialog(PostDetailActivity.this, null);
-                    customDialog.show();
-                    customDialog.setMessage("비회원은 이용할 수 없는 기능입니다.");
-                    customDialog.setNegativeButton("확인");
+                    customDialog.customRejectDialog("비회원은 이용할 수 없는 기능입니다.", "확인");
                 } else {
                     Reply reply = (Reply) replyRecyclerViewAdapter.getItem(position);
                     PopupMenu popupMenu = new PopupMenu(context, v);
@@ -279,25 +268,19 @@ public class PostDetailActivity extends AppCompatActivity {
                         public boolean onMenuItemClick(MenuItem item) {
                             switch (item.getItemId()) {
                                 case R.id.delete:
-                                    customDialog = new CustomDialog(PostDetailActivity.this, new View.OnClickListener() {
+                                    customDialog.customSimpleDialog("댓글을 삭제하시겠습니까?", "삭제", "취소", new View.OnClickListener() {
                                         @Override
                                         public void onClick(View v) {
                                             BackgroundDeleteThread backgroundDeleteThread = new BackgroundDeleteThread(reply.getID());
                                             backgroundDeleteThread.start();
-                                            customDialog.dismiss();
+                                            customDialog.customDialog.dismiss();
                                         }
                                     });
-                                    customDialog.show();
-                                    customDialog.setMessage("댓글을 삭제하겠습니까?");
-                                    customDialog.setPositiveButton("삭제");
-                                    customDialog.setNegativeButton("취소");
+                                    Log.d("checkcheck", "onMenuItemClick: ");
                                     return true;
                                 case R.id.report:
                                     if (reply.getReports().contains(UserPersonalInfo.email)) {
-                                        customDialog = new CustomDialog(context, null);
-                                        customDialog.show();
-                                        customDialog.setMessage("이미 신고한 댓글입니다.");
-                                        customDialog.setNegativeButton("확인");
+                                        customDialog.customRejectDialog("이미 신고한 댓글입니다.", "확인");
                                     } else {
                                         customDialog = new CustomDialog(context, new View.OnClickListener() {
                                         @Override
@@ -327,12 +310,7 @@ public class PostDetailActivity extends AppCompatActivity {
 
                                     return true;
                                 case R.id.edit:
-                                    et_post_detail_reply.requestFocus();
-                                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                                    imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
-                                    reply_mode = EDIT;
-                                    reply_id = reply.getID();
-                                    setReplyVisible(false);
+                                    break;
                                 case R.id.block:
                                     if (UserPersonalInfo.blocked_users.contains(reply.getWriter())) {
                                         customDialog = new CustomDialog(context, null);
@@ -368,15 +346,13 @@ public class PostDetailActivity extends AppCompatActivity {
         detail_reply_listView.setAdapter(replyRecyclerViewAdapter);
 
 
-
-
-
         surveyButton.setOnClickListener(
                 new View.OnClickListener(){
                     @Override
                     public void onClick(View v) {
                         Intent newIntent = new Intent(getApplicationContext(), SurveyWebActivity.class);
                         newIntent.putExtra("url", surveyURL);
+                        newIntent.putExtra("post_id", post.getID());
                         startActivityForResult(newIntent, START_SURVEY);
                     }
                 }
@@ -403,10 +379,7 @@ public class PostDetailActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if(UserPersonalInfo.userID.equals("nonMember")){
-                    CustomDialog customDialog = new CustomDialog(PostDetailActivity.this, null);
-                    customDialog.show();
-                    customDialog.setMessage("비회원은 댓글을 이용하실 수 없습니다");
-                    customDialog.setNegativeButton("확인");
+                    customDialog.customRejectDialog("비회원은 댓글을 이용하실 수 없습니다.", "확인");
                     return;
                 }
                 reply_content = et_post_detail_reply.getText().toString();
@@ -424,10 +397,7 @@ public class PostDetailActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if(UserPersonalInfo.userID.equals("nonMember")){
-                    CustomDialog customDialog = new CustomDialog(PostDetailActivity.this, null);
-                    customDialog.show();
-                    customDialog.setMessage("비회원은 댓글을 이용하실 수 없습니다");
-                    customDialog.setNegativeButton("확인");
+                    customDialog.customRejectDialog("비회원은 댓글을 이용하실 수 없습니다.", "확인");
                     return;
                 }
             }
@@ -471,12 +441,15 @@ public class PostDetailActivity extends AppCompatActivity {
     }
     class BackgroundThread extends Thread{
         public void run() {
-            getPost(post.getID());
-            while(!(getPostDone)) {
+            st.getResearch(post.getID());
+            while(st.result_research == null) {
                 try {
                     Thread.sleep(100);
                 } catch (Exception e) {}
             }
+            post = st.result_research;
+            replyArrayList = st.result_research.getComments();
+
             Message message = handler.obtainMessage();
             Bundle bundle = new Bundle();
             bundle.putInt("thread", REFRESH);
@@ -492,9 +465,6 @@ public class PostDetailActivity extends AppCompatActivity {
                     break;
                 case REPLY:
                     postPostReReply(reply_id, reply_content);
-                    break;
-                case EDIT:
-                    postEditComment(reply_id, reply_content);
                     break;
             }
             while(!(reply_done)) {
@@ -520,12 +490,15 @@ public class PostDetailActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
             }
-            getPost(post.getID());
-            while(!(getPostDone)) {
+            st.getResearch(post.getID());
+            while(st.result_research == null) {
                 try {
                     Thread.sleep(100);
                 } catch (Exception e) {}
             }
+            post = st.result_research;
+            replyArrayList = st.result_research.getComments();
+
             Message message = handler.obtainMessage();
             Bundle bundle = new Bundle();
             bundle.putInt("thread", 3);
@@ -549,12 +522,15 @@ public class PostDetailActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
             }
-            getPost(post.getID());
-            while(!(getPostDone)) {
+            st.getResearch(post.getID());
+            while(st.result_research == null) {
                 try {
                     Thread.sleep(100);
                 } catch (Exception e) {}
             }
+            post = st.result_research;
+            replyArrayList = st.result_research.getComments();
+
             Message message = handler.obtainMessage();
             Bundle bundle = new Bundle();
             bundle.putInt("thread", 3);
@@ -602,7 +578,6 @@ public class PostDetailActivity extends AppCompatActivity {
             Date date = new Date();
             SimpleDateFormat fm = new SimpleDateFormat("yyyy-MM-dd'T'kk:mm:ss");
             fm.setTimeZone(TimeZone.getTimeZone("UTC"));
-            Log.d("date is", ""+fm.format(date)+ "   "+ date);
             params.put("date", fm.format(date));
             params.put("writer_name", UserPersonalInfo.name);
 
@@ -634,7 +609,6 @@ public class PostDetailActivity extends AppCompatActivity {
                             }
                         }
                     }, error -> {
-                        Log.d("exception", "volley error");
                         Toast.makeText(PostDetailActivity.this, "오류가 발생했습니다", Toast.LENGTH_SHORT).show();
                         error.printStackTrace();
                     }){
@@ -742,7 +716,6 @@ public class PostDetailActivity extends AppCompatActivity {
             realpart = post.getGoal_participants().toString();
         }
         participants.setText(""+goalpart+"/"+realpart);
-        updateUserParticipation(post.getID());
         st.getPersonalInfo();
         st.getPersonalInfoDone = false;
     }
@@ -880,10 +853,7 @@ public class PostDetailActivity extends AppCompatActivity {
                 break;
             case R.id.block:
                 if (UserPersonalInfo.userID.equals("nonMember")) {
-                    customDialog = new CustomDialog(PostDetailActivity.this, null);
-                    customDialog.show();
-                    customDialog.setMessage("비회원은 이용할 수 없는 기능입니다.");
-                    customDialog.setNegativeButton("확인");
+                    customDialog.customRejectDialog("비회원은 이용할 수 없는 기능입니다.", "확인");
                 } else {
                     BackgroundBlockThread backgroundBlockThread = new BackgroundBlockThread(post.getAuthor_userid());
                     backgroundBlockThread.start();
@@ -937,36 +907,6 @@ public class PostDetailActivity extends AppCompatActivity {
         return dday;
     }
 
-    public void updateUserParticipation(String id){
-        String token = UserPersonalInfo.token;
-        String requestURL = getString(R.string.server)+"/user/survey";
-        try{
-            RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
-            JSONObject params = new JSONObject();
-            params.put("post_id",id);
-            params.put("userID", UserPersonalInfo.userID);
-            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
-                    (Request.Method.PUT, requestURL, params, response -> {
-                        Log.d("partiarray", ""+response);
-                    }, error -> {
-                        Log.d("exception", "volley error");
-                        error.printStackTrace();
-                    })
-            {
-                @Override
-                public Map<String, String> getHeaders() throws AuthFailureError {
-                    HashMap<String, String> headers = new HashMap<String, String>();
-                    headers.put("Authorization", "Bearer " + token);
-                    return headers;
-                }
-            };
-            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-            requestQueue.add(jsonObjectRequest);
-        } catch (Exception e){
-            Log.d("exception", "failed posting");
-            e.printStackTrace();
-        }
-    }
     public void nonMemberUpdate(String id) {
         String requestURL = getApplicationContext().getResources().getString(R.string.server) + "/api/posts/nonmembersurvey/" + id;
         try {
@@ -980,67 +920,6 @@ public class PostDetailActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
-    public void loading_detail(Post post){
-        if(post.getAnnonymous()==true){
-            author.setText("익명");
-        }else{
-            author.setText(post.getAuthor());
-        }
-
-        if(post.getAuthor_info().length()!=0){
-            author_info.setText("("+post.getAuthor_info()+")");
-            author_info.setVisibility(View.VISIBLE);
-        }else{
-            author_info.setVisibility(View.INVISIBLE);
-        }
-
-        est_time.setText(spinner_esttime[post.getEst_time()]);
-
-        deadline.setText(tools.convertTimeZone(context, post.getDate(), "MM.dd") + " - " + tools.convertTimeZone(context, post.getDeadline(), "MM.dd. a K시"));
-        int dday_count = calc_dday(new Date(tools.toLocal(post.getDeadline().getTime())));
-        Date now = new Date();
-        if(now.after(new Date(tools.toLocal(post.getDeadline().getTime()))) || post.isDone()){
-            dday.setVisibility(View.VISIBLE);
-            dday.setText("종료");
-        } else if (dday_count <= 3 && dday_count >= 0 ){
-            switch (dday_count) {
-                case 0:
-                    dday.setVisibility(View.VISIBLE);
-                    dday.setText("D-Day");
-                    break;
-                default:
-                    dday.setVisibility(View.VISIBLE);
-                    dday.setText("D-" + dday_count);
-                    break;
-            }
-        }
-        String goalpart, realpart;
-        if(post.getParticipants()>999){
-            goalpart = "999+";
-        }else {
-            goalpart = post.getParticipants().toString();
-        }
-
-        if(post.getGoal_participants()>999){
-           realpart = "999+";
-        }else {
-            realpart = post.getGoal_participants().toString();
-        }
-        participants.setText(""+goalpart+"/"+realpart);
-        participants_percent.setText((100*post.getParticipants()/post.getGoal_participants())+"%");
-
-        title.setText(post.getTitle());
-        target.setText(post.getTarget());
-        content.setText(post.getContent());
-        if(!post.isWith_prize()){
-            prizeLayout.setVisibility(View.GONE);
-        }else{
-            prize.setText(post.getPrize()+" ("+ post.getNum_prize()+ "명)");
-        }
-        surveyURL = post.getUrl();
-
-    }
-
     public void ReportDialog(){
         if (post.getReports().contains(UserPersonalInfo.userID)){
             Toast.makeText(PostDetailActivity.this, "이미 신고하셨습니다", Toast.LENGTH_SHORT).show();
@@ -1077,7 +956,6 @@ public class PostDetailActivity extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(PostDetailActivity.this, R.style.CustomDialog);
         LayoutInflater inflater = getLayoutInflater();
         View view = inflater.inflate(R.layout.share_dialog, null);
-//        builder.setView(view);
 
 
         final ListView listview = (ListView)view.findViewById(R.id.listview_alterdialog_list);
@@ -1085,8 +963,6 @@ public class PostDetailActivity extends AppCompatActivity {
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(getColor(R.color.transparent)));
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
 
-//        dialog.setCancelable(false);
-//        dialog.setContentView(R.layout.share_dialog);
         dialog.setView(view, 0, 0, 0, 0);
         SimpleAdapter simpleAdapter = new SimpleAdapter(PostDetailActivity.this, dialogItemList,
                 R.layout.share_listitem,
@@ -1183,7 +1059,6 @@ public class PostDetailActivity extends AppCompatActivity {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                Log.d("tag", "donepost");
                 donepost();
                 customDialog.dismiss();
             }
@@ -1194,19 +1069,14 @@ public class PostDetailActivity extends AppCompatActivity {
         customDialog.setNegativeButton("취소");
     }
 
-    public void SurveyExDialog(){
-
-        customDialog = new CustomDialog(PostDetailActivity.this, new View.OnClickListener() {
+    public void SurveyExDialog() {
+        customDialog.customSimpleDialog("리서치를 1회(24시간) 연장하면 1크레딧이\n" + "차감됩니다.\n" + "리서치를 연장하겠습니까?", "리서치 연장", "취소", new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 extendPost();
-                customDialog.dismiss();
+                customDialog.customDialog.dismiss();
             }
         });
-        customDialog.show();
-        customDialog.setMessage("리서치를 1회(24시간) 연장하면 1크레딧이\n" +"차감됩니다.\n"+"리서치를 연장하겠습니까?");
-        customDialog.setPositiveButton("리서치 연장");
-        customDialog.setNegativeButton("취소");
     }
 
     private void updateDeadlinePost(Date deadline) throws Exception{
@@ -1218,26 +1088,20 @@ public class PostDetailActivity extends AppCompatActivity {
             SimpleDateFormat fm = new SimpleDateFormat("yyyy-MM-dd'T'kk:mm:ss.SSS");
             fm.setTimeZone(TimeZone.getTimeZone("UTC"));
             params.put("deadline", fm.format(deadline));
-            Log.d("fix", UserPersonalInfo.name + params.toString());
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
                     (Request.Method.PUT, requestURL, params, response -> {
-                        Log.d("fix is", ""+response);
                     }, error -> {
-                        Log.d("exception", "volley error");
                         error.printStackTrace();
                     });
             jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
             requestQueue.add(jsonObjectRequest);
-            Log.d("fix", UserPersonalInfo.name);
         } catch (Exception e){
-            Log.d("exception", "failed posting");
             e.printStackTrace();
         }
     }
 
 
     public void donepost(){
-        Log.d("tag", "donepost2");
         String requestURL = getString(R.string.server)+"/api/posts/putdonepost";
         try{
             RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
@@ -1245,15 +1109,12 @@ public class PostDetailActivity extends AppCompatActivity {
             params.put("post_object_id", post.getID());
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
                     (Request.Method.PUT, requestURL, params, response -> {
-                        Log.d("response is", ""+response);
                     }, error -> {
-                        Log.d("exception", "volley error");
                         error.printStackTrace();
                     });
             jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, 0, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
             requestQueue.add(jsonObjectRequest);
         } catch (Exception e){
-            Log.d("exception", "failed posting");
             e.printStackTrace();
         }
     }
@@ -1263,21 +1124,17 @@ public class PostDetailActivity extends AppCompatActivity {
             RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
                     (Request.Method.DELETE, requestURL, null, response -> {
-                        Log.d("delete", ""+response);
                             Intent intent = new Intent(PostDetailActivity.this, BoardPost.class);
                             intent.putExtra("position", position);
                             setResult(4, intent);
                             Toast.makeText(PostDetailActivity.this, "리서치가 삭제되었습니다", Toast.LENGTH_SHORT).show();
                             finish();
                         }, error -> {
-                        Log.d("exception", "volley error");
                         error.printStackTrace();
                     });
             jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
             requestQueue.add(jsonObjectRequest);
-            Log.d("fix", UserPersonalInfo.name);
         } catch (Exception e){
-            Log.d("exception", "failed posting");
             e.printStackTrace();
         }
     }
@@ -1393,9 +1250,6 @@ public class PostDetailActivity extends AppCompatActivity {
             reply_mode = COMMENT;
             setReplyVisible(false);
             replyRecyclerViewAdapter.Click(-1);
-        } else if (reply_mode == EDIT) {
-            reply_mode = COMMENT;
-            Toast.makeText(context, "수정 모드가 종료되었습니다.", Toast.LENGTH_SHORT).show();
         }
 
     }
@@ -1407,11 +1261,9 @@ public class PostDetailActivity extends AppCompatActivity {
             switch (msg.getData().getInt("thread")) {
                 case REFRESH:
                     loading_detail(post);
-                    Log.d("replylistis", ""+replyArrayList.size());
                     replyRecyclerViewAdapter.setItem(replyArrayList);
                     replyRecyclerViewAdapter.notifyDataSetChanged();
 
-                    getPostDone = false;
                     block_done = false;
                     delete_done = false;
                     reply_done = false;
@@ -1422,9 +1274,6 @@ public class PostDetailActivity extends AppCompatActivity {
                         imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
                     } catch (Exception e) {
 
-                    }
-                    if (reply_mode == EDIT) {
-                        reply_mode = COMMENT;
                     }
                     loading.setVisibility(View.GONE);
                     break;
@@ -1442,182 +1291,12 @@ public class PostDetailActivity extends AppCompatActivity {
                     report_done = false;
                     delete_done = false;
                     block_done = false;
-                    getPostDone = false;
                 default:
                     break;
             }
-            person_done = false;
         }
     }
 
-    private void getPost(String id) {
-        try{
-            String requestURL = getString(R.string.server) + "/api/posts/getpost/"+ id;
-            RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
-            JsonObjectRequest jsonObjectRequest= new JsonObjectRequest
-                    (Request.Method.GET, requestURL, null, response -> {
-                        try {
-                            JSONObject res = new JSONObject(response.toString());
-                            String post_id = res.getString("_id");
-                            String title = res.getString("title");
-                            String author = res.getString("author");
-                            Integer author_lvl = res.getInt("author_lvl");
-                            String content = res.getString("content");
-                            Integer participants = res.getInt("participants");
-                            Integer goal_participants = res.getInt("goal_participants");
-                            String url = res.getString("url");
-                            SimpleDateFormat fm = new SimpleDateFormat(getApplicationContext().getString(R.string.date_format));
-                            Date date = null;
-                            try {
-                                date = fm.parse(res.getString("date"));
-                            } catch (ParseException e) {
-                                e.printStackTrace();
-                            }
-                            Date deadline = null;
-                            try {
-                                deadline = fm.parse(res.getString("deadline"));
-                            } catch (ParseException e) {
-                                e.printStackTrace();
-                            }
-                            Boolean with_prize = res.getBoolean("with_prize");
-                            String prize = "none";
-                            Integer count= 0;
-                            Integer est_time = res.getInt("est_time");
-                            String target = res.getString("target");
-                            Boolean done = res.getBoolean("done");
-                            Boolean hide = res.getBoolean("hide");
-                            Integer extended = res.getInt("extended");
-                            String author_userid = res.getString("author_userid");
-                            ArrayList<String> prize_urls = null;
-                            if(with_prize) {
-                                prize = res.getString("prize");
-                                count = res.getInt("num_prize");
-                                JSONArray pa = (JSONArray) res.get("prize_urls");
-                                prize_urls = new ArrayList<String>();
-                                for (int j = 0; j<pa.length(); j++){
-                                    prize_urls.add(pa.getString(j));
-                                }
-                            }
-                            JSONArray ia = (JSONArray)res.get("participants_userids");
-
-                            ArrayList<String> participants_userids = new ArrayList<String>();
-                            for (int j = 0; j<ia.length(); j++){
-                                participants_userids.add(ia.getString(j));
-                            }
-
-                            JSONArray ka = (JSONArray)res.get("reports");
-
-                            ArrayList<String> reports = new ArrayList<String>();
-                            for (int j = 0; j<ka.length(); j++){
-                                reports.add(ka.getString(j));
-                            }
-
-                            ArrayList<Reply> comments = new ArrayList<>();
-                            try{
-                                JSONArray ja = (JSONArray)res.get("comments");
-                                if (ja.length() != 0){
-                                    for (int j = 0; j<ja.length(); j++){
-                                        JSONObject comment = ja.getJSONObject(j);
-                                        String reid = comment.getString("_id");
-                                        String writer = comment.getString("writer");
-                                        String contetn = comment.getString("content");
-                                        Date datereply = null;
-                                        try {
-                                            datereply = fm.parse(comment.getString("date"));
-                                        } catch (ParseException e) {
-                                            e.printStackTrace();
-                                        }
-                                        Boolean replyhide = comment.getBoolean("hide");
-                                        JSONArray ua = (JSONArray)comment.get("reports");
-
-                                        ArrayList<String> replyreports = new ArrayList<String>();
-                                        for (int u = 0; u<ua.length(); u++){
-                                            replyreports.add(ua.getString(u));
-                                        }
-                                        String writer_name = null;
-                                        try {
-                                            writer_name = comment.getString("writer_name");
-                                        }catch (Exception e){
-                                            writer_name = null;
-                                        }
-                                        ArrayList<ReReply> reReplies = new ArrayList<>();
-                                        try {
-                                            JSONArray jk = (JSONArray) comment.get("reply");
-                                            if (jk.length() != 0) {
-                                                for (int k = 0; k < jk.length(); k++) {
-                                                    JSONObject reReply = jk.getJSONObject(k);
-                                                    String id_ = reReply.getString("_id");
-                                                    ArrayList<String> reports_ = new ArrayList<>();
-                                                    JSONArray jb = (JSONArray) reReply.get("reports");
-                                                    for (int b = 0; b < jb.length(); b++) {
-                                                        reports_.add(jb.getString(b));
-                                                    }
-                                                    ArrayList<String> report_reasons_ = new ArrayList<>();
-                                                    JSONArray jc = (JSONArray) reReply.get("report_reasons");
-                                                    for (int c = 0; c < jc.length(); c++) {
-                                                        report_reasons_.add(jc.getString(c));
-                                                    }
-                                                    boolean hide_ = reReply.getBoolean("hide");
-                                                    String writer_ = reReply.getString("writer");
-                                                    String writer_name_ = "";
-                                                    try {
-                                                        writer_name_ = reReply.getString("writer_name");
-                                                    } catch (Exception e) {
-                                                        writer_name_ = "익명";
-                                                    }
-                                                    String content_ = reReply.getString("content");
-                                                    Date date_ = fm.parse(reReply.getString("date"));
-                                                    String replyID_ = reReply.getString("replyID");
-
-                                                    ReReply newReReply = new ReReply(id_, reports_, report_reasons_, hide_, writer_, writer_name_, content_, date_, replyID_);
-                                                    reReplies.add(newReReply);
-                                                }
-                                            }
-                                        } catch (Exception e) {
-                                            e.printStackTrace();
-                                        }
-                                        Reply re = new Reply(reid, writer, contetn, datereply,replyreports,replyhide, writer_name, reReplies);
-                                        re.setWriter_name(writer_name);
-                                        if (!replyhide && !replyreports.contains(UserPersonalInfo.userID)){
-                                            comments.add(re);
-                                        }
-                                    }
-                                }
-                            } catch (Exception e){
-                                e.printStackTrace();
-                            }
-                            Integer pinned = 0;
-                            Boolean annonymous = false;
-                            String author_info = "";
-                            try {
-                                pinned = res.getInt("pinned");
-                                annonymous = res.getBoolean("annonymous");
-                                author_info = res.getString("author_info");
-                            }catch (Exception e){
-
-                            }
-                            Post refreshPost = new Post(id, title, author, author_lvl, content, participants, goal_participants, url, date, deadline, with_prize, prize, est_time, target, count,comments,done, extended, participants_userids, reports, hide, author_userid, pinned, annonymous, author_info);
-                            if(with_prize) refreshPost.setPrize_urls(prize_urls);
-
-                            post = refreshPost;
-                            replyArrayList = comments;
-                            getPostDone = true;
-
-                        } catch (JSONException e) {
-                            Log.d("exception", "JSON error");
-                            e.printStackTrace();
-                        }
-                    }, error -> {
-                        Log.d("exception", "volley error");
-                        error.printStackTrace();
-                    });
-            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-            requestQueue.add(jsonObjectRequest);
-        } catch (Exception e){
-            Log.d("exception", "failed getting response");
-            e.printStackTrace();
-        }
-    }
     public void postPostReReply(String postcomment_object_id, String content) {
         try {
             String requestURL = context.getResources().getString(R.string.server) + "/api/posts/comment/postreply";
@@ -1675,28 +1354,6 @@ public class PostDetailActivity extends AppCompatActivity {
             jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20 * 1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
             requestQueue.add(jsonObjectRequest);
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void postEditComment(String postcomment_object_id, String content) {
-        Log.d("edit", "postEditComment: " + postcomment_object_id + ", " + content);
-        try {
-            String requestURL = context.getResources().getString(R.string.server) + "/api/posts/updatecomment";
-            JSONObject params = new JSONObject();
-            params.put("userID", UserPersonalInfo.email);
-            params.put("postcomment_object_id", postcomment_object_id);
-            params.put("content", content);
-            RequestQueue requestQueue = Volley.newRequestQueue(context);
-            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
-                    Request.Method.PUT, requestURL, params, response -> {
-                reply_done = true;
-            }, error -> {
-                error.printStackTrace();
-            });
-            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20 * 1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-            requestQueue.add(jsonObjectRequest);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -1781,4 +1438,65 @@ public class PostDetailActivity extends AppCompatActivity {
             this.overridePendingTransition(R.anim.enter, R.anim._null);
         }
     }
+
+    public void loading_detail(Post post){
+        if(post.getAnnonymous()==true){
+            author.setText("익명");
+        }else{
+            author.setText(post.getAuthor());
+        }
+        if(post.getAuthor_info().length()!=0){
+            author_info.setText("("+post.getAuthor_info()+")");
+            author_info.setVisibility(View.VISIBLE);
+        }else{
+            author_info.setVisibility(View.INVISIBLE);
+        }
+
+        est_time.setText(spinner_esttime[post.getEst_time()]);
+
+        deadline.setText(tools.convertTimeZone(context, post.getDate(), "MM.dd") + " - " + tools.convertTimeZone(context, post.getDeadline(), "MM.dd. a K시"));
+        int dday_count = calc_dday(new Date(tools.toLocal(post.getDeadline().getTime())));
+        Date now = new Date();
+        if(now.after(new Date(tools.toLocal(post.getDeadline().getTime()))) || post.isDone()){
+            dday.setVisibility(View.VISIBLE);
+            dday.setText("종료");
+        } else if (dday_count <= 3 && dday_count >= 0 ){
+            switch (dday_count) {
+                case 0:
+                    dday.setVisibility(View.VISIBLE);
+                    dday.setText("D-Day");
+                    break;
+                default:
+                    dday.setVisibility(View.VISIBLE);
+                    dday.setText("D-" + dday_count);
+                    break;
+            }
+        }
+        String goalpart, realpart;
+        if(post.getParticipants()>999){
+            goalpart = "999+";
+        }else {
+            goalpart = post.getParticipants().toString();
+        }
+
+        if(post.getGoal_participants()>999){
+            realpart = "999+";
+        }else {
+            realpart = post.getGoal_participants().toString();
+        }
+        participants.setText(""+goalpart+"/"+realpart);
+        participants_percent.setText((100*post.getParticipants()/post.getGoal_participants())+"%");
+
+        title.setText(post.getTitle());
+        target.setText(post.getTarget());
+        content.setText(post.getContent());
+        if(!post.isWith_prize()){
+            prizeLayout.setVisibility(View.GONE);
+        }else{
+            prize.setText(post.getPrize()+" ("+ post.getNum_prize()+ "명)");
+        }
+        surveyURL = post.getUrl();
+
+    }
+
 }

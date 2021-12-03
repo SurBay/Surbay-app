@@ -27,6 +27,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.ColorRes;
 import androidx.annotation.DrawableRes;
@@ -82,9 +83,7 @@ public class BoardGeneral extends Fragment// Fragment 클래스를 상속받아�
     private CustomDialog customDialog;
     private View view;
     static final int WRITE_NEWPOST = 1;
-    static final int DO_SURVEY = 2;
 
-    private final int REQUEST_BOARD = 1;
     private int type = 0;
     private static boolean isOriginal = false;
     private int visibleItemCount, pastVisiblesItems, totalItemCount;
@@ -101,11 +100,15 @@ public class BoardGeneral extends Fragment// Fragment 클래스를 상속받아�
     private RelativeLayout loadingPanel;
     private RecyclerView rv_board_vote;
     private VoteRecyclerViewAdapter voteRecyclerViewAdapter;
+    public ArrayList<General> addingVote = new ArrayList<>();
     public static ArrayList<General> boardVoteShow = new ArrayList<General>();
 
-    private String check = "";
     private String beforeVote = "";
+    private boolean doneInfinityVote = false;
+
     private ServerTransport st;
+
+    private RecyclerHandler recyclerhandler = new RecyclerHandler();
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -148,7 +151,9 @@ public class BoardGeneral extends Fragment// Fragment 클래스를 상속받아�
             }
         });
         initScrollListener();
-        getInfinityVotes(beforeVote, type, isOriginal);
+
+        setLoading(true);
+        executeGetData();
 
         return view;
     }
@@ -167,12 +172,11 @@ public class BoardGeneral extends Fragment// Fragment 클래스를 상속받아�
         refresh_boards.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                setClickable(false);
-                check = "";
+                setLoading(true);
                 beforeVote = "";
                 boardVoteShow.clear();
                 voteRecyclerViewAdapter.notifyDataSetChanged();
-                getInfinityVotes(beforeVote, type, isOriginal);
+                executeGetData();
             }
         });
         btn_vote_new_sort = view.findViewById(R.id.btn_vote_new_sort);
@@ -214,12 +218,10 @@ public class BoardGeneral extends Fragment// Fragment 클래스를 상속받아�
                     isOriginal = false;
                 }
                 setLoading(true);
-                setClickable(false);
-                check = "";
                 beforeVote = "";
                 boardVoteShow.clear();
                 voteRecyclerViewAdapter.notifyDataSetChanged();
-                getInfinityVotes(beforeVote, type, isOriginal);
+                executeGetData();
             }
         });
 
@@ -254,15 +256,13 @@ public class BoardGeneral extends Fragment// Fragment 클래스를 상속받아�
     }
 
     public void setSelected(int num) {
-        setClickable(false);
         setLoading(true);
         type = num;
-        check = "";
         beforeVote = "";
         boardVoteShow.clear();
         voteRecyclerViewAdapter.notifyDataSetChanged();
-        getInfinityVotes(beforeVote, type, isOriginal);
         setTop();
+        executeGetData();
 
         switch (num) {
             case 0:
@@ -296,9 +296,6 @@ public class BoardGeneral extends Fragment// Fragment 클래스를 상속받아�
         }
     }
     public void getInfinityVotes(String object, int type, boolean isOriginal) {
-        check = object;
-        isLoading = true;
-        Log.d("hey2", "getInfinityPosts: "+ object + ", " + type + ", " + isOriginal);
         String userID;
         if (UserPersonalInfo.email == null) {
             userID = "";
@@ -463,31 +460,17 @@ public class BoardGeneral extends Fragment// Fragment 클래스를 상속받아�
                                 General newGeneral = new General(id, title, author, author_lvl, content,
                                         date, deadline, comments, done, author_userid, reports, multi_response,
                                         participants, participants_userids, with_image, polls, liked_users, likes, hide);
-                                boardVoteShow.add(newGeneral);
+                                addingVote.add(newGeneral);
                             }
-
-
-                            boardVoteShow.remove(null);
-                            voteRecyclerViewAdapter.notifyItemRemoved(boardVoteShow.size());
-                            if (boardVoteShow == null || boardVoteShow.size() == 0) {
-                                beforeVote = "";
-                            } else if (boardVoteShow.get(boardVoteShow.size() - 1) != null) {
-                                beforeVote = boardVoteShow.get(boardVoteShow.size() - 1).getID();
-                            }
-                            voteRecyclerViewAdapter.notifyDataSetChanged();
-                            setClickable(true);
-                            setLoading(false);
-                            refresh_boards.setRefreshing(false);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-
+                        doneInfinityVote = true;
             }, error -> {
                         error.printStackTrace();
             });
             jsonArrayRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
             requestQueue.add(jsonArrayRequest);
-            isLoading = false;
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -511,7 +494,7 @@ public class BoardGeneral extends Fragment// Fragment 클래스를 상속받아�
 
                     if (!isLoading) {
                         if ((visibleItemCount + pastVisiblesItems) >= totalItemCount) {
-                            loading();
+                            executeGetData();
                         }
                     }
                 }
@@ -519,15 +502,6 @@ public class BoardGeneral extends Fragment// Fragment 클래스를 상속받아�
         });
     }
 
-    private void loading() {
-        if (!check.equals(beforeVote)) {
-            setClickable(false);
-            boardVoteShow.add(null);
-            voteRecyclerViewAdapter.notifyItemInserted(boardVoteShow.size() - 1);
-            getInfinityVotes(beforeVote, type, isOriginal);
-        }
-
-    }
 
     private void setClickable(boolean clickable) {
         btn_vote_new_sort.setEnabled(clickable);
@@ -551,6 +525,76 @@ public class BoardGeneral extends Fragment// Fragment 클래스를 상속받아�
                 }
             }
         }, 200);
+    }
+
+    private void executeGetData() {
+
+        // add loading view onto recyclerview
+        boardVoteShow.add(null);
+        voteRecyclerViewAdapter.notifyItemInserted(boardVoteShow.size() - 1);
+
+        // set a parameter to indicate that loading is on execution
+        isLoading = true;
+
+        // disable
+        setClickable(false);
+        refresh_boards.setEnabled(false);
+
+        // execute
+        new RecyclerThread().start();
+    }
+    private class RecyclerThread extends Thread {
+        @Override
+        public void run() {
+            int counter = 0;
+            getInfinityVotes(beforeVote, type, isOriginal);
+            while (!doneInfinityVote && counter != 3 * st.DEFAULT_NETWORK_TRY) {
+                try {
+                    counter += 1;
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (counter == 3 * st.DEFAULT_NETWORK_TRY) {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(context, "데이터를 받아오는데 실패하였습니다", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            } else {
+                if (addingVote.size() == 0) {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(context, "이미 모든 데이터를 받아왔습니다", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                } else {
+                    boardVoteShow.addAll(addingVote);
+                    beforeVote = addingVote.get(addingVote.size() - 1).getID();
+                }
+            }
+            addingVote.clear();
+            doneInfinityVote = false;
+            recyclerhandler.sendEmptyMessage(0);
+        }
+    }
+    private class RecyclerHandler extends Handler {
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            super.handleMessage(msg);
+            boardVoteShow.remove(null);
+            voteRecyclerViewAdapter.setItem(boardVoteShow);
+            voteRecyclerViewAdapter.notifyDataSetChanged();
+
+            refresh_boards.setEnabled(true);
+            refresh_boards.setRefreshing(false);
+            setClickable(true);
+            setLoading(false);
+            isLoading = false;
+        }
     }
     public Drawable getTintedDrawable(Resources res,
                                       @DrawableRes int drawableResId, @ColorRes int colorResId) {

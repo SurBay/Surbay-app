@@ -15,6 +15,8 @@ import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.ethanhua.skeleton.Skeleton;
+import com.ethanhua.skeleton.SkeletonScreen;
 import com.pumasi.surbay.R;
 import com.pumasi.surbay.Tools;
 import com.pumasi.surbay.classfile.Post;
@@ -33,7 +35,7 @@ public class PostRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
     private PostRecyclerViewAdapter.OnItemClickListener aListener = null;
     private LayoutInflater inflater;
     ArrayList<Post> boardPosts;
-
+    private SkeletonScreen sk;
     public PostRecyclerViewAdapter(ArrayList<Post> boardPosts, Context ctx) {
         inflater = LayoutInflater.from(ctx);
         this.boardPosts = boardPosts;
@@ -151,6 +153,7 @@ public class PostRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
         else if (holder instanceof MyPostLoadingViewHolder) {
             ((MyPostLoadingViewHolder) holder).loadingPanel.setVisibility(View.VISIBLE);
             ((MyPostLoadingViewHolder) holder).cv_research_item.setVisibility(View.GONE);
+
         }
 
     }
@@ -210,6 +213,18 @@ public class PostRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
     }
 
     private class MyPostLoadingViewHolder extends RecyclerView.ViewHolder {
+        private ImageView iv_research_item_character;
+        private ImageView iv_research_item_check;
+        private ImageView iv_research_item_check2;
+        private TextView tv_research_item_author;
+        private TextView tv_research_item_title;
+        private TextView tv_research_item_target;
+        private ImageView iv_research_item_gift;
+        private TextView tv_research_item_participation;
+        private TextView tv_research_item_goal;
+        private TextView tv_research_item_indicator;
+        private TextView tv_research_item_start;
+        private TextView tv_research_item_end;
         private CardView cv_research_item;
         private RelativeLayout loadingPanel;
 
@@ -217,6 +232,18 @@ public class PostRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
             super(itemView);
             loadingPanel = itemView.findViewById(R.id.loadingPanel);
             cv_research_item = itemView.findViewById(R.id.cv_research_item);
+            iv_research_item_character = itemView.findViewById(R.id.iv_research_item_character);
+            iv_research_item_check = itemView.findViewById(R.id.iv_research_item_check);
+            iv_research_item_check2 = itemView.findViewById(R.id.iv_research_item_check2);
+            tv_research_item_author = itemView.findViewById(R.id.tv_research_item_author);
+            tv_research_item_title = itemView.findViewById(R.id.tv_research_item_title);
+            tv_research_item_target = itemView.findViewById(R.id.tv_research_item_target);
+            iv_research_item_gift = itemView.findViewById(R.id.iv_research_item_gift);
+            tv_research_item_participation = itemView.findViewById(R.id.tv_research_item_participation);
+            tv_research_item_goal = itemView.findViewById(R.id.tv_research_item_goal);
+            tv_research_item_indicator = itemView.findViewById(R.id.tv_research_item_indicator);
+            tv_research_item_start = itemView.findViewById(R.id.tv_research_item_start);
+            tv_research_item_end = itemView.findViewById(R.id.tv_research_item_end);
         }
     }
 }

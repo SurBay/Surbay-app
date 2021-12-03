@@ -59,6 +59,7 @@ import com.pumasi.surbay.classfile.Poll;
 import com.pumasi.surbay.classfile.ReReply;
 import com.pumasi.surbay.classfile.Reply;
 import com.pumasi.surbay.classfile.UserPersonalInfo;
+import com.pumasi.surbay.tools.ServerTransport;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -81,7 +82,6 @@ import java.util.TimeZone;
 public class GeneralDetailActivity extends AppCompatActivity {
     private final int COMMENT = 0;
     private final int REPLY = 1;
-    private final int EDIT = 2;
 
     static final int START_SURVEY = 1;
     static final int DONE = 1;
@@ -100,7 +100,6 @@ public class GeneralDetailActivity extends AppCompatActivity {
     private boolean report_done = false;
     private boolean delete_done = false;
     private boolean block_done = false;
-    private boolean person_done = false;
 
     private Context context;
     private TextView participants;
@@ -118,7 +117,6 @@ public class GeneralDetailActivity extends AppCompatActivity {
 
     Button btn_general_detail_like;
 
-    private AlertDialog dialog;
     private CustomDialog customDialog;
     private MessageDialog messageDialog;
     private ImageView iv_vote_detail_reply;
@@ -130,9 +128,7 @@ public class GeneralDetailActivity extends AppCompatActivity {
     private int saveLikes;
 
     ArrayList<Integer> bitArray;
-
-
-
+    
     private GeneralReplyRecyclerViewAdapter generalReplyRecyclerViewAdapter;
     private RecyclerView rv_vote_detail_comment;
     private ArrayList<Reply> replyArrayList;
@@ -146,7 +142,6 @@ public class GeneralDetailActivity extends AppCompatActivity {
 
     public static SwipeRefreshLayout mSwipeRefreshLayout;
     generalDetailHandler handler = new generalDetailHandler();
-    private boolean getGeneralDone = false;
 
     private EditText et_vote_detail_reply;
     private PollDoneAdapter pollDoneAdapter;
@@ -162,6 +157,7 @@ public class GeneralDetailActivity extends AppCompatActivity {
     int LIKE_CHANGE = 0;
     int ORIGIN_LIKE = 0;
 
+    private ServerTransport st;
     public static ArrayList<Bitmap> images = new ArrayList<>();
 
     @Override
@@ -177,6 +173,8 @@ public class GeneralDetailActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         context = GeneralDetailActivity.this;
+        st = new ServerTransport(context);
+
         images = new ArrayList<>();
         btn_general_detail_end = findViewById(R.id.btn_general_detail_end);
 
@@ -206,8 +204,6 @@ public class GeneralDetailActivity extends AppCompatActivity {
 
         general = (General) intent.getParcelableExtra("general");
         position = intent.getIntExtra("position", -1);
-
-        new BackgroundThread().start();
 
         Date now = new Date();
         if(general.getDone()==true || now.after(general.getDeadline())){
@@ -330,12 +326,7 @@ public class GeneralDetailActivity extends AppCompatActivity {
 
                                 return true;
                             case R.id.edit:
-                                et_vote_detail_reply.requestFocus();
-                                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
-                                reply_mode = EDIT;
-                                reply_id = reply.getID();
-                                setReplyVisible(false);
+                                break;
                             case R.id.block:
                                 if (UserPersonalInfo.blocked_users.contains(reply.getWriter())) {
                                     customDialog = new CustomDialog(context, null);
@@ -383,10 +374,6 @@ public class GeneralDetailActivity extends AppCompatActivity {
         check_results.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                bitArray = new ArrayList<>();
-//                for(int i=0;i<polls.size();i++){
-//                    bitArray.add(0);
-//                }
                 setPollsDone();
             }
         });
@@ -427,14 +414,12 @@ public class GeneralDetailActivity extends AppCompatActivity {
         reply_enter_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d("reply_enter_button", "onClick: " + reply_content);
                 String save = et_vote_detail_reply.getText().toString();
                 reply_content = et_vote_detail_reply.getText().toString();
                 et_vote_detail_reply.getText().clear();
                 reply_content = save;
                 if (reply_content.length() > 0 ){
                     loading.setVisibility(View.VISIBLE);
-                    Log.d("reply_enter_button", "onClick: " );
                     BackgroundReplyThread replyThread = new BackgroundReplyThread();
                     replyThread.start();
                 }
@@ -451,8 +436,6 @@ public class GeneralDetailActivity extends AppCompatActivity {
             likedselected = false;
             ORIGIN_LIKE = DISLIKED;
         }
-        Log.d("whyislikedfalse", ""+likedselected+likedlist+UserPersonalInfo.userID);
-
         loading_detail(general);
 
         saveLikes = general.getLikes();
@@ -534,7 +517,6 @@ public class GeneralDetailActivity extends AppCompatActivity {
                         BufferedInputStream bis = new
                                 BufferedInputStream(conn.getInputStream());
                         Bitmap bm = BitmapFactory.decodeStream(bis);
-                        Log.d("got bitmap", "bitmap no." + finalI + "    "+ bm);
                         images.set(finalI, bm);
                         bis.close();
                         msg = handler.obtainMessage();
@@ -557,12 +539,16 @@ public class GeneralDetailActivity extends AppCompatActivity {
     }
     class BackgroundThread extends Thread{
         public void run() {
-            getGeneral(general.getID());
-            while(!(getGeneralDone)) {
+            st.getVote(general.getID());
+            while(st.result_vote == null) {
                 try {
                     Thread.sleep(100);
                 } catch (Exception e) {}
             }
+            general = st.result_vote;
+            replyArrayList = st.result_vote.getComments();
+            generalReplyRecyclerViewAdapter.setItem(replyArrayList);
+
             Message message = handler.obtainMessage();
             Bundle bundle = new Bundle();
             bundle.putInt("thread", REFRESH);
@@ -572,16 +558,12 @@ public class GeneralDetailActivity extends AppCompatActivity {
     }
     class BackgroundReplyThread extends Thread{
         public void run() {
-            Log.d("run", "run: " + reply_mode + ", " + reply_id + ", " + reply_content);
             switch (reply_mode) {
                 case COMMENT:
                     postGeneralReply(reply_content);
                     break;
                 case REPLY:
                     postGeneralReReply(reply_id, reply_content);
-                    break;
-                case EDIT:
-                    postEditComment(reply_id, reply_content);
                     break;
             }
             while(!(reply_done)) {
@@ -606,14 +588,18 @@ public class GeneralDetailActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
             }
-            getGeneral(general.getID());
-            while (!getGeneralDone) {
+            st.getVote(general.getID());
+            while (st.result_vote == null) {
                 try {
                     Thread.sleep(100);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
+            general = st.result_vote;
+            replyArrayList = st.result_vote.getComments();
+            generalReplyRecyclerViewAdapter.setItem(replyArrayList);
+
             Message message = handler.obtainMessage();
             Bundle bundle = new Bundle();
             bundle.putInt("thread", 3);
@@ -637,14 +623,18 @@ public class GeneralDetailActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
             }
-            getGeneral(general.getID());
-            while (!getGeneralDone) {
+            st.getVote(general.getID());
+            while (st.result_vote == null) {
                 try {
                     Thread.sleep(100);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
+            general = st.result_vote;
+            replyArrayList = st.result_vote.getComments();
+            generalReplyRecyclerViewAdapter.setItem(replyArrayList);
+
             Message message = handler.obtainMessage();
             Bundle bundle = new Bundle();
             bundle.putInt("thread", 3);
@@ -666,8 +656,8 @@ public class GeneralDetailActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
             }
-            getPersonalInfo();
-            while(!person_done) {
+            st.getPersonalInfo();
+            while(!st.getPersonalInfoDone) {
                 try {
                     Thread.sleep(100);
                 } catch (InterruptedException e) {
@@ -707,7 +697,6 @@ public class GeneralDetailActivity extends AppCompatActivity {
             Date date = new Date();
             SimpleDateFormat fm = new SimpleDateFormat("yyyy-MM-dd'T'kk:mm:ss");
             fm.setTimeZone(TimeZone.getTimeZone("UTC"));
-            Log.d("date is", ""+fm.format(date)+ "   "+ date);
             params.put("date", fm.format(date));
             params.put("writer_name", UserPersonalInfo.name);
 
@@ -715,7 +704,6 @@ public class GeneralDetailActivity extends AppCompatActivity {
                     (Request.Method.PUT, requestURL, params, new Response.Listener<JSONObject>() {
                         @Override
                         public void onResponse(JSONObject response) {
-                            Log.d("response is", "" + response);
                             try {
                                 JSONObject resultObj = new JSONObject(response.toString());
                                 Boolean success = resultObj.getBoolean("type");
@@ -739,7 +727,6 @@ public class GeneralDetailActivity extends AppCompatActivity {
                             }
                         }
                     }, error -> {
-                        Log.d("exception", "volley error");
                         Toast.makeText(GeneralDetailActivity.this, "오류가 발생했습니다", Toast.LENGTH_SHORT).show();
                         error.printStackTrace();
                     }){
@@ -778,7 +765,6 @@ public class GeneralDetailActivity extends AppCompatActivity {
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
                     (Request.Method.PUT, requestURL, params, response -> {
                         try {
-                            Log.d("response is", "" + response);
                             JSONObject res = new JSONObject(response.toString());
                             int success = res.getInt("result");
                             if (success == 1) {
@@ -796,13 +782,11 @@ public class GeneralDetailActivity extends AppCompatActivity {
                             e.printStackTrace();
                         }
                     }, error -> {
-                        Log.d("exception", "volley error");
                         error.printStackTrace();
                     });
             jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
             requestQueue.add(jsonObjectRequest);
         } catch (Exception e) {
-            Log.d("exception", "failed posting");
             e.printStackTrace();
         }
     }
@@ -810,7 +794,6 @@ public class GeneralDetailActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater menuInflater = getMenuInflater();
         menuInflater.inflate(R.menu.general_detail_bar, menu);
-        Log.d("this is", "is it mine  "+UserPersonalInfo.userID+ general.getAuthor_userid()+UserPersonalInfo.userID.equals(general.getAuthor_userid()));
         if (UserPersonalInfo.userID.equals(general.getAuthor_userid())){
             menu.getItem(0).setVisible(false);
             menu.getItem(1).setVisible(true);
@@ -871,38 +854,30 @@ public class GeneralDetailActivity extends AppCompatActivity {
             RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
             JSONObject params = new JSONObject();
             JSONArray bitArray_json = new JSONArray();
-            Log.d("sendingtoserver", ""+bitArray);
             for(int i=0;i<bitArray.size();i++){
-//                params.put("bitarray["+i+"]", bitArray.get(i));
                 bitArray_json.put(bitArray.get(i));
             }
             params.put("userID", UserPersonalInfo.userID);
             params.put("bitarray", bitArray_json);
-            Log.d("jsonobjectis", ""+params);
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
                     (Request.Method.PUT, requestURL, params, response -> {
-                        Log.d("response is", ""+response);
                         done_survey = true;
                     }, error -> {
-                        Log.d("exception", "volley error");
                         error.printStackTrace();
                         done_survey = true;
                     });
             jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
             requestQueue.add(jsonObjectRequest);
         } catch (Exception e){
-            Log.d("exception", "failed posting");
             e.printStackTrace();
         }
     }
     public void loading_detail(General general){
         author.setText(general.getAuthor());
         level.setText("(Lv "+general.getAuthor_lvl()+")");
-        Log.d("deadline is", ""+general.getDeadline());
         SimpleDateFormat fm;
         if(general.getMulti_response()) fm = new SimpleDateFormat(" / MM.dd kk:mm 투표 마감", Locale.KOREA);
         else fm = new SimpleDateFormat("MM.dd kk:mm 투표 마감", Locale.KOREA);
-        Log.d("formatted deadline is", ""+fm.format(general.getDeadline()));
 
         deadline.setText(fm.format(general.getDeadline()));
         date.setText(new SimpleDateFormat("MM.dd kk:mm / ").format(general.getDate()));
@@ -929,7 +904,6 @@ public class GeneralDetailActivity extends AppCompatActivity {
                 btn_general_detail_like.setText("공감 " + (general.getLikes() + 1));
             }
         }
-        Log.d("liked", ""+likedselected);
         setLikesbutton();
         if(general.getMulti_response()) multi_response.setVisibility(View.VISIBLE);
         else multi_response.setVisibility(View.GONE);
@@ -1077,21 +1051,17 @@ public class GeneralDetailActivity extends AppCompatActivity {
             RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
                     (Request.Method.DELETE, requestURL, null, response -> {
-                        Log.d("delete", ""+response);
                         Intent intent = new Intent(GeneralDetailActivity.this, BoardPost.class);
                         intent.putExtra("position", position);
                         setResult(4, intent);
                         Toast.makeText(GeneralDetailActivity.this, "설문이 삭제되었습니다", Toast.LENGTH_SHORT).show();
                         finish();
                     }, error -> {
-                        Log.d("exception", "volley error");
                         error.printStackTrace();
                     });
             jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
             requestQueue.add(jsonObjectRequest);
-            Log.d("fix", UserPersonalInfo.name);
         } catch (Exception e){
-            Log.d("exception", "failed posting");
             e.printStackTrace();
         }
     }
@@ -1119,9 +1089,6 @@ public class GeneralDetailActivity extends AppCompatActivity {
             reply_mode = COMMENT;
             generalReplyRecyclerViewAdapter.Click(-1);
             setReplyVisible(false);
-        } else if (reply_mode == EDIT) {
-            reply_mode = COMMENT;
-            Toast.makeText(context, "수정 모드가 종료되었습니다.", Toast.LENGTH_SHORT).show();
         }
     }
     public void likepost(){
@@ -1132,16 +1099,12 @@ public class GeneralDetailActivity extends AppCompatActivity {
             params.put("userID",UserPersonalInfo.userID);
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
                     (Request.Method.PUT, requestURL, params, response -> {
-                        Log.d("response is", ""+response);
-
                     }, error -> {
-                        Log.d("exception", "volley error");
                         error.printStackTrace();
                     });
             jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
             requestQueue.add(jsonObjectRequest);
         } catch (Exception e){
-            Log.d("exception", "failed posting");
             e.printStackTrace();
         }
     }
@@ -1153,16 +1116,12 @@ public class GeneralDetailActivity extends AppCompatActivity {
             params.put("userID",UserPersonalInfo.userID);
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
                     (Request.Method.PUT, requestURL, params, response -> {
-                        Log.d("response is", ""+response);
-
                     }, error -> {
-                        Log.d("exception", "volley error");
                         error.printStackTrace();
                     });
             jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
             requestQueue.add(jsonObjectRequest);
         } catch (Exception e){
-            Log.d("exception", "failed posting");
             e.printStackTrace();
         }
     }
@@ -1180,14 +1139,11 @@ public class GeneralDetailActivity extends AppCompatActivity {
                         if(poll.getParticipants_userids().contains(UserPersonalInfo.userID)) bitArray.add(1);
                         else bitArray.add(0);
                     }
-                    Log.d("bitarrayis", ""+bitArray);
                     loading_detail(general);
-                    Log.d("replylistis", ""+replyArrayList.size());
                     generalReplyRecyclerViewAdapter.setItem(replyArrayList);
                     generalReplyRecyclerViewAdapter.notifyDataSetChanged();
                     loading.setVisibility(View.GONE);
                     reply_done = false;
-                    getGeneralDone = false;
                     delete_done = false;
                     block_done = false;
                     mSwipeRefreshLayout.setRefreshing(false);
@@ -1196,10 +1152,6 @@ public class GeneralDetailActivity extends AppCompatActivity {
                         imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
                     } catch (Exception e) {
 
-                    }
-
-                    if (reply_mode == EDIT) {
-                        reply_mode = COMMENT;
                     }
                     break;
                 case REPLY:
@@ -1217,7 +1169,6 @@ public class GeneralDetailActivity extends AppCompatActivity {
                     loading_detail(general);
                     loading.setVisibility(View.GONE);
                     done_survey = false;
-                    getGeneralDone = false;
                     setPollsDone();
                     break;
                 case 3:
@@ -1225,189 +1176,14 @@ public class GeneralDetailActivity extends AppCompatActivity {
                     generalReplyRecyclerViewAdapter.notifyDataSetChanged();
                     report_done = false;
                     delete_done = false;
-                    getGeneralDone = false;
                     break;
                 default:
                     break;
             }
-            person_done = false;
+            generalReplyRecyclerViewAdapter.notifyDataSetChanged();
         }
     }
 
-    private void getGeneral(String id) {
-        try{
-            String requestURL = getString(R.string.server) + "/api/generals/getpost/"+ id;
-            RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
-            JsonObjectRequest jsonObjectRequest= new JsonObjectRequest
-                    (Request.Method.GET, requestURL, null, response -> {
-                        try {
-                            JSONObject newgeneral = new JSONObject(response.toString());
-                            String _id = newgeneral.getString("_id");
-                            String title = newgeneral.getString("title");
-                            String author = newgeneral.getString("author");
-                            Integer author_lvl = newgeneral.getInt("author_lvl");
-                            String content = newgeneral.getString("content");
-                            SimpleDateFormat fm = new SimpleDateFormat(getString(R.string.date_format));
-                            Date date = null;
-                            try {
-                                date = fm.parse(newgeneral.getString("date"));
-                            } catch (ParseException e) {
-                                e.printStackTrace();
-                            }
-                            Date deadline = null;
-                            try {
-                                deadline = fm.parse(newgeneral.getString("deadline"));
-                            } catch (ParseException e) {
-                                e.printStackTrace();
-                            }
-                            ArrayList<Reply> comments = new ArrayList<>();
-                            try{
-                                JSONArray ja = (JSONArray)newgeneral.get("comments");
-                                if (ja.length() != 0){
-                                    for (int j = 0; j<ja.length(); j++){
-                                        JSONObject comment = ja.getJSONObject(j);
-                                        String reid = comment.getString("_id");
-                                        String writer = comment.getString("writer");
-                                        String contetn = comment.getString("content");
-                                        Date datereply = null;
-                                        try {
-                                            datereply = fm.parse(comment.getString("date"));
-                                        } catch (ParseException e) {
-                                            e.printStackTrace();
-                                        }
-                                        Boolean replyhide = comment.getBoolean("hide");
-                                        JSONArray ua = (JSONArray)comment.get("reports");
-
-
-                                        ArrayList<String> replyreports = new ArrayList<String>();
-                                        for (int u = 0; u<ua.length(); u++){
-                                            replyreports.add(ua.getString(u));
-                                        }
-                                        String writer_name = null;
-                                        try {
-                                            writer_name = comment.getString("writer_name");
-                                        }catch (Exception e){
-                                            writer_name = null;
-                                        }
-                                        ArrayList<ReReply> reReplies = new ArrayList<>();
-                                        try {
-                                            JSONArray jk = (JSONArray) comment.get("reply");
-                                            if (jk.length() != 0) {
-                                                for (int k = 0; k < jk.length(); k++) {
-                                                    JSONObject reReply = jk.getJSONObject(k);
-                                                    String id_ = reReply.getString("_id");
-                                                    ArrayList<String> reports_ = new ArrayList<>();
-                                                    JSONArray jb = (JSONArray) reReply.get("reports");
-                                                    for (int b = 0; b < jb.length(); b++) {
-                                                        reports_.add(jb.getString(b));
-                                                    }
-                                                    ArrayList<String> report_reasons_ = new ArrayList<>();
-                                                    JSONArray jc = (JSONArray) reReply.get("report_reasons");
-                                                    for (int c = 0; c < jc.length(); c++) {
-                                                        report_reasons_.add(jc.getString(c));
-                                                    }
-                                                    boolean hide_ = reReply.getBoolean("hide");
-                                                    String writer_ = reReply.getString("writer");
-                                                    String writer_name_ = "";
-                                                    try {
-                                                        writer_name_ = reReply.getString("writer_name");
-                                                    } catch (Exception e) {
-                                                        writer_name_ = "익명";
-                                                    }
-                                                    String content_ = reReply.getString("content");
-                                                    Date date_ = fm.parse(reReply.getString("date"));
-                                                    String replyID_ = reReply.getString("replyID");
-
-                                                    ReReply newReReply = new ReReply(id_, reports_, report_reasons_, hide_, writer_, writer_name_, content_, date_, replyID_);
-                                                    reReplies.add(newReReply);
-                                                }
-                                            }
-                                        } catch (Exception e) {
-                                            e.printStackTrace();
-                                        }
-                                        Reply re = new Reply(reid, writer, contetn, datereply,replyreports,replyhide, writer_name, reReplies);
-                                        re.setWriter_name(writer_name);
-                                        if ((!replyhide )&& (!replyreports.contains(UserPersonalInfo.userID))){
-                                            comments.add(re);
-                                        }
-                                    }
-                                }
-
-                            } catch (Exception e){
-                                e.printStackTrace();
-                            }
-                            Boolean done = newgeneral.getBoolean("done");
-                            String author_userid = newgeneral.getString("author_userid");
-                            JSONArray ka = (JSONArray)newgeneral.get("reports");
-                            ArrayList<String> reports = new ArrayList<String>();
-                            for (int j = 0; j<ka.length(); j++){
-                                reports.add(ka.getString(j));
-                            }
-                            Boolean multi_response = newgeneral.getBoolean("multi_response");
-                            Integer participants = newgeneral.getInt("participants");
-                            JSONArray ia = (JSONArray)newgeneral.get("participants_userids");
-                            ArrayList<String> participants_userids = new ArrayList<String>();
-                            for (int j = 0; j<ia.length(); j++){
-                                participants_userids.add(ia.getString(j));
-                            }
-                            Boolean with_image = newgeneral.getBoolean("with_image");
-                            ArrayList<Poll> polls = new ArrayList<>();
-                            try{
-                                JSONArray ja = (JSONArray)newgeneral.get("polls");
-                                if (ja.length() != 0){
-                                    for (int j = 0; j<ja.length(); j++){
-                                        JSONObject poll = ja.getJSONObject(j);
-                                        String poll_id = poll.getString("_id");
-                                        String poll_content = poll.getString("content");
-                                        ArrayList<String> poll_participants_userids = new ArrayList<String>();
-                                        JSONArray ua = (JSONArray)poll.get("participants_userids");
-                                        for (int u = 0; u<ua.length(); u++){
-                                            poll_participants_userids.add(ua.getString(u));
-                                        }
-                                        String image = poll.getString("image");
-                                        Poll newpoll = new Poll(poll_id, poll_content, poll_participants_userids, image);
-                                        polls.add(newpoll);
-                                    }
-                                }
-
-                            } catch (Exception e){
-                                e.printStackTrace();
-                            }
-
-                            JSONArray la = (JSONArray)newgeneral.get("liked_users");
-                            ArrayList<String> liked_users = new ArrayList<String>();
-                            for (int j = 0; j<la.length(); j++){
-                                liked_users.add(la.getString(j));
-                            }
-
-                            Integer likes = newgeneral.getInt("likes");
-                            Boolean hide = newgeneral.getBoolean("hide");
-
-                            General newGeneral = new General(_id, title, author, author_lvl, content,
-                                    date, deadline, comments, done, author_userid, reports, multi_response,
-                                    participants, participants_userids, with_image, polls, liked_users, likes, hide);
-
-                            general = newGeneral;
-                            replyArrayList = comments;
-                            generalReplyRecyclerViewAdapter.setItem(replyArrayList);
-                            generalReplyRecyclerViewAdapter.notifyDataSetChanged();
-                            getGeneralDone = true;
-
-                        } catch (JSONException e) {
-                            Log.d("exception", "JSON error");
-                            e.printStackTrace();
-                        }
-                    }, error -> {
-                        Log.d("exception", "volley error");
-                        error.printStackTrace();
-                    });
-            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-            requestQueue.add(jsonObjectRequest);
-        } catch (Exception e){
-            Log.d("exception", "failed getting response");
-            e.printStackTrace();
-        }
-    }
     public void postGeneralReReply(String generalcomment_object_id, String content) {
         try {
             String requestURL = context.getResources().getString(R.string.server) + "/api/generals/comment/postreply";
@@ -1469,30 +1245,7 @@ public class GeneralDetailActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
-    public void postEditComment(String generalcomment_object_id, String content) {
-        Log.d("edit", "postEditComment: " + generalcomment_object_id);
-
-        try {
-            String requestURL = context.getResources().getString(R.string.server) + "/api/generals/updatecomment";
-            JSONObject params = new JSONObject();
-            params.put("userID", UserPersonalInfo.email);
-            params.put("generalcomment_object_id", generalcomment_object_id);
-            params.put("content", content);
-            RequestQueue requestQueue = Volley.newRequestQueue(context);
-            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
-                    Request.Method.PUT, requestURL, params, response -> {
-                reply_done = true;
-            }, error -> {
-                error.printStackTrace();
-            });
-            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20 * 1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-            requestQueue.add(jsonObjectRequest);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
     public void blockUser(String counter) {
-        Log.d("counter", "blockUser: " + counter);
         String token = UserPersonalInfo.token;
         try {
             String requestURL = context.getResources().getString(R.string.server) + "/api/users/blockuser";
@@ -1535,106 +1288,6 @@ public class GeneralDetailActivity extends AppCompatActivity {
             }
         }
         return super.dispatchTouchEvent(ev);
-    }
-    private void getPersonalInfo() {
-        if (UserPersonalInfo.token == null) {
-            return;
-        }
-        String token = UserPersonalInfo.token;
-        try{
-            String requestURL = getString(R.string.server) + "/personalinfo";
-            RequestQueue requestQueue = Volley.newRequestQueue(context);
-            JsonObjectRequest jsonObjectRequest= new JsonObjectRequest
-                    (Request.Method.GET, requestURL, null, response -> {
-                        try {
-                            JSONObject res = new JSONObject(response.toString());
-                            Log.d("response is", ""+response);
-                            JSONObject user = res.getJSONObject("data");
-                            UserPersonalInfo.name = user.getString("name");
-                            UserPersonalInfo.email = user.getString("email");
-                            UserPersonalInfo.points = user.getInt("points");
-                            UserPersonalInfo.level = user.getInt("level");
-                            UserPersonalInfo.userID = user.getString("userID");
-                            UserPersonalInfo.userPassword = user.getString("userPassword");
-                            UserPersonalInfo.gender = user.getInt("gender");
-                            UserPersonalInfo.yearBirth = user.getInt("yearBirth");
-                            JSONArray ja = (JSONArray)user.get("participations");
-
-                            ArrayList<String> partiarray = new ArrayList<String>();
-                            for (int j = 0; j<ja.length(); j++){
-                                partiarray.add(ja.getString(j));
-                            }
-
-                            UserPersonalInfo.participations = partiarray;
-                            Log.d("partiarray", ""+UserPersonalInfo.participations.toString());
-
-                            JSONArray ja2 = (JSONArray)user.get("prizes");
-                            ArrayList<String> prizearray = new ArrayList<String>();
-                            for (int j = 0; j<ja2.length(); j++){
-                                prizearray.add(ja2.getString(j));
-                            }
-                            UserPersonalInfo.prizes = prizearray;
-                            Log.d("prizearray", ""+UserPersonalInfo.prizes.toString());
-                            ArrayList<Notification> notifications = new ArrayList<>();
-                            try{
-                                SimpleDateFormat fm = new SimpleDateFormat(getString(R.string.date_format));
-                                JSONArray na = (JSONArray)user.get("notifications");
-                                if (na.length() != 0){
-                                    for (int j = 0; j<na.length(); j++){
-                                        JSONObject notification = na.getJSONObject(j);
-                                        String title = notification.getString("title");
-                                        String content = notification.getString("content");
-                                        String post_id = notification.getString("post_id");
-                                        Date date = null;
-                                        try {
-                                            date = fm.parse(notification.getString("date"));
-                                        } catch (ParseException e) {
-                                            e.printStackTrace();
-                                        }
-                                        Integer post_type = notification.getInt("post_type");
-                                        Notification newNotification = new Notification(title, content, post_id, date, post_type);
-                                        notifications.add(newNotification);
-                                    }
-                                }
-
-                            } catch (Exception e){
-                                e.printStackTrace();
-                            }
-                            UserPersonalInfo.notifications = notifications;
-                            UserPersonalInfo.notificationAllow = user.getBoolean("notification_allow");
-                            UserPersonalInfo.prize_check = user.getInt("prize_check");
-                            try {
-                                ArrayList<String> blockedUsers = new ArrayList<>();
-                                JSONArray ja7 = (JSONArray)user.get("blocked_users");
-                                for (int j = 0; j < ja7.length(); j++) {
-                                    blockedUsers.add(ja7.getString(j));
-                                }
-                                UserPersonalInfo.blocked_users = blockedUsers;
-                            } catch (Exception e) {
-                                UserPersonalInfo.blocked_users = new ArrayList<>();
-                            }
-                            person_done = true;
-                        } catch (JSONException e) {
-                            Log.d("exception", "JSON error");
-                            e.printStackTrace();
-                        }
-                    }, error -> {
-                        Log.d("exception", "volley error");
-                        error.printStackTrace();
-                    }){
-                @Override
-                public Map<String, String> getHeaders() throws AuthFailureError {
-                    HashMap<String, String> headers = new HashMap<String, String>();
-                    headers.put("Authorization", "Bearer " + token);
-                    return headers;
-                }
-            };
-            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-            requestQueue.add(jsonObjectRequest);
-        } catch (Exception e){
-            Log.d("exception", "failed getting response");
-            e.printStackTrace();
-        }
     }
     public void setNote(String content) {
         try {

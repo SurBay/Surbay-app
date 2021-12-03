@@ -74,6 +74,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -211,6 +212,8 @@ public class GeneralWriteActivity extends AppCompatActivity {
 
         write_polls = new ArrayList<>();
         image_uris = new ArrayList<>();
+
+        // 초기 세팅
         for(int i=0;i<2;i++){
             write_polls.add("");
             image_uris.add(null);
@@ -275,8 +278,6 @@ public class GeneralWriteActivity extends AppCompatActivity {
     public boolean onTouchEvent(MotionEvent event) {
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         if(getCurrentFocus()!=null)imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
-        /*imm.hideSoftInputFromWindow(findViewById(R.id.write_title).getWindowToken(), 0);
-        imm.hideSoftInputFromWindow(findViewById(R.id.write_content).getWindowToken(), 0);*/
         return super.onTouchEvent(event);
     }
 
@@ -341,7 +342,7 @@ public class GeneralWriteActivity extends AppCompatActivity {
                 params.put("with_image", String.valueOf(with_image));
                 params.put("polls", polls.toString());
                 params.put("bitarray", bitArray.toString());
-
+                Log.d("show_polls", "getParams: " + polls);
                 return params;
             }
 
@@ -377,12 +378,6 @@ public class GeneralWriteActivity extends AppCompatActivity {
                 .forResult(13);
     }
 
-    public static void erasePoll(int position){
-        image_uris.remove(position);
-        write_polls.remove(position);
-
-
-    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -537,8 +532,6 @@ public class GeneralWriteActivity extends AppCompatActivity {
      * @throws IOException
      */
     public static byte[] getBytes(Context context, Uri uri) throws IOException {
-//        InputStream iStream = context.getContentResolver().openInputStream(Uri.fromFile(new File(uri.getPath())));
-//        InputStream iStream = new FileInputStream(new File(uri.getPath()));
         InputStream iStream = context.getContentResolver().openInputStream(uri);
         try {
             return getBytes(iStream);
@@ -578,22 +571,6 @@ public class GeneralWriteActivity extends AppCompatActivity {
         return bytesResult;
     }
 
-    public byte[] getFileDataFromUri(Uri uri){
-        InputStream iStream = null;
-        try {
-            iStream = getContentResolver().openInputStream(uri);
-
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        byte[] inputData = new byte[0];
-        try {
-            inputData = getBytes(iStream);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return inputData;
-    }
     private class postHandler extends Handler{
         @Override
         public void handleMessage(@NonNull Message msg) {
@@ -601,8 +578,6 @@ public class GeneralWriteActivity extends AppCompatActivity {
             loading.setVisibility(View.GONE);
             postDone = false;
             getGeneralsDone = false;
-            Intent intent = new Intent(GeneralWriteActivity.this, BoardGeneral.class);
-            setResult(NEWPOST, intent);
             finish();
         }
     }

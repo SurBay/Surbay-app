@@ -36,6 +36,8 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -43,6 +45,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
 import com.google.firebase.dynamiclinks.PendingDynamicLinkData;
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.pumasi.surbay.AnalyticsApplication;
 import com.pumasi.surbay.HomeRenewalFragment;
 import com.pumasi.surbay.classfile.Notice;
 import com.pumasi.surbay.classfile.ReReply;
@@ -63,10 +66,13 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import com.google.android.gms.analytics.Tracker;
+import com.google.android.gms.analytics.GoogleAnalytics;
 
 public class LoginActivity extends AppCompatActivity {
     private AlertDialog dialog;
 
+    private AnalyticsApplication application;
     private CheckBox cb_auto_login;
     private CheckBox cb_save_id;
 
@@ -90,8 +96,6 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         getSupportActionBar().hide();
-
-
 
         try {
             MainActivity.getSurveytips();

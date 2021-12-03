@@ -48,9 +48,10 @@ import java.util.Map;
 @SuppressLint("SimpleDateFormat")
 public class ServerTransport extends AppCompatActivity {
 
+    SimpleDateFormat std_fm = new SimpleDateFormat("yyyy-MM-dd\'T\'kk:mm:ss.SSS");
+
     private Context context;
     public boolean getPersonalInfoDone = false;
-    SimpleDateFormat std_fm = new SimpleDateFormat("yyyy-MM-dd\'T\'kk:mm:ss.SSS");
     public Post result_research = null;
     public General result_vote = null;
     public Content result_content = null;
@@ -61,7 +62,7 @@ public class ServerTransport extends AppCompatActivity {
     private final int CONTENT = 2;
 
     private final int GET_INTERNET_ERROR = 100;
-    private final int DEFAULT_NETWORK_TRY = 20;
+    public final int DEFAULT_NETWORK_TRY = 20;
     private getHandler getHandler = new getHandler();
 
     public ServerTransport(Context context) {
@@ -72,6 +73,7 @@ public class ServerTransport extends AppCompatActivity {
         Log.d("boolean_done", "getPersonalInfo: error");
     }
     public void getPersonalInfo() {
+        this.getPersonalInfoDone = false;
         String token = UserPersonalInfo.token;
         if (token == null) {
             return;
@@ -502,7 +504,7 @@ public class ServerTransport extends AppCompatActivity {
 
                             General vote = new General(id, title, author, author_lvl, content, date, deadline, comments, done, author_userid, reports, multi_response, participants, participants_userids, with_image, polls, liked_users, likes, hide, special, visit);
                             result_vote = vote;
-
+                            Log.d("see_everything", "getVote: " + id+ title+ author+ author_lvl+ content+ date+ deadline+ comments+ done+ author_userid+ reports+ multi_response+ participants+ participants_userids+ with_image+ polls+ liked_users+ likes+ hide+ special+ visit);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -650,7 +652,6 @@ public class ServerTransport extends AppCompatActivity {
                         intent.putExtra("post", result_research);
                         intent.putExtra("work", work);
                         context.startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-                        overridePendingTransition(R.anim.enter, R.anim.exit);
                     } else {
                         getHandler.sendEmptyMessage(GET_INTERNET_ERROR);
                     }
@@ -672,7 +673,6 @@ public class ServerTransport extends AppCompatActivity {
                         intent.putExtra("general", result_vote);
                         intent.putExtra("work", work);
                         context.startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-                        overridePendingTransition(R.anim.enter, R.anim.exit);
                     } else {
                         getHandler.sendEmptyMessage(GET_INTERNET_ERROR);
                     }
@@ -694,7 +694,6 @@ public class ServerTransport extends AppCompatActivity {
                         intent.putExtra("content", result_content);
                         intent.putExtra("work", work);
                         context.startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-                        overridePendingTransition(R.anim.enter, R.anim.exit);
                     } else {
                         getHandler.sendEmptyMessage(GET_INTERNET_ERROR);
                     }

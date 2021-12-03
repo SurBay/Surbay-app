@@ -80,18 +80,13 @@ public class MainActivity extends AppCompatActivity {
     private VoucherBoardFragment voucherBoardFragment;
     private MypageRenewalFragment mypageRenewalFragment;
 
-    private BlankFragment blankFragment;
-
     public static ArrayList<Surveytip> surveytipArrayList = new ArrayList<>();
     public static ArrayList<PostNonSurvey> feedbackArrayList = new ArrayList<>();
     public static ArrayList<Notice> NoticeArrayList = new ArrayList<>();
     public static Context mContext;
     public static Integer done = 0;
 
-    private static Comparator<Notice> cmpNoticeNew;
-
-    public static int SORT = 1;
-        public static Date today;
+    public static Date today;
     private CustomDialog endDialog;
 
     @Override
@@ -100,8 +95,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         mContext = getApplicationContext();
 
+        Log.d("token", "onCreate: " + UserPersonalInfo.token);
+
         st = new ServerTransport(mContext);
-        Log.d("get post", "onCreate: ");
         DisplayMetrics display = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(display);
         if (display.widthPixels > display.heightPixels) {
@@ -120,7 +116,6 @@ public class MainActivity extends AppCompatActivity {
         freeBoardFragment = new FreeBoardFragment();
         voucherBoardFragment = new VoucherBoardFragment();
         mypageRenewalFragment = new MypageRenewalFragment();
-        blankFragment = new BlankFragment();
 
         today = new Date();
 
@@ -129,24 +124,7 @@ public class MainActivity extends AppCompatActivity {
         }
         MainActivity.getSurveytips();
 
-        cmpNoticeNew = new Comparator<Notice>() {
-            @Override
-            public int compare(Notice o1, Notice o2) {
-                int ret;
-                Date date1 = o1.getDate();
-                Date date2 = o2.getDate();
-                int compare = date1.compareTo(date2);
-                if (compare > 0)
-                    ret = -1;
-                else if (compare == 0)
-                    ret = 0;
-                else
-                    ret = 1;
-                return ret;
-            }
-        };
-
-        Collections.sort(MainActivity.NoticeArrayList, cmpNoticeNew);
+        Collections.reverse(MainActivity.NoticeArrayList);
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener()
         {
             @Override
@@ -472,8 +450,5 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-    }
+
 }

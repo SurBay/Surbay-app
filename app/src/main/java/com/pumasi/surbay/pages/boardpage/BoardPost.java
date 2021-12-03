@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,6 +19,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.graphics.drawable.ColorDrawable;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -55,16 +57,14 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-import static com.pumasi.surbay.pages.MainActivity.*;
-import static com.pumasi.surbay.pages.boardpage.BoardGeneral.DO_SURVEY;
-
 
 public class BoardPost extends Fragment {
     private ServerTransport st;
 
+    private boolean isToast = true;
+
     private LinearLayoutManager mLayoutManager;
     static final int WRITE_NEWPOST = 1;
-    static final int DO_SURVEY = 2;
     private View view;
     private Button btn_post_sort_new;
     private Button btn_post_sort_day;
@@ -74,18 +74,23 @@ public class BoardPost extends Fragment {
     private RecyclerView rv_board_post;
     private static PostRecyclerViewAdapter postRecyclerViewAdapter;
     private Context context;
-    public static ArrayList<Post> boardPostShow = new ArrayList<Post>();
+
+    public ArrayList<Post> addingPost = new ArrayList<>();
+    public static ArrayList<Post> boardPostShow = new ArrayList<>();
+
     private CheckBox cb_hide_done;
     private TextView tv_participated_hide;
     private int visibleItemCount, pastVisiblesItems, totalItemCount;
     private static boolean isLoading = false;
     public static boolean doneInfinityPost = false;
-    private int beforeSize = -1;
     private SwipeRefreshLayout refresh_boards;
-    private String check = "";
     private String beforePost = "";
     private int type = 0;
     private static boolean isParticipated = false;
+    private CustomDialog customDialog;
+
+    private RecyclerHandler recyclerHandler = new RecyclerHandler();
+
 
     @Nullable
     @Override
@@ -96,12 +101,8 @@ public class BoardPost extends Fragment {
         context = getActivity().getApplicationContext();
         st = new ServerTransport(context);
 
+        customDialog = new CustomDialog(getActivity());
         setComponents();
-
-        setLoading(true);
-        setClickable(false);
-
-
         postRecyclerViewAdapter = new PostRecyclerViewAdapter(boardPostShow, context);
         mLayoutManager = new LinearLayoutManager(context, RecyclerView.VERTICAL, false);
         rv_board_post.setAdapter(postRecyclerViewAdapter);
@@ -116,7 +117,8 @@ public class BoardPost extends Fragment {
         });
 
         initScrollListener();
-        getInfinityPosts(beforePost, type, isParticipated);
+        setLoading(true);
+        executeGetData();
         return view;
     }
     private void setComponents() {
@@ -126,11 +128,10 @@ public class BoardPost extends Fragment {
             @Override
             public void onRefresh() {
                 setClickable(false);
-                check = "";
                 beforePost = "";
                 boardPostShow.clear();
                 postRecyclerViewAdapter.notifyDataSetChanged();
-                getInfinityPosts(beforePost, type, isParticipated);
+                executeGetData();
             }
         });
         btn_post_sort_new = view.findViewById(R.id.btn_post_sort_new);
@@ -175,12 +176,12 @@ public class BoardPost extends Fragment {
                     setClickable(false);
                     isParticipated = false;
                 }
-                check = "";
                 beforePost = "";
                 boardPostShow.clear();
                 postRecyclerViewAdapter.notifyDataSetChanged();
-                getInfinityPosts(beforePost, type, isParticipated);
+                setLoading(true);
                 setTop();
+                executeGetData();
             }
         });
         btn_research_write.setOnClickListener(
@@ -188,17 +189,13 @@ public class BoardPost extends Fragment {
                     @Override
                     public void onClick(View v) {
                         if(UserPersonalInfo.userID.equals("nonMember")){
-                            CustomDialog customDialog = new CustomDialog(getActivity(), new View.OnClickListener() {
+                            customDialog.customSimpleDialog("게시글을 작성하기 위해서는 \n로그인이 필요합니다", "로그인 하기", "닫기", new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
                                     Intent intent = new Intent(getActivity(), LoginActivity.class);
                                     startActivity(intent);
                                 }
                             });
-                            customDialog.show();
-                            customDialog.setMessage("게시글을 작성하기 위해서는 \n로그인이 필요합니다");
-                            customDialog.setPositiveButton("로그인 하기");
-                            customDialog.setNegativeButton("닫기");
                         } else {
                             Intent intent = new Intent(((AppCompatActivity) getActivity()).getApplicationContext(), PostWriteActivity.class);
                             intent.putExtra("purpose", WRITE_NEWPOST);
@@ -210,15 +207,15 @@ public class BoardPost extends Fragment {
         );
     }
     private void setSelected(int num) {
-        setClickable(false);
         setLoading(true);
         type = num;
-        check = "";
         beforePost = "";
         boardPostShow.clear();
         postRecyclerViewAdapter.notifyDataSetChanged();
-        getInfinityPosts(beforePost, type, isParticipated);
         setTop();
+
+        executeGetData();
+
         switch (num) {
             case 0:
                 btn_post_sort_new.setBackgroundResource(R.drawable.round_border_teal_list);
@@ -250,13 +247,10 @@ public class BoardPost extends Fragment {
     }
 
     public void getInfinityPosts(String object, int type, boolean isParticipated) {
-        check = object;
-        isLoading = true;
         String user_id = "";
         if (UserPersonalInfo.userID != "nonMember") {
             user_id = UserPersonalInfo.userID;
         }
-        Log.d("hey1", "getInfinityPosts: "+ object + ", " + type + ", " + isParticipated);
         try {
             String requestURL = "http://ec2-3-35-152-40.ap-northeast-2.compute.amazonaws.com/api/posts/infinite/?userID=" + user_id + "&type=" + type + "&post_object_id=" + object + "&participate=" + isParticipated;
             RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.mContext);
@@ -264,7 +258,6 @@ public class BoardPost extends Fragment {
                     Request.Method.GET, requestURL, null, response -> {
                 try {
                     JSONArray responseArray = new JSONArray(response.toString());
-                    Log.d("getNumbers", "getInfinityPosts: " + responseArray.length());
                     for (int i = 0; i < responseArray.length(); i++) {
                         JSONObject post = responseArray.getJSONObject(i);
                         String id = post.getString("_id");
@@ -394,36 +387,20 @@ public class BoardPost extends Fragment {
                             e.printStackTrace();
                         }
                         Post newPost = new Post(id, title, author, author_lvl, content, participants, goal_participants, url, date, deadline, with_prize, prize, est_time, target, num_prize, comments, done, extended, participants_userids, reports, hide, author_userid, pinned, annonymous, author_info);
-                        Log.d("newPost", "getInfinityPosts: " + newPost);
-                        boardPostShow.add(newPost);
-
-                        Log.d("어?", "getRandomPosts: ");
+                        addingPost.add(newPost);
                     }
-                    boardPostShow.remove(null);
-                    postRecyclerViewAdapter.notifyItemRemoved(boardPostShow.size());
-                    if (boardPostShow == null || boardPostShow.size() == 0) {
-                        beforePost = "";
-                    } else if (boardPostShow.get(boardPostShow.size() - 1) != null) {
-                        beforePost = boardPostShow.get(boardPostShow.size() - 1).getID();
-                    }
-                    postRecyclerViewAdapter.notifyDataSetChanged();
-                    setLoading(false);
-                    setClickable(true);
-                    refresh_boards.setRefreshing(false);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+                doneInfinityPost = true;
             }, error -> {
                 error.printStackTrace();
             });
             jsonArrayRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
             requestQueue.add(jsonArrayRequest);
-            doneInfinityPost = true;
-            isLoading = false;
 
         } catch (Exception e) {
             e.printStackTrace();
-            doneInfinityPost = true;
         }
     }
     private void initScrollListener() {
@@ -442,12 +419,10 @@ public class BoardPost extends Fragment {
                     visibleItemCount = mLayoutManager.getChildCount();
                     pastVisiblesItems = mLayoutManager.findFirstVisibleItemPosition();
                     totalItemCount = mLayoutManager.getItemCount();
-
+                    Log.d("TAG", "onScrolled: "+totalItemCount);
                     if (!isLoading) {
                         if ((visibleItemCount + pastVisiblesItems) >= totalItemCount) {
-                            beforeSize = boardPostShow.size();
-                            doneInfinityPost = false;
-                            loading();
+                            executeGetData();
                         }
                     }
                 }
@@ -455,15 +430,6 @@ public class BoardPost extends Fragment {
         });
     }
 
-    private void loading() {
-        if (!check.equals(beforePost)) {
-            setClickable(false);
-            boardPostShow.add(null);
-            postRecyclerViewAdapter.notifyItemInserted(boardPostShow.size() - 1);
-            getInfinityPosts(beforePost, type, isParticipated);
-        }
-        Log.d("TAG", "loading: " + check + beforePost);
-    }
     private void setClickable(boolean clickable) {
         btn_post_sort_new.setEnabled(clickable);
         btn_post_sort_goal.setEnabled(clickable);
@@ -478,6 +444,7 @@ public class BoardPost extends Fragment {
             loadingPanel.setVisibility(View.GONE);
         }
     }
+
     private void setTop() {
         new Handler().postDelayed(new Runnable() {
             @Override
@@ -489,10 +456,65 @@ public class BoardPost extends Fragment {
         }, 200);
     }
 
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        boardPostShow = new ArrayList<Post>();
-        postRecyclerViewAdapter.notifyDataSetChanged();
+    private void executeGetData() {
+        boardPostShow.add(null);
+        postRecyclerViewAdapter.notifyItemInserted(boardPostShow.size() - 1);
+        isLoading = true;
+        setClickable(false);
+        refresh_boards.setEnabled(false);
+        new RecyclerThread().start();
+    }
+    private class RecyclerThread extends Thread {
+        @Override
+        public void run() {
+            int counter = 0;
+            getInfinityPosts(beforePost, type, isParticipated);
+            while (!doneInfinityPost && counter != 3 * st.DEFAULT_NETWORK_TRY) {
+                try {
+                    counter += 1;
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (counter == 3 * st.DEFAULT_NETWORK_TRY) {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(context, "데이터를 받아오는데 실패하였습니다", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            } else {
+                if (addingPost.size() == 0) {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(context, "이미 모든 데이터를 받아왔습니다", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                } else {
+                    boardPostShow.addAll(addingPost);
+                    beforePost = addingPost.get(addingPost.size() - 1).getID();
+                }
+            }
+            addingPost.clear();
+            doneInfinityPost = false;
+            recyclerHandler.sendEmptyMessage(0);
+        }
+    }
+    private class RecyclerHandler extends Handler {
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            super.handleMessage(msg);
+            boardPostShow.remove(null);
+            postRecyclerViewAdapter.setItem(boardPostShow);
+            postRecyclerViewAdapter.notifyDataSetChanged();
+
+            refresh_boards.setEnabled(true);
+            refresh_boards.setRefreshing(false);
+            setClickable(true);
+            setLoading(false);
+            isLoading = false;
+        }
     }
 }

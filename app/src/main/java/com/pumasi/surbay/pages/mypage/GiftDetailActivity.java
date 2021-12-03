@@ -48,15 +48,7 @@ public class GiftDetailActivity extends AppCompatActivity {
 
         if (uri != null) {
             imageView.setImageURI(uri);
-//            Intent shareIntent = new Intent();
-//            shareIntent.setAction(Intent.ACTION_SEND);
-//            shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION); // temp permission for receiving app to read this file
-//            shareIntent.setDataAndType(uri, getContentResolver().getType(uri));
-//            shareIntent.putExtra(Intent.EXTRA_STREAM, uri);
-//            startActivity(Intent.createChooser(shareIntent, "Choose an app"));
         }
-
-        
     }
 
     @Override
@@ -105,27 +97,6 @@ public class GiftDetailActivity extends AppCompatActivity {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         bitmapImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
         String path = MediaStore.Images.Media.insertImage(getContentResolver(), bitmapImage, "Title", null);
-//        ContextWrapper cw = new ContextWrapper(getApplicationContext());
-//        // path to /data/data/yourapp/app_data/imageDir
-//        String root =  Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).toString()+ "/SurBay";
-////        String root = Environment.getExternalStorageDirectory().toString() + "/saved_images";
-////         Create imageDir
-//        File myDir = new File(root);
-//        Boolean made = myDir.mkdirs();
-//        Log.d("directory", "made"+ made);
-//        String fname = System.currentTimeMillis()+"prize.png";
-//        File file = new File(myDir, fname);
-//        if (file.exists()) file.delete();
-//        try {
-//            FileOutputStream out = new FileOutputStream(file);
-//            bitmapImage.compress(Bitmap.CompressFormat.PNG, 90, out);
-//            out.flush();
-//            out.close();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        MediaScannerConnection.scanFile(GiftDetailActivity.this, new String[]{file.getPath()}, new String[]{"image/jpeg"}, null);
-//        return file.getAbsolutePath();
     }
 
 }

@@ -20,7 +20,8 @@ public class CustomDialog extends Dialog{
     protected TextView content;
 
     protected View.OnClickListener mPositiveListener;
-
+    public CustomDialog customDialog;
+    protected Context context;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,6 +45,7 @@ public class CustomDialog extends Dialog{
     }
     public CustomDialog(@NonNull Context context) {
         super(context);
+        this.context = context;
     }
 
     //생성자 생성
@@ -88,5 +90,21 @@ public class CustomDialog extends Dialog{
     }
     public void setmNegativeListener(View.OnClickListener negativeListener){
         this.mNegativeButton.setOnClickListener(negativeListener);
+    }
+
+    public void customSimpleDialog(String message, String pos, String neg, View.OnClickListener listener) {
+        customDialog = new CustomDialog(this.context, listener);
+        customDialog.show();
+        customDialog.setMessage(message);
+        if (pos != null) {
+            customDialog.setPositiveButton(pos);
+        }
+        customDialog.setNegativeButton(neg);
+    }
+    public void customRejectDialog(String message, String neg) {
+        customDialog = new CustomDialog(this.context, null);
+        customDialog.show();
+        customDialog.setMessage(message);
+        customDialog.setNegativeButton(neg);
     }
 }

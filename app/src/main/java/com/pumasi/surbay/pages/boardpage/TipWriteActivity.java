@@ -41,8 +41,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-import static com.pumasi.surbay.pages.boardpage.BoardSurveyTip.listView;
-import static com.pumasi.surbay.pages.boardpage.BoardSurveyTip.listViewAdapter;
 
 public class TipWriteActivity extends AppCompatActivity {
     static final int NEWPOST = 1;
@@ -194,15 +192,11 @@ public class TipWriteActivity extends AppCompatActivity {
             Surveytip tip = new Surveytip(null, title, author, author_lvl, content, date, category, 0, new ArrayList<String>());
             tip.setAuthor_userid(UserPersonalInfo.userID);
             MainActivity.surveytipArrayList.add(0, tip);
-            listViewAdapter.notifyDataSetChanged();
-            listView.setAdapter(listViewAdapter);
-            Intent intent = new Intent(TipWriteActivity.this, BoardSurveyTip.class);
             try {
                 postPost(title, author, author_lvl, content, date, category, 0);
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            setResult(NEWPOST, intent);
             finish();
         }
     }

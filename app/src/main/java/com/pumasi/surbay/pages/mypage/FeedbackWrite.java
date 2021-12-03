@@ -53,8 +53,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-import static com.pumasi.surbay.pages.boardpage.BoardSurveyTip.listView;
-import static com.pumasi.surbay.pages.boardpage.BoardSurveyTip.listViewAdapter;
 
 public class FeedbackWrite extends AppCompatActivity {
     static final int NEWPOST = 1;

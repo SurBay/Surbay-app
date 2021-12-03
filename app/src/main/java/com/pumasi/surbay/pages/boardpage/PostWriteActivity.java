@@ -58,7 +58,6 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.Volley;
-import com.esafirm.imagepicker.model.Image;
 import com.pumasi.surbay.pages.MainActivity;
 import com.pumasi.surbay.R;
 import com.pumasi.surbay.SurveyWebActivity;
@@ -90,15 +89,23 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
 public class PostWriteActivity extends AppCompatActivity {
-    static final int NEWPOST = 1;
     static final int FIX_DONE = 3;
     static final int CHECK = 2;
-    private InputMethodManager imm;
+
+    private EditText et_research_write_title;
+    private EditText et_research_write_target;
+    private EditText et_research_write_author_info;
+    private CheckBox cb_research_write_anonymous;
+    private EditText et_research_write_deadline;
+    private EditText et_research_write_goal;
+
+    private EditText et_research_write_url;
+    private Spinner sp_research_write_est_time;
+    private EditText et_research_write_content;
 
     TextView writeBack;
     TextView writeSave;
@@ -106,43 +113,31 @@ public class PostWriteActivity extends AppCompatActivity {
     RecyclerView gift_image_list;
     GiftImageAdapter giftImageAdapter;
 
-    private LinearLayout ll_post_write_reward;
-    private LinearLayout ll_post_write_credit;
-    private LinearLayout ll_post_write_exchange;
-    private CheckBox withPrize;
+    private LinearLayout ll_research_write_rewards_container;
+    private LinearLayout ll_research_write_reward_credit;
+    private LinearLayout ll_research_write_reward_gift;
+    private CheckBox cb_research_write_reward;
     private TextView tv_post_write_reward;
-    private LinearLayout ll_post_write_rewards;
-    private LinearLayout ll_post_write_reward_credit;
-    private LinearLayout ll_post_write_reward_gift;
-    private TextView tv_post_write_reward_credit;
-    private TextView tv_post_write_reward_gift;
-    private CheckBox cb_post_write_credit;
-    private CheckBox cb_post_write_exchange;
-    private TextView tv_post_write_credit;
-    private TextView tv_post_write_exchange;
+    private LinearLayout ll_research_write_rewards_indicator;
+    private LinearLayout ll_research_write_reward_credit_indicator;
+    private LinearLayout ll_research_write_reward_gift_indicator;
+    private TextView tv_research_write_reward_credit_indicator;
+    private TextView tv_research_write_reward_gift_indicator;
+    private CheckBox cb_research_write_credit;
+    private CheckBox cb_research_write_gift;
+    private TextView tv_post_write_static_credit;
+    private TextView tv_research_write_static_gift;
 
-    private EditText et_post_write_credit;
-    private EditText et_post_write_credit_count;
-    private TextView tv_post_write_total;
+    private EditText et_research_write_reward_credit_each;
+    private EditText et_research_write_reward_credit_person;
+    private TextView tv_research_write_reward_credit_total;
 
-    private EditText writeTitle;
-    private EditText writeTarget;
-    private EditText writeDeadline;
-    private EditText writeGoalParticipants;
-    private EditText writePrize;
-    private EditText writeUrl;
-    private Spinner writeEstTime;
-    private EditText writeContent;
-    private AlertDialog dialog;
-    Button urlCheck;
+    private EditText et_research_write_gift_name;
+    private Button btn_research_write_check_url;
 
-    private EditText prize_count;
+    private EditText et_research_write_gift_count;
     private RelativeLayout prize_layout;
-    private TextView prize_plus;
-
-    private EditText writeAuthorInfo;
-    private CheckBox writeAnnonymous;
-    private TextView wrtieAnnonymousTextView;
+    private TextView tv_research_write_image_album;
 
 
     Integer goalParticipants;
@@ -161,7 +156,7 @@ public class PostWriteActivity extends AppCompatActivity {
     Boolean annonymous = true;
 
     private Integer credit_each = 0;
-    private Integer credit_count = 0;
+    private Integer credit_person = 0;
     private Integer prize_num = 0;
 
     ArrayList<Uri> image_uris = new ArrayList<>();
@@ -177,12 +172,11 @@ public class PostWriteActivity extends AppCompatActivity {
     private TimePickerDialog.OnTimeSetListener tcallbackMethod;
     private DatePickerDialog.OnDateSetListener callbackMethod;
     final String[] spinner_esttime = {"선택해주세요", "1분 미만", "1~2분", "2~3분", "3~5분", "5~7분", "7~10분", "10분 초과"};
-    private List<Image> images;
     private RelativeLayout loading;
     private boolean postDone = false;
-    private postHandler handler = new postHandler();
+    private final postHandler handler = new postHandler();
     private boolean updateDone = false;
-    private updateHandler updateHandler = new updateHandler();
+    private final updateHandler updateHandler = new updateHandler();
 
     @SuppressLint("ResourceAsColor")
     @Override
@@ -190,260 +184,86 @@ public class PostWriteActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_post_write);
         getSupportActionBar().hide();
-        imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
-                if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
-                    ActivityCompat.requestPermissions(this, new String[]{
-                            Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA}, 200
-                    );
-                }
-            }
-        }
-
+        customDialog = new CustomDialog(PostWriteActivity.this);
         Intent intent = getIntent();
         purpose = intent.getIntExtra("purpose",1);
-        ll_post_write_reward = findViewById(R.id.ll_post_write_reward);
-        ll_post_write_credit = findViewById(R.id.ll_post_write_credit);
-        ll_post_write_exchange = findViewById(R.id.ll_post_write_exchange);
 
-        withPrize = findViewById(R.id.cb_post_write_reward);
-        writePrize = findViewById(R.id.write_prize);
-        tv_post_write_reward = findViewById(R.id.tv_post_write_reward);
-        ll_post_write_rewards = findViewById(R.id.ll_post_write_rewards);
-        ll_post_write_reward_credit = findViewById(R.id.ll_post_write_reward_credit);
-        ll_post_write_reward_gift = findViewById(R.id.ll_post_write_reward_gift);
-        tv_post_write_reward_credit = findViewById(R.id.tv_post_write_reward_credit);
-        tv_post_write_reward_gift = findViewById(R.id.tv_post_write_reward_gift);
+        permissionHandle();
+        viewHandle();
+        setListeners();
+        viewSizeHandle();
 
-        cb_post_write_credit = findViewById(R.id.cb_post_write_credit);
-        cb_post_write_exchange = findViewById(R.id.cb_post_write_exchange);
-        tv_post_write_credit = findViewById(R.id.tv_post_write_credit);
-        tv_post_write_exchange = findViewById(R.id.tv_post_write_exchange);
-
-        prize_count = findViewById(R.id.prize_count);
-        prize_layout = findViewById(R.id.prize_image_layout);
-
-        et_post_write_credit = findViewById(R.id.et_post_write_credit);
-        et_post_write_credit_count = findViewById(R.id.et_post_write_credit_count);
-        tv_post_write_total = findViewById(R.id.tv_post_write_total);
-
-        Log.d("et_post_write_credit", "onCreate: " + et_post_write_credit.getText());
-        prize_count.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                try {
-                    prize_num = Integer.parseInt(prize_count.getText().toString());
-                } catch (Exception e) {
-                    prize_num = 0;
-                }
-                if (prize_count.toString().length() == 0) {
-                    tv_post_write_reward_gift.setText("X " + String.valueOf(0));
-                } else {
-                    tv_post_write_reward_gift.setText("X " + String.valueOf(prize_num));
-                }
-            }
-        });
-        et_post_write_credit.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                try {
-                    tv_post_write_total.setText(String.valueOf(Integer.parseInt(et_post_write_credit.getText().toString()) * Integer.parseInt(et_post_write_credit_count.getText().toString())));
-                    tv_post_write_reward_credit.setText(String.valueOf("X " + Integer.parseInt(et_post_write_credit.getText().toString()) * Integer.parseInt(et_post_write_credit_count.getText().toString())));
-                } catch (Exception e) {
-                    tv_post_write_total.setText(String.valueOf(0));
-                    tv_post_write_reward_credit.setText("X " + String.valueOf(0));
-                }
-                try {
-                    credit_each = Integer.parseInt(et_post_write_credit.getText().toString());
-                } catch (Exception e) {
-                    credit_each = 0;
-                }
-            }
-        });
-        et_post_write_credit_count.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                try {
-                    tv_post_write_total.setText(String.valueOf(Integer.parseInt(et_post_write_credit.getText().toString()) * Integer.parseInt(et_post_write_credit_count.getText().toString())));
-                    tv_post_write_reward_credit.setText("X " + String.valueOf(Integer.parseInt(et_post_write_credit.getText().toString()) * Integer.parseInt(et_post_write_credit_count.getText().toString())));
-
-                } catch (Exception e) {
-                    tv_post_write_total.setText(String.valueOf(0));
-                    tv_post_write_reward_credit.setText("X " + String.valueOf(0));
-                }
-                try {
-                    credit_count = Integer.parseInt(et_post_write_credit_count.getText().toString());
-                } catch (Exception e) {
-                    credit_count = 0;
-                }
-
-            }
-        });
-
-        withPrize.setOnClickListener(new View.OnClickListener(){
+        cb_research_write_reward.setOnClickListener(new View.OnClickListener(){
             @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
             @Override
             public void onClick(View v) {
                 if (((CheckBox)v).isChecked()){
-                    writePrize.setHint("기프티콘 상품");
-                    writePrize.setEnabled(true);
-                    prize_count.setVisibility(View.VISIBLE);
+                    et_research_write_gift_name.setHint("기프티콘 상품");
+                    et_research_write_gift_name.setEnabled(true);
+                    et_research_write_gift_count.setVisibility(View.VISIBLE);
                     prize_layout.setVisibility(View.VISIBLE);
-                    withPrize.setButtonTintList(ColorStateList.valueOf(Color.parseColor("#3AD1BF")));
-                    ll_post_write_reward.setVisibility(View.VISIBLE);
-                    ll_post_write_rewards.setVisibility(View.VISIBLE);
+                    cb_research_write_reward.setButtonTintList(ColorStateList.valueOf(Color.parseColor("#3AD1BF")));
+                    ll_research_write_rewards_container.setVisibility(View.VISIBLE);
+                    ll_research_write_rewards_indicator.setVisibility(View.VISIBLE);
                     tv_post_write_reward.setVisibility(View.GONE);
 
                 } else {
-                    writePrize.setHint("체크하면 내용을 입력할 수 있습니다");
-                    writePrize.setEnabled(false);
-                    prize_count.setVisibility(View.GONE);
+                    et_research_write_gift_name.setHint("체크하면 내용을 입력할 수 있습니다");
+                    et_research_write_gift_name.setEnabled(false);
+                    et_research_write_gift_count.setVisibility(View.GONE);
                     prize_layout.setVisibility(View.GONE);
-                    withPrize.setButtonTintList(ColorStateList.valueOf(Color.parseColor("#C4C4C4")));
-                    ll_post_write_reward.setVisibility(View.GONE);
-                    ll_post_write_rewards.setVisibility(View.GONE);
+                    cb_research_write_reward.setButtonTintList(ColorStateList.valueOf(Color.parseColor("#C4C4C4")));
+                    ll_research_write_rewards_container.setVisibility(View.GONE);
+                    ll_research_write_rewards_indicator.setVisibility(View.GONE);
                     tv_post_write_reward.setVisibility(View.VISIBLE);
                 }
             }
         });
-        cb_post_write_credit.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        cb_research_write_credit.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
-                    ll_post_write_reward_credit.setVisibility(View.VISIBLE);
-                    cb_post_write_credit.setButtonTintList(ColorStateList.valueOf(Color.parseColor("#3AD1BF")));
-                    ll_post_write_credit.setVisibility(View.VISIBLE);
-                    tv_post_write_credit.setVisibility(View.GONE);
+                    ll_research_write_reward_credit_indicator.setVisibility(View.VISIBLE);
+                    cb_research_write_credit.setButtonTintList(ColorStateList.valueOf(Color.parseColor("#3AD1BF")));
+                    ll_research_write_reward_credit.setVisibility(View.VISIBLE);
+                    tv_post_write_static_credit.setVisibility(View.GONE);
                 } else {
-                    ll_post_write_reward_credit.setVisibility(View.GONE);
-                    cb_post_write_credit.setButtonTintList(ColorStateList.valueOf(Color.parseColor("#C4C4C4")));
-                    ll_post_write_credit.setVisibility(View.GONE);
-                    tv_post_write_credit.setVisibility(View.VISIBLE);
+                    ll_research_write_reward_credit_indicator.setVisibility(View.GONE);
+                    cb_research_write_credit.setButtonTintList(ColorStateList.valueOf(Color.parseColor("#C4C4C4")));
+                    ll_research_write_reward_credit.setVisibility(View.GONE);
+                    tv_post_write_static_credit.setVisibility(View.VISIBLE);
                 }
             }
         });
-        cb_post_write_exchange.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        cb_research_write_gift.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
-                    ll_post_write_reward_gift.setVisibility(View.VISIBLE);
-                    cb_post_write_exchange.setButtonTintList(ColorStateList.valueOf(Color.parseColor("#3AD1BF")));
-                    ll_post_write_exchange.setVisibility(View.VISIBLE);
-                    tv_post_write_exchange.setVisibility(View.GONE);
+                    ll_research_write_reward_gift_indicator.setVisibility(View.VISIBLE);
+                    cb_research_write_gift.setButtonTintList(ColorStateList.valueOf(Color.parseColor("#3AD1BF")));
+                    ll_research_write_reward_gift.setVisibility(View.VISIBLE);
+                    tv_research_write_static_gift.setVisibility(View.GONE);
                 } else {
-                    ll_post_write_reward_gift.setVisibility(View.GONE);
-                    cb_post_write_exchange.setButtonTintList(ColorStateList.valueOf(Color.parseColor("#C4C4C4")));
-                    ll_post_write_exchange.setVisibility(View.GONE);
-                    tv_post_write_exchange.setVisibility(View.VISIBLE);
+                    ll_research_write_reward_gift_indicator.setVisibility(View.GONE);
+                    cb_research_write_gift.setButtonTintList(ColorStateList.valueOf(Color.parseColor("#C4C4C4")));
+                    ll_research_write_reward_gift.setVisibility(View.GONE);
+                    tv_research_write_static_gift.setVisibility(View.VISIBLE);
                 }
             }
         });
 
 
-        writeTitle = findViewById(R.id.write_title);
-        writeTarget = findViewById(R.id.write_target);
-        writeDeadline = findViewById(R.id.write_deadline);
-        writeGoalParticipants = findViewById(R.id.write_goal_participants);
-        writeUrl = findViewById(R.id.write_url);
-        writeEstTime = findViewById(R.id.write_est_time);
-        writeContent = findViewById(R.id.write_content);
-        urlCheck = findViewById(R.id.write_url_check);
-
-
-        prize_plus = findViewById(R.id.prize_image_plus);
-        gift_image_list = findViewById(R.id.gith_image_list);
-
-        writeAuthorInfo = findViewById(R.id.write_author_info);
-        writeAnnonymous = findViewById(R.id.write_annonymous);
-        wrtieAnnonymousTextView = findViewById(R.id.write_annonymous_textview);
-
-        writeBack = findViewById(R.id.writeBack);
-        writeSave = findViewById(R.id.writesave);
-        writeDone = findViewById(R.id.writeDone);
-        writeTitle.setTextSize((float) (MainActivity.screen_width / 23.4285714286));
-        writeBack.setTextSize((float) (MainActivity.screen_width / 23.4285714286));
-        writeSave.setTextSize((float) (MainActivity.screen_width / 23.4285714286));
-        writeDone.setTextSize((float) (MainActivity.screen_width / 23.4285714286));
-        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) writeDone.getLayoutParams();
-        params.rightMargin = (int) (MainActivity.screen_width_px / 15.7692307692);
-        RelativeLayout.LayoutParams params2 = (RelativeLayout.LayoutParams) writeSave.getLayoutParams();
-        params2.rightMargin = (int) (MainActivity.screen_width_px / 21.8666666667);
-        RelativeLayout.LayoutParams params3 = (RelativeLayout.LayoutParams) writeBack.getLayoutParams();
-        params3.leftMargin = (int) (MainActivity.screen_width_px / 15.7692307692);
-
-
-        loading = findViewById(R.id.loadingPanel);
-        loading.setVisibility(View.GONE);
-
-
-        ArrayAdapter adapter = new ArrayAdapter(this, R.layout.simple_spinner_item, spinner_esttime);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        writeEstTime.setAdapter(adapter);
-        writeEstTime.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                TextView text = view.findViewById(android.R.id.text1);
-                if(position==0) text.setTextColor(getColor(R.color.nav_gray));
-                else text.setTextColor(getColor(R.color.text_black));
-                est_time = writeEstTime.getSelectedItemPosition() - 1;
-                return;
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
 
         this.InitializeListener();
-        if(writeTitle.getText().length()!=0){writeTitle.setTextColor(Color.parseColor("#000000"));}
-        if(writeTarget.getText().length()!=0){writeTarget.setTextColor(Color.parseColor("#000000"));}
-        if(writeDeadline.getText().length()!=0){writeDeadline.setTextColor(Color.parseColor("#000000"));}
-        if(writePrize.getText().length()!=0){writePrize.setTextColor(Color.parseColor("#000000"));}
-        if(writeUrl.getText().length()!=0){writeUrl.setTextColor(Color.parseColor("#000000"));}
-        if(writeContent.getText().length()!=0){writeContent.setTextColor(Color.parseColor("#000000"));}
 
-
-
-        prize_plus.setOnClickListener(new View.OnClickListener() {
+        tv_research_write_image_album.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (prize_count.getText().toString().length() == 0 || prize_count.getText().toString().equals("0")){
+                if (et_research_write_gift_count.getText().toString().length() == 0 || et_research_write_gift_count.getText().toString().equals("0")){
                     Toast.makeText(PostWriteActivity.this, "추첨 인원을 입력해주세요", Toast.LENGTH_SHORT).show();
                 } else {
-                    count = Integer.valueOf(prize_count.getText().toString());
+                    count = Integer.valueOf(et_research_write_gift_count.getText().toString());
                     goToAlbum();
                 }
             }
@@ -452,85 +272,48 @@ public class PostWriteActivity extends AppCompatActivity {
         if (purpose == 2){
             writeSave.setVisibility(View.INVISIBLE);
             post = intent.getParcelableExtra("post");
-            writeTitle.setText(post.getTitle());
-            writeTarget.setText(post.getTarget());
+            et_research_write_title.setText(post.getTitle());
+            et_research_write_target.setText(post.getTarget());
 
             Date date = post.getDeadline();
             SimpleDateFormat fm = new SimpleDateFormat("yyyy-MM-dd a KK시");
 
-            writeDeadline.setText(fm.format(date));
-            writeGoalParticipants.setText(post.getGoal_participants().toString());
-            Log.d("postiswithprize",""+post.getPrize_urls()+post.isWith_prize());
+            et_research_write_deadline.setText(fm.format(date));
+            et_research_write_goal.setText(post.getGoal_participants().toString());
             if (post.isWith_prize()){
-                withPrize.setChecked(true);
-                withPrize.setClickable(false);
+                cb_research_write_reward.setChecked(true);
+                cb_research_write_reward.setClickable(false);
                 prize_layout.setVisibility(View.VISIBLE);
-                writePrize.setText(post.getPrize());
-                writePrize.setEnabled(true);
-                prize_count.setText(post.getNum_prize().toString());
-                prize_count.setVisibility(View.VISIBLE);
+                et_research_write_gift_name.setText(post.getPrize());
+                et_research_write_gift_name.setEnabled(true);
+                et_research_write_gift_count.setText(post.getNum_prize().toString());
+                et_research_write_gift_count.setVisibility(View.VISIBLE);
 
                 getPrizeImages();
             }else{
-                withPrize.setChecked(false);
-                withPrize.setClickable(true);
+                cb_research_write_reward.setChecked(false);
+                cb_research_write_reward.setClickable(true);
             }
-            writeUrl.setText(post.getUrl());
-            writeContent.setText(post.getContent());
-            editUnable(writeDeadline);
-            editUnable(writeUrl);
-            writeEstTime.setSelection(post.getEst_time()+1);
+            et_research_write_url.setText(post.getUrl());
+            et_research_write_content.setText(post.getContent());
+            editUnable(et_research_write_deadline);
+            editUnable(et_research_write_url);
+            sp_research_write_est_time.setSelection(post.getEst_time()+1);
         }
 
-        urlCheck.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                url = writeUrl.getText().toString();
-                if (url.contains("docs.google.com") || url.contains("forms.gle")){
-                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
-
-                    Intent newIntent = new Intent(getApplicationContext(), SurveyWebActivity.class);
-                    newIntent.putExtra("url", url);
-                    newIntent.putExtra("requestCode", CHECK);
-                    startActivity(newIntent);
-                    startActivityForResult(newIntent, CHECK);
-                } else {
-
-                    CustomDialog customDialog = new CustomDialog(PostWriteActivity.this, null);
-                    customDialog.show();
-                    customDialog.setMessage("제공하지 않는 url입니다");
-                    customDialog.setNegativeButton("확인");
-                }
-            }
-        });
-
-        writeUrl.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (!hasFocus){
-                    url = writeUrl.getText().toString();
-                    if (url.length() > 0){
-                        urlCheck.setVisibility(View.VISIBLE);
-                    }
-                } else {
-                    urlCheck.setVisibility(View.GONE);
-                }
-            }
-        });
-        writeDeadline.setCursorVisible(false);
-        writeDeadline.setOnTouchListener(new View.OnTouchListener(){
+        et_research_write_deadline.setCursorVisible(false);
+        et_research_write_deadline.setOnTouchListener(new View.OnTouchListener(){
 
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                int inType = writeDeadline.getInputType(); // backup the input type
-                writeDeadline.setInputType(InputType.TYPE_NULL); // disable soft input
-                writeDeadline.onTouchEvent(event); // call native handler
-                writeDeadline.setInputType(inType); // restore input type
+                int inType = et_research_write_deadline.getInputType(); // backup the input type
+                et_research_write_deadline.setInputType(InputType.TYPE_NULL); // disable soft input
+                et_research_write_deadline.onTouchEvent(event); // call native handler
+                et_research_write_deadline.setInputType(inType); // restore input type
                 return true; // consume touch even
             }
         });
-        writeDeadline.setOnClickListener(new View.OnClickListener() {
+        et_research_write_deadline.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 date = new Date();
@@ -574,7 +357,7 @@ public class PostWriteActivity extends AppCompatActivity {
                 dialog.show();
             }
         });
-        writeDeadline.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        et_research_write_deadline.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus){
@@ -642,16 +425,16 @@ public class PostWriteActivity extends AppCompatActivity {
             }
         });
 
-        writeAnnonymous.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        cb_research_write_anonymous.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if(isChecked){
                     annonymous = false;
-                    writeAnnonymous.setButtonTintList(ColorStateList.valueOf(Color.parseColor("#3AD1BF")));
+                    cb_research_write_anonymous.setButtonTintList(ColorStateList.valueOf(Color.parseColor("#3AD1BF")));
                 }
                 else{
                     annonymous = true;
-                    writeAnnonymous.setButtonTintList(ColorStateList.valueOf(Color.parseColor("#C4C4C4")));
+                    cb_research_write_anonymous.setButtonTintList(ColorStateList.valueOf(Color.parseColor("#C4C4C4")));
                 }
             }
         });
@@ -664,7 +447,6 @@ public class PostWriteActivity extends AppCompatActivity {
             @Override
             public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth)
             {
-                Log.d("date set", "ok");
                 int realMonth = monthOfYear +1;
                 datestr = String.format("%04d-%02d-%02d", year, realMonth, dayOfMonth);
             }
@@ -681,13 +463,11 @@ public class PostWriteActivity extends AppCompatActivity {
     public boolean onTouchEvent(MotionEvent event) {
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         if(getCurrentFocus()!=null)imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
-        /*imm.hideSoftInputFromWindow(findViewById(R.id.write_title).getWindowToken(), 0);
-        imm.hideSoftInputFromWindow(findViewById(R.id.write_content).getWindowToken(), 0);*/
-        url = writeUrl.getText().toString();
+        url = et_research_write_url.getText().toString();
         if (url.length() > 0){
-            urlCheck.setVisibility(View.VISIBLE);
+            btn_research_write_check_url.setVisibility(View.VISIBLE);
         } else {
-            urlCheck.setVisibility(View.INVISIBLE);
+            btn_research_write_check_url.setVisibility(View.INVISIBLE);
         }
         return super.onTouchEvent(event);
     }
@@ -715,27 +495,10 @@ public class PostWriteActivity extends AppCompatActivity {
         VolleyMultipartRequest volleyMultipartRequest = new VolleyMultipartRequest(Request.Method.POST, requestURL,
                 response -> {
                     try {
-                        Log.d("response is", ""+new String(response.data));
                         JSONObject resultObj = new JSONObject(new String(response.data));
                         int result = resultObj.getInt("result");
                         if(result==1) {
-                            String id = resultObj.getString("id");
-                            SimpleDateFormat fm = new SimpleDateFormat("yyyy-MM-dd'T'kk:mm:ss");
-                            fm.setTimeZone(TimeZone.getTimeZone("UTC"));
-                            String utc_date = fm.format(date);
-                            fm.setTimeZone(TimeZone.getTimeZone("Asia/Seoul"));
-                            Date realdate = fm.parse(utc_date);
-                            fm.setTimeZone(TimeZone.getTimeZone("UTC"));
-                            String utc_deadline = fm.format(deadline);
-                            fm.setTimeZone(TimeZone.getTimeZone("Asia/Seoul"));
-                            Date realdeadline = fm.parse(utc_deadline);
-                            Integer pinned = 0;
-                            Post item = new Post(id, title, author, author_lvl, content, participants, goal_participants, url, realdate, realdeadline, with_prize, prize, est_time, target, count, new ArrayList<Reply>(), false, 0, new ArrayList<String>(), new ArrayList<String>(), false, author_userid, pinned, annonymous, author_info);
-
-                            Log.d("response id", id);
-                            Intent intent = new Intent(PostWriteActivity.this, BoardPost.class);
-                            intent.putExtra("post", item);
-                            setResult(NEWPOST, intent);
+                            Log.d("why_existed?", "postPost: done well");
                             finish();
                         }
                         else{
@@ -753,7 +516,7 @@ public class PostWriteActivity extends AppCompatActivity {
                                 customDialogFailPost.setPositiveButton("확인");
                             }
                         }
-                    } catch (JSONException | ParseException e) {
+                    } catch (JSONException e) {
                         e.printStackTrace();
                     }
                     postDone = true;
@@ -813,8 +576,8 @@ public class PostWriteActivity extends AppCompatActivity {
                 params.put("author_userid", UserPersonalInfo.userID);
                 params.put("annonymous", String.valueOf(annonymous));
                 params.put("author_info", author_info);
-                params.put("num_credit", String.valueOf(credit_each));
-                params.put("credit", String.valueOf(credit_count));
+                params.put("num_credit", String.valueOf(credit_person));
+                params.put("credit", String.valueOf(credit_each));
 
 
                 return params;
@@ -833,13 +596,11 @@ public class PostWriteActivity extends AppCompatActivity {
                            Integer est_time, String target, ArrayList<Uri> images, Integer num_prize,
                            String prize, Boolean with_prize) {
         String requestURL = getString(R.string.server)+"/api/posts/updatepost/" + post.getID();
-        Log.d("fix", UserPersonalInfo.name);
         VolleyMultipartRequest volleyMultipartRequest = new VolleyMultipartRequest(Request.Method.PUT, requestURL,
                 response -> {
                     try {Log.d("fix is", ""+response);
 
                     } catch (Exception e) {
-                        Log.d("exception", "volley error");
                         e.printStackTrace();
                     }
                     updateDone = true;
@@ -847,7 +608,6 @@ public class PostWriteActivity extends AppCompatActivity {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Log.e("GotError",""+error);
                     }
                 }) {
 
@@ -873,6 +633,7 @@ public class PostWriteActivity extends AppCompatActivity {
 
                 params.put("title", title);
                 params.put("author", author);
+                params.put("author_info", author_info);
                 params.put("content", content);
                 if(goal_participants!=0) {
                     params.put("goal_participants", String.valueOf(goal_participants));
@@ -899,12 +660,6 @@ public class PostWriteActivity extends AppCompatActivity {
     }
 
     public void goToAlbum(){
-//        Config config = new Config();
-//        config.setSelectionMin(count);
-//        config.setSelectionLimit(count);
-//        ImagePickerActivity.setConfig(config);
-//        Intent intent  = new Intent(this, ImagePickerActivity.class);
-//        startActivityForResult(intent,13);
         Matisse.from(PostWriteActivity.this)
                 .choose(MimeType.of(MimeType.JPEG, MimeType.PNG, MimeType.WEBP))
                 .theme(R.style.Matisse_White)
@@ -923,31 +678,11 @@ public class PostWriteActivity extends AppCompatActivity {
                     Log.e("isChecked", "onCheck: isChecked=" + isChecked);
                 })
                 .forResult(13);
-//        ImagePicker.create(this)
-//                .returnMode(ReturnMode.NONE)
-//                .folderMode(true) // folder mode (false by default)
-////                .toolbarFolderTitle("폴더") // folder selection title
-////                .toolbarImageTitle("") // image selection title
-//                .toolbarArrowColor(Color.WHITE) // Toolbar 'up' arrow color
-//                .multi() // multi mode (default mode)
-//                .limit(Math.max(count-image_bitmaps.size(),1)) // max images can be selected (99 by default)
-//                .showCamera(false) // show camera or not (true by default)
-//                .imageDirectory("Camera") // directory name for captured image  ("Camera" folder by default)
-//                .origin((ArrayList<Image>) images) // original selected images, used in multi mode
-////                .exclude((ArrayList<Image>) images) // exclude anything that in image.getPath()
-//                .theme(R.style.ImagePickerTheme) // must inherit ef_BaseTheme. please refer to sample
-//                .enableLog(false) // disabling log
-//                .language("ko")
-//                .start(); // start image picker activity with request code
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-//        if (ImagePicker.shouldHandle(requestCode, resultCode, data)) {
-//            // Get a list of picked images
-//            images = ImagePicker.getImages(data);
-//        }
         if (requestCode == 13 && resultCode == RESULT_OK){
             if(purpose==2){
                 ArrayList<Bitmap> arrayList = (ArrayList<Bitmap>) image_bitmaps.clone();
@@ -968,8 +703,6 @@ public class PostWriteActivity extends AppCompatActivity {
             }
             else {
                 image_uris = (ArrayList<Uri>) Matisse.obtainResult(data);
-                //            image_uris = data.getParcelableArrayListExtra(ImagePickerActivity.EXTRA_IMAGE_URIS);
-
                 giftImageAdapter = new GiftImageAdapter(PostWriteActivity.this, image_uris);
                 gift_image_list.setAdapter(giftImageAdapter);
                 gift_image_list.setLayoutManager(new LinearLayoutManager(PostWriteActivity.this, LinearLayoutManager.HORIZONTAL, false));
@@ -1012,23 +745,22 @@ public class PostWriteActivity extends AppCompatActivity {
     }
 
     public void Done_survey(){
-        String title = writeTitle.getText().toString(); ///게시글 작성 당시 글쓴이의 레벨이 반영?
-        String content = writeContent.getText().toString();
-        String target = writeTarget.getText().toString();
-        boolean with_prize = cb_post_write_exchange.isChecked();
-        est_time = writeEstTime.getSelectedItemPosition() - 1;
-        Log.d("est_timeis",""+est_time);
-        author_info = writeAuthorInfo.getText().toString();
+        String title = et_research_write_title.getText().toString(); ///게시글 작성 당시 글쓴이의 레벨이 반영?
+        String content = et_research_write_content.getText().toString();
+        String target = et_research_write_target.getText().toString();
+        boolean with_prize = cb_research_write_gift.isChecked();
+        est_time = sp_research_write_est_time.getSelectedItemPosition() - 1;
+        author_info = et_research_write_author_info.getText().toString();
 
-        if(writeGoalParticipants.getText().toString().length() > 0) {
-            goalParticipants = Integer.valueOf(writeGoalParticipants.getText().toString());
+        if(et_research_write_goal.getText().toString().length() > 0) {
+            goalParticipants = Integer.valueOf(et_research_write_goal.getText().toString());
             if (goalParticipants == 0){
                 goalParticipants = 30;
             }
         } else{goalParticipants = 30;}
 
         if (purpose == 1){
-            url = writeUrl.getText().toString();
+            url = et_research_write_url.getText().toString();
             participants = 0;
             author = UserPersonalInfo.name;
             author_lvl = UserPersonalInfo.level;
@@ -1039,16 +771,15 @@ public class PostWriteActivity extends AppCompatActivity {
             deadline = null;
 
             try {
-                Log.d("deadline is", writeDeadline.getText().toString());
-                deadline = fm.parse(writeDeadline.getText().toString());
+                deadline = fm.parse(et_research_write_deadline.getText().toString());
             } catch (ParseException e) {
                 e.printStackTrace();
             }
             if (with_prize){
-                if(prize_count.getText().toString().length()!=0)
-                    count = Integer.valueOf(prize_count.getText().toString());
+                if(et_research_write_gift_count.getText().toString().length()!=0)
+                    count = Integer.valueOf(et_research_write_gift_count.getText().toString());
                 else count = 0;
-                prize = writePrize.getText().toString();
+                prize = et_research_write_gift_name.getText().toString();
             } else {
                 count = 0;
                 prize = null;///상품 없을 때는 null 처리해야될듯
@@ -1060,21 +791,16 @@ public class PostWriteActivity extends AppCompatActivity {
             author_lvl = post.getAuthor_lvl();
             date = post.getDate();
             deadline = post.getDeadline();
-//            prize = post.getPrize();
             if(with_prize) {
-                if(prize_count.getText().toString().length()!=0)
-                    count = Integer.valueOf(prize_count.getText().toString());
+                if(et_research_write_gift_count.getText().toString().length()!=0)
+                    count = Integer.valueOf(et_research_write_gift_count.getText().toString());
                 else count = 0;
-                prize = writePrize.getText().toString();
+                prize = et_research_write_gift_name.getText().toString();
             }else {
                 count = 0;
                 prize = null;///상품 없을 때는 null 처리해야될듯
             }
-
-//            count = post.getNum_prize();
         }
-
-        SimpleDateFormat formatter = new SimpleDateFormat(getString(R.string.date_format));
 
 
         if (title.getBytes().length <= 0 || content.getBytes().length <= 0 || target.getBytes().length <= 0 || est_time < 0 || deadline==null){
@@ -1116,7 +842,6 @@ public class PostWriteActivity extends AppCompatActivity {
                     customDialog.setMessage("제공하지 않는 url입니다");
                     customDialog.setNegativeButton("확인");
                 }else if(with_prize==true && (count!=(image_uris.size()+image_bitmaps.size()))){
-                    Log.d("countimageis", ""+count+"  "+image_bitmaps.size()+"  "+image_uris.size());
                     CustomDialog customDialog = new CustomDialog(PostWriteActivity.this, null);
                     customDialog.show();
                     customDialog.setMessage("기프티콘 이미지 개수와 추첨 인원 수가 다릅니다");
@@ -1152,8 +877,6 @@ public class PostWriteActivity extends AppCompatActivity {
                         post.setPrize(prize);
                         post.setNum_prize(count);
 
-
-                        Log.d("date formatted", formatter.format(deadline));
                         new Thread(new Runnable() {
                             @Override
                             public void run() {
@@ -1174,31 +897,28 @@ public class PostWriteActivity extends AppCompatActivity {
             }
         }
     }
-
     public void setDeadline(){
         SimpleDateFormat fm = new SimpleDateFormat("yyyy-MM-dd'T'kk:mm:ss.SSS");
         try {
             deadline = fm.parse(datestr+"T"+ timestr+":00.000Z");
-            Log.d("writedeadline", deadline.toString());
         } catch (ParseException e) {
             e.printStackTrace();
             return;
         }
         long diff = deadline.getTime() - date.getTime();
-        Log.d("writedeadline", String.valueOf(diff));
         if (Integer.valueOf((int) diff) > 72*60*60*1000){
 
             CustomDialog customDialog = new CustomDialog(PostWriteActivity.this, null);
             customDialog.show();
             customDialog.setMessage("리서치 기간이 72시간을 초과했습니다");
             customDialog.setNegativeButton("확인");
-            writeDeadline.clearFocus();
+            et_research_write_deadline.clearFocus();
         } else {
             SimpleDateFormat transFormat = new SimpleDateFormat("yyyy-MM-dd a KK시");
 
-            writeDeadline.setText(transFormat.format(deadline));
-            writeDeadline.setTextSize(2, 15);
-            writeDeadline.clearFocus();
+            et_research_write_deadline.setText(transFormat.format(deadline));
+            et_research_write_deadline.setTextSize(2, 15);
+            et_research_write_deadline.clearFocus();
         }
     }
 
@@ -1210,7 +930,6 @@ public class PostWriteActivity extends AppCompatActivity {
         e.setFocusableInTouchMode(false);
         e.setTextColor(R.color.text_gray);
     }
-
     public void saveDialog(){
         AlertDialog.Builder builder2 = new AlertDialog.Builder(PostWriteActivity.this);
                         builder2.setItems(R.array.savemenu, new DialogInterface.OnClickListener() {
@@ -1233,7 +952,7 @@ public class PostWriteActivity extends AppCompatActivity {
                                         break;
                                     case 1:
                                         String message;
-                                        if (writeTitle.getText().toString().length()==0 && writeTarget.getText().toString().length()==0 && writeDeadline.getText().toString().length()==0 && writePrize.getText().toString().length()==0 && writeUrl.getText().toString().length()==0 && writeContent.getText().toString().length()==0){
+                                        if (et_research_write_title.getText().toString().length()==0 && et_research_write_target.getText().toString().length()==0 && et_research_write_deadline.getText().toString().length()==0 && et_research_write_gift_name.getText().toString().length()==0 && et_research_write_url.getText().toString().length()==0 && et_research_write_content.getText().toString().length()==0){
                                             message = "임시저장된 글을 불러오겠습니까?";
                                         } else {
                                             message = "임시저장된 글을 불러올 경우\n" +
@@ -1267,26 +986,25 @@ public class PostWriteActivity extends AppCompatActivity {
                         dialog2.show();
 
     }
-
     public void tempSave(){
         SharedPreferences tempWrite = getSharedPreferences("tempWrite", Activity.MODE_PRIVATE);
         SharedPreferences.Editor tempWriteedit = tempWrite.edit();
 
-        String title = writeTitle.getText().toString();
-        String content = writeContent.getText().toString();
-        String target = writeTarget.getText().toString();
-        boolean with_prize = cb_post_write_exchange.isChecked();
-        est_time = writeEstTime.getSelectedItemPosition()-1;
-        if (writeGoalParticipants.getText().toString().length() > 0 ){
-            goalParticipants = Integer.valueOf(writeGoalParticipants.getText().toString());
+        String title = et_research_write_title.getText().toString();
+        String content = et_research_write_content.getText().toString();
+        String target = et_research_write_target.getText().toString();
+        boolean with_prize = cb_research_write_gift.isChecked();
+        est_time = sp_research_write_est_time.getSelectedItemPosition()-1;
+        if (et_research_write_goal.getText().toString().length() > 0 ){
+            goalParticipants = Integer.valueOf(et_research_write_goal.getText().toString());
         } else {
             goalParticipants = 0;
         }
-        url = writeUrl.getText().toString();
+        url = et_research_write_url.getText().toString();
 
         if (with_prize){
-            count = Integer.valueOf(prize_count.getText().toString());
-            prize = writePrize.getText().toString();
+            count = Integer.valueOf(et_research_write_gift_count.getText().toString());
+            prize = et_research_write_gift_name.getText().toString();
         } else {
             count = 0;
             prize = null;///상품 없을 때는 null 처리해야될듯
@@ -1298,7 +1016,7 @@ public class PostWriteActivity extends AppCompatActivity {
         tempWriteedit.putInt("est_time", est_time);
         tempWriteedit.putInt("goalparticipations",goalParticipants);
         tempWriteedit.putString("uri", url);
-        tempWriteedit.putString("deadline", writeDeadline.getText().toString());
+        tempWriteedit.putString("deadline", et_research_write_deadline.getText().toString());
         tempWriteedit.putInt("count", count);
         tempWriteedit.putString("prize",prize);
         tempWriteedit.putBoolean("with_prize", with_prize);
@@ -1308,26 +1026,26 @@ public class PostWriteActivity extends AppCompatActivity {
     public void loadSave(){
         SharedPreferences tempWrite = getSharedPreferences("tempWrite", Activity.MODE_PRIVATE);
 
-        writeTitle.setText(tempWrite.getString("title",""));
-        writeTarget.setText(tempWrite.getString("target",""));
+        et_research_write_title.setText(tempWrite.getString("title",""));
+        et_research_write_target.setText(tempWrite.getString("target",""));
 
-        writeDeadline.setText(tempWrite.getString("deadline","수정불가, YYYYMMDD"));
+        et_research_write_deadline.setText(tempWrite.getString("deadline","수정불가, YYYYMMDD"));
         if (tempWrite.getInt("goalparticipations",0) != 0){
-            writeGoalParticipants.setText(String.valueOf(tempWrite.getInt("goalparticipations",0)));
+            et_research_write_goal.setText(String.valueOf(tempWrite.getInt("goalparticipations",0)));
         }
         if (tempWrite.getBoolean("with_prize",false)){
-            withPrize.setChecked(true);
-            writePrize.setText(tempWrite.getString("prize",""));
-            prize_count.setText(String.valueOf(tempWrite.getInt("count",0)));
-            writePrize.setEnabled(true);
-            prize_count.setVisibility(View.VISIBLE);
+            cb_research_write_reward.setChecked(true);
+            et_research_write_gift_name.setText(tempWrite.getString("prize",""));
+            et_research_write_gift_count.setText(String.valueOf(tempWrite.getInt("count",0)));
+            et_research_write_gift_name.setEnabled(true);
+            et_research_write_gift_count.setVisibility(View.VISIBLE);
             prize_layout.setVisibility(View.VISIBLE);
         } else {
-            withPrize.setChecked(false);
+            cb_research_write_reward.setChecked(false);
         }
-        writeUrl.setText(tempWrite.getString("uri",""));
-        writeEstTime.setSelection(tempWrite.getInt("est_time",0));
-        writeContent.setText(tempWrite.getString("content",""));
+        et_research_write_url.setText(tempWrite.getString("uri",""));
+        sp_research_write_est_time.setSelection(tempWrite.getInt("est_time",0));
+        et_research_write_content.setText(tempWrite.getString("content",""));
     }
     /**
      * get bytes array from Uri.
@@ -1338,8 +1056,6 @@ public class PostWriteActivity extends AppCompatActivity {
      * @throws IOException
      */
     public static byte[] getBytes(Context context, Uri uri) throws IOException {
-//        InputStream iStream = context.getContentResolver().openInputStream(Uri.fromFile(new File(uri.getPath())));
-//        InputStream iStream = new FileInputStream(new File(uri.getPath()));
         InputStream iStream = context.getContentResolver().openInputStream(uri);
         try {
             return getBytes(iStream);
@@ -1384,7 +1100,6 @@ public class PostWriteActivity extends AppCompatActivity {
             @Override
             public void handleMessage(@NonNull Message msg) {
                 super.handleMessage(msg);
-                Log.d("got messagemessage", "here");
                 giftImageAdapter2 = new GiftImageAdapter2(PostWriteActivity.this, image_bitmaps);
                 gift_image_list.setAdapter(giftImageAdapter2);
                 gift_image_list.setLayoutManager(new LinearLayoutManager(PostWriteActivity.this, LinearLayoutManager.HORIZONTAL, false));
@@ -1401,8 +1116,6 @@ public class PostWriteActivity extends AppCompatActivity {
 
                     public void run() {
                         try {
-
-                            Log.d("start", "bitmap no." + finalI);
                             String uri = post.getPrize_urls().get(finalI);
                             URL url = new
                                     URL(uri);
@@ -1412,7 +1125,6 @@ public class PostWriteActivity extends AppCompatActivity {
                                     BufferedInputStream(conn.getInputStream());
 
                             Bitmap bm = BitmapFactory.decodeStream(bis);
-                            Log.d("got bitmap", "bitmap no." + finalI + "    " + bm);
                             image_bitmaps.add(bm);
                             bis.close();
                             msg = handler.obtainMessage();
@@ -1442,9 +1154,196 @@ public class PostWriteActivity extends AppCompatActivity {
             intent.putExtra("post", post);
             startActivity(intent);
             setResult(FIX_DONE, intent);
-            Log.d("fix", UserPersonalInfo.name);
             finish();
             updateDone = false;
         }
+    }
+    private void permissionHandle() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
+                    ActivityCompat.requestPermissions(this, new String[]{
+                            Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA}, 200
+                    );
+                }
+            }
+        }
+    }
+    private void viewHandle() {
+
+        writeBack = findViewById(R.id.writeBack);
+        writeSave = findViewById(R.id.writesave);
+        writeDone = findViewById(R.id.writeDone);
+
+        et_research_write_title = findViewById(R.id.et_research_write_title);
+        et_research_write_target = findViewById(R.id.et_research_write_target);
+        et_research_write_author_info = findViewById(R.id.et_research_write_author_info);
+        cb_research_write_anonymous = findViewById(R.id.cb_research_write_anonymous);
+        et_research_write_deadline = findViewById(R.id.et_research_write_deadline);
+        et_research_write_goal = findViewById(R.id.et_research_write_goal);
+
+
+        cb_research_write_reward = findViewById(R.id.cb_research_write_reward);
+        ll_research_write_rewards_indicator = findViewById(R.id.ll_research_write_rewards_indicator);
+            ll_research_write_reward_credit_indicator = findViewById(R.id.ll_research_write_reward_credit_indicator);
+                tv_research_write_reward_credit_indicator = findViewById(R.id.tv_research_write_reward_credit_indicator);
+            ll_research_write_reward_gift_indicator = findViewById(R.id.ll_research_write_reward_gift_indicator);
+                tv_research_write_reward_gift_indicator = findViewById(R.id.tv_research_write_reward_gift_indicator);
+
+
+        ll_research_write_rewards_container = findViewById(R.id.ll_research_write_rewards_container);
+            cb_research_write_credit = findViewById(R.id.cb_research_write_credit);
+                tv_post_write_static_credit = findViewById(R.id.tv_post_write_static_credit);
+                ll_research_write_reward_credit = findViewById(R.id.ll_research_write_reward_credit);
+                    et_research_write_reward_credit_each = findViewById(R.id.et_research_write_reward_credit_each);
+                    et_research_write_reward_credit_person = findViewById(R.id.et_research_write_reward_credit_person);
+                    tv_research_write_reward_credit_total = findViewById(R.id.tv_research_write_reward_credit_total);
+            cb_research_write_gift = findViewById(R.id.cb_research_write_gift);
+                tv_research_write_static_gift = findViewById(R.id.tv_research_write_static_gift);
+                ll_research_write_reward_gift = findViewById(R.id.ll_research_write_reward_gift);
+                    et_research_write_gift_name = findViewById(R.id.et_research_write_gift_name);
+                    et_research_write_gift_count = findViewById(R.id.et_research_write_gift_count);
+
+
+        et_research_write_url = findViewById(R.id.et_research_write_url);
+            btn_research_write_check_url = findViewById(R.id.btn_research_write_check_url);
+        sp_research_write_est_time = findViewById(R.id.sp_research_write_est_time);
+        et_research_write_content = findViewById(R.id.et_research_write_content);
+
+        tv_post_write_reward = findViewById(R.id.tv_post_write_reward);
+        prize_layout = findViewById(R.id.prize_image_layout);
+        tv_research_write_image_album = findViewById(R.id.tv_research_write_image_album);
+        gift_image_list = findViewById(R.id.gith_image_list);
+
+        loading = findViewById(R.id.loadingPanel);
+    }
+    private void setListeners() {
+        setUrlListener();
+        setRewardListener();
+        setTimeListener();
+    }
+    private void setUrlListener() {
+        btn_research_write_check_url.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                url = et_research_write_url.getText().toString();
+                if (url.contains("docs.google.com") || url.contains("forms.gle")){
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+
+                    Intent newIntent = new Intent(getApplicationContext(), SurveyWebActivity.class);
+                    newIntent.putExtra("url", url);
+                    newIntent.putExtra("requestCode", CHECK);
+                    startActivityForResult(newIntent, CHECK);
+                } else {
+                    customDialog.customRejectDialog("제공하지 않는 url 입니다.", "확인");
+                }
+            }
+        });
+        et_research_write_url.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (s.length() == 0) {
+                    btn_research_write_check_url.setVisibility(View.GONE);
+                } else {
+                    btn_research_write_check_url.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+    }
+    private void setRewardListener() {
+        et_research_write_gift_count.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) { }
+            @Override
+            public void afterTextChanged(Editable s) {
+                try {
+                    prize_num = Integer.parseInt(s.toString());
+                } catch (Exception e) {
+                    prize_num = 0;
+                }
+                updateIndicators();
+            }
+        });
+        et_research_write_reward_credit_each.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) { }
+            @Override
+            public void afterTextChanged(Editable s) {
+                try {
+                    credit_each = Integer.parseInt(s.toString());
+                } catch (Exception e) {
+                    credit_each = 0;
+                }
+                updateIndicators();
+            }
+        });
+        et_research_write_reward_credit_person.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) { }
+            @Override
+            public void afterTextChanged(Editable s) {
+                try {
+                    credit_person = Integer.parseInt(s.toString());
+                } catch (Exception e) {
+                    credit_person = 0;
+                }
+                updateIndicators();
+            }
+        });
+    }
+    private void setTimeListener() {
+        ArrayAdapter adapter = new ArrayAdapter(this, R.layout.simple_spinner_item, spinner_esttime);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        sp_research_write_est_time.setAdapter(adapter);
+        sp_research_write_est_time.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                TextView text = view.findViewById(android.R.id.text1);
+                if(position==0) text.setTextColor(getColor(R.color.nav_gray));
+                else text.setTextColor(getColor(R.color.text_black));
+                est_time = sp_research_write_est_time.getSelectedItemPosition() - 1;
+                return;
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+    }
+    private void viewSizeHandle() {
+        et_research_write_title.setTextSize((float) (MainActivity.screen_width / 23.4285714286));
+        writeBack.setTextSize((float) (MainActivity.screen_width / 23.4285714286));
+        writeSave.setTextSize((float) (MainActivity.screen_width / 23.4285714286));
+        writeDone.setTextSize((float) (MainActivity.screen_width / 23.4285714286));
+        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) writeDone.getLayoutParams();
+        params.rightMargin = (int) (MainActivity.screen_width_px / 15.7692307692);
+        RelativeLayout.LayoutParams params2 = (RelativeLayout.LayoutParams) writeSave.getLayoutParams();
+        params2.rightMargin = (int) (MainActivity.screen_width_px / 21.8666666667);
+        RelativeLayout.LayoutParams params3 = (RelativeLayout.LayoutParams) writeBack.getLayoutParams();
+        params3.leftMargin = (int) (MainActivity.screen_width_px / 15.7692307692);
+    }
+    @SuppressLint("SetTextI18n")
+    private void updateIndicators() {
+        tv_research_write_reward_credit_indicator.setText("X " + credit_each * credit_person);
+        tv_research_write_reward_credit_total.setText(String.valueOf(credit_each * credit_person));
+        tv_research_write_reward_gift_indicator.setText("X " + prize_num);
     }
 }

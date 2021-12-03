@@ -11,8 +11,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
 
-import com.pumasi.surbay.pages.boardpage.BoardSurveyTip;
-
 public class SurveyTipContainer extends AppCompatActivity {
     static FragmentStateAdapter adapter;
     private ImageButton btn_back;
@@ -41,20 +39,7 @@ public class SurveyTipContainer extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-        vp_survey_tip.setAdapter(adapter = new FragmentStateAdapter(this) {
-            @NonNull
-            @Override
-            public Fragment createFragment(int position) {
-                return new BoardSurveyTip();
-            }
 
-            @Override
-            public int getItemCount() {
-                return 1;
-            }
-        });
-
-        adapter.notifyDataSetChanged();
 
     }
 
