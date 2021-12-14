@@ -45,6 +45,7 @@ import com.pumasi.surbay.classfile.Surveytip;
 import com.pumasi.surbay.classfile.UserPersonalInfo;
 import com.pumasi.surbay.pages.mypage.NotificationsActivity;
 import com.pumasi.surbay.pages.signup.SplashActivity;
+import com.pumasi.surbay.tools.FirebaseLogging;
 import com.pumasi.surbay.tools.ServerTransport;
 
 import org.json.JSONArray;
@@ -94,6 +95,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mContext = getApplicationContext();
+
+        new FirebaseLogging(mContext).LogScreen("frame", "프레임");
 
         Log.d("token", "onCreate: " + UserPersonalInfo.token);
 

@@ -28,6 +28,7 @@ import com.pumasi.surbay.classfile.ContentReReply;
 import com.pumasi.surbay.classfile.ContentReply;
 import com.pumasi.surbay.classfile.CustomDialog;
 import com.pumasi.surbay.classfile.UserPersonalInfo;
+import com.pumasi.surbay.tools.FirebaseLogging;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -71,6 +72,7 @@ public class ContentDetailActivity extends AppCompatActivity {
         getSupportActionBar().hide();
         context = getApplicationContext();
 
+        new FirebaseLogging(context).LogScreen("content_detail", "컨텐츠");
         setView();
 
     }

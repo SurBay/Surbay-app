@@ -36,8 +36,6 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-import com.google.android.gms.analytics.HitBuilders;
-import com.google.android.gms.analytics.Tracker;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -68,10 +66,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import com.google.android.gms.analytics.Tracker;
 import com.google.android.gms.analytics.GoogleAnalytics;
+import com.pumasi.surbay.tools.FirebaseLogging;
 
 public class LoginActivity extends AppCompatActivity {
     private AlertDialog dialog;
-
+    private Context context;
     private AnalyticsApplication application;
     private CheckBox cb_auto_login;
     private CheckBox cb_save_id;
@@ -96,6 +95,9 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         getSupportActionBar().hide();
+        context = getApplicationContext();
+
+        new FirebaseLogging(context).LogScreen("login_page", "로그인_페이지");
 
         try {
             MainActivity.getSurveytips();

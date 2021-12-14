@@ -35,6 +35,7 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.pumasi.surbay.classfile.CustomDialog;
 import com.pumasi.surbay.classfile.UserPersonalInfo;
+import com.pumasi.surbay.tools.FirebaseLogging;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -274,6 +275,7 @@ public class SurveyWebActivity extends AppCompatActivity {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
+                            new FirebaseLogging(getApplicationContext()).LogScreen("research_done", "설문조사_완료");
                             setResult(DONE);
                             finish();
                         }

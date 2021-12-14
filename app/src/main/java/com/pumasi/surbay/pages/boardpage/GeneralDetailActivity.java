@@ -59,6 +59,7 @@ import com.pumasi.surbay.classfile.Poll;
 import com.pumasi.surbay.classfile.ReReply;
 import com.pumasi.surbay.classfile.Reply;
 import com.pumasi.surbay.classfile.UserPersonalInfo;
+import com.pumasi.surbay.tools.FirebaseLogging;
 import com.pumasi.surbay.tools.ServerTransport;
 
 import org.json.JSONArray;
@@ -173,6 +174,7 @@ public class GeneralDetailActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         context = GeneralDetailActivity.this;
+        new FirebaseLogging(context).LogScreen("vote_detail", "투표");
         st = new ServerTransport(context);
 
         images = new ArrayList<>();

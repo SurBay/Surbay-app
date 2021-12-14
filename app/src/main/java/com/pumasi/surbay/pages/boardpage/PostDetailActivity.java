@@ -50,6 +50,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.firebase.ktx.Firebase;
 import com.pumasi.surbay.MyNoteActivity;
 import com.pumasi.surbay.R;
 import com.pumasi.surbay.SurveyWebActivity;
@@ -61,6 +62,7 @@ import com.pumasi.surbay.classfile.Post;
 import com.pumasi.surbay.classfile.ReReply;
 import com.pumasi.surbay.classfile.Reply;
 import com.pumasi.surbay.classfile.UserPersonalInfo;
+import com.pumasi.surbay.tools.FirebaseLogging;
 import com.pumasi.surbay.tools.ServerTransport;
 
 import org.json.JSONArray;
@@ -168,6 +170,8 @@ public class PostDetailActivity extends AppCompatActivity {
         getSupportActionBar().setElevation(0);
         Intent intent = getIntent();
         context = PostDetailActivity.this;
+        new FirebaseLogging(context).LogScreen("research_detail", "리서치");
+
         st = new ServerTransport(context);
         customDialog = new CustomDialog(PostDetailActivity.this);
 

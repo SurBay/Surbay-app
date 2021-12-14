@@ -46,6 +46,7 @@ import com.pumasi.surbay.classfile.Reply;
 import com.pumasi.surbay.classfile.UserPersonalInfo;
 import com.pumasi.surbay.pages.MainActivity;
 import com.pumasi.surbay.pages.signup.LoginActivity;
+import com.pumasi.surbay.tools.FirebaseLogging;
 import com.pumasi.surbay.tools.ServerTransport;
 
 import org.json.JSONArray;
@@ -100,6 +101,8 @@ public class BoardPost extends Fragment {
         getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         context = getActivity().getApplicationContext();
         st = new ServerTransport(context);
+
+        new FirebaseLogging(context).LogScreen("research_board", "리서치게시판");
 
         customDialog = new CustomDialog(getActivity());
         setComponents();

@@ -496,6 +496,7 @@ public class PostWriteActivity extends AppCompatActivity {
                 response -> {
                     try {
                         JSONObject resultObj = new JSONObject(new String(response.data));
+                        Log.d("message_from_post", "postPost: " + resultObj.getString("message"));
                         int result = resultObj.getInt("result");
                         if(result==1) {
                             Log.d("why_existed?", "postPost: done well");
@@ -515,6 +516,7 @@ public class PostWriteActivity extends AppCompatActivity {
                                 customDialogFailPost.setMessage(message);
                                 customDialogFailPost.setPositiveButton("확인");
                             }
+                            Toast.makeText(this, "업로드에 실패하셨습니다\n 재시도 해주세요.", Toast.LENGTH_SHORT).show();
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -524,7 +526,18 @@ public class PostWriteActivity extends AppCompatActivity {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Log.e("GotError",""+error);
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Toast.makeText(PostWriteActivity.this, "업로드에 실패하셨습니다\n 재시도 해주세요.", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                            }
+                        }).start();
+
                     }
                 }) {
 

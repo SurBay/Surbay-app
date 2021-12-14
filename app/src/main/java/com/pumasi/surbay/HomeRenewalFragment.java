@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -29,6 +30,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
@@ -38,6 +40,8 @@ import com.android.volley.toolbox.Volley;
 import com.ethanhua.skeleton.Skeleton;
 import com.ethanhua.skeleton.SkeletonScreen;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 import com.pumasi.surbay.adapter.BannerViewPagerAdapter;
 import com.pumasi.surbay.adapter.HomeResearchPagerAdapter;
 import com.pumasi.surbay.adapter.HomeTipPagerAdapter;
@@ -55,6 +59,7 @@ import com.pumasi.surbay.classfile.Surveytip;
 import com.pumasi.surbay.classfile.UserPersonalInfo;
 import com.pumasi.surbay.pages.MainActivity;
 import com.pumasi.surbay.pages.homepage.NoticeActivity;
+import com.pumasi.surbay.tools.FirebaseLogging;
 import com.tbuonomo.viewpagerdotsindicator.DotsIndicator;
 
 import org.json.JSONArray;
@@ -125,6 +130,8 @@ public class HomeRenewalFragment extends Fragment {
     private Handler handler = null;
     private Runnable update = null;
     private Timer swipeTimer = null;
+
+    FirebaseRemoteConfig firebaseRemoteConfig = FirebaseRemoteConfig.getInstance();
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -132,6 +139,23 @@ public class HomeRenewalFragment extends Fragment {
         context = getActivity().getApplicationContext();
         fragmentManager = getChildFragmentManager();
         ((AppCompatActivity) getActivity()).getSupportActionBar().hide();
+
+        new FirebaseLogging(context).LogScreen("landing_page", "랜딩페이지");
+
+
+        String latest_version = firebaseRemoteConfig.getString("latest_version");
+        String current_version = "failure";
+        try {
+            current_version = context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        if (latest_version.equals(current_version)) {
+            Toast.makeText(context, "appropriate version", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(context, "please update application", Toast.LENGTH_SHORT).show();
+        }
+
 
         ib_bell_indicator = view.findViewById(R.id.ib_bell_indicator);
         SharedPreferences updateNotice = getActivity().getSharedPreferences("updateNotice", Context.MODE_PRIVATE);

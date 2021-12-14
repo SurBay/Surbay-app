@@ -59,6 +59,7 @@ import com.pumasi.surbay.classfile.Poll;
 import com.pumasi.surbay.classfile.Reply;
 import com.pumasi.surbay.classfile.UserPersonalInfo;
 import com.pumasi.surbay.pages.signup.LoginActivity;
+import com.pumasi.surbay.tools.FirebaseLogging;
 import com.pumasi.surbay.tools.ServerTransport;
 
 import org.json.JSONArray;
@@ -118,6 +119,7 @@ public class BoardGeneral extends Fragment// Fragment 클래스를 상속받아�
         st = new ServerTransport(context);
 
         setComponents();
+        new FirebaseLogging(context).LogScreen("vote_board", "투표게시판");
 
         setLoading(true);
         setClickable(false);
