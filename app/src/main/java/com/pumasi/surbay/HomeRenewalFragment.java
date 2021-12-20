@@ -42,6 +42,7 @@ import com.ethanhua.skeleton.SkeletonScreen;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
+import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
 import com.pumasi.surbay.adapter.BannerViewPagerAdapter;
 import com.pumasi.surbay.adapter.HomeResearchPagerAdapter;
 import com.pumasi.surbay.adapter.HomeTipPagerAdapter;
@@ -131,9 +132,9 @@ public class HomeRenewalFragment extends Fragment {
     private Runnable update = null;
     private Timer swipeTimer = null;
 
-    FirebaseRemoteConfig firebaseRemoteConfig = FirebaseRemoteConfig.getInstance();
+    FirebaseRemoteConfig firebaseRemoteConfig;
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(LayoutInflater inflater,  ViewGroup container,
                              Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_home_renewal, container, false);
         context = getActivity().getApplicationContext();
@@ -142,7 +143,12 @@ public class HomeRenewalFragment extends Fragment {
 
         new FirebaseLogging(context).LogScreen("landing_page", "랜딩페이지");
 
+        firebaseRemoteConfig = FirebaseRemoteConfig.getInstance();
+        FirebaseRemoteConfigSettings configSettings = new FirebaseRemoteConfigSettings.Builder()
+                .setFetchTimeoutInSeconds(3600)
+                .build();
 
+        firebaseRemoteConfig.setConfigSettingsAsync(configSettings);
         String latest_version = firebaseRemoteConfig.getString("latest_version");
         String current_version = "failure";
         try {
@@ -155,6 +161,7 @@ public class HomeRenewalFragment extends Fragment {
         } else {
             Toast.makeText(context, "please update application", Toast.LENGTH_SHORT).show();
         }
+        Log.d("versions", "onCreateView: " + current_version + ", " + latest_version);
 
 
         ib_bell_indicator = view.findViewById(R.id.ib_bell_indicator);

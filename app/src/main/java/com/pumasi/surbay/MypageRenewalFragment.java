@@ -41,6 +41,7 @@ import com.pumasi.surbay.pages.mypage.NotificationsActivity;
 import com.pumasi.surbay.pages.mypage.SettingFeedbacks;
 import com.pumasi.surbay.pages.mypage.SettingReport;
 import com.pumasi.surbay.pages.signup.LoginActivity;
+import com.pumasi.surbay.tools.FirebaseLogging;
 import com.pumasi.surbay.tools.ServerTransport;
 
 import org.json.JSONArray;
@@ -110,6 +111,8 @@ public class MypageRenewalFragment extends Fragment {
 
         view = inflater.inflate(R.layout.fragment_mypage_renewal, container, false);
         context = getActivity().getApplicationContext();
+
+        new FirebaseLogging(context).LogScreen("my_page", "마이페이지");
         st = new ServerTransport(context);
         try {
             userControl(UserPersonalInfo.userID.equals("nonMember"));
