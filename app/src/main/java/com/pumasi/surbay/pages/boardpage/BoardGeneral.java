@@ -119,7 +119,7 @@ public class BoardGeneral extends Fragment// Fragment 클래스를 상속받아�
         st = new ServerTransport(context);
 
         setComponents();
-        new FirebaseLogging(context).LogScreen("vote_board", "투표게시판");
+//        new FirebaseLogging(context).LogScreen("vote_board", "투표게시판");
 
         setLoading(true);
         setClickable(false);
@@ -606,4 +606,10 @@ public class BoardGeneral extends Fragment// Fragment 클래스를 상속받아�
         return drawable;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d("resume", "onResume: board_general_resume!!");
+        new FirebaseLogging(context).LogScreen("vote_board", "투표게시판");
+    }
 }

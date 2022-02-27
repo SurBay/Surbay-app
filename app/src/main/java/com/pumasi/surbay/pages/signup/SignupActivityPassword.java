@@ -20,6 +20,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.pumasi.surbay.R;
 import com.pumasi.surbay.classfile.CustomDialog;
+import com.pumasi.surbay.tools.FirebaseLogging;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -38,6 +39,7 @@ public class SignupActivityPassword extends AppCompatActivity {
     String password;
     String passwordCheck;
 
+    private Context context;
     ImageButton visibletoggle;
 
     private RelativeLayout loading;
@@ -46,7 +48,9 @@ public class SignupActivityPassword extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup_password_layout);
         getSupportActionBar().hide();
+        context = getApplicationContext();
 
+        new FirebaseLogging(context).LogScreen("signup2", "회원가입_2단계");
         Intent intent = getIntent();
         userid = intent.getStringExtra("userid");
 

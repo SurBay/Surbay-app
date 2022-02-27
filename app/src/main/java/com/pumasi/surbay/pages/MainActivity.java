@@ -97,7 +97,6 @@ public class MainActivity extends AppCompatActivity {
         mContext = getApplicationContext();
 
         new FirebaseLogging(mContext).LogScreen("frame", "프레임");
-
         Log.d("token", "onCreate: " + UserPersonalInfo.token);
 
         st = new ServerTransport(mContext);
@@ -185,12 +184,18 @@ public class MainActivity extends AppCompatActivity {
                 break;
 
             case 2:
+                if (FreeBoardFragment.frag_position == 0) {
+                    new FirebaseLogging(mContext).LogScreen("vote_board", "투표게시판");
+                } else if (FreeBoardFragment.frag_position == 1) {
+                    new FirebaseLogging(mContext).LogScreen("contents_board", "콘텐츠게시판");
+                }
                 previous = R.id.action_free_board;
                 ft.replace(R.id.Main_Frame,freeBoardFragment);
                 ft.commit();
                 break;
 
             case 3:
+                new FirebaseLogging(mContext).LogScreen("exchange_page", "교환페이지");
                 ArrayList<String> access_users = new ArrayList<String>(Arrays.asList("specific0924@yonsei.ac.kr", "SurBay_Admin", "2018142226@yonsei.ac.kr"));
                 if (access_users.contains(UserPersonalInfo.email)) {
                     previous = R.id.action_voucher;

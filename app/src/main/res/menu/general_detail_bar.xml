@@ -12,4 +12,9 @@
     <item
         android:id="@+id/note"
         android:title="작성자에게 쪽지보내기" />
+    <item
+        android:id="@+id/share"
+        android:title="공유"
+        android:icon="@drawable/share_menu"
+        app:showAsAction="always" />
 </menu>

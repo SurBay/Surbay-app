@@ -61,7 +61,8 @@
                         android:text="익명"
                         android:textSize="12.54dp"
                         android:textColor="#707070"
-                        android:maxLines="2"/>
+                        android:maxLines="2"
+                        android:ellipsize="end" />
                 </RelativeLayout>
                 <TextView
                     android:id="@+id/tv_research_item_title"
@@ -73,7 +74,8 @@
                     android:textColor="#484747"
                     android:textStyle="bold"
                     android:lineHeight="19.3dp"
-                    android:lines="2" />
+                    android:lines="2"
+                    android:ellipsize="end" />
                 <TextView
                     android:id="@+id/tv_research_item_target"
                     android:layout_width="match_parent"
@@ -83,7 +85,8 @@
                     android:textSize="14.82dp"
                     android:textColor="#707070"
                     android:lineHeight="17.1dp"
-                    android:lines="2"/>
+                    android:lines="2"
+                    android:ellipsize="end" />
             </LinearLayout>
             <View
                 android:layout_width="1dp"

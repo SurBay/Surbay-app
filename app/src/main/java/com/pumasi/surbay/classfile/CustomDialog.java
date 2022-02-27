@@ -51,6 +51,7 @@ public class CustomDialog extends Dialog{
     //생성자 생성
     public CustomDialog(@NonNull Context context, View.OnClickListener positiveListener) {
         super(context);
+        this.context = context;
         this.mPositiveListener = positiveListener;
     }
 
@@ -63,6 +64,7 @@ public class CustomDialog extends Dialog{
 
     public CustomDialog(@NonNull Context context, View.OnClickListener positiveListener, View.OnClickListener negetiveListener) {
         super(context);
+        this.context = context;
         this.mPositiveListener = positiveListener;
         mNegativeButton.setOnClickListener(negetiveListener);
     }

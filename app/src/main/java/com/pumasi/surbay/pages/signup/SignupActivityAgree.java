@@ -18,9 +18,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.pumasi.surbay.R;
 import com.pumasi.surbay.pages.mypage.SettingInfo;
 import com.pumasi.surbay.pages.mypage.SettingInfo2;
+import com.pumasi.surbay.tools.FirebaseLogging;
 
 public class SignupActivityAgree extends AppCompatActivity {
 
+    private Context context;
     private Long mLastClickTime = 0L;
 
     TextView user_agree_info;
@@ -42,7 +44,9 @@ public class SignupActivityAgree extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup_agree_layout);
         getSupportActionBar().hide();
+        context = getApplicationContext();
 
+        new FirebaseLogging(context).LogScreen("signup4", "회원가입_4단계");
         Intent intent = getIntent();
         userid = intent.getStringExtra("userid");
         password = intent.getStringExtra("password");

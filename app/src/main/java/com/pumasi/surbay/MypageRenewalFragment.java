@@ -112,7 +112,7 @@ public class MypageRenewalFragment extends Fragment {
         view = inflater.inflate(R.layout.fragment_mypage_renewal, container, false);
         context = getActivity().getApplicationContext();
 
-        new FirebaseLogging(context).LogScreen("my_page", "마이페이지");
+//        new FirebaseLogging(context).LogScreen("my_page", "마이페이지");
         st = new ServerTransport(context);
         try {
             userControl(UserPersonalInfo.userID.equals("nonMember"));
@@ -430,5 +430,11 @@ public class MypageRenewalFragment extends Fragment {
 
 
         }
+    }
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d("resume", "onResume: my_page_resume!!");
+        new FirebaseLogging(context).LogScreen("my_page", "마이페이지");
     }
 }

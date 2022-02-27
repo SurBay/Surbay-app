@@ -19,6 +19,7 @@ import android.widget.TextView;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 import com.pumasi.surbay.pages.boardpage.BoardGeneral;
+import com.pumasi.surbay.tools.FirebaseLogging;
 
 import java.util.Arrays;
 import java.util.List;
@@ -31,8 +32,7 @@ public class FreeBoardFragment extends Fragment {
     public static ViewPager2 vp_free_board;
     private TabLayout tl_free_board;
     public static FragmentStateAdapter adapter2;
-    public static int free_position;
-    private static int frag_position;
+    public static int frag_position = -1;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,

@@ -141,28 +141,7 @@ public class HomeRenewalFragment extends Fragment {
         fragmentManager = getChildFragmentManager();
         ((AppCompatActivity) getActivity()).getSupportActionBar().hide();
 
-        new FirebaseLogging(context).LogScreen("landing_page", "랜딩페이지");
-
-        firebaseRemoteConfig = FirebaseRemoteConfig.getInstance();
-        FirebaseRemoteConfigSettings configSettings = new FirebaseRemoteConfigSettings.Builder()
-                .setFetchTimeoutInSeconds(3600)
-                .build();
-
-        firebaseRemoteConfig.setConfigSettingsAsync(configSettings);
-        String latest_version = firebaseRemoteConfig.getString("latest_version");
-        String current_version = "failure";
-        try {
-            current_version = context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionName;
-        } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
-        }
-        if (latest_version.equals(current_version)) {
-            Toast.makeText(context, "appropriate version", Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(context, "please update application", Toast.LENGTH_SHORT).show();
-        }
-        Log.d("versions", "onCreateView: " + current_version + ", " + latest_version);
-
+//        new FirebaseLogging(context).LogScreen("landing_page", "랜딩페이지");
 
         ib_bell_indicator = view.findViewById(R.id.ib_bell_indicator);
         SharedPreferences updateNotice = getActivity().getSharedPreferences("updateNotice", Context.MODE_PRIVATE);
@@ -268,6 +247,7 @@ public class HomeRenewalFragment extends Fragment {
         ib_shift_home_research.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                new FirebaseLogging(context).LogScreen("research_board", "리서치게시판");
                 BottomNavigationView bottomNavigationView = getActivity().findViewById(R.id.bottomNavi);
                 bottomNavigationView.setSelectedItemId(R.id.action_research_board);
             }
@@ -275,9 +255,9 @@ public class HomeRenewalFragment extends Fragment {
         ib_shift_home_vote.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                new FirebaseLogging(context).LogScreen("vote_board", "투표게시판");
                 BottomNavigationView bottomNavigationView = getActivity().findViewById(R.id.bottomNavi);
                 bottomNavigationView.setSelectedItemId(R.id.action_free_board);
-                FreeBoardFragment.free_position = 0;
 
             }
         });
@@ -1100,5 +1080,12 @@ public class HomeRenewalFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         ib_bell_indicator.setVisibility(View.GONE);
+    }
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d("resume", "onResume: landing_page_resume!!");
+        new FirebaseLogging(context).LogScreen("landing_page", "랜딩페이지");
+
     }
 }

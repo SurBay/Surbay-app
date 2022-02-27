@@ -33,6 +33,7 @@ import com.pumasi.surbay.adapter.ContentRecyclerViewAdapter;
 import com.pumasi.surbay.classfile.Content;
 import com.pumasi.surbay.classfile.ContentReReply;
 import com.pumasi.surbay.classfile.ContentReply;
+import com.pumasi.surbay.tools.FirebaseLogging;
 import com.pumasi.surbay.tools.ServerTransport;
 
 import org.json.JSONArray;
@@ -77,7 +78,7 @@ public class BoardContents extends Fragment {
         rv_board_content.setAdapter(contentRecyclerViewAdapter);
         gridLayoutManager = new GridLayoutManager(context, 2, RecyclerView.VERTICAL, false);
         rv_board_content.setLayoutManager(gridLayoutManager);
-
+//        new FirebaseLogging(context).LogScreen("contents_board", "콘텐츠게시판");
         getContents();
         contentRecyclerViewAdapter.setOnItemClickListener(new ContentRecyclerViewAdapter.OnItemClickListener() {
             @Override
@@ -252,4 +253,10 @@ public class BoardContents extends Fragment {
         }
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d("resume", "onResume: board_contents_resume!!");
+        new FirebaseLogging(context).LogScreen("contents_board", "콘텐츠게시판");
+    }
 }

@@ -61,11 +61,7 @@ import java.util.Date;
 
 public class BoardPost extends Fragment {
     private ServerTransport st;
-
-    private boolean isToast = true;
-
     private LinearLayoutManager mLayoutManager;
-    static final int WRITE_NEWPOST = 1;
     private View view;
     private Button btn_post_sort_new;
     private Button btn_post_sort_day;
@@ -102,7 +98,7 @@ public class BoardPost extends Fragment {
         context = getActivity().getApplicationContext();
         st = new ServerTransport(context);
 
-        new FirebaseLogging(context).LogScreen("research_board", "리서치게시판");
+//        new FirebaseLogging(context).LogScreen("research_board", "리서치게시판");
 
         customDialog = new CustomDialog(getActivity());
         setComponents();
@@ -200,9 +196,9 @@ public class BoardPost extends Fragment {
                                 }
                             });
                         } else {
-                            Intent intent = new Intent(((AppCompatActivity) getActivity()).getApplicationContext(), PostWriteActivity.class);
-                            intent.putExtra("purpose", WRITE_NEWPOST);
-                            startActivityForResult(intent, WRITE_NEWPOST);
+                            Intent intent = new Intent(context, PostWriteActivity.class);
+                            intent.putExtra("purpose", PostWriteActivity.NEW);
+                            startActivity(intent);
                         }
 
                     }
@@ -519,5 +515,12 @@ public class BoardPost extends Fragment {
             setLoading(false);
             isLoading = false;
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d("resume", "onResume: board_research_resume!!");
+        new FirebaseLogging(context).LogScreen("research_board", "리서치게시판");
     }
 }

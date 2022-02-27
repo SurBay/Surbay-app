@@ -72,7 +72,7 @@ public class ContentDetailActivity extends AppCompatActivity {
         getSupportActionBar().hide();
         context = getApplicationContext();
 
-        new FirebaseLogging(context).LogScreen("content_detail", "컨텐츠");
+        new FirebaseLogging(context).LogScreen("contents_detail", "콘텐츠");
         setView();
 
     }

@@ -27,7 +27,6 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:layout_centerVertical="true"
-                    android:ellipsize="end"
                     android:lines="1"
                     android:maxLines="1"
                     android:text="Q. 치킨이랑 더 잘 어울리는 음료는?"
@@ -36,7 +35,8 @@
                     android:textStyle="bold"
                     android:layout_marginLeft="5dp"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    android:ellipsize="end" />
 
             </LinearLayout>
 
@@ -62,7 +62,8 @@
                     android:textColor="@color/text_black"
                     android:maxLines="4"
                     android:lineHeight="16dp"
-                    android:background="@drawable/round_border_general_poll_primary" />
+                    android:background="@drawable/round_border_general_poll_primary"
+                    android:ellipsize="end" />
 
                 <TextView
                     android:id="@+id/tv_content2_2"
@@ -77,7 +78,8 @@
                     android:textSize="13dp"
                     android:textStyle="bold"
                     android:lineHeight="16dp"
-                    android:maxLines="4"/>
+                    android:maxLines="4"
+                    android:ellipsize="end" />
                 <ImageView
                     android:layout_width="32.5dp"
                     android:layout_height="32.5dp"
@@ -106,7 +108,8 @@
                     android:textColor="@color/text_black"
                     android:maxLines="4"
                     android:lineHeight="16dp"
-                    android:background="@drawable/round_border_general_poll_primary" />
+                    android:background="@drawable/round_border_general_poll_primary"
+                    android:ellipsize="end" />
                 <TextView
                     android:id="@+id/tv_content3_2"
                     android:layout_width="91.2dp"
@@ -120,7 +123,8 @@
                     android:maxLines="4"
                     android:textColor="@color/text_black"
                     android:lineHeight="16dp"
-                    android:background="@drawable/round_border_general_poll_secondary" />
+                    android:background="@drawable/round_border_general_poll_secondary"
+                    android:ellipsize="end" />
                 <TextView
                     android:id="@+id/tv_content3_3"
                     android:layout_width="91.2dp"
@@ -135,7 +139,8 @@
                     android:textColor="@color/text_black"
                     android:maxLines="4"
                     android:lineHeight="16dp"
-                    android:background="@drawable/round_border_general_poll_primary" />
+                    android:background="@drawable/round_border_general_poll_primary"
+                    android:ellipsize="end" />
                 <ImageView
                     android:layout_width="32.5dp"
                     android:layout_height="32.5dp"
@@ -174,8 +179,8 @@
                     android:textColor="@color/text_black"
                     android:maxLines="2"
                     android:lineHeight="16dp"
-                    android:background="@drawable/round_border_general_poll_primary" />
-
+                    android:background="@drawable/round_border_general_poll_primary"
+                    android:ellipsize="end" />
                 <TextView
                     android:id="@+id/tv_content4_2"
                     android:layout_width="102.6dp"
@@ -191,8 +196,8 @@
                     android:textSize="13dp"
                     android:textStyle="bold"
                     android:maxLines="2"
-                    android:lineHeight="16dp" />
-
+                    android:lineHeight="16dp"
+                    android:ellipsize="end" />
                 <TextView
                     android:id="@+id/tv_content4_3"
                     android:layout_width="102.6dp"
@@ -208,7 +213,8 @@
                     android:textColor="@color/text_black"
                     android:background="@drawable/round_border_general_poll_secondary"
                     android:maxLines="2"
-                    android:lineHeight="16dp" />
+                    android:lineHeight="16dp"
+                    android:ellipsize="end" />
                 <TextView
                     android:id="@+id/tv_content4_4"
                     android:layout_width="102.6dp"
@@ -224,7 +230,8 @@
                     android:textColor="@color/text_black"
                     android:background="@drawable/round_border_general_poll_primary"
                     android:maxLines="2"
-                    android:lineHeight="16dp" />
+                    android:lineHeight="16dp"
+                    android:ellipsize="end" />
 
                 <ImageView
                     android:layout_width="32.5dp"

@@ -58,6 +58,7 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.Volley;
+import com.pumasi.surbay.Tools;
 import com.pumasi.surbay.pages.MainActivity;
 import com.pumasi.surbay.R;
 import com.pumasi.surbay.SurveyWebActivity;
@@ -92,7 +93,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
 
+// "purpose" parameter info
+// 0. write new post
+// 1. edit existing post
+
 public class PostWriteActivity extends AppCompatActivity {
+
+    static final int NEW = 0;
+    static final int EDIT = 1;
+
     static final int FIX_DONE = 3;
     static final int CHECK = 2;
 
@@ -140,20 +149,20 @@ public class PostWriteActivity extends AppCompatActivity {
     private TextView tv_research_write_image_album;
 
 
-    Integer goalParticipants;
-    String url;
-    Integer participants;
-    String author;
-    Integer author_lvl;
-    Integer est_time;
-    Date date;
-    Date deadline;
-    String datestr;
-    String timestr;
-    String prize;
-    Integer count;
-    String author_info;
-    Boolean annonymous = true;
+    private Integer goalParticipants;
+    private String url;
+    private Integer participants;
+    private String author;
+    private Integer author_lvl;
+    private Integer est_time;
+    private Date date;
+    private Date deadline;
+    private String datestr;
+    private String timestr;
+    private String prize;
+    private Integer count;
+    private String author_info;
+    private Boolean annonymous = true;
 
     private Integer credit_each = 0;
     private Integer credit_person = 0;
@@ -165,7 +174,7 @@ public class PostWriteActivity extends AppCompatActivity {
     ArrayList<Bitmap> image_bitmaps = new ArrayList<>();
 
     int purpose;
-    private static Post post;
+    private Post post;
 
     CustomDialog customDialog;
     TimePickerDialog timedialog;
@@ -187,7 +196,7 @@ public class PostWriteActivity extends AppCompatActivity {
 
         customDialog = new CustomDialog(PostWriteActivity.this);
         Intent intent = getIntent();
-        purpose = intent.getIntExtra("purpose",1);
+        purpose = intent.getIntExtra("purpose", NEW);
 
         permissionHandle();
         viewHandle();
@@ -195,7 +204,6 @@ public class PostWriteActivity extends AppCompatActivity {
         viewSizeHandle();
 
         cb_research_write_reward.setOnClickListener(new View.OnClickListener(){
-            @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
             @Override
             public void onClick(View v) {
                 if (((CheckBox)v).isChecked()){
@@ -253,9 +261,7 @@ public class PostWriteActivity extends AppCompatActivity {
             }
         });
 
-
-
-        this.InitializeListener();
+        InitializeListener();
 
         tv_research_write_image_album.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -269,13 +275,13 @@ public class PostWriteActivity extends AppCompatActivity {
             }
         });
 
-        if (purpose == 2){
+        if (purpose == EDIT) {
             writeSave.setVisibility(View.INVISIBLE);
             post = intent.getParcelableExtra("post");
             et_research_write_title.setText(post.getTitle());
             et_research_write_target.setText(post.getTarget());
 
-            Date date = post.getDeadline();
+            Date date = new Date(new Tools().toLocal(post.getDeadline().getTime()));
             SimpleDateFormat fm = new SimpleDateFormat("yyyy-MM-dd a KK시");
 
             et_research_write_deadline.setText(fm.format(date));
@@ -298,6 +304,7 @@ public class PostWriteActivity extends AppCompatActivity {
             et_research_write_content.setText(post.getContent());
             editUnable(et_research_write_deadline);
             editUnable(et_research_write_url);
+            cb_research_write_reward.setVisibility(View.GONE);
             sp_research_write_est_time.setSelection(post.getEst_time()+1);
         }
 
@@ -697,7 +704,7 @@ public class PostWriteActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 13 && resultCode == RESULT_OK){
-            if(purpose==2){
+            if(purpose==NEW){
                 ArrayList<Bitmap> arrayList = (ArrayList<Bitmap>) image_bitmaps.clone();
                 ArrayList<Uri> result_uris = (ArrayList<Uri>) Matisse.obtainResult(data);
                 for(int i=0;i<result_uris.size();i++){
@@ -741,23 +748,20 @@ public class PostWriteActivity extends AppCompatActivity {
     }
 
     public void Back_survey(){
-        setResult(0);
         String message;
-        if(purpose==1){message = "'보관함'에서 작성중인 글을 임시저장 할 수 있습니다. 작성중인 글을 취소하겠습니까";} else {message = "게시글 수정을 취소하시겠습니까";}
-
-        CustomDialog customDialog = new CustomDialog(PostWriteActivity.this, new View.OnClickListener() {
+        if(purpose == NEW) message = "'보관함'에서 작성중인 글을 임시저장 할 수 있습니다. 작성중인 글을 취소하겠습니까";
+        else if (purpose == EDIT) message = "게시글 수정을 취소하시겠습니까";
+        else message = "게시글 작성을 취소하시겠습니까?";
+        customDialog.customSimpleDialog(message, "작성 취소", "아니오", new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                customDialog.dismiss();
                 finish();
             }
         });
-        customDialog.show();
-        customDialog.setMessage(message);
-        customDialog.setPositiveButton("작성취소");
-        customDialog.setNegativeButton("아니오");
     }
 
-    public void Done_survey(){
+    public void Done_survey() {
         String title = et_research_write_title.getText().toString(); ///게시글 작성 당시 글쓴이의 레벨이 반영?
         String content = et_research_write_content.getText().toString();
         String target = et_research_write_target.getText().toString();
@@ -772,47 +776,39 @@ public class PostWriteActivity extends AppCompatActivity {
             }
         } else{goalParticipants = 30;}
 
-        if (purpose == 1){
-            url = et_research_write_url.getText().toString();
-            participants = 0;
-            author = UserPersonalInfo.name;
-            author_lvl = UserPersonalInfo.level;
+        ///상품 없을 때는 null 처리해야될듯
+//        if (purpose == EDIT){
+        url = et_research_write_url.getText().toString();
+        participants = 0;
+        author = UserPersonalInfo.name;
+        author_lvl = UserPersonalInfo.level;
 
-            SimpleDateFormat fm = new SimpleDateFormat("yyyy-MM-dd a KK시");
-            date = new Date();
+        SimpleDateFormat fm = new SimpleDateFormat("yyyy-MM-dd a KK시");
+        date = new Date();
 
-            deadline = null;
+        deadline = null;
 
-            try {
-                deadline = fm.parse(et_research_write_deadline.getText().toString());
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-            if (with_prize){
-                if(et_research_write_gift_count.getText().toString().length()!=0)
-                    count = Integer.valueOf(et_research_write_gift_count.getText().toString());
-                else count = 0;
-                prize = et_research_write_gift_name.getText().toString();
-            } else {
-                count = 0;
-                prize = null;///상품 없을 때는 null 처리해야될듯
-            }
+        try {
+            deadline = fm.parse(et_research_write_deadline.getText().toString());
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+//        } else {
+//            url = post.getUrl();
+//            participants = post.getParticipants();
+//            author = post.getAuthor();
+//            author_lvl = post.getAuthor_lvl();
+//            date = post.getDate();
+//            deadline = post.getDeadline();
+//        }
+        if (with_prize){
+            if(et_research_write_gift_count.getText().toString().length()!=0)
+                count = Integer.valueOf(et_research_write_gift_count.getText().toString());
+            else count = 0;
+            prize = et_research_write_gift_name.getText().toString();
         } else {
-            url = post.getUrl();
-            participants = post.getParticipants();
-            author = post.getAuthor();
-            author_lvl = post.getAuthor_lvl();
-            date = post.getDate();
-            deadline = post.getDeadline();
-            if(with_prize) {
-                if(et_research_write_gift_count.getText().toString().length()!=0)
-                    count = Integer.valueOf(et_research_write_gift_count.getText().toString());
-                else count = 0;
-                prize = et_research_write_gift_name.getText().toString();
-            }else {
-                count = 0;
-                prize = null;///상품 없을 때는 null 처리해야될듯
-            }
+            count = 0;
+            prize = null;///상품 없을 때는 null 처리해야될듯
         }
 
 
@@ -848,8 +844,10 @@ public class PostWriteActivity extends AppCompatActivity {
                     customDialog.show();
                     customDialog.setMessage("추첨 인원을 입력해주세요");
                     customDialog.setNegativeButton("확인");
+
                 }
-                else if(!(url.contains("docs.google.com") || url.contains("forms.gle"))){
+                else if(!(url.contains("docs.google.com") || url.contains("forms.gle") || url.contains("form.office") || url.contains("http://naver.me"))){
+                    Log.d("not_included", "Done_survey: " + url);
                     CustomDialog customDialog = new CustomDialog(PostWriteActivity.this, null);
                     customDialog.show();
                     customDialog.setMessage("제공하지 않는 url입니다");
@@ -861,7 +859,7 @@ public class PostWriteActivity extends AppCompatActivity {
                     customDialog.setNegativeButton("확인");
                 }
                 else {
-                    if (purpose == 1) {
+                    if (purpose == NEW) {
                         loading.setVisibility(View.VISIBLE);
                         new Thread(new Runnable() {
                             @Override
@@ -880,7 +878,7 @@ public class PostWriteActivity extends AppCompatActivity {
                             }
                         }).start();
 
-                    } else if (purpose == 2) {
+                    } else if (purpose == EDIT) {
                         post.setTitle(title);
                         post.setTarget(target);
                         post.setGoal_participants(goalParticipants);
@@ -1155,7 +1153,7 @@ public class PostWriteActivity extends AppCompatActivity {
         public void handleMessage(@NonNull Message msg) {
             super.handleMessage(msg);
             loading.setVisibility(View.GONE);
-            postDone = false;
+            finish();
         }
     }
     private class updateHandler extends Handler{
@@ -1168,7 +1166,6 @@ public class PostWriteActivity extends AppCompatActivity {
             startActivity(intent);
             setResult(FIX_DONE, intent);
             finish();
-            updateDone = false;
         }
     }
     private void permissionHandle() {
@@ -1240,14 +1237,15 @@ public class PostWriteActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 url = et_research_write_url.getText().toString();
-                if (url.contains("docs.google.com") || url.contains("forms.gle")){
-                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
-
-                    Intent newIntent = new Intent(getApplicationContext(), SurveyWebActivity.class);
-                    newIntent.putExtra("url", url);
-                    newIntent.putExtra("requestCode", CHECK);
-                    startActivityForResult(newIntent, CHECK);
+                if (url.contains("docs.google.com") || url.contains("forms.gle") || url.contains("form.office") || url.contains("http://naver.me")){
+                    if (getCurrentFocus() != null) {
+                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                        imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+                    }
+                    Intent intent = new Intent(getApplicationContext(), SurveyWebActivity.class);
+                    intent.putExtra("url", url);
+                    intent.putExtra("requestCode", SurveyWebActivity.DEFAULT);
+                    startActivityForResult(intent, CHECK);
                 } else {
                     customDialog.customRejectDialog("제공하지 않는 url 입니다.", "확인");
                 }
@@ -1341,6 +1339,7 @@ public class PostWriteActivity extends AppCompatActivity {
             }
         });
     }
+
     private void viewSizeHandle() {
         et_research_write_title.setTextSize((float) (MainActivity.screen_width / 23.4285714286));
         writeBack.setTextSize((float) (MainActivity.screen_width / 23.4285714286));

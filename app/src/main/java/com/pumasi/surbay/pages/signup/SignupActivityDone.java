@@ -26,12 +26,14 @@ import com.google.firebase.auth.ActionCodeSettings;
 import com.google.firebase.auth.FirebaseAuth;
 import com.pumasi.surbay.R;
 import com.pumasi.surbay.classfile.CustomDialog;
+import com.pumasi.surbay.tools.FirebaseLogging;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 public class SignupActivityDone extends AppCompatActivity {
 
+    private Context context;
     TextView user_agree_info;
     Button signup_next;
 
@@ -46,7 +48,9 @@ public class SignupActivityDone extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup_done_layout);
         getSupportActionBar().hide();
+        context = getApplicationContext();
 
+        new FirebaseLogging(context).LogScreen("signup5", "회원가입_5단계");
         Intent intent = getIntent();
         userid = intent.getStringExtra("userid");
         password = intent.getStringExtra("password");

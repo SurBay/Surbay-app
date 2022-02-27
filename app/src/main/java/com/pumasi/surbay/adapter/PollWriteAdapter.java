@@ -42,10 +42,8 @@ public class PollWriteAdapter extends RecyclerView.Adapter<PollWriteAdapter.MyVi
 
     @Override
     public PollWriteAdapter.MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-
         View view = inflater.inflate(R.layout.general_write_poll_recyclerview_item, parent, false);
         MyViewHolder holder = new MyViewHolder(view, new MyCustomEditTextListener());
-
         return holder;
     }
 

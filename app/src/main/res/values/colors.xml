@@ -22,8 +22,8 @@
     <color name="red_F16">#F16A6F</color>
     <color name="poll_color_primary_C9">#C9F6F2</color>
     <color name="poll_color_secondary_B6">#B6E9ED</color>
-    <color name="notification_teal">#E4FFFC</color>
 
+    <color name="notification_teal">#E4FFFC</color>
     <color name="renewal_background">#F2F2F2</color>
     <color name="renewal_gray">#C4C4C4</color>
     <color name="E5gray">#E5E5E5</color>

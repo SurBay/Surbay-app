@@ -2,6 +2,7 @@ package com.pumasi.surbay.classfile;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 import java.lang.reflect.Array;
 import java.text.ParseException;
@@ -204,6 +205,9 @@ public class General implements Parcelable{
         this.liked_users = liked_users;
         this.likes = likes;
         this.hide = hide;
+        for (Poll poll: polls) {
+            Log.d("poll_images", "General: " + poll.getImage());
+        }
     }
     public General(String id, String title, String author, Integer author_lvl, String content,
                    Date date, Date deadline, ArrayList<Reply> comments, Boolean done,

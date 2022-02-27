@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -24,6 +25,7 @@ import com.pumasi.surbay.R;
 import com.pumasi.surbay.adapter.NoticeListAdapter;
 import com.pumasi.surbay.classfile.Notice;
 import com.pumasi.surbay.pages.MainActivity;
+import com.pumasi.surbay.tools.FirebaseLogging;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -37,6 +39,9 @@ import java.util.Comparator;
 import java.util.Date;
 
 public class NoticeActivity extends AppCompatActivity {
+
+    private Context context;
+
     ListView notice_listview;
     NoticeListAdapter notice_listAdapter;
     ArrayList<Notice> notice_list;
@@ -52,8 +57,10 @@ public class NoticeActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_notice);
+        getSupportActionBar().hide();
+        context = getApplicationContext();
 
-        this.getSupportActionBar().hide();
+        new FirebaseLogging(context).LogScreen("notice_page", "공지사항");
 
         SharedPreferences sharedPreferences = getSharedPreferences("updateNotice", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();

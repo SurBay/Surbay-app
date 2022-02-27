@@ -77,9 +77,14 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
 import java.util.TimeZone;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class GeneralWriteActivity extends AppCompatActivity {
     static final int NEWPOST = 1;
@@ -311,18 +316,22 @@ public class GeneralWriteActivity extends AppCompatActivity {
             @Override
             protected Map<String, DataPart> getByteData() { //이미지 추가하는곳
                 Map<String, DataPart> params = new HashMap<>();
-                for(int i=0; i<image_uris.size(); i++){
+                for(int i=image_uris.size() - 1; i >= 0; i--){
+                    Log.d("number", String.valueOf(i));
                     if(image_uris.get(i)!=null) {
                         long imagename = System.currentTimeMillis();
                         try {
+                            Log.d("solve", "image" + i + new DataPart(imagename + ".png", getBytes(GeneralWriteActivity.this, image_uris.get(i))));
                             params.put("image" + i, new DataPart(imagename + ".png", getBytes(GeneralWriteActivity.this, image_uris.get(i))));
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
                     }
                 }
+                Log.d("sorted_before", "getByteData: " + params);
+                Log.d("sorted", "getByteData: " + params.entrySet().stream().sorted(Map.Entry.comparingByKey()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (old_value, new_value) -> old_value, LinkedHashMap::new)));
+                return params.entrySet().stream().sorted(Map.Entry.comparingByKey()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (old_value, new_value) -> old_value, LinkedHashMap::new));
 
-                return params;
             }
 
             @Override
@@ -386,6 +395,7 @@ public class GeneralWriteActivity extends AppCompatActivity {
 
             ArrayList<Uri> selected_images = (ArrayList<Uri>) Matisse.obtainResult(data);
             image_uris.set(image_add_pos, selected_images.get(0));
+            Log.d("solve", "onActivityResult: " + image_uris);
             pollWriteAdapter.notifyDataSetChanged();
 
         }
@@ -464,6 +474,8 @@ public class GeneralWriteActivity extends AppCompatActivity {
                 bitArray.put(0);
             }
         }
+
+
 
         Boolean with_image;
         if(is_image==1){

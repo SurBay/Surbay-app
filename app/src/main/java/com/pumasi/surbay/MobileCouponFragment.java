@@ -32,6 +32,7 @@ import com.pumasi.surbay.classfile.Store;
 import com.pumasi.surbay.classfile.StoreCategory;
 import com.pumasi.surbay.pages.MainActivity;
 import com.pumasi.surbay.pages.SellingActivity;
+import com.pumasi.surbay.tools.FirebaseLogging;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -64,6 +65,8 @@ public class MobileCouponFragment extends Fragment {
         view = inflater.inflate(R.layout.fragment_mobile_coupon, container, false);
         context = getActivity().getApplicationContext();
         loadingPanel  = view.findViewById(R.id.loadingPanel);
+
+//        new FirebaseLogging(context).LogScreen("exchange_page", "교환페이지");
 
         rv_coupon_seller_supplier = view.findViewById(R.id.rv_coupon_seller_supplier);
         rv_coupon_seller_category = view.findViewById(R.id.rv_coupon_seller_category);
@@ -279,5 +282,10 @@ public class MobileCouponFragment extends Fragment {
             rv_coupon_seller_supplier.setVisibility(View.VISIBLE);
             loadingPanel.setVisibility(View.GONE);
         }
+    }
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d("resume", "onResume: exchange_page_resume!!");
     }
 }

@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.pumasi.surbay">
 
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission
         android:name="READ_PHONE_STATE"
@@ -107,7 +109,20 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".pages.boardpage.GeneralDetailActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait">
+            <intent-filter tools:ignore="AppLinkUrlError">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:scheme="@string/kakao_scheme"
+                    android:host="@string/kakaolink_host"/>
+            </intent-filter>
+            <meta-data
+                android:name="com.kakao.sdk.AppKey"
+                android:value="@string/kakao_app_key" />
+        </activity>
         <activity
             android:name=".pages.mypage.SettingFeedbacks"
             android:screenOrientation="portrait" />
@@ -216,10 +231,14 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".pages.boardpage.PostDetailActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait">
+
+        </activity>
         <activity
             android:name=".not_use.SignupActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait">
+
+        </activity>
         <activity
             android:name="com.gun0912.tedpicker.ImagePickerActivity"
             android:screenOrientation="portrait"

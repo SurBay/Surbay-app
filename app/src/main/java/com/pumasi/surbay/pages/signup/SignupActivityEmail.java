@@ -27,6 +27,7 @@ import com.android.volley.toolbox.Volley;
 import com.pumasi.surbay.R;
 import com.pumasi.surbay.classfile.CustomDialog;
 import com.pumasi.surbay.classfile.DomainSearchDialog;
+import com.pumasi.surbay.tools.FirebaseLogging;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -45,6 +46,7 @@ public class SignupActivityEmail extends AppCompatActivity {
 
     public static JSONObject domains;
     public static String search_result_university = null;
+    private Context context;
 
 
     Boolean dup_check = false;
@@ -54,7 +56,9 @@ public class SignupActivityEmail extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup_email_layout);
         getSupportActionBar().hide();
+        context = getApplicationContext();
 
+        new FirebaseLogging(context).LogScreen("signup1", "회원가입_1단계");
 
         university_edittext = findViewById(R.id.signup_university);
         university_search = findViewById(R.id.sign_up_university_search);

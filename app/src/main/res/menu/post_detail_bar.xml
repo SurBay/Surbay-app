@@ -29,7 +29,7 @@
     <item
         android:id="@+id/share"
         android:title="공유"
-        android:icon="@drawable/shrae_menu"
+        android:icon="@drawable/share_menu"
         app:showAsAction="always" />
 
 

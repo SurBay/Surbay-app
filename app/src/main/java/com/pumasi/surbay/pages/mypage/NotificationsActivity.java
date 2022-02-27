@@ -34,6 +34,7 @@ import com.pumasi.surbay.classfile.General;
 import com.pumasi.surbay.classfile.Notification;
 import com.pumasi.surbay.classfile.Post;
 import com.pumasi.surbay.classfile.UserPersonalInfo;
+import com.pumasi.surbay.tools.FirebaseLogging;
 import com.pumasi.surbay.tools.ServerTransport;
 
 import org.json.JSONArray;
@@ -62,7 +63,7 @@ public class NotificationsActivity extends AppCompatActivity {
     private final int NOTE = 5;
     private final int FEEDBACK = 6;
     private boolean item_clickable = true;
-    // 0: 설문, 1: 자게, 2: 경품, 3: 시작화면, 4: content, 5. 쪽지함, 6. 피드백
+    // 0: 설문, 1: 투표, 2: 경품, 3: 시작화면, 4: 콘텐츠, 5. 쪽지함, 6. 피드백
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,6 +73,7 @@ public class NotificationsActivity extends AppCompatActivity {
         context = getApplicationContext();
         st = new ServerTransport(context);
 
+        new FirebaseLogging(context).LogScreen("notification_page", "알림페이지");
         notifications.addAll(UserPersonalInfo.notifications);
         Collections.reverse(notifications);
         ib_back = findViewById(R.id.ib_back);

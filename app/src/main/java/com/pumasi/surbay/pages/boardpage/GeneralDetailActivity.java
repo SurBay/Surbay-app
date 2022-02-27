@@ -4,6 +4,10 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.Signature;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Rect;
@@ -13,23 +17,33 @@ import android.os.Handler;
 import android.os.Message;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Base64;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.RelativeLayout;
+import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -43,7 +57,15 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-import com.pumasi.surbay.ContentDetailCommentsActivity;
+import com.kakao.sdk.common.KakaoSdk;
+import com.kakao.sdk.link.LinkClient;
+import com.kakao.sdk.template.model.CommerceTemplate;
+import com.kakao.sdk.template.model.Content;
+import com.kakao.sdk.template.model.FeedTemplate;
+import com.kakao.sdk.template.model.ItemContent;
+import com.kakao.sdk.template.model.Link;
+import com.kakao.sdk.template.model.Social;
+import com.kakao.sdk.template.model.TextTemplate;
 import com.pumasi.surbay.MyNoteActivity;
 import com.pumasi.surbay.R;
 import com.pumasi.surbay.adapter.GeneralReplyRecyclerViewAdapter;
@@ -54,7 +76,6 @@ import com.pumasi.surbay.adapter.PollDoneAdapterWImage;
 import com.pumasi.surbay.classfile.CustomDialog;
 import com.pumasi.surbay.classfile.General;
 import com.pumasi.surbay.classfile.MessageDialog;
-import com.pumasi.surbay.classfile.Notification;
 import com.pumasi.surbay.classfile.Poll;
 import com.pumasi.surbay.classfile.ReReply;
 import com.pumasi.surbay.classfile.Reply;
@@ -70,12 +91,18 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
@@ -101,6 +128,9 @@ public class GeneralDetailActivity extends AppCompatActivity {
     private boolean report_done = false;
     private boolean delete_done = false;
     private boolean block_done = false;
+
+    private LinearLayout ll_share;
+    private TextView tv_share;
 
     private Context context;
     private TextView participants;
@@ -164,6 +194,9 @@ public class GeneralDetailActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        KakaoSdk.init(GeneralDetailActivity.this, "f749e3fc8849b99cc9b649f9c66432a8");
+
         setContentView(R.layout.general_detail);
         setResult(NOT_DONE);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
@@ -177,9 +210,27 @@ public class GeneralDetailActivity extends AppCompatActivity {
         new FirebaseLogging(context).LogScreen("vote_detail", "투표");
         st = new ServerTransport(context);
 
+//        SharedPreferences sharedPreferences = getSharedPreferences("save", MODE_PRIVATE);
+//        Boolean isShown = sharedPreferences.getBoolean("share", false);
+
+//        ll_share = findViewById(R.id.ll_share);
+//        tv_share = findViewById(R.id.tv_share);
+//        ll_share.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                SharedPreferences.Editor editor = sharedPreferences.edit();
+//                editor.putBoolean("share", true);
+//                editor.apply();
+//                ll_share.setVisibility(View.GONE);
+//            }
+//        });
+//
+//        if (isShown) {
+//            ll_share.setVisibility(View.GONE);
+//        }
         images = new ArrayList<>();
         btn_general_detail_end = findViewById(R.id.btn_general_detail_end);
-
+        Log.d("het", "onCreate: "+ getKeyHash(context));
         author = findViewById(R.id.author);
         level = findViewById(R.id.author_info);
         title = findViewById(R.id.title);
@@ -279,6 +330,7 @@ public class GeneralDetailActivity extends AppCompatActivity {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
                         switch (item.getItemId()) {
+
                             case R.id.delete:
                                 customDialog = new CustomDialog(context, new View.OnClickListener() {
                                     @Override
@@ -811,7 +863,6 @@ public class GeneralDetailActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()){
             case android.R.id.home:
-
                 setResult(position);
                 if(et_vote_detail_reply.getText().toString().length()>0){
                     customDialog = new CustomDialog(GeneralDetailActivity.this, new View.OnClickListener() {
@@ -830,6 +881,7 @@ public class GeneralDetailActivity extends AppCompatActivity {
                     finish();
                 }
                 break;
+
             case R.id.report:
                 //select back button
                 ReportDialog();
@@ -846,7 +898,55 @@ public class GeneralDetailActivity extends AppCompatActivity {
                     }
                 });
                 messageDialog.show();
+            case R.id.share:
+                AlertDialog.Builder builder = new AlertDialog.Builder(GeneralDetailActivity.this, R.style.CustomDialog);
+                LayoutInflater inflater = getLayoutInflater();
+                View view = inflater.inflate(R.layout.share_dialog, null);
 
+                final ListView listview = (ListView)view.findViewById(R.id.listview_alterdialog_list);
+                final AlertDialog dialog = builder.create();
+                dialog.getWindow().setBackgroundDrawable(new ColorDrawable(getColor(R.color.transparent)));
+                dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+
+                List<Map<String, Object>> dialogItemList = new ArrayList<>();
+                Map<String, Object> itemMap = new HashMap<>();
+                itemMap.put("image", R.drawable.kakaotalk);
+                itemMap.put("text", "카카오톡으로 공유하기");
+                dialogItemList.add(itemMap);
+
+                dialog.setView(view, 0, 0, 0, 0);
+                SimpleAdapter simpleAdapter = new SimpleAdapter(GeneralDetailActivity.this, dialogItemList,
+                        R.layout.share_listitem,
+                        new String[]{"image", "text"},
+                        new int[]{R.id.share_item_image, R.id.share_item_name});
+
+                listview.setAdapter(simpleAdapter);
+                listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        switch (position) {
+                            case 0:
+                                new Thread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        btnClick();
+
+                                    }
+                                }).start();
+                                dialog.dismiss();
+
+                        }
+                    }
+                });
+
+                WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+                lp.copyFrom(dialog.getWindow().getAttributes());
+                lp.width = 800;
+                lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+
+                dialog.show();
+                Window window = dialog.getWindow();
+                window.setAttributes(lp);
         }
         return super.onOptionsItemSelected(item);
     }
@@ -1324,4 +1424,87 @@ public class GeneralDetailActivity extends AppCompatActivity {
             this.overridePendingTransition(R.anim.enter, R.anim._null);
         }
     }
+    public void btnClick(){
+        String url = "https://surbay-sprint.netlify.app/vote/" + general.getID();
+        String des = "";
+        for (Poll poll : general.getPolls()) {
+            des = des + poll.getContent() + " vs ";
+        }
+        des = des.substring(0, des.length() - 4);
+        if (des.length() > 30) {
+            des = des.substring(0, 30) + "...";
+        }
+        FeedTemplate feedTemplate = new FeedTemplate(
+                new Content("Q. " + general.getTitle(), "", new Link(url,
+                        url), des), null,
+//                new Social(general.getLikes(), general.getComments().size(), null, general.getParticipants()),
+                new Social(null,null, null, null),
+
+                Arrays.asList(
+                        new com.kakao.sdk.template.model.Button("투표하기", new Link(url, url))
+//                        new com.kakao.sdk.template.model.Button("공유하기", new Link(url, url)))
+        ));
+
+
+
+        try {
+            if (LinkClient.getInstance().isKakaoLinkAvailable(context)) {
+                LinkClient.getInstance().defaultTemplate(GeneralDetailActivity.this, feedTemplate, null, ((linkResult, error) -> {
+                    if (error != null) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(context, "공유 실패, 다시 시도해주세요", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(context, String.valueOf(error), Toast.LENGTH_LONG).show();
+                            }
+                        });
+                    } else {
+                        GeneralDetailActivity.this.startActivity(linkResult.getIntent());
+                    }
+                    return null;
+                }));
+            } else {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(context, "카카오톡을 설치하시고 다시 시도해주세요", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        } catch (Exception e) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(context, "공유 실패, 다시 시도해주세요", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, String.valueOf(e), Toast.LENGTH_LONG).show();
+                }
+            });
+        }
+
+
+    }
+
+
+    public String getKeyHash(final Context context) {
+        PackageInfo packageInfo = null;
+        try {
+            packageInfo = getPackageManager().getPackageInfo(getPackageName(), PackageManager.GET_SIGNATURES);
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        if (packageInfo == null)
+            return null;
+
+        for (Signature signature : packageInfo.signatures) {
+            try {
+                MessageDigest md = MessageDigest.getInstance("SHA");
+                md.update(signature.toByteArray());
+                return Base64.encodeToString(md.digest(), Base64.NO_WRAP);
+            } catch (NoSuchAlgorithmException e) {
+                Log.w("TAG", "Unable to get MessageDigest. signature=" + signature, e);
+            }
+        }
+        return null;
+    }
+
 }

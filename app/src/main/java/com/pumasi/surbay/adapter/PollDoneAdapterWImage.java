@@ -21,6 +21,7 @@ import com.pumasi.surbay.classfile.BitmapTransfer;
 import com.pumasi.surbay.classfile.Poll;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class PollDoneAdapterWImage extends RecyclerView.Adapter<PollDoneAdapterWImage.MyViewHolder> {
     private static OnItemClickListener mListener = null ;
@@ -39,8 +40,10 @@ public class PollDoneAdapterWImage extends RecyclerView.Adapter<PollDoneAdapterW
         inflater = LayoutInflater.from(ctx);
         this.ctx = ctx;
         this.imageModelArrayList = imageModelArrayList;
+        Log.d("imagemodel", "PollDoneAdapterWImage: " + imageModelArrayList);
         this.bitArray = bitArray;
         this.multi_response = multi_response;
+        Log.d("bitarray", "PollDoneAdapterWImage: " + bitArray);
         for (int i=0;i<imageModelArrayList.size();i++){
             tot_votes+=imageModelArrayList.get(i).getParticipants_userids().size();
         }

@@ -29,6 +29,7 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.pumasi.surbay.R;
 import com.pumasi.surbay.classfile.CustomDialog;
+import com.pumasi.surbay.tools.FirebaseLogging;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -38,6 +39,7 @@ import java.util.regex.Pattern;
 
 public class SignupActivityExtra extends AppCompatActivity {
 
+    private Context context;
     TextView check_name;
     EditText nameEditText;
     Button signup_next;
@@ -62,7 +64,9 @@ public class SignupActivityExtra extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup_extra_layout);
         getSupportActionBar().hide();
+        context = getApplicationContext();
 
+        new FirebaseLogging(context).LogScreen("signup3", "회원가입_3단계");
         Intent intent = getIntent();
         userid = intent.getStringExtra("userid");
         password = intent.getStringExtra("password");

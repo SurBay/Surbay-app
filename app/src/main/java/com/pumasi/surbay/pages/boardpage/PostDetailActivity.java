@@ -7,11 +7,15 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.Signature;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -69,6 +73,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -133,7 +139,7 @@ public class PostDetailActivity extends AppCompatActivity {
 
     private Post post;
     private int position;
-    String surveyURL;
+    String url;
 
     private ReplyRecyclerViewAdapter replyRecyclerViewAdapter;
     private static RecyclerView detail_reply_listView;
@@ -162,6 +168,7 @@ public class PostDetailActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.post_detail);
         setResult(NOT_DONE);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
@@ -241,7 +248,6 @@ public class PostDetailActivity extends AppCompatActivity {
                         setReplyVisible(false);
                         replyRecyclerViewAdapter.Click(-1);
                     }
-
                 }
             }
         });
@@ -354,10 +360,15 @@ public class PostDetailActivity extends AppCompatActivity {
                 new View.OnClickListener(){
                     @Override
                     public void onClick(View v) {
-                        Intent newIntent = new Intent(getApplicationContext(), SurveyWebActivity.class);
-                        newIntent.putExtra("url", surveyURL);
-                        newIntent.putExtra("post_id", post.getID());
-                        startActivityForResult(newIntent, START_SURVEY);
+                        String log = post.getID().replaceAll("0", "A").replaceAll("1", "B").replaceAll("2", "C").replaceAll("3", "D").replaceAll("4", "E").replaceAll("5", "F").replaceAll("6", "G")
+                                .replaceAll("7", "H").replaceAll("8", "I").replaceAll("9", "J");
+                        Log.d("hello", log);
+                        new FirebaseLogging(context).LogScreen("participate_" + log, "참여_" + log);
+                        Intent intent = new Intent(getApplicationContext(), SurveyWebActivity.class);
+                        intent.putExtra("auto", true);
+                        intent.putExtra("url", url);
+                        intent.putExtra("post_id", post.getID());
+                        startActivityForResult(intent, START_SURVEY);
                     }
                 }
         );
@@ -389,7 +400,7 @@ public class PostDetailActivity extends AppCompatActivity {
                 reply_content = et_post_detail_reply.getText().toString();
                 et_post_detail_reply.getText().clear();
 
-                if (reply_content.length() > 0 ){
+                if (reply_content.length() > 0) {
                     loading.setVisibility(View.VISIBLE);
                     BackgroundReplyThread replyThread = new BackgroundReplyThread();
                     replyThread.start();
@@ -530,7 +541,9 @@ public class PostDetailActivity extends AppCompatActivity {
             while(st.result_research == null) {
                 try {
                     Thread.sleep(100);
-                } catch (Exception e) {}
+                } catch (Exception e) {
+
+                }
             }
             post = st.result_research;
             replyArrayList = st.result_research.getComments();
@@ -825,7 +838,7 @@ public class PostDetailActivity extends AppCompatActivity {
                 Date now = new Date();
                 if((!post.isDone()) || !(now.after(new Date(tools.toLocal(post.getDeadline().getTime()))))) {
                     Intent intent = new Intent(this, PostWriteActivity.class);
-                    intent.putExtra("purpose", FIX);
+                    intent.putExtra("purpose", PostWriteActivity.EDIT);
                     intent.putExtra("post", post);
                     startActivityForResult(intent, FIX);
                 }else{
@@ -911,19 +924,6 @@ public class PostDetailActivity extends AppCompatActivity {
         return dday;
     }
 
-    public void nonMemberUpdate(String id) {
-        String requestURL = getApplicationContext().getResources().getString(R.string.server) + "/api/posts/nonmembersurvey/" + id;
-        try {
-            RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
-            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
-                    Request.Method.PUT, requestURL, null, response -> {}, error -> {}
-            );
-            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-            requestQueue.add(jsonObjectRequest);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
     public void ReportDialog(){
         if (post.getReports().contains(UserPersonalInfo.userID)){
             Toast.makeText(PostDetailActivity.this, "이미 신고하셨습니다", Toast.LENGTH_SHORT).show();
@@ -977,7 +977,7 @@ public class PostDetailActivity extends AppCompatActivity {
         listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                switch (position){
+                switch (position) {
                     case 0:
                         Intent Sharing_intent = new Intent(Intent.ACTION_SEND);
                         Sharing_intent.setType("text/plain");
@@ -1499,7 +1499,7 @@ public class PostDetailActivity extends AppCompatActivity {
         }else{
             prize.setText(post.getPrize()+" ("+ post.getNum_prize()+ "명)");
         }
-        surveyURL = post.getUrl();
+        url = post.getUrl();
 
     }
 

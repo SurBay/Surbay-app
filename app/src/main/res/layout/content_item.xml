@@ -28,7 +28,8 @@
             android:textSize="17.1dp"
             android:textStyle="bold"
             android:textColor="@color/text_color48"
-            android:maxLines="2" />
+            android:maxLines="2"
+            android:ellipsize="end" />
         <TextView
             android:id="@+id/tv_board_content_item_date"
             android:layout_width="wrap_content"

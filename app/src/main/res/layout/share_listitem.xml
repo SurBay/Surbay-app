@@ -10,11 +10,11 @@
         android:id="@+id/share_item_image"
         />
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/share_item_name"
         android:text="text"
-        android:layout_marginHorizontal="30dp"
+        android:paddingHorizontal="30dp"
         android:textSize="17dp"
         android:gravity="center"
         android:layout_gravity="center_vertical"

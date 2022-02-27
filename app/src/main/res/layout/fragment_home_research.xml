@@ -5,81 +5,92 @@
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="18dp"
     android:background="@color/renewal_background">
+
     <LinearLayout
         android:id="@+id/ll_home_research_item1"
-        android:orientation="vertical"
-        android:layout_weight="1"
         android:layout_width="0dp"
         android:layout_height="171dp"
+        android:layout_marginEnd="2.28dp"
+        android:layout_weight="1"
         android:background="@drawable/home_item"
-        android:layout_marginEnd="2.28dp">
+        android:orientation="vertical">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="11.4dp"
             android:layout_marginTop="4.56dp"
             android:layout_marginBottom="3.7dp">
+
             <ImageView
                 android:layout_width="35dp"
                 android:layout_height="33dp"
-                android:src="@drawable/character_gray"
-                android:layout_marginBottom="2.11dp"/>
+                android:layout_marginBottom="2.11dp"
+                android:src="@drawable/character_gray" />
 
             <TextView
                 android:id="@+id/tv_name1"
                 android:layout_width="96.9dp"
                 android:layout_height="29.64dp"
-                android:layout_marginTop="3.42dp"
                 android:layout_marginLeft="2dp"
+                android:layout_marginTop="3.42dp"
                 android:gravity="center_vertical"
-                android:maxEms="20"
                 android:lines="2"
+                android:maxEms="20"
                 android:text="익명"
                 android:textColor="@color/text_black_70"
-                android:textSize="11.4dp" />
+                android:textSize="11.4dp"
+                android:ellipsize="end"/>
         </LinearLayout>
+
         <LinearLayout
             android:layout_width="159.6dp"
             android:layout_height="1dp"
             android:layout_gravity="center_horizontal"
             android:background="@color/renewal_gray" />
+
         <TextView
             android:id="@+id/tv_title1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="10dp"
             android:layout_gravity="left"
+            android:layout_marginHorizontal="10dp"
             android:layout_marginTop="8.4dp"
-            android:text="온라인 강의 학생 만족도 설문조사"
-            android:textSize="14.82dp"
-            android:textStyle="bold"
-            android:textColor="@color/text_black"
+            android:ellipsize="end"
             android:lineHeight="16.1dp"
             android:lines="2"
-            android:maxEms="25" />
+            android:text="온라인 강의 학생 만족도 설문조사"
+            android:textColor="@color/text_black"
+            android:textSize="14.82dp"
+            android:textStyle="bold" />
+
         <TextView
             android:id="@+id/tv_target1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="10dp"
             android:layout_gravity="left"
+            android:layout_marginHorizontal="10dp"
             android:layout_marginTop="5.12dp"
-            android:text="정장 구매한 경험이 있는 여성분들 설문 부탁드려요"
-            android:textSize="13.11dp"
-            android:textColor="@color/text_black_70"
             android:lineHeight="16.1dp"
             android:lines="2"
-            android:maxEms="30" />
+            android:maxEms="30"
+            android:text="정장 구매한 경험이 있는 여성분들 설문 부탁드려요"
+            android:textColor="@color/text_black_70"
+            android:textSize="13.11dp"
+            android:ellipsize="end"/>
+
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="13.68dp">
+
             <ImageView
                 android:id="@+id/iv_gift1"
                 android:layout_width="17.1dp"
                 android:layout_height="17.1dp"
-                android:src="@drawable/gift"
-                android:layout_marginLeft="10.26dp"/>
+                android:layout_marginLeft="10.26dp"
+                android:src="@drawable/gift" />
+
             <TextView
                 android:id="@+id/tv_day1"
                 android:layout_width="57dp"
@@ -88,14 +99,15 @@
                 android:layout_marginRight="17.1dp"
                 android:gravity="right"
                 android:text="D-DAY"
+                android:textColor="@color/teal_200"
                 android:textSize="13.68dp"
-                android:textStyle="bold"
-                android:textColor="@color/teal_200"/>
+                android:textStyle="bold" />
 
         </RelativeLayout>
 
 
     </LinearLayout>
+
     <LinearLayout
         android:id="@+id/ll_home_research_item2"
         android:orientation="vertical"
@@ -127,7 +139,8 @@
                 android:lines="2"
                 android:text="익명"
                 android:textColor="@color/text_black_70"
-                android:textSize="11.4dp" />
+                android:textSize="11.4dp"
+                android:ellipsize="end"/>
         </LinearLayout>
         <LinearLayout
             android:layout_width="159.6dp"
@@ -147,7 +160,7 @@
             android:textColor="@color/text_black"
             android:lineHeight="16.1dp"
             android:lines="2"
-            android:maxEms="25" />
+            android:ellipsize="end"/>
         <TextView
             android:id="@+id/tv_target2"
             android:layout_width="wrap_content"
@@ -160,7 +173,7 @@
             android:textColor="@color/text_black_70"
             android:lineHeight="16.1dp"
             android:lines="2"
-            android:maxEms="30" />
+            android:ellipsize="end"/>
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
