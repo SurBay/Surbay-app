@@ -168,8 +168,8 @@ public class PostDetailActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.post_detail);
+
         setResult(NOT_DONE);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         getSupportActionBar().setDisplayShowCustomEnabled(true);
@@ -219,6 +219,9 @@ public class PostDetailActivity extends AppCompatActivity {
         position = intent.getIntExtra("position", -1);
 
         loading_detail(post);
+        BackgroundThread refreshThread = new BackgroundThread();
+        refreshThread.start();
+
         replyArrayList = post.getComments();
         replyRecyclerViewAdapter = new ReplyRecyclerViewAdapter(PostDetailActivity.this, replyArrayList);
         replyRecyclerViewAdapter.setPost(post);

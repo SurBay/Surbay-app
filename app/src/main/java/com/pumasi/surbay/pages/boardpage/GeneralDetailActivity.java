@@ -80,6 +80,7 @@ import com.pumasi.surbay.classfile.Poll;
 import com.pumasi.surbay.classfile.ReReply;
 import com.pumasi.surbay.classfile.Reply;
 import com.pumasi.surbay.classfile.UserPersonalInfo;
+import com.pumasi.surbay.pages.MainActivity;
 import com.pumasi.surbay.tools.FirebaseLogging;
 import com.pumasi.surbay.tools.ServerTransport;
 
@@ -129,8 +130,7 @@ public class GeneralDetailActivity extends AppCompatActivity {
     private boolean delete_done = false;
     private boolean block_done = false;
 
-    private LinearLayout ll_share;
-    private TextView tv_share;
+    private ImageView iv_introduce;
 
     private Context context;
     private TextView participants;
@@ -209,28 +209,26 @@ public class GeneralDetailActivity extends AppCompatActivity {
         context = GeneralDetailActivity.this;
         new FirebaseLogging(context).LogScreen("vote_detail", "투표");
         st = new ServerTransport(context);
+        SharedPreferences sharedPreferences = getSharedPreferences("share", MODE_PRIVATE);
+        boolean isShared = sharedPreferences.getBoolean("isShared", false);
 
-//        SharedPreferences sharedPreferences = getSharedPreferences("save", MODE_PRIVATE);
-//        Boolean isShown = sharedPreferences.getBoolean("share", false);
+        iv_introduce = findViewById(R.id.iv_introduce);
 
-//        ll_share = findViewById(R.id.ll_share);
-//        tv_share = findViewById(R.id.tv_share);
-//        ll_share.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                SharedPreferences.Editor editor = sharedPreferences.edit();
-//                editor.putBoolean("share", true);
-//                editor.apply();
-//                ll_share.setVisibility(View.GONE);
-//            }
-//        });
-//
-//        if (isShown) {
-//            ll_share.setVisibility(View.GONE);
-//        }
+        if (isShared) {
+            iv_introduce.setVisibility(View.GONE);
+        }
+        iv_introduce.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                iv_introduce.setVisibility(View.GONE);
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putBoolean("isShared", true);
+                editor.apply();
+            }
+        });
+
         images = new ArrayList<>();
         btn_general_detail_end = findViewById(R.id.btn_general_detail_end);
-        Log.d("het", "onCreate: "+ getKeyHash(context));
         author = findViewById(R.id.author);
         level = findViewById(R.id.author_info);
         title = findViewById(R.id.title);
@@ -424,7 +422,6 @@ public class GeneralDetailActivity extends AppCompatActivity {
             else bitArray.add(0);
         }
 
-
         check_results.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -491,6 +488,8 @@ public class GeneralDetailActivity extends AppCompatActivity {
             ORIGIN_LIKE = DISLIKED;
         }
         loading_detail(general);
+        BackgroundThread refreshThread = new BackgroundThread();
+        refreshThread.start();
 
         saveLikes = general.getLikes();
 
@@ -899,6 +898,7 @@ public class GeneralDetailActivity extends AppCompatActivity {
                 });
                 messageDialog.show();
             case R.id.share:
+                iv_introduce.setVisibility(View.GONE);
                 AlertDialog.Builder builder = new AlertDialog.Builder(GeneralDetailActivity.this, R.style.CustomDialog);
                 LayoutInflater inflater = getLayoutInflater();
                 View view = inflater.inflate(R.layout.share_dialog, null);

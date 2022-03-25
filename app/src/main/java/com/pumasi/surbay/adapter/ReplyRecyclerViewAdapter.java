@@ -147,7 +147,7 @@ public class ReplyRecyclerViewAdapter extends RecyclerView.Adapter<ReplyRecycler
             holder.replywriter.setText("작성자");
             holder.replywriter.setTextColor(context.getColor(R.color.teal_200));
         }else if((admins.contains(reply.getWriter()))&&(reply.getWriter_name()!=null)){
-            holder.replywriter.setText(reply.getWriter_name());
+            holder.replywriter.setText("운영진");
             holder.replywriter.setTextColor(context.getColor(R.color.teal_200));
         }
 
@@ -274,7 +274,7 @@ public class ReplyRecyclerViewAdapter extends RecyclerView.Adapter<ReplyRecycler
     class MyViewHolder extends RecyclerView.ViewHolder{
 
         TextView replydateview;
-        ShowMoreTextView replycontentview;
+        TextView replycontentview;
         ImageView reply_menu;
         private ImageView reply_reply;
         LinearLayout comment;
@@ -286,18 +286,12 @@ public class ReplyRecyclerViewAdapter extends RecyclerView.Adapter<ReplyRecycler
 
             rv_reply_reply = itemView.findViewById(R.id.rv_reply_reply);
             replydateview = (TextView)itemView.findViewById(R.id.reply_date);
-            replycontentview = (ShowMoreTextView) itemView.findViewById(R.id.reply_context);
+            replycontentview = (TextView) itemView.findViewById(R.id.reply_context);
             reply_reply = itemView.findViewById(R.id.reply_reply);
             reply_menu = (ImageView)itemView.findViewById(R.id.reply_menu);
             comment = (LinearLayout)itemView.findViewById(R.id.comment_holder);
             replywriter = (TextView) itemView.findViewById(R.id.reply_name);
             comment_holder = itemView.findViewById(R.id.comment_holder);
-
-            replycontentview.setShowingLine(3);
-            replycontentview.addShowMoreText("더보기");
-            replycontentview.addShowLessText("접기");
-            replycontentview.setShowMoreColor(Color.GRAY);
-            replycontentview.setShowLessTextColor(Color.GRAY);
 
             reply_reply.setOnClickListener(new View.OnClickListener() {
                 @Override

@@ -14,5 +14,5 @@
         android:textColor="@color/text_black"
         android:textSize="16sp"
         android:gravity="center"
-        android:elevation="0dp"></Button>
+        android:elevation="0dp" />
 </LinearLayout>

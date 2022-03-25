@@ -1,6 +1,7 @@
 package com.pumasi.surbay.adapter;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +19,7 @@ import com.pumasi.surbay.classfile.General;
 import com.pumasi.surbay.classfile.Post;
 import com.pumasi.surbay.classfile.ReReply;
 import com.pumasi.surbay.classfile.UserPersonalInfo;
+import com.skyhope.showmoretextview.ShowMoreTextView;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -67,7 +69,7 @@ public class GeneralReReplyRecyclerViewAdapter extends RecyclerView.Adapter<Gene
             holder.tv_re_reply_name.setText("작성자");
             holder.tv_re_reply_name.setTextColor(context.getColor(R.color.teal_200));
         }else if((admins.contains(reReply.getWriter()))&&(reReply.getWriter_name()!=null)){
-            holder.tv_re_reply_name.setText(reReply.getWriter_name());
+            holder.tv_re_reply_name.setText("운영진");
             holder.tv_re_reply_name.setTextColor(context.getColor(R.color.teal_200));
         }else{
             holder.tv_re_reply_name.setText(reReply.getWriter_name());

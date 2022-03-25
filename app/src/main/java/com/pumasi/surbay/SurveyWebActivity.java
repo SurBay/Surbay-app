@@ -115,19 +115,21 @@ public class SurveyWebActivity extends AppCompatActivity {
                     case DEFAULT:
                         return;
                     case GOOGLE_FORM:
-                        String js =
-                                "( " +
-                                        "function() { " +
-                                        "if(document.getElementsByClassName('freebirdFormviewerViewResponseConfirmContentContainer').length > 0) {" +
-                                        WEBVIEW_INTERFACE_NAME + ".googleFormSubmitted();" +
-                                        "}" +
-                                        "}) " +
-                                        "()";
-
-                        if(android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT)
-                            mWebView.evaluateJavascript(js, null);
-                        else
-                            mWebView.loadUrl("javascript:" + js);
+//                        String js =
+//                                "( " +
+//                                        "function() { " +
+//                                        "if(document.getElementsByClassName('freebirdFormviewerViewResponseConfirmContentContainer').length > 0) {" +
+//                                        WEBVIEW_INTERFACE_NAME + ".googleFormSubmitted();" +
+//                                        "}" +
+//                                        "}) " +
+//                                        "()";
+//
+//                        if(android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT)
+//                            mWebView.evaluateJavascript(js, null);
+//                        else
+//                            mWebView.loadUrl("javascript:" + js);
+                        mWebView.loadUrl("javascript: window." + WEBVIEW_INTERFACE_NAME + ".googleFormSubmitted" +
+                                "('<html>'+document.getElementsByTagName('html')[0].innerHTML+'</html>');");
                     case NAVER_FORM:
                         mWebView.loadUrl("javascript:window." + WEBVIEW_INTERFACE_NAME + ".naverFormSubmitted" +
                                 "('<html>'+document.getElementsByTagName('html')[0].innerHTML+'</html>');");
@@ -353,8 +355,23 @@ public class SurveyWebActivity extends AppCompatActivity {
     private class WebViewInterface
     {
         @JavascriptInterface
-        public void googleFormSubmitted() {
-            if(requestCode == GOOGLE_FORM) {
+        public void googleFormSubmitted(String html) {
+//            if(requestCode == GOOGLE_FORM) {
+//                CustomDialog customDialog2 = new CustomDialog(SurveyWebActivity.this);
+//                result = DONE;
+//                customDialog2.customSimpleDialog("응답 완료", "확인", "", new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View v) {
+//                        customDialog2.customDialog.dismiss();
+//                        ParticipateThread thread = new ParticipateThread();
+//                        thread.start();
+//                    }
+//                });
+//            }
+            Document doc = Jsoup.parse(html);
+            String indicator = doc.select("div.vHW8K").last().text();
+            Log.d("indicator", "googleFormSubmitted: " + indicator);
+            if (indicator.length() > 0) {
                 CustomDialog customDialog2 = new CustomDialog(SurveyWebActivity.this);
                 result = DONE;
                 customDialog2.customSimpleDialog("응답 완료", "확인", "", new View.OnClickListener() {

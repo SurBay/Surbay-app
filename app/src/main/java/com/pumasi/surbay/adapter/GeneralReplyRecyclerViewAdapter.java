@@ -148,12 +148,13 @@ public class GeneralReplyRecyclerViewAdapter extends RecyclerView.Adapter<Genera
             holder.replywriter.setText("작성자");
             holder.replywriter.setTextColor(context.getColor(R.color.teal_200));
         }else if((admins.contains(reply.getWriter()))&&(reply.getWriter_name()!=null)){
-            holder.replywriter.setText(reply.getWriter_name());
+            holder.replywriter.setText("운영진");
             holder.replywriter.setTextColor(context.getColor(R.color.teal_200));
         }else{
             holder.replywriter.setText(reply.getWriter_name());
             holder.replywriter.setTextColor(context.getColor(R.color.text_black_70));
         }
+
         generalReReplyRecyclerViewAdapter.setOnItemClickListener(new GeneralReReplyRecyclerViewAdapter.OnMenuClickListener() {
             @Override
             public void onMenuClick(View v, int pos) {
@@ -277,7 +278,7 @@ public class GeneralReplyRecyclerViewAdapter extends RecyclerView.Adapter<Genera
     class MyViewHolder extends RecyclerView.ViewHolder{
 
         TextView replydateview;
-        ShowMoreTextView replycontentview;
+        TextView replycontentview;
         private ImageView reply_reply;
         private ImageView reply_menu;
         LinearLayout comment;
@@ -289,18 +290,14 @@ public class GeneralReplyRecyclerViewAdapter extends RecyclerView.Adapter<Genera
             super(itemView);
 
             replydateview = (TextView)itemView.findViewById(R.id.reply_date);
-            replycontentview = (ShowMoreTextView) itemView.findViewById(R.id.reply_context);
+            replycontentview = (TextView) itemView.findViewById(R.id.reply_context);
             reply_reply = itemView.findViewById(R.id.reply_reply);
             reply_menu = (ImageView)itemView.findViewById(R.id.reply_menu);
             replywriter = (TextView) itemView.findViewById(R.id.reply_name);
             rv_reply_reply = itemView.findViewById(R.id.rv_reply_reply);
             comment_holder = itemView.findViewById(R.id.comment_holder);
 
-            replycontentview.setShowingLine(3);
-            replycontentview.addShowMoreText("더보기");
-            replycontentview.addShowLessText("접기");
-            replycontentview.setShowMoreColor(Color.GRAY);
-            replycontentview.setShowLessTextColor(Color.GRAY);
+
 
 
             reply_reply.setOnClickListener(new View.OnClickListener() {

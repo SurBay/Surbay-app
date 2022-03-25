@@ -20,8 +20,8 @@ android {
         minSdkVersion 26
         targetSdkVersion 30
         //Should change
-        versionCode 47
-        versionName '3.0.9'
+        versionCode 51
+        versionName '3.0.13'
         multiDexEnabled true
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"

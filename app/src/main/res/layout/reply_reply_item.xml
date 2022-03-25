@@ -71,9 +71,7 @@
                 android:src="@drawable/menu" />
         </RelativeLayout>
 
-
-
-        <com.skyhope.showmoretextview.ShowMoreTextView
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
